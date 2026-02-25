@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Mode | QalamVerse</title>
+    <!-- Fonts for Reading -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Poppins:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=2.2">
+    <link rel="stylesheet" href="css/horror-theme.css">
+    <style>
+        .sidebar-close-btn {
+            display: none;
+        }
+
+        /* Hide on desktop default */
+        /* INLINE CSS FOR READING MODE SPECIFICS (To be moved to style.css if preferred later, but isolated for now) */
+
+        body.reading-mode {
+            background-color: var(--bg-paper, #fdfbf7);
+            /* Default paper color */
+            color: var(--text-ink, #333);
+            font-family: 'Merriweather', serif;
+            line-height: 1.8;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.reading-mode.dark-theme {
+            --bg-paper: #1a1a1a;
+            --text-ink: #e0e0e0;
+        }
+
+        /* Sticky Reading Header */
+        .reader-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--bg-paper);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 15px 5%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease, background-color 0.3s;
+        }
+
+        .reader-header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .dark-theme .reader-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .reader-back {
+            text-decoration: none;
+            color: var(--text-ink);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .reader-title-sm {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            opacity: 0;
+            /* Hidden initially, shows on scroll */
+            transition: opacity 0.3s;
+        }
+
+        .reader-title-sm.visible {
+            opacity: 1;
+        }
+
+        .reader-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .reader-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-ink);
+            font-size: 1.1rem;
+            padding: 5px;
+            transition: opacity 0.2s;
+        }
+
+        .reader-btn:hover {
+            opacity: 0.7;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: transparent;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #d4af37;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* GRID LAYOUT FOR TOC + CONTENT */
+        .reader-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            max-width: 1100px;
+            margin: 120px auto 100px;
+            padding: 0 20px;
+            gap: 60px;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+            /* Smooth layout shift */
+        }
+
+        /* Desktop Toggle States */
+        .reader-grid.sidebar-closed {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .reader-grid.sidebar-closed .chapter-sidebar {
+            display: none;
+        }
+
+        .reader-grid.sidebar-closed .reader-main-col {
+            margin: 0 auto;
+            max-width: 800px;
+            /* Centered Reading View */
+        }
+
+        /* SIDEBAR TOC */
+        .chapter-sidebar {
+            position: sticky;
+            top: 120px;
+            height: calc(100vh - 150px);
+            overflow-y: auto;
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+            padding-right: 20px;
+        }
+
+        .dark-theme .chapter-sidebar {
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .toc-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            margin-bottom: 12px;
+        }
+
+        .toc-link {
+            text-decoration: none;
+            color: var(--text-ink);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            transition: all 0.2s;
+            display: block;
+            padding: 5px 0;
+        }
+
+        .toc-link:hover,
+        .toc-link.active {
+            opacity: 1;
+            color: #d4af37;
+            padding-left: 5px;
+            border-left: 2px solid #d4af37;
+        }
+
+        /* MAIN COLUMN */
+        .reader-main-col {
+            max-width: 740px;
+            /* Keep text column optimized for reading */
+            margin: 0 auto;
+            /* Center in the remaining space if needed */
+        }
+
+        .reader-hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .article-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--text-ink);
+            line-height: 1.2;
+        }
+
+        .article-meta {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            color: #888;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .category-badge {
+            background: #d4af37;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        /* Article Content Stlying */
+        .article-content {
+            font-size: 1.15rem;
+            /* 18px approx */
+        }
+
+        .article-content p {
+            margin-bottom: 1.6em;
+            opacity: 0;
+            /* For fade-in effect */
+            animation: fadeInUp 0.8s forwards;
+        }
+
+        .article-content h2.chapter-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-top: 2.5em;
+            margin-bottom: 1em;
+            color: var(--text-ink);
+            text-align: center;
+            position: relative;
+        }
+
+        .article-content h2.chapter-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 2px;
+            background: #d4af37;
+            margin: 15px auto 0;
+        }
+
+        .quote-block {
+            border-left: 3px solid #d4af37;
+            padding-left: 20px;
+            margin: 2em 0;
+            font-style: italic;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .dark-theme .quote-block {
+            color: #aaa;
+        }
+
+        .scene-break {
+            text-align: center;
+            margin: 3em 0;
+            font-size: 1.5rem;
+            color: #d4af37;
+            letter-spacing: 5px;
+        }
+
+        /* Footer */
+        .reader-footer {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-theme .reader-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .end-mark {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Settings Menu */
+        .settings-menu {
+            position: absolute;
+            top: 60px;
+            right: 5%;
+            background: var(--bg-paper);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            width: 200px;
+            display: none;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .settings-menu.active {
+            display: block;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .setting-label {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .font-btn {
+            background: #eee;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .theme-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        /* RESPONSIVE */
+        /* GLOBAL: ENFORCE MOBILE DROPDOWN HIDDEN DEFAULT */
+        .mobile-chapter-dropdown {
+            display: none !important;
+        }
+
+        @media (max-width: 900px) {
+            .reader-grid {
+                display: block;
+                margin-top: 50px;
+                /* Reduced top margin for mobile */
+                padding: 0 15px;
+            }
+
+            /* Enable Flex for mobile */
+            .mobile-chapter-dropdown.active {
+                display: flex !important;
+            }
+
+            .mobile-toc-toggle {
+                /* We are moving this button in JS, but keeping style here */
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                background: #d4af37;
+                color: #fff;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                border: none;
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            /* Close Button for Sidebar */
+            .sidebar-close-btn {
+                position: absolute;
+                top: 40px;
+                /* Lower down */
+                right: 25px;
+                background: rgba(0, 0, 0, 0.5);
+                /* Semi-transparent bg for visibility */
+                border: 2px solid #d4af37;
+                border-radius: 50%;
+                width: 48px;
+                /* Larger touch target */
+                height: 48px;
+                color: #fff;
+                font-size: 1.4rem;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+                z-index: 1200;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            }
+
+            .sidebar-close-btn:hover {
+                background: #d4af37;
+                color: #000;
+                transform: scale(1.1);
+            }
+
+            .chapter-sidebar {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 85%;
+                max-width: 320px;
+                /* Limit width on tablets */
+                background: #000;
+                color: #fff;
+                z-index: 1100;
+                padding: 140px 25px 40px;
+                /* Deep padding to push content down */
+                box-shadow: 5px 0 25px rgba(0, 0, 0, 0.9);
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+                border-right: 1px solid #222;
+                overflow-y: auto;
+            }
+
+            .chapter-sidebar.active {
+                transform: translateX(0);
+            }
+
+            .chapter-sidebar .toc-title {
+                color: #d4af37;
+                font-size: 1.4rem;
+                font-family: 'Playfair Display', serif;
+                margin-bottom: 25px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 15px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+            }
+
+            .chapter-sidebar .toc-link {
+                color: #ccc;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding: 18px 10px;
+                font-size: 1.1rem;
+                display: block;
+                transition: all 0.2s;
+            }
+
+            .chapter-sidebar .toc-link:hover,
+            .chapter-sidebar .toc-link.active {
+                color: #000;
+                background: #d4af37;
+                padding-left: 25px;
+                font-weight: 600;
+                border-radius: 4px;
+            }
+
+            /* Overlay */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1050;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .reader-main-col {
+                max-width: 100%;
+            }
+        }
+
+        /* --- MOBILE-SPECIFIC --- */
+        @media (max-width: 900px) {
+
+            .chapter-sidebar,
+            .sidebar-overlay {
+                display: none !important;
+                /* Hide Sidebar on Mobile */
+            }
+
+            .reader-grid {
+                display: block;
+                padding: 0 15px;
+            }
+
+            .reader-main-col {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+
+            /* Mobile Chapter Dropdown */
+            .mobile-chapter-dropdown {
+                display: none;
+                /* Hidden by default */
+                position: absolute;
+                top: 100%;
+                /* Below the button */
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90%;
+                max-width: 350px;
+                background: #1a1a1a;
+                border: 1px solid #d4af37;
+                border-radius: 8px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+                z-index: 2000;
+                padding: 15px 0;
+                flex-direction: column;
+                max-height: 60vh;
+                overflow-y: auto;
+            }
+
+            .mobile-chapter-dropdown.active {
+                display: flex;
+            }
+
+            .mobile-chapter-dropdown .toc-link {
+                display: block;
+                padding: 12px 20px;
+                color: #fff;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                text-align: center;
+                font-family: 'Poppins', sans-serif;
+            }
+
+            .mobile-chapter-dropdown .toc-link:hover,
+            .mobile-chapter-dropdown .toc-link.active {
+                background: #d4af37;
+                color: #000;
+                font-weight: 600;
+            }
+
+            /* Ensure toggle is visible */
+            .mobile-toc-toggle {
+                display: inline-flex !important;
+            }
+        }
+
+        /* Rating & Review Styles */
+        .rating-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .star-rating {
+            font-size: 2rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star-rating.active {
+            color: red;
+            /* User requested Red */
+        }
+
+        .review-section {
+            margin-top: 40px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 30px;
+        }
+
+        .dark-theme .review-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .review-form textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 10px;
+            background: transparent;
+            color: inherit;
+        }
+
+        .review-list {
+            margin-top: 30px;
+            list-style: none;
+        }
+
+        .review-item {
+            background: rgba(0, 0, 0, 0.02);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .dark-theme .review-item {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* COPY PROTECTION */
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input,
+        textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+    </style>
+</head>
+
+<body class="reading-mode">
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('You must be logged in to read stories.');
+            window.location.href = 'login.html';
+        }
+    </script>
+    <!-- Horror Background Elements -->
+    <div class="horror-elements">
+        <div class="fog-layer"></div>
+        <div class="fog-layer two"></div>
+        <div class="fog-layer three"></div>
+    </div>
+
+    <!-- Overlay for Mobile Sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Sticky Header -->
+    <header class="reader-header" id="reader-header">
+        <a href="#" onclick="history.back()" class="reader-back">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+
+        <span class="reader-title-sm" id="header-story-title">Story Title</span>
+
+        <div class="reader-actions">
+            <!-- Mobile TOC Toggle Removed (User request) -->
+            <button class="reader-btn" id="settings-toggle"><i class="fas fa-font"></i></button>
+            <button class="reader-btn" id="theme-toggle"><i class="fas fa-moon"></i></button>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <!-- Typography Settings Dropdown -->
+        <div class="settings-menu" id="settings-menu">
+            <div class="setting-row">
+                <span class="setting-label">Size</span>
+                <div>
+                    <button class="font-btn" onclick="adjustFontSize(-1)">-</button>
+                    <button class="font-btn" onclick="adjustFontSize(1)">+</button>
+                </div>
+            </div>
+            <!-- More settings can go here -->
+            <div class="setting-row" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                <span class="setting-label">Horror Mode</span>
+                <button class="reader-btn" id="horror-toggle" title="Toggle Horror Atmosphere">
+                    <i class="fas fa-ghost"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Grid Layout -->
+    <div class="reader-grid">
+        <!-- Sidebar TOC -->
+        <aside class="chapter-sidebar" id="chapter-sidebar">
+            <button class="sidebar-close-btn" id="sidebar-close" aria-label="Close Menu">
+                <i class="fas fa-times"></i>
+            </button>
+            <h4 class="toc-title">Guide</h4>
+            <ul class="toc-list" id="toc-list">
+                <!-- Generated by JS -->
+            </ul>
+        </aside>
+
+        <!-- Main Reading Content -->
+        <main class="reader-main-col">
+
+            <section class="reader-hero" id="hero-section">
+                <span class="category-badge" id="hero-category">Category</span>
+                <h1 class="article-title" id="hero-title">Loading Story...</h1>
+                <div class="article-meta">
+                    <span id="hero-author">Author Name</span>
+                    <span>•</span>
+                    <span id="hero-date">Date</span>
+                    <span>•</span>
+                    <span id="hero-time">Read Time</span>
+                </div>
+            </section>
+
+            <article class="article-content" id="article-content">
+                <!-- Content Injected Here -->
+            </article>
+
+            <footer class="reader-footer">
+                <p class="end-mark">The End</p>
+                <div style="margin-top: 20px;">
+                    <p style="font-family:'Poppins',sans-serif; font-size: 0.9rem; color:#888;">Did you enjoy this
+                        story?
+                    </p>
+                    <button class="reader-btn" style="font-size:1.5rem; margin-top:10px;"><i
+                            class="far fa-heart"></i></button>
+                </div>
+            </footer>
+
+        </main>
+    </div>
+
+    <script src="js/stories-data.js"></script>
+    <!-- Main Reader Logic -->
+    <script src="js/reader.js?v=13.91"></script>
+    <script>
+        // ================= COPY PROTECTION =================
+        (function () {
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
+            document.addEventListener('keydown', (e) => {
+                if (
+                    (e.ctrlKey && (e.key === 'c' || e.key === 'C')) ||
+                    (e.ctrlKey && (e.key === 'u' || e.key === 'U')) ||
+                    (e.ctrlKey && (e.key === 's' || e.key === 'S')) ||
+                    (e.ctrlKey && (e.key === 'p' || e.key === 'P')) ||
+                    e.key === 'F12' ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i'))
+                ) {
+                    e.preventDefault();
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

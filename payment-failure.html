@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed - QalamVerse</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=2.2">
+    <style>
+        .failure-wrapper {
+            min-height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin-top: 80px;
+        }
+
+        .failure-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-radius: 20px;
+            padding: 50px 30px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            font-size: 2.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            border: 1px solid rgba(231, 76, 60, 0.5);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #aaa;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn-retry {
+            background: linear-gradient(135deg, #d4af37, #aa771c);
+            color: #000;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .secondary-link {
+            display: block;
+            margin-top: 20px;
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header scrolled">
+        <div class="nav-container">
+            <a href="index.html" class="logo">QalamVerse</a>
+        </div>
+    </header>
+
+    <div class="failure-wrapper">
+        <div class="failure-card">
+            <div class="icon-box">
+                <i class="fas fa-times"></i>
+            </div>
+            <h1>Payment Failed</h1>
+            <p>We couldn't process your payment. This could be due to incorrect details, insufficient funds, or a
+                temporary issue with your bank.</p>
+            <a href="books.html" class="btn-retry">Try Again</a>
+            <a href="contact.html" class="secondary-link">Need Help? Contact Support</a>
+        </div>
+    </div>
+</body>
+
+</html>

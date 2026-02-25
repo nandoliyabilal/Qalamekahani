@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stories | QalamVerse</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=2.2">
+    <style>
+        .page-header {
+            padding: 180px 5% 60px;
+            text-align: center;
+            background: #0b0b0b;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: #d4af37;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .page-subtitle {
+            color: #888;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">QalamVerse</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="stories.html" class="active">Stories</a></li>
+                <li><a href="audio.html">Audio Stories</a></li>
+                <li><a href="books.html">Books</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <span id="auth-links"></span>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <h1 class="page-title">Stories</h1>
+        <p class="page-subtitle">Immerse yourself in a world of imagination. From spine-chilling horror to heart-warming
+            romance.</p>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="search-filter-container">
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search stories...">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+        <div id="category-filters" class="filter-buttons" style="flex-wrap: wrap; justify-content: center; gap: 10px;">
+            <!-- Dynamic Filters -->
+            <button class="filter-btn active" data-filter="all">All</button>
+        </div>
+    </div>
+
+    <!-- Latest Stories Section -->
+    <section class="latest-stories" style="padding-top: 20px;">
+        <div class="ls-container">
+            <div class="ls-grid">
+                <!-- Dynamic Content Container -->
+                <div id="stories-grid" style="display: contents;">
+                    <div style="grid-column: 1/-1; text-align: center; color: white; padding: 50px;">
+                        <i class="fas fa-spinner fa-spin fa-3x"></i>
+                        <p style="margin-top: 15px;">Loading Stories...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <h3 class="footer-brand">Sabirkhan Pathan</h3>
+                <p class="footer-tagline">Weaving stories that touch your soul.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link"
+                        target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i
+                            class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-col links-col">
+                <h4 class="footer-heading">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="stories.html">Stories</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col newsletter-col">
+                <h4 class="footer-heading">Stay Updated</h4>
+                <p class="newsletter-text">Subscribe to get the latest stories.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your Email" class="newsletter-input" required>
+                    <button type="submit" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const storiesGrid = document.getElementById('stories-grid');
+            const searchInput = document.getElementById('searchInput'); // Or .search-input
+            const filterContainer = document.getElementById('category-filters');
+            const API_URL = '/api/stories';
+            const SETTINGS_URL = '/api/settings';
+
+            let allStories = [];
+
+            // Fetch Settings for Categories
+            fetch(SETTINGS_URL)
+                .then(res => res.json())
+                .then(settings => {
+                    if (settings && settings.storyCategories) {
+                        const cats = Array.isArray(settings.storyCategories) ? settings.storyCategories : settings.storyCategories.split(',');
+                        // Clear existing except 'All'
+                        filterContainer.innerHTML = '<button class="filter-btn active" data-filter="all">All</button>';
+
+                        cats.forEach(cat => {
+                            const btn = document.createElement('button');
+                            btn.className = 'filter-btn';
+                            const cleanCat = cat.trim();
+                            btn.dataset.filter = cleanCat.toLowerCase();
+                            btn.textContent = cleanCat;
+                            filterContainer.appendChild(btn);
+                        });
+
+                        // Re-attach listeners or use delegation
+                        setupFilterListeners();
+                    }
+                })
+                .catch(err => console.error('Settings Error:', err));
+
+            // Fetch Stories
+            console.log('Fetching stories...');
+            fetch(API_URL)
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    console.log('Stories loaded:', data);
+                    allStories = data; // Store for filtering
+                    renderStories(allStories);
+                })
+                .catch(err => {
+                    console.error('Stories Error:', err);
+                    storiesGrid.innerHTML = `<div style="text-align:center; color:red; grid-column:1/-1; padding: 50px;">
+                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                        <p style="margin-top:10px;">Failed to load stories.</p>
+                        <small>${err.message}</small>
+                    </div>`;
+                });
+
+            // Filter & Search Logic
+            function setupFilterListeners() {
+                const buttons = filterContainer.querySelectorAll('.filter-btn');
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Active state
+                        buttons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+
+                        const filter = btn.dataset.filter;
+                        filterStories(filter, searchInput.value);
+                    });
+                });
+            }
+
+            // Search Input Listener
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const activeBtn = filterContainer.querySelector('.filter-btn.active');
+                    const filter = activeBtn ? activeBtn.dataset.filter : 'all';
+                    filterStories(filter, e.target.value);
+                });
+            }
+
+            function filterStories(category, query) {
+                const q = query.toLowerCase();
+                const filtered = allStories.filter(story => {
+                    const matchesCategory = category === 'all' || (story.category && story.category.toLowerCase() === category);
+                    const matchesSearch = !q || (story.title && story.title.toLowerCase().includes(q)) || (story.description && story.description.toLowerCase().includes(q));
+                    return matchesCategory && matchesSearch;
+                });
+                renderStories(filtered);
+            }
+
+            function renderStories(data) {
+                if (!data || data.length === 0) {
+                    storiesGrid.innerHTML = '<div style="text-align:center; color:#ccc; grid-column:1/-1; padding: 50px;">No stories found matching criteria.</div>';
+                    return;
+                }
+
+                // Sort by date (newest first)
+                // Cloning to avoid mutating original if needed, though sort mutates
+                const sorted = [...data].sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date));
+
+                storiesGrid.innerHTML = sorted.map(story => {
+                    // Image Handling
+                    let imgUrl = story.image || 'images/story-default.png';
+                    if (story.image && !story.image.startsWith('http')) {
+                        imgUrl = story.image.replace(/\\/g, '/');
+                    }
+
+                    // Date Handling
+                    let dateStr = 'Recently';
+                    try {
+                        const d = new Date(story.created_at || story.date);
+                        if (!isNaN(d)) dateStr = d.toLocaleDateString();
+                    } catch (e) { }
+
+                    // Price Logic
+                    const price = parseFloat(story.price || 0);
+                    const discount = parseFloat(story.discount || 0);
+                    const isFree = price === 0;
+
+                    let badgeHtml = '';
+                    if (isFree) {
+                        badgeHtml = '<span class="card-badge" style="background: rgba(46, 204, 113, 0.9); color: #fff;">FREE</span>';
+                    } else {
+                        // Premium Badge
+                        badgeHtml = '<span class="card-badge" style="background: rgba(212, 175, 55, 0.9); color: #000;"><i class="fas fa-crown"></i> Premium</span>';
+                    }
+
+                    // Button Logic
+                    let btnText = isFree ? 'Read Story' : `Unlock for ₹${price}`;
+                    if (!isFree && discount > 0) {
+                        const discountedPrice = Math.round(price - (price * discount / 100));
+                        btnText = `Unlock for ₹${discountedPrice} <small style="text-decoration:line-through; color:#aaa; margin-left:5px;">₹${price}</small>`;
+                    }
+
+                    // Link Logic - If free, go to detail. If paid, go to detail (detail page handles paywall)
+                    // The user said "jo price select hui ho to price user ko pay karni hi padegi"
+                    // We will send everyone to story-detail.html, but handle the lock there.
+
+                    return `
+                        <article class="story-card filter-item">
+                            <div class="card-image-wrapper">
+                                <img src="${imgUrl}" onerror="this.src='https://placehold.co/600x400/222/FFF?text=No+Image'" alt="${story.title}" class="card-image">
+                                <div class="badge-container">
+                                    <span class="card-badge badge-${story.category ? story.category.toLowerCase() : 'other'}">${story.category || 'Story'}</span>
+                                    <span class="card-badge badge-lang" style="background: rgba(0,0,0,0.7); color: #fff; margin-left: 5px;">${story.language || 'Hindi'}</span>
+                                    ${badgeHtml} 
+                                </div>
+                                <div class="image-overlay"></div>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">${story.title}</h3>
+                                <p class="card-desc">${story.summary || story.synopsis || story.description || ''}</p>
+                                <div class="card-meta">
+                                    <span><i class="fas fa-calendar-alt"></i> ${dateStr}</span>
+                                </div>
+                                <a href="story-detail.html?id=${story.slug || story.id || story._id}" class="card-btn">${btnText}</a>
+                            </div>
+                        </article>
+                        `;
+                }).join('');
+            }
+        });
+    </script>
+    <script src="js/global-horror.js"></script>
+</body>
+
+</html>

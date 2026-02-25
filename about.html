@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Sabir Khan | QalamVerse</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&family=Cinzel:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=2.2">
+    <style>
+        :root {
+            --horror-black: #050505;
+            --horror-dark: #0a0a0a;
+            --horror-accent: #d4af37;
+            /* Gold */
+            --horror-text: #e0e0e0;
+        }
+
+        body {
+            background-color: var(--horror-black) !important;
+            color: var(--horror-text);
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- Page Header --- */
+        .page-header {
+            padding: 220px 5% 80px;
+            text-align: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .page-title {
+            font-family: 'Cinzel', serif;
+            font-size: 4rem;
+            color: var(--horror-accent);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            animation: fadeInDown 1s ease;
+            letter-spacing: 2px;
+        }
+
+        .page-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            color: #888;
+            max-width: 700px;
+            margin: 0 auto;
+            animation: fadeInUp 1s ease 0.3s backwards;
+        }
+
+        /* --- About Section --- */
+        .about-section {
+            padding: 80px 5%;
+            background: var(--horror-black);
+            position: relative;
+        }
+
+        .about-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            /* Fixed width for image column */
+            gap: 80px;
+            align-items: center;
+        }
+
+        /* --- Circular Image --- */
+        .about-image-wrapper {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 0 15px rgba(212, 175, 55, 0.2);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            animation: float 6s ease-in-out infinite;
+            margin: 0 auto;
+            /* Center in its column */
+        }
+
+        .author-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+            filter: grayscale(20%) contrast(110%);
+        }
+
+        .about-image-wrapper:hover .author-img {
+            transform: scale(1.1);
+            filter: grayscale(0%) contrast(100%);
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 992px) {
+            .page-title {
+                font-size: 3rem;
+            }
+
+            .about-container {
+                grid-template-columns: 1fr;
+                /* Stack vertically */
+                gap: 50px;
+                text-align: center;
+            }
+
+            .about-image-wrapper {
+                width: 300px;
+                height: 300px;
+                /* Smaller image on tablet */
+                margin: 0 auto;
+            }
+
+            .about-text {
+                padding-left: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header {
+                padding: 120px 5% 50px;
+            }
+
+            .page-title {
+                font-size: 2.2rem;
+                /* Smaller title */
+                margin-bottom: 10px;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .about-section {
+                padding: 50px 5%;
+            }
+
+            .about-image-wrapper {
+                width: 250px;
+                height: 250px;
+                /* Smaller image on mobile */
+            }
+        }
+
+        /* --- Biography --- */
+        .bio-content {
+            animation: fadeInUp 1s ease 0.2s backwards;
+        }
+
+        .bio-heading {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--horror-accent);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .bio-text {
+            font-size: 1.1rem;
+            line-height: 1.9;
+            color: #ccc;
+            margin-bottom: 25px;
+            text-align: justify;
+        }
+
+        .bio-text strong {
+            color: var(--horror-accent);
+            font-weight: 500;
+        }
+
+        /* --- Book Section (Full Width below) --- */
+        .books-section {
+            max-width: 1100px;
+            margin: 80px auto 0;
+            text-align: center;
+            padding-top: 60px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            animation: fadeInUp 1s ease 0.4s backwards;
+        }
+
+        .books-heading {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--horror-accent);
+            margin-bottom: 40px;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .book-card {
+            background: linear-gradient(145deg, #111, #0a0a0a);
+            padding: 20px;
+            border: 1px solid #222;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--horror-accent);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .book-card::before {
+            content: '\f02d';
+            /* Book Icon */
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 4rem;
+            color: rgba(255, 255, 255, 0.03);
+            transform: rotate(-20deg);
+        }
+
+        .book-title {
+            color: #fff;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .book-lang {
+            color: #888;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 960px) {
+            .about-container {
+                grid-template-columns: 1fr;
+                gap: 50px;
+                text-align: center;
+            }
+
+            .about-image-wrapper {
+                width: 280px;
+                height: 280px;
+            }
+
+            .bio-text {
+                text-align: left;
+                /* Keep readable text alignment on mobile */
+            }
+
+            .page-title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">QalamVerse</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="stories.html">Stories</a></li>
+                <li><a href="audio.html">Audio Stories</a></li>
+                <li><a href="books.html">Books</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <span id="auth-links"></span>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <h1 class="page-title">Sabirkhan Pathan</h1>
+        <p class="page-subtitle">Master of Horror & The Supernatural</p>
+    </div>
+
+    <section class="about-section">
+        <div class="about-container">
+            <!-- Left: Circular Image -->
+            <div class="about-image-wrapper">
+                <img id="author-image" src="images/author.png" alt="Sabirkhan Pathan" class="author-img"
+                    onerror="this.src='https://via.placeholder.com/400x400/111/d4af37?text=Author'">
+            </div>
+
+            <!-- Right: Bio -->
+            <div class="bio-content">
+                <h2 class="bio-heading">The Author</h2>
+                <div class="bio-text" id="author-bio">
+                    <p>Loading biography...</p>
+                </div>
+
+                <div class="social-icons" style="justify-content: flex-start; margin-top: 30px;">
+                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i
+                            class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books Section formatted nicely -->
+        <div class="books-section">
+            <h3 class="books-heading" id="published-works-title">Published Works</h3>
+            <div class="book-grid" id="published-works-grid">
+                <p style="grid-column: 1/-1; text-align: center;">Loading books...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Script to Fetch Data -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Fetch Author Settings
+            try {
+                const res = await fetch('/api/settings');
+                if (res.ok) {
+                    const settings = await res.json();
+
+                    if (settings.aboutImage) {
+                        document.getElementById('author-image').src = settings.aboutImage;
+                    }
+
+                    if (settings.aboutLong || settings.aboutText) {
+                        const content = settings.aboutLong || settings.aboutText;
+                        // Split by newlines and wrap in <p>
+                        const html = content.split('\n')
+                            .filter(line => line.trim() !== '')
+                            .map(line => `<p>${line}</p>`)
+                            .join('');
+                        document.getElementById('author-bio').innerHTML = html;
+                    } else {
+                        document.getElementById('author-bio').innerHTML = '<p>No biography available.</p>';
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching settings:', err);
+                document.getElementById('author-bio').innerHTML = '<p>Failed to load biography.</p>';
+            }
+
+            // 2. Fetch Published Books
+            try {
+                const res = await fetch('/api/books');
+                if (res.ok) {
+                    let books = await res.json();
+                    const grid = document.getElementById('published-works-grid');
+
+                    if (books && books.length > 0) {
+                        // Sort by date desc if needed
+                        // books.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+                        grid.innerHTML = books.map(book => `
+                            <div class="book-card" onclick="window.location.href='book-detail.html?id=${book.id}'" style="cursor:pointer">
+                                <h4 class="book-title">${book.title}</h4>
+                                <span class="book-lang">${book.language || 'Hindi / Gujarati'}</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No published works found.</p>';
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching books:', err);
+                document.getElementById('published-works-grid').innerHTML = '<p style="color:red; text-align:center;">Error loading books.</p>';
+            }
+        });
+    </script>
+
+    <!-- Footer Section -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <h3 class="footer-brand">Sabirkhan Pathan</h3>
+                <p class="footer-tagline">Weaving stories that touch your soul.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link"
+                        target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i
+                            class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-col links-col">
+                <h4 class="footer-heading">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="stories.html">Stories</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col newsletter-col">
+                <h4 class="footer-heading">Stay Updated</h4>
+                <p class="newsletter-text">Subscribe to get the latest stories.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your Email" class="newsletter-input" required>
+                    <button type="submit" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/global-horror.js"></script>
+</body>
+
+</html>

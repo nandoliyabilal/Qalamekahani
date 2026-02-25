@@ -1,0 +1,139 @@
+/* Horror / Ghost Theme - PURE BLACK (NO ANIMATION) */
+
+/* 1. HIDE ALL ANIMATED LAYERS */
+.horror-bg-layer,
+.video-ghost,
+.cinema-overlay,
+.lightning-flash,
+.spider-web,
+.fog-layer,
+.blood-drip-container {
+    display: none !important;
+}
+
+body.horror-mode .horror-bg-layer {
+    display: none !important;
+}
+
+/* 2. BODY OVERRIDES - SOLID BLACK */
+body.horror-mode {
+    background: #000 !important;
+    background-color: #000 !important;
+    color: #ccc !important;
+    overflow-x: hidden;
+    background-image: none !important;
+}
+
+/* 3. HIDE FLOATING BUTTONS */
+body.horror-mode #global-horror-toggle {
+    display: none !important;
+}
+
+body.horror-mode .cart-float-icon {
+    display: none !important;
+}
+
+/* 4. UI ELEMENTS - DARK STYLE */
+body.horror-mode .reader-header,
+body.horror-mode .book-card,
+body.horror-mode .story-card,
+body.horror-mode .audio-card,
+body.horror-mode .site-footer,
+body.horror-mode .hero-section {
+    background: #111 !important;
+    /* Solid dark */
+    border: 1px solid #333 !important;
+    box-shadow: none !important;
+    z-index: 2;
+    position: relative;
+}
+
+body.horror-mode .page-header {
+    background: #000 !important;
+    border: none !important;
+    box-shadow: none !important;
+    z-index: 2;
+    position: relative;
+}
+
+/* 5. SEARCH BAR VISIBILITY (STORIES & BOOKS) - CRITICAL FIX */
+
+/* FIX: Reset margin to prevent overlap with header */
+body.horror-mode .book-search-container {
+    margin-top: 20px !important;
+    position: relative;
+    z-index: 5;
+}
+
+/* Force the container to have a border and background */
+body.horror-mode .search-box,
+body.horror-mode .book-search-box {
+    background: #1a1a1a !important;
+    /* Solid Dark Grey */
+    border: 2px solid #333 !important;
+    /* Visible Border */
+    box-shadow: none !important;
+    border-radius: 50px;
+    opacity: 1 !important;
+    height: 60px !important;
+    /* TALLER FIXED HEIGHT */
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+    overflow: hidden !important;
+    /* Contain content */
+}
+
+/* Force the INPUT to be visible, white text, and auto height */
+body.horror-mode .search-input,
+body.horror-mode .book-search-input {
+    color: #ffffff !important;
+    /* BRIGHT WHITE TEXT */
+    background: transparent !important;
+    border: none !important;
+    opacity: 1 !important;
+    height: 100% !important;
+    /* Full fill */
+    padding: 0 50px 0 25px !important;
+    /* NO VERTICAL PADDING to avoid clip */
+    margin: 0 !important;
+    width: 100% !important;
+    font-size: 1.1rem !important;
+    /* Slightly larger text */
+    line-height: 60px !important;
+    /* match container height for centering */
+}
+
+body.horror-mode .search-input::placeholder,
+body.horror-mode .book-search-input::placeholder {
+    color: #888888 !important;
+    /* Visible Placeholder */
+    opacity: 1 !important;
+    line-height: normal !important;
+    /* Reset for placeholder */
+    vertical-align: middle !important;
+}
+
+body.horror-mode .search-icon,
+body.horror-mode .book-search-icon {
+    color: #888888 !important;
+    z-index: 10;
+    position: absolute !important;
+    right: 25px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+
+/* 6. TYPOGRAPHY - CREEPSTER TITLES */
+body.horror-mode h1,
+body.horror-mode .page-title,
+body.horror-mode .hero-title {
+    font-family: 'Creepster', cursive !important;
+    color: #d4af37 !important;
+    /* Gold/Yellow for visibility against black */
+    text-shadow: none !important;
+    animation: none !important;
+    /* Disable pulsing */
+    opacity: 1 !important;
+    /* FORCE VISIBILITY */
+}

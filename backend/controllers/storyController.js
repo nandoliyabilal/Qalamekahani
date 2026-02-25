@@ -1,0 +1,260 @@
+const asyncHandler = require('express-async-handler');
+const supabase = require('../config/supabase');
+
+// @desc    Get all stories
+// @route   GET /api/stories
+// @access  Public
+const getStories = asyncHandler(async (req, res) => {
+    const { data, error } = await supabase
+        .from('stories')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        res.status(500);
+        throw new Error(error.message);
+    }
+
+    res.status(200).json(data);
+});
+
+// @desc    Get single story
+// @route   GET /api/stories/:slug
+// @access  Public
+// @desc    Get single story
+// @route   GET /api/stories/:slug
+// @access  Public
+const getStory = asyncHandler(async (req, res) => {
+    const input = req.params.slug;
+
+    // Check if input is a valid UUID
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input);
+
+    let query = supabase.from('stories').select('*');
+
+    if (isUUID) {
+        query = query.eq('id', input);
+    } else {
+        query = query.eq('slug', input);
+    }
+
+    const { data, error } = await query.single();
+
+    if (error || !data) {
+        // Double check: If slug failed but maybe it was passed as ID format in URL by mistake?
+        // Actually, let's keep it simple. If not found, 404.
+        res.status(404);
+        throw new Error('Story not found');
+    }
+
+    // Increment views (Safe approach)
+    // We ignore errors here so it doesn't block the response
+    supabase.rpc('increment_story_views', { row_id: data.id }).then(({ error }) => {
+        if (error) {
+            // Fallback if RPC doesn't exist
+            supabase.from('stories')
+                .update({ views: (data.views || 0) + 1 })
+                .eq('id', data.id)
+                .then(() => { });
+        }
+    });
+
+    // Clone data to ensure mutability
+    let storyData = { ...data };
+
+    // Determine valid identifiers for reviews
+    const identifiers = [storyData.id];
+    if (storyData.slug) identifiers.push(storyData.slug);
+    if (!isUUID) identifiers.push(input); // Add the URL param if it's a slug
+
+    // Fetch reviews from Supabase
+    const { data: reviews, error: reviewError } = await supabase
+        .from('reviews')
+        .select('*')
+        .in('item_id', identifiers)
+        .eq('item_type', 'story')
+        .eq('status', 'approved');
+
+    let averageRating = 0;
+    let reviewCount = 0;
+
+    if (reviews && reviews.length > 0) {
+        reviewCount = reviews.length;
+        const total = reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
+        averageRating = (total / reviewCount).toFixed(1);
+    }
+
+    // Assign calculated values to response data
+    storyData.rating = averageRating;
+    storyData.reviewCount = reviewCount;
+
+    // Verify Access for Paid Stories
+    if (storyData.price && storyData.price > 0) {
+        let hasAccess = false;
+
+        // 1. Check Authorization Header
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            try {
+                const token = req.headers.authorization.split(' ')[1];
+                const jwt = require('jsonwebtoken'); // Require here or top level
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+                // 2. Check Orders
+                const { data: userData } = await supabase.from('users').select('email, role').eq('id', decoded.id).single();
+
+                if (userData) {
+                    if (userData.role === 'admin') {
+                        hasAccess = true;
+                    } else if (userData.email) {
+                        const { data: orderData } = await supabase
+                            .from('orders')
+                            .select('id')
+                            .eq('customer_email', userData.email)
+                            .eq('story_id', storyData.id)
+                            .eq('status', 'paid')
+                            .maybeSingle(); // Use maybeSingle to avoid error if no rows
+
+                        if (orderData) hasAccess = true;
+                    }
+                }
+            } catch (error) {
+                console.error("Token verification failed", error.message);
+            }
+        }
+
+        // 3. Obfuscate if no access
+        if (!hasAccess) {
+            // Keep only H2 tags for chapter listing
+            const content = storyData.content || '';
+            const matches = content.match(/<h2.*?>.*?<\/h2>/gi);
+            storyData.content = matches ? matches.join('\n') : '';
+            storyData.isLocked = true;
+        } else {
+            storyData.isLocked = false;
+        }
+    }
+
+    res.status(200).json(storyData);
+});
+
+const { sendEmailNotification } = require('../utils/notificationHelper');
+
+// @desc    Create new story
+// @route   POST /api/stories
+// @access  Private (Admin)
+const createStory = asyncHandler(async (req, res) => {
+    const { title, summary, fullContent, category, tags, coverImage, status, language, youtubeLink, price, discount } = req.body;
+
+    if (!title || !fullContent || !category) {
+        res.status(400);
+        throw new Error('Please include all required fields');
+    }
+
+    // Slug generation (improved for Hindi/Unicode)
+    let slug = title.toLowerCase()
+        .trim()
+        .replace(/[^\u0900-\u097F\w\s-]/g, '') // Keep Hindi range + \w + space + dash
+        .replace(/\s+/g, '-')                  // Spaces to dashes
+        .replace(/-+/g, '-');                  // Multiple dashes to single
+
+    // Fallback if slug is empty or just dashes
+    if (!slug || slug === '-' || slug === '--') {
+        slug = `story-${Date.now()}`;
+    }
+
+    const { data, error } = await supabase
+        .from('stories')
+        .insert([{
+            title,
+            slug,
+            summary,
+            content: fullContent,
+            category,
+            status,
+            language: language || 'Hindi', // Default
+            hashtags: tags,
+            image: coverImage,
+            youtube_link: youtubeLink,
+            price: price || 0,
+            discount: discount || 0,
+            author: 'Sabirkhan Pathan'
+        }])
+        .select()
+        .single();
+
+    if (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+
+    // Trigger Notification (Async - don't block response)
+    sendEmailNotification(data, 'story');
+
+    res.status(201).json(data);
+});
+
+// @desc    Update story
+// @route   PUT /api/stories/:id
+// @access  Private (Admin)
+const updateStory = asyncHandler(async (req, res) => {
+    const { title, summary, fullContent, category, tags, coverImage, status, language, youtubeLink, price, discount } = req.body;
+
+    const updates = {};
+    if (title) updates.title = title;
+    if (summary) updates.summary = summary;
+    if (fullContent) updates.content = fullContent;
+    if (category) updates.category = category;
+    if (language) updates.language = language;
+    if (tags) updates.hashtags = tags;
+    if (coverImage) updates.image = coverImage;
+    if (status) updates.status = status;
+    if (youtubeLink !== undefined) updates.youtube_link = youtubeLink;
+    if (price !== undefined && price !== '') updates.price = Number(price);
+    if (discount !== undefined && discount !== '') updates.discount = Number(discount);
+
+    const { data, error } = await supabase
+        .from('stories')
+        .update(updates)
+        .eq('id', req.params.id)
+        .select()
+        .single();
+
+    if (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+
+    res.status(200).json(data);
+});
+
+// @desc    Delete story
+// @route   DELETE /api/stories/:id
+// @access  Private (Admin)
+const deleteStory = asyncHandler(async (req, res) => {
+    // 1. Nullify references in orders to avoid FK block
+    await supabase.from('orders').update({ story_id: null }).eq('story_id', req.params.id);
+
+    // 2. Clear reviews related to this story (Optional but clean)
+    await supabase.from('reviews').delete().eq('item_id', req.params.id);
+
+    // 3. Delete the story
+    const { error } = await supabase
+        .from('stories')
+        .delete()
+        .eq('id', req.params.id);
+
+    if (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+
+    res.status(200).json({ id: req.params.id });
+});
+
+module.exports = {
+    getStories,
+    getStory,
+    createStory,
+    updateStory,
+    deleteStory
+};

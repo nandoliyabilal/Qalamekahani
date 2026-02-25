@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Details | QalamVerse</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        @media (max-width: 768px) {
+            .btn-read {
+                font-size: 0.85rem !important;
+                padding: 10px 20px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">QalamVerse</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="stories.html">Stories</a></li>
+                <li><a href="audio.html" class="active">Audio Stories</a></li>
+                <li><a href="books.html">Books</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <span id="auth-links"></span>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <div id="story-container">
+        <section class="story-hero">
+            <div class="story-hero-container">
+                <div class="story-back-row">
+                    <a href="audio.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Audio Stories</a>
+                </div>
+
+                <div class="story-visual">
+                    <div class="story-cover-wrapper">
+                        <img id="audio-image" src="" alt="Audio Cover" class="story-cover">
+                        <div class="story-badges">
+                            <span id="audio-cat-badge" class="badge badge-cat"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="story-info">
+                    <h1 id="audio-title" class="story-title">Loading...</h1>
+                    <h3 class="story-author">By <span id="audio-author" class="author-name"></span></h3>
+
+                    <div class="story-meta-grid">
+                        <div class="meta-item">
+                            <span class="meta-label">Category</span>
+                            <span id="meta-category" class="meta-value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Duration</span>
+                            <span id="meta-duration" class="meta-value"></span>
+                        </div>
+                    </div>
+
+                    <h4 class="meta-label" style="margin-bottom: 5px; color: #888;">Description</h4>
+                    <p id="audio-description" class="story-synopsis"></p>
+
+                    <div class="story-actions">
+                        <button id="action-btn" class="btn btn-primary btn-read"></button>
+                        <button class="btn-share" onclick="saveAudio()" aria-label="Save Audio" id="save-btn"
+                            style="background:#333; color:#aaa;">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                        <button class="btn-share" onclick="shareAudio()" aria-label="Share Audio">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <h3 class="footer-brand">Sabirkhan Pathan</h3>
+                <p class="footer-tagline">Weaving stories that touch your soul.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link"
+                        target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i
+                            class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-col links-col">
+                <h4 class="footer-heading">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="stories.html">Stories</a></li>
+                    <li><a href="audio.html">Audio Stories</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col newsletter-col">
+                <h4 class="footer-heading">Stay Updated</h4>
+                <p class="newsletter-text">Subscribe to get the latest stories.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your Email" class="newsletter-input" required>
+                    <button type="submit" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const audioId = params.get('id');
+
+            if (!audioId) {
+                showNotFound();
+                return;
+            }
+
+            try {
+                // Debug log
+                console.log(`Fetching audio details for ID: ${audioId}`);
+
+                const res = await fetch(`/api/audio/${audioId}`);
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    let errMsg = `Server Error: ${res.status}`;
+                    try {
+                        const json = JSON.parse(text);
+                        if (json.message) errMsg += ` - ${json.message}`;
+                    } catch (e) {
+                        errMsg += ` - ${text.substring(0, 50)}`;
+                    }
+                    throw new Error(errMsg);
+                }
+
+                const audio = await res.json();
+
+                if (!audio) throw new Error('Empty response from server');
+
+                // Populate Page
+                document.title = `${audio.title} | QalamVerse`;
+                document.getElementById('audio-title').textContent = audio.title;
+                document.getElementById('audio-author').textContent = audio.author || 'Sabirkhan Pathan';
+
+                // Canonical ID for operations
+                const canonicalId = audio.id || audio._id;
+                window.currentAudioId = canonicalId;
+
+                const img = document.getElementById('audio-image');
+                img.src = audio.image || 'images/audio-cover.png';
+                img.onerror = () => { img.src = 'https://placehold.co/600x400/222/FFF?text=No+Cover'; };
+
+                document.getElementById('audio-cat-badge').textContent = audio.category || 'Audio';
+                document.getElementById('meta-category').textContent = audio.category || 'General';
+                document.getElementById('meta-duration').textContent = audio.duration || 'Unknown';
+                document.getElementById('audio-description').textContent = audio.description || 'No description available for this audio story.';
+
+                // Access Logic
+                const price = parseFloat(audio.price || 0);
+                const discount = parseFloat(audio.discount || 0);
+                const isPremium = price > 0;
+
+                // Determine if user has already bought it
+                let hasAccess = !isPremium;
+                const token = localStorage.getItem('token');
+
+                if (isPremium && token) {
+                    try {
+                        const ordersRes = await fetch('/api/orders/mine', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (ordersRes.ok) {
+                            const myOrders = await ordersRes.json();
+                            // Check if we have an order for this audio ID
+                            const bought = myOrders.some(o => String(o.audio_id) === String(canonicalId));
+                            if (bought) hasAccess = true;
+                        }
+                    } catch (e) {
+                        console.error("Error checking orders:", e);
+                    }
+                }
+
+                const btn = document.getElementById('action-btn');
+
+                if (hasAccess) {
+                    btn.innerHTML = '<i class="fas fa-play"></i> Listen Now';
+                    btn.onclick = () => {
+                        window.location.href = `listen.html?id=${canonicalId}`;
+                    };
+                } else {
+                    let finalPrice = price;
+                    let displayPrice = `₹${price}`;
+
+                    if (discount > 0) {
+                        const discounted = Math.floor(price - (price * discount / 100));
+                        finalPrice = discounted;
+                        displayPrice = `₹${discounted} <span style="text-decoration:line-through; font-size:0.8em; opacity:0.7">₹${price}</span>`;
+                    }
+
+                    btn.innerHTML = `<i class="fas fa-lock"></i> Unlock for ${displayPrice}`;
+                    btn.classList.remove('btn-primary');
+                    btn.style.background = '#d4af37';
+                    btn.style.color = '#000';
+                    btn.onclick = () => {
+                        if (!token) {
+                            alert('Please login to purchase.');
+                            window.location.href = `login.html?redirect=audio-detail.html?id=${audioId}`;
+                            return;
+                        }
+                        window.location.href = `checkout.html?audioId=${canonicalId}`;
+                    };
+                }
+
+                // Check saved status
+                if (token) checkSavedStatus(canonicalId);
+
+            } catch (error) {
+                console.error(error);
+                showNotFound(error.message);
+            }
+        });
+
+        function showNotFound(msg = 'Sorry, the audio story you are looking for does not exist.') {
+            document.getElementById('story-container').innerHTML = `
+                <div style="text-align:center; padding: 100px 20px;">
+                    <h1>Audio Not Found</h1>
+                    <p style="color: #aaa; margin: 10px 0;">${msg}</p>
+                    <a href="audio.html" class="btn btn-primary" style="margin-top:20px;">Back to Audio Stories</a>
+                </div>
+            `;
+        }
+
+        async function shareAudio() {
+            const shareData = {
+                title: document.title,
+                text: `Listen to "${document.getElementById('audio-title').textContent}" on QalamVerse!`,
+                url: window.location.href
+            };
+            try {
+                if (navigator.share) await navigator.share(shareData);
+                else {
+                    await navigator.clipboard.writeText(window.location.href);
+                    alert('Link copied to clipboard!');
+                }
+            } catch (err) { console.error(err); }
+        }
+        // Check if saved
+        async function checkSavedStatus(canonicalId) {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                // Cache bust to ensure fresh data
+                const res = await fetch(`/api/auth/me?t=${Date.now()}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const user = await res.json();
+                    const isSaved = user.savedAudios && user.savedAudios.some(item => {
+                        const itemId = typeof item === 'object' ? (item.id || item._id) : item;
+                        return String(itemId) === String(canonicalId);
+                    });
+                    updateSaveBtn(isSaved);
+                }
+            } catch (e) { }
+        }
+
+        function updateSaveBtn(isSaved) {
+            const btn = document.getElementById('save-btn');
+            const icon = btn.querySelector('i');
+            if (isSaved) {
+                icon.className = 'fas fa-bookmark';
+                btn.style.color = '#d4af37';
+            } else {
+                icon.className = 'far fa-bookmark';
+                btn.style.color = '#aaa';
+            }
+        }
+
+        async function saveAudio() {
+            const audioId = window.currentAudioId;
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                alert('Please login to save audio.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/save-audio', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ audioId })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    const isSaved = data.savedAudios.some(s => String(s) === String(audioId));
+                    updateSaveBtn(isSaved);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+
+</html>

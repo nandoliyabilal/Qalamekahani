@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - QalamVerse</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=2.2">
+    <style>
+        .checkout-container {
+            max-width: 1000px;
+            margin: 150px auto 60px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 40px;
+        }
+
+        @media (max-width: 960px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+                margin-top: 100px;
+            }
+        }
+
+        .checkout-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #d4af37;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .form-control {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: #fff;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .order-summary {
+            position: sticky;
+            top: 100px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(0, 0, 0, 0.4));
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .book-preview {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .book-preview img {
+            width: 80px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .book-details h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .book-details p {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            color: #ccc;
+        }
+
+        .price-row.total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .total-amount {
+            color: #d4af37;
+        }
+
+        .pay-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #d4af37, #aa771c);
+            color: #000;
+            border: none;
+            padding: 15px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pay-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .pay-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .secure-badge {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            border-top-color: #d4af37;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header scrolled">
+        <div class="nav-container">
+            <a href="index.html" class="logo">QalamVerse</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="stories.html">Stories</a></li>
+                <li><a href="audio.html">Audio Stories</a></li>
+                <li><a href="books.html">Books</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <span id="auth-links"></span>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="checkout-container">
+        <div class="checkout-form-side">
+            <div class="checkout-section">
+                <h2 class="section-title"><i class="fas fa-user-circle"></i> Customer Information</h2>
+                <form id="checkout-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" class="form-control" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" placeholder="Enter your phone number"
+                            required>
+                    </div>
+                </form>
+            </div>
+
+            <div class="checkout-section" style="margin-top: 30px;">
+                <h2 class="section-title"><i class="fas fa-shield-alt"></i> Secure Payment</h2>
+                <p style="color: #aaa; font-size: 0.9rem;">By clicking "Complete Purchase", you will be redirected to
+                    our secure payment gateway (Razorpay) to complete your transaction safely.</p>
+            </div>
+        </div>
+
+        <div class="order-summary">
+            <div class="summary-card">
+                <h2 class="section-title" style="font-size: 1.4rem; margin-bottom: 20px;">Order Summary</h2>
+
+                <div id="book-preview-container">
+                    <!-- Loading state -->
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading item details...
+                    </div>
+                </div>
+
+                <div class="price-details">
+                    <div class="price-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal">₹0</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Platform Fee</span>
+                        <span>FREE</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total Amount</span>
+                        <span class="total-amount" id="total-amount">₹0</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <input type="checkbox" id="terms-check"
+                        style="accent-color: #d4af37; transform: scale(1.2); margin-right: 8px;">
+                    <label for="terms-check" style="color: #ccc; font-size: 0.9rem; cursor: pointer;">
+                        I agree to the <a href="terms.html" target="_blank"
+                            style="color: #d4af37; text-decoration: underline;">Terms & Conditions</a>
+                    </label>
+                </div>
+
+                <button type="submit" form="checkout-form" class="pay-btn" id="pay-button">
+                    Complete Purchase <i class="fas fa-arrow-right"></i>
+                </button>
+
+                <div class="secure-badge">
+                    <i class="fas fa-lock"></i> SSL Secure Checkout
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <!-- Column 1: Brand & Social -->
+            <div class="footer-col brand-col">
+                <h3 class="footer-brand">Sabirkhan Pathan</h3>
+                <p class="footer-tagline">Weaving stories that touch your soul.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link"
+                        target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i
+                            class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <!-- Column 2: Quick Links -->
+            <div class="footer-col links-col">
+                <h4 class="footer-heading">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="stories.html">Stories</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 3: Newsletter -->
+            <div class="footer-col newsletter-col">
+                <h4 class="footer-heading">Stay Updated</h4>
+                <p class="newsletter-text">Subscribe to get the latest stories.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your Email" class="newsletter-input" required>
+                    <button type="submit" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
+        </div>
+
+    </footer>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <p style="color: #d4af37; font-weight: 500;">Processing Order...</p>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        let selectedItem = null;
+        let itemType = null; // 'book' or 'story'
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookId = urlParams.get('bookId');
+            const storyId = urlParams.get('storyId');
+            const audioId = urlParams.get('audioId');
+
+            if (!bookId && !storyId && !audioId) {
+                alert('No item selected!');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                if (bookId) {
+                    itemType = 'book';
+                    const response = await fetch(`/api/books/${bookId}`);
+                    if (!response.ok) throw new Error('Book not found');
+                    selectedItem = await response.json();
+                } else if (storyId) {
+                    itemType = 'story';
+                    const response = await fetch(`/api/stories/${storyId}`);
+                    if (!response.ok) throw new Error('Story not found');
+                    selectedItem = await response.json();
+                } else if (audioId) {
+                    itemType = 'audio';
+                    const response = await fetch(`/api/audio/${audioId}`);
+                    if (!response.ok) throw new Error('Audio not found');
+                    selectedItem = await response.json();
+                }
+
+                renderSummary(selectedItem, itemType);
+
+                // Dynamic Navbar Highlight
+                const navLinks = document.querySelectorAll('.nav-links a');
+                navLinks.forEach(link => link.classList.remove('active'));
+                if (itemType === 'book') {
+                    const bookLink = document.querySelector('a[href="books.html"]');
+                    if (bookLink) bookLink.classList.add('active');
+                } else if (itemType === 'audio') {
+                    const audioLink = document.querySelector('a[href="audio.html"]');
+                    if (audioLink) audioLink.classList.add('active');
+                } else {
+                    const storyLink = document.querySelector('a[href="stories.html"]');
+                    if (storyLink) storyLink.classList.add('active');
+                }
+
+            } catch (error) {
+                console.error('Checkout Error:', error);
+                alert(`Error loading item details: ${error.message}`);
+            }
+
+            // Prefill user info if logged in
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                document.getElementById('name').value = user.name || '';
+                document.getElementById('email').value = user.email || '';
+            }
+        });
+
+        let finalAmount = 0;
+
+        function renderSummary(item, type) {
+            const container = document.getElementById('book-preview-container');
+            let price = 0;
+
+            if (type === 'story' || type === 'audio') {
+                const originalPrice = parseFloat(item.price || 0);
+                const discount = parseFloat(item.discount || 0);
+                if (discount > 0) {
+                    price = originalPrice - (originalPrice * discount / 100);
+                } else {
+                    price = originalPrice;
+                }
+            } else {
+                // For books
+                price = parseFloat(item.discounted_price || item.original_price || 0);
+            }
+
+            // Round to 2 decimal places if needed, or keeping integer
+            price = Math.floor(price); // Use floor to match catalog
+            finalAmount = price;
+
+            if (price <= 0) {
+                // If free, redirect immediately
+                alert('This item is currently free! You can access it directly.');
+                if (type === 'audio') {
+                    window.location.href = `listen.html?id=${item.id}`;
+                } else if (type === 'story') {
+                    window.location.href = `story-detail.html?id=${item.slug || item.id}`;
+                } else {
+                    window.location.href = 'books.html';
+                }
+                return;
+            }
+
+            // Adjust image path
+            let imgUrl = item.image || (type === 'book' ? 'images/book-default.png' : (type === 'audio' ? 'images/audio-cover.png' : 'images/story-default.png'));
+            // Fix relative paths
+            if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
+                imgUrl = `/${imgUrl}`;
+
+            } else if (imgUrl && !imgUrl.startsWith('http')) {
+                imgUrl = imgUrl.replace(/\\/g, '/');
+            }
+
+            let formatType = 'Content';
+            if (type === 'book') formatType = 'Digital (PDF)';
+            if (type === 'story') formatType = 'Premium Story';
+            if (type === 'audio') formatType = 'Audio Story';
+
+            container.innerHTML = `
+                <div class="book-preview">
+                    <img src="${imgUrl}" onerror="this.src='https://placehold.co/600x400/222/FFF?text=No+Image'" alt="${item.title}">
+                    <div class="book-details">
+                        <h3 style="color:white; margin-bottom:5px;">${item.title}</h3>
+                        <p style="color:#aaa;">Format: ${formatType}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('subtotal').textContent = `₹${price}`;
+            document.getElementById('total-amount').textContent = `₹${price}`;
+        }
+
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const termsCheck = document.getElementById('terms-check');
+            if (!termsCheck.checked) {
+                alert('Please agree to the Terms & Conditions to proceed.');
+                return;
+            }
+
+            const payBtn = document.getElementById('pay-button');
+            const loading = document.getElementById('loading-overlay');
+
+            payBtn.disabled = true;
+            loading.style.display = 'flex';
+
+            const customerDetails = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value
+            };
+
+            try {
+                // Use the calculated finalAmount
+                const payload = {
+                    amount: finalAmount,
+                    customerDetails
+                };
+
+                if (itemType === 'book') {
+                    payload.bookId = selectedItem.id;
+                    payload.bookTitle = selectedItem.title;
+                } else if (itemType === 'story') {
+                    // Ensure we are sending the UUID, not the slug
+                    payload.storyId = selectedItem.id;
+                    payload.storyTitle = selectedItem.title;
+                } else if (itemType === 'audio') {
+                    payload.audioId = selectedItem.id;
+                    payload.audioTitle = selectedItem.title;
+                }
+
+                console.log("Updated Payload for backend:", payload);
+
+                // 1. Create Order in Backend
+                const createRes = await fetch('/api/orders/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!createRes.ok) {
+                    const errData = await createRes.json();
+                    const errMsg = errData.message || 'Failed to create order';
+                    alert('Order Creation Error: ' + errMsg);
+                    throw new Error(errMsg);
+                }
+
+                const order = await createRes.json();
+
+                // 2. Open Razorpay Modal
+                const options = {
+                    key: order.key,
+                    amount: order.amount,
+                    currency: order.currency,
+                    name: "QalamVerse",
+                    description: `Purchase: ${selectedItem.title}`,
+                    order_id: order.id,
+                    handler: async function (response) {
+                        try {
+                            loading.style.display = 'flex';
+                            // 3. Verify Payment in Backend
+                            const verifyRes = await fetch('/api/orders/verify', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
+                            });
+
+                            if (verifyRes.ok) {
+                                // Redirect based on type
+                                if (itemType === 'book') {
+                                    window.location.href = `payment-success.html?orderId=${response.razorpay_order_id}`;
+                                } else if (itemType === 'audio') {
+                                    window.location.href = `listen.html?id=${selectedItem.id}&payment=success`;
+                                } else {
+                                    window.location.href = `story-detail.html?id=${selectedItem.id}&payment=success`;
+                                }
+                            } else {
+                                window.location.href = 'payment-failure.html';
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            window.location.href = 'payment-failure.html';
+                        }
+                    },
+                    prefill: {
+                        name: customerDetails.name,
+                        email: customerDetails.email,
+                        contact: customerDetails.phone
+                    },
+                    theme: { color: "#d4af37" },
+                    modal: {
+                        ondismiss: function () {
+                            loading.style.display = 'none';
+                            payBtn.disabled = false;
+
+                            // Track cancellation/pending status
+                            fetch('/api/orders/cancel', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ razorpay_order_id: order.id })
+                            }).catch(err => console.error('Tracking Error:', err));
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+                loading.style.display = 'none';
+
+            } catch (error) {
+                console.error(error);
+                alert('Order creation failed: ' + error.message);
+                loading.style.display = 'none';
+                payBtn.disabled = false;
+            }
+        });
+    </script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

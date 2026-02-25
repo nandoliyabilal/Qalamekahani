@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Details | QalamVerse</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&family=Merriweather:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=2.3">
+    <style>
+        /* Specific Styles for Blog Detail to match Story Detail + Reader */
+        .story-hero {
+            padding: 150px 0;
+            background: linear-gradient(to bottom, #0a0a0a, #111);
+        }
+
+        @media (max-width: 900px) {
+            .story-hero {
+                padding: 60px 0;
+            }
+
+            .story-hero-container {
+                flex-direction: column !important;
+                padding: 0 20px !important;
+                text-align: center;
+                gap: 30px !important;
+            }
+
+            .story-visual {
+                flex: none !important;
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+            }
+
+            .story-info {
+                width: 100%;
+            }
+
+            .meta-grid {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .action-row {
+                justify-content: center;
+                flex-direction: column;
+                gap: 15px;
+                width: 100%;
+            }
+
+            .btn-read-full {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .story-title {
+                font-size: 2.2rem !important;
+                margin-top: 10px;
+            }
+
+            .reader-container {
+                padding: 60px 20px !important;
+            }
+
+            .close-reader {
+                right: 20px;
+                top: 15px;
+            }
+        }
+
+        .story-hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 60px;
+            padding: 0 40px;
+            align-items: center;
+        }
+
+        .story-visual {
+            flex: 0 0 320px;
+            position: relative;
+        }
+
+        .story-cover {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            aspect-ratio: 2/3;
+            object-fit: cover;
+        }
+
+        .story-info {
+            flex: 1;
+        }
+
+        .story-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            line-height: 1.1;
+        }
+
+        .story-author {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .story-author span {
+            color: #d4af37;
+        }
+
+        .meta-grid {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 2rem;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .meta-value {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .blog-excerpt {
+            font-family: 'Poppins', sans-serif;
+            color: #aaa;
+            line-height: 1.8;
+            font-size: 1rem;
+            margin-bottom: 30px;
+            display: -webkit-box;
+            line-clamp: 3;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-read-full {
+            background: #d4af37;
+            color: #000;
+            padding: 14px 35px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn-read-full:hover {
+            transform: translateY(-3px);
+            background: #fff;
+        }
+
+        /* --- PDF READER OVERLAY --- */
+        .reader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f0f0f;
+            z-index: 2000;
+            overflow-y: auto;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .reader-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .reader-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            /* Dark Paper Mode */
+            min-height: 100vh;
+            padding: 80px 60px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .close-reader {
+            position: fixed;
+            top: 20px;
+            right: 40px;
+            font-size: 2rem;
+            color: #ccc;
+            cursor: pointer;
+            z-index: 2100;
+            background: rgba(0, 0, 0, 0.5);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .close-reader:hover {
+            color: #fff;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .reader-content h1 {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .reader-meta {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 60px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .reader-body {
+            font-family: 'Merriweather', serif;
+            font-size: 1.25rem;
+            line-height: 2;
+            color: #e0e0e0;
+        }
+
+        .reader-body p {
+            margin-bottom: 30px;
+        }
+
+        .reader-body h2 {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .story-hero-container {
+                flex-direction: column;
+                text-align: center;
+                padding: 0 20px;
+            }
+
+            .story-visual {
+                flex: none;
+                width: 250px;
+                margin-bottom: 30px;
+            }
+
+            .meta-grid {
+                justify-content: center;
+            }
+
+            .action-row {
+                justify-content: center;
+            }
+
+            .reader-container {
+                padding: 60px 20px;
+            }
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast-msg {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #d4af37;
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            z-index: 3000;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast-msg.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(10px);
+        }
+
+        /* IMAGE BACK BUTTON OVERLAY */
+        .img-back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .img-back-btn:hover {
+            background: #d4af37;
+            color: #000;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">QalamVerse</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="stories.html">Stories</a></li>
+                <li><a href="audio.html">Audio Stories</a></li>
+                <li><a href="books.html">Books</a></li>
+                <li><a href="blog.html" class="active">Blog</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <span id="auth-links"></span>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- BLOG DETAIL VIEW (Left Img, Right Details) -->
+    <section class="story-hero">
+        <div class="story-hero-container">
+            <!-- Left: Image -->
+            <div class="story-visual">
+                <a href="blog.html" class="img-back-btn">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <img id="blog-image" src="" alt="Blog Cover" class="story-cover"
+                    onerror="this.src='https://via.placeholder.com/400x600'">
+            </div>
+
+            <!-- Right: Details -->
+            <div class="story-info">
+                <h1 id="blog-title" class="story-title">Loading Blog...</h1>
+                <h3 class="story-author">Written By <span id="blog-author">Loading...</span></h3>
+
+                <div class="meta-grid">
+                    <div class="meta-item">
+                        <span class="meta-label">Category</span>
+                        <span id="blog-category" class="meta-value">-</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Published</span>
+                        <span id="blog-date" class="meta-value">-</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Read Time</span>
+                        <span id="blog-time" class="meta-value">-</span>
+                    </div>
+                </div>
+
+                <div class="blog-excerpt" id="blog-excerpt"></div>
+
+                <div class="action-row">
+                    <button class="btn-read-full" onclick="openReader()">
+                        <i class="fas fa-book-reader"></i> Read Full Blog
+                    </button>
+                    <!-- Save Button -->
+                    <button id="save-btn" class="btn-read-full" style="background:#222; color:#fff;"
+                        onclick="toggleSaveBlog()">
+                        <i id="save-icon" class="far fa-bookmark"></i>
+                    </button>
+                    <!-- Share Button -->
+                    <button class="btn-read-full" style="background:#222; color:#fff;" onclick="alert('Link Copied!')">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REVIEWS SECTION -->
+    <section class="reviews-section" style="background:#0a0a0a; padding:60px 0; border-top:1px solid #222;">
+        <div class="story-hero-container" style="display:block;">
+            <h3 style="color:#d4af37; font-family:'Playfair Display'; font-size:2rem; margin-bottom:30px;">Readers
+                Reviews</h3>
+
+            <!-- Review Form -->
+            <div class="review-form" style="background:#111; padding:30px; border-radius:12px; margin-bottom:40px;">
+                <h4 style="color:#fff; margin-bottom:15px;">Leave a Review</h4>
+                <div class="stars-input" id="rating-stars"
+                    style="color:#444; font-size:1.5rem; margin-bottom:15px; cursor:pointer;">
+                    <i class="far fa-star" data-val="1"></i>
+                    <i class="far fa-star" data-val="2"></i>
+                    <i class="far fa-star" data-val="3"></i>
+                    <i class="far fa-star" data-val="4"></i>
+                    <i class="far fa-star" data-val="5"></i>
+                </div>
+                <textarea id="review-text" placeholder="Share your thoughts about this blog..."
+                    style="width:100%; height:100px; background:#000; border:1px solid #333; color:#fff; padding:15px; border-radius:8px; margin-bottom:15px; resize:none; font-family:'Poppins';"></textarea>
+                <button onclick="submitReview()"
+                    style="background:#d4af37; color:#000; border:none; padding:10px 30px; border-radius:30px; font-weight:600; cursor:pointer;">Submit
+                    Review</button>
+            </div>
+
+            <!-- Reviews List -->
+            <div id="reviews-list">
+                <p style="color:#666;">Loading latest reviews...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FULL SCREEN READER OVERLAY -->
+    <div id="reader-view" class="reader-overlay">
+        <div class="close-reader" onclick="closeReader()">&times;</div>
+        <div class="reader-container">
+            <div class="reader-content">
+                <h1 id="reader-title">Blog Title</h1>
+                <div class="reader-meta">
+                    <span id="reader-author">Author Name</span> • <span id="reader-date">Date</span>
+                </div>
+                <div id="reader-body" class="reader-body"></div>
+                <div style="text-align: center; margin-top: 80px; color: #555;">
+                    <i class="fas fa-feather-alt" style="font-size: 20px;"></i>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">End of Article</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <h3 class="footer-brand">Sabirkhan Pathan</h3>
+                <p class="footer-tagline">Weaving stories that touch your soul.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link"
+                        target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i
+                            class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-col links-col">
+                <h4 class="footer-heading">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="stories.html">Stories</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col newsletter-col">
+                <h4 class="footer-heading">Stay Updated</h4>
+                <p class="newsletter-text">Subscribe to get the latest blogs.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your Email" class="newsletter-input" required>
+                    <button type="submit" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get('slug');
+        let currentPost = null;
+        let selectedRating = 0; // State for star rating
+
+        async function init() {
+            if (!slug) {
+                document.querySelector('.story-title').textContent = "Blog Not Found";
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/blogs/${slug}`);
+                if (!res.ok) throw new Error('Blog not found');
+                currentPost = await res.json();
+                renderPage(currentPost);
+
+                // Check if saved
+                checkSavedStatus();
+            } catch (e) {
+                console.error(e);
+                document.querySelector('.story-title').textContent = "Error Loading Blog";
+            }
+        }
+
+        async function checkSavedStatus() {
+            const token = localStorage.getItem('token');
+            if (!token || !currentPost) return;
+
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const user = await res.json();
+                    const isSaved = user.savedBlogs && user.savedBlogs.some(b => b.id === currentPost.id || b._id === currentPost.id); // check ID in populated array
+
+                    updateSaveIcon(isSaved);
+                }
+            } catch (e) { console.error('Error checking save status', e); }
+        }
+
+        function updateSaveIcon(isSaved) {
+            const icon = document.getElementById('save-icon');
+            const btn = document.getElementById('save-btn');
+            if (isSaved) {
+                icon.className = 'fas fa-bookmark';
+                btn.style.color = '#d4af37';
+            } else {
+                icon.className = 'far fa-bookmark';
+                btn.style.color = '#fff';
+            }
+        }
+
+        async function toggleSaveBlog() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login to save blogs.');
+                return;
+            }
+            if (!currentPost) return;
+
+            try {
+                const res = await fetch('/api/auth/save-blog', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ blogId: currentPost.id })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    // Check if current ID is in the returned list (which might be IDs or objects depending on controller)
+                    // authController returns { savedBlogs: [...] } which are IDs (strings).
+                    // WAIT: authController logic at line 362 returns `user.savedBlogs`. 
+                    // In `saveBlog` controller, `user.savedBlogs` is array of ObjectIds (strings) because it's not populated there.
+                    // So we check simply if ID is included.
+
+                    const isSaved = data.savedBlogs.includes(currentPost.id);
+                    updateSaveIcon(isSaved);
+
+                    // Show toast
+                    const msg = isSaved ? 'Blog Saved to Profile' : 'Blog Removed from Profile';
+                    // Simple alert for now or custom toast if available
+                    // alert(msg); 
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderPage(post) {
+            document.title = `${post.title} | QalamVerse`;
+
+            // Hero Section
+            document.getElementById('blog-title').textContent = post.title;
+            document.getElementById('blog-author').textContent = post.author || 'Sabirkhan Pathan';
+            document.getElementById('blog-category').textContent = post.category || 'General';
+            document.getElementById('blog-date').textContent = new Date(post.created_at).toLocaleDateString();
+            document.getElementById('blog-time').textContent = post.readTime || '5 min read';
+
+            if (post.image) {
+                document.getElementById('blog-image').src = post.image;
+            }
+
+            // Excerpt
+            let excerpt = post.excerpt;
+            if (!excerpt) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = post.content;
+                excerpt = tempDiv.textContent.substring(0, 200) + '...';
+            }
+            document.getElementById('blog-excerpt').textContent = excerpt;
+
+            // Reader Mode Content
+            document.getElementById('reader-title').textContent = post.title;
+            document.getElementById('reader-author').textContent = 'By ' + (post.author || 'Sabirkhan Pathan');
+            document.getElementById('reader-date').textContent = new Date(post.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            let contentHtml = post.content;
+            if (!contentHtml.includes('<p>')) {
+                contentHtml = contentHtml.split('\n').map(line => line.trim() ? `<p>${line}</p>` : '').join('');
+            }
+            document.getElementById('reader-body').innerHTML = contentHtml;
+
+            // Initialize Modules
+            initStars();
+            loadReviews(post.id);
+        }
+
+        function openReader() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('You must be logged in to read blogs.');
+                window.location.href = 'login.html';
+                return;
+            }
+            const overlay = document.getElementById('reader-view');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReader() {
+            const overlay = document.getElementById('reader-view');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // --- REVIEWS & RATING LOGIC ---
+        function initStars() {
+            document.querySelectorAll('#rating-stars i').forEach(star => {
+                star.addEventListener('click', function () {
+                    selectedRating = this.getAttribute('data-val');
+                    updateStars(selectedRating);
+                });
+            });
+        }
+
+        function updateStars(val) {
+            document.querySelectorAll('#rating-stars i').forEach(star => {
+                const sVal = star.getAttribute('data-val');
+                if (sVal <= val) {
+                    star.className = 'fas fa-star';
+                    star.style.color = '#d4af37';
+                } else {
+                    star.className = 'far fa-star';
+                    star.style.color = '#444';
+                }
+            });
+        }
+
+        async function submitReview() {
+            if (!currentPost) return;
+            const text = document.getElementById('review-text').value;
+
+            if (!text.trim() || selectedRating == 0) {
+                alert('Please give a rating and write a review.');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('You must be logged in to submit a review.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const res = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        targetType: 'blog',
+                        targetId: currentPost.id,
+                        rating: selectedRating,
+                        comment: text
+                        // name: 'Guest Reader' // Removed hardcoded name
+                    })
+                });
+
+                if (res.ok) {
+                    alert('Review submitted successfully!');
+                    document.querySelector('.review-form').reset();
+                    // Reload reviews
+                    loadReviews(currentPost.id);
+                } else {
+                    const errData = await res.json();
+                    alert(`Failed to submit review: ${res.status} - ${errData.message || 'Unknown Error'} `);
+                }
+            } catch (e) {
+                console.error(e);
+                alert(`Error submitting review: ${e.message} `);
+            }
+        }
+
+        async function loadReviews(targetId) {
+            const list = document.getElementById('reviews-list');
+            try {
+                const res = await fetch(`/api/reviews?targetType=blog&targetId=${targetId}`);
+                if (!res.ok) throw new Error('Failed to load');
+                let reviews = await res.json();
+
+                // Only show approved
+                reviews = reviews.filter(r => r.status === 'approved' || r.isApproved === true);
+
+                if (reviews.length === 0) {
+                    list.innerHTML = '<p style="color:#666;">No reviews yet. Be the first to review!</p>';
+                    return;
+                }
+
+                list.innerHTML = reviews.map(r => `
+                        <div style="background:#111; padding:20px; border-radius:8px; margin-bottom:15px; border-left:3px solid #d4af37;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                            <span style="color:#fff; font-weight:600;">${r.user_name || r.name || 'Reader'}</span>
+                            <div style="color:#d4af37; font-size:0.9rem;">
+                                ${'<i class="fas fa-star"></i>'.repeat(r.rating)}
+                            </div>
+                        </div>
+                        <p style="color:#ccc; font-size:0.95rem; line-height:1.5;">${r.comment}</p>
+                        <span style="display:block; margin-top:10px; font-size:0.8rem; color:#555;">
+                            ${new Date(r.created_at).toLocaleDateString()}
+                        </span>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.warn(e);
+                list.innerHTML = '<p style="color:#666;">Could not load reviews.</p>';
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

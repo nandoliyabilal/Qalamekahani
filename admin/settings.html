@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - QalamVerse Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/admin/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="bg-gray-900 text-gray-100 font-sans antialiased">
+    <!-- Sidebar Overlay & Sidebar -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()"
+        class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
+    <aside id="sidebar"
+        class="fixed top-0 left-0 z-50 h-screen w-64 bg-gray-800 border-r border-gray-700 transition-transform duration-300 transform -translate-x-full lg:translate-x-0">
+        <div class="h-16 flex items-center justify-between px-6 border-b border-gray-700">
+            <span
+                class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">QalamVerse</span>
+            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white"><i
+                    data-lucide="x"></i></button>
+        </div>
+        <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
+            <a href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="layout-dashboard"></i>Dashboard</a>
+            <a href="stories.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="book-open"></i>Stories</a>
+            <a href="books.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="library"></i>Books</a>
+            <a href="audio.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="headphones"></i>Audio Stories</a>
+            <a href="blogs.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="file-text"></i>Blogs</a>
+            <a href="reviews.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="star"></i>Reviews</a>
+            <a href="settings.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"><i
+                    data-lucide="settings"></i>Settings</a>
+        </nav>
+    </aside>
+
+    <main class="lg:pl-64 min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4 lg:px-8">
+            <button onclick="toggleSidebar()"
+                class="lg:hidden p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700"><i
+                    data-lucide="menu"></i></button>
+            <div class="flex items-center gap-4 ml-auto">
+                <div class="flex items-center gap-3">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=random"
+                        class="w-8 h-8 rounded-full ring-2 ring-gray-700">
+                    <span id="adminName" class="hidden md:block text-sm font-medium text-gray-200">Admin</span>
+                </div>
+                <button onclick="logout()" class="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                    title="Logout"><i data-lucide="log-out"></i></button>
+            </div>
+        </header>
+
+        <div class="p-4 lg:p-8 flex-1 overflow-y-auto">
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-white">Settings</h1>
+                <p class="text-gray-400">Customize the site appearance and manage your profile.</p>
+            </div>
+
+            <!-- Settings Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                <!-- Left Column: Site Config -->
+                <div class="space-y-8">
+
+                    <!-- Homepage Customization -->
+                    <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i data-lucide="home" class="w-5 h-5 text-indigo-400"></i> Homepage Hero Section
+                        </h3>
+                        <form id="heroSettingsForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Hero Title</label>
+                                <input type="text" id="heroTitle"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                                <p class="text-xs text-gray-500 mt-1">E.g., "Stories That Touch The Soul"</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Hero Subtitle</label>
+                                <input type="text" id="heroSubtitle"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                                <p class="text-xs text-gray-500 mt-1">E.g., "WRITTEN & NARRATED BY SABIRKHAN PATHAN"</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Hero Image</label>
+                                <div class="flex flex-col gap-3">
+                                    <!-- Current URL Input (Hidden or Readonly) -->
+                                    <input type="text" id="heroImage"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-gray-400 placeholder-gray-500 text-sm focus:outline-none"
+                                        readonly placeholder="Image URL will appear here">
+
+                                    <!-- File Selection -->
+                                    <div class="relative">
+                                        <input type="file" id="heroImageFile" accept="image/*" class="hidden"
+                                            onchange="previewHeroImage(this)">
+                                        <label for="heroImageFile"
+                                            class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors text-sm">
+                                            <i data-lucide="upload" class="w-4 h-4"></i> Select Image
+                                        </label>
+                                        <span id="fileNameDisplay" class="text-xs text-gray-500 ml-2">No file
+                                            chosen</span>
+                                    </div>
+
+                                    <!-- Preview (Optional) -->
+                                    <div id="heroImagePreview" class="hidden mt-2">
+                                        <img src="" alt="Hero Preview"
+                                            class="h-32 w-auto object-cover rounded border border-gray-600">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+                                Save Homepage Settings
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Content Settings -->
+                    <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i data-lucide="list" class="w-5 h-5 text-indigo-400"></i> Content Settings
+                        </h3>
+                        <form id="contentSettingsForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Story Categories</label>
+                                <input type="text" id="storyCategories"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                                <p class="text-xs text-gray-500 mt-1">E.g., Horror, Romance, Mystery</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Audio Categories</label>
+                                <input type="text" id="audioCategories"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                                <p class="text-xs text-gray-500 mt-1">E.g., Audio Drama, Single Narration</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Book Categories</label>
+                                <input type="text" id="bookCategories"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                                <p class="text-xs text-gray-500 mt-1">E.g., Fiction, Non-Fiction</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Blog Categories</label>
+                                <input type="text" id="blogCategories"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                                <p class="text-xs text-gray-500 mt-1">E.g., Updates, Writing Tips</p>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors">
+                                Save Content Settings
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- About Section Settings -->
+                    <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 mt-8">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i data-lucide="info" class="w-5 h-5 text-indigo-400"></i> About Section (Frontend)
+                        </h3>
+                        <form id="aboutSettingsForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">About Heading</label>
+                                <input type="text" id="aboutHeading"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">About Text (Short - Home
+                                    Page)</label>
+                                <textarea id="aboutShort" rows="2"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Full Biography (Long - About
+                                    Page)</label>
+                                <textarea id="aboutLong" rows="6"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">About/Author Image</label>
+                                <div class="flex flex-col gap-3">
+                                    <input type="text" id="aboutImage"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-gray-400 placeholder-gray-500 text-sm focus:outline-none"
+                                        readonly placeholder="Image URL will appear here">
+
+                                    <div class="relative">
+                                        <input type="file" id="aboutImageFile" accept="image/*" class="hidden"
+                                            onchange="previewAboutImage(this)">
+                                        <label for="aboutImageFile"
+                                            class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors text-sm">
+                                            <i data-lucide="upload" class="w-4 h-4"></i> Select Image
+                                        </label>
+                                        <span id="aboutFileNameDisplay" class="text-xs text-gray-500 ml-2">No file
+                                            chosen</span>
+                                    </div>
+
+                                    <div id="aboutImagePreview" class="hidden mt-2">
+                                        <img src="" alt="About Preview"
+                                            class="h-32 w-32 object-cover rounded-full border border-gray-600">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+                                Save About Settings
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Admin Profile -->
+                <div class="space-y-8">
+
+                    <!-- Admin Profile Settings -->
+                    <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i data-lucide="user-cog" class="w-5 h-5 text-indigo-400"></i> Admin Profile
+                        </h3>
+                        <form id="adminProfileForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Admin Name</label>
+                                <input type="text" id="adminNameInput"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Admin Email</label>
+                                <input type="email" id="adminEmailInput"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                            </div>
+
+                            <hr class="border-gray-700 my-4">
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">New Password</label>
+                                <input type="password" id="adminPasswordInput"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                                    placeholder="Leave blank to keep current">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Confirm New Password</label>
+                                <input type="password" id="adminConfirmPasswordInput"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                            </div>
+
+                            <button type="submit"
+                                class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+                                Update Profile
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Contact Info Settings -->
+                    <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i data-lucide="phone" class="w-5 h-5 text-indigo-400"></i> Contact Information
+                        </h3>
+                        <form id="contactSettingsForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Contact Email</label>
+                                <input type="email" id="contactEmail"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Phone Number</label>
+                                <input type="text" id="contactPhone"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Address</label>
+                                <input type="text" id="contactAddress"
+                                    class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                            </div>
+
+                            <button type="submit"
+                                class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors">
+                                Save Contact Info
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/admin/js/main.js"></script>
+    <script src="/admin/js/settings.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>

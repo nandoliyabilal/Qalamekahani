@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - QalamVerse</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            background: radial-gradient(circle at center, #1a1a1a, #0b0b0b);
+            position: relative;
+        }
+
+        .auth-card {
+            background: #1a1a1a;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+            border-radius: 22px;
+            z-index: -1;
+        }
+
+        .auth-title {
+            color: #d4af37;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .auth-desc {
+            color: #aaa;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 2.5rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            color: #d4af37;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.8rem;
+            letter-spacing: 12px;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #d4af37;
+            background: #151515;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        .btn-auth {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-top: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.95rem;
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+            background: linear-gradient(135deg, #e5be48 0%, #c7951a 100%);
+        }
+
+        .btn-auth:active {
+            transform: translateY(0);
+        }
+
+        .resend-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: 'Poppins', sans-serif;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .resend-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .resend-link:disabled {
+            color: #555;
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        #error-msg {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            display: none;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        #success-msg {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            display: none;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">QalamVerse</a>
+        </div>
+    </header>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2 class="auth-title">Verify Email</h2>
+            <p class="auth-desc">We've sent a 6-digit code to <span id="user-email" style="color:#d4af37;"></span></p>
+
+            <div id="error-msg"></div>
+            <div id="success-msg"></div>
+
+            <form id="otp-form">
+                <input type="text" id="otp" class="form-control" maxlength="6" placeholder="123456" required>
+                <button type="submit" class="btn-auth">Verify Account</button>
+            </form>
+
+            <button id="resend-btn" class="resend-link">Resend Code</button>
+        </div>
+    </div>
+
+    <script>
+        const email = localStorage.getItem('emailForVerification');
+        const userEmailSpan = document.getElementById('user-email');
+
+        if (!email) {
+            // No alert, just redirect
+            window.location.href = 'signup.html';
+        } else {
+            userEmailSpan.textContent = email;
+        }
+
+        const otpForm = document.getElementById('otp-form');
+        const errorMsg = document.getElementById('error-msg');
+        const successMsg = document.getElementById('success-msg');
+        const resendBtn = document.getElementById('resend-btn');
+
+        otpForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+
+            const btn = otpForm.querySelector('.btn-auth');
+            const originalBtnText = btn.innerText;
+            const otp = document.getElementById('otp').value;
+
+            // Loading State
+            btn.innerText = 'Verifying...';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+
+            try {
+                const res = await fetch('/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Success! Store token and redirect
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data));
+                    localStorage.removeItem('emailForVerification');
+
+                    successMsg.innerText = 'Verification Successful! Redirecting...';
+                    successMsg.style.display = 'block';
+
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                } else {
+                    errorMsg.innerText = data.message || 'Verification failed';
+                    errorMsg.style.display = 'block';
+                    btn.innerText = originalBtnText;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.innerText = 'Error connecting to server';
+                errorMsg.style.display = 'block';
+                btn.innerText = originalBtnText;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        });
+
+        resendBtn.addEventListener('click', async () => {
+            resendBtn.disabled = true;
+            const originalText = resendBtn.innerText;
+            resendBtn.innerText = 'Sending...';
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/resend-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    successMsg.innerText = 'New code sent to your email.';
+                    successMsg.style.display = 'block';
+
+                    // Cooldown
+                    let timeLeft = 60;
+                    const timer = setInterval(() => {
+                        if (timeLeft <= 0) {
+                            clearInterval(timer);
+                            resendBtn.disabled = false;
+                            resendBtn.innerText = 'Resend Code';
+                        } else {
+                            resendBtn.innerText = `Resend in ${timeLeft}s`;
+                            timeLeft--;
+                        }
+                    }, 1000);
+
+                } else {
+                    errorMsg.innerText = data.message || 'Failed to resend';
+                    errorMsg.style.display = 'block';
+                    resendBtn.disabled = false;
+                    resendBtn.innerText = 'Resend Code';
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.innerText = 'Error sending code';
+                errorMsg.style.display = 'block';
+                resendBtn.disabled = false;
+                resendBtn.innerText = 'Resend Code';
+            }
+        });
+    </script>
+</body>
+
+</html>

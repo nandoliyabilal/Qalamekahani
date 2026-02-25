@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms & Conditions - QalamVerse</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&family=Cinzel:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --horror-black: #050505;
+            --horror-dark: #0a0a0a;
+            --horror-accent: #d4af37;
+            --horror-text: #e0e0e0;
+        }
+
+        body {
+            background-color: var(--horror-black) !important;
+            color: var(--horror-text);
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- Header --- */
+        .page-header {
+            padding: 160px 5% 60px;
+            text-align: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .page-title {
+            font-family: 'Cinzel', serif;
+            font-size: 3.8rem;
+            color: var(--horror-accent);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .terms-container {
+            max-width: 1000px;
+            margin: 60px auto 100px;
+            padding: 0 5%;
+        }
+
+        .terms-section {
+            background: #0a0a0a;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #222;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .terms-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--horror-accent);
+        }
+
+        .section-heading {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+        }
+
+        .terms-content p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .terms-content ul {
+            list-style: none;
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .terms-content li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+
+        .terms-content li::before {
+            content: '\f105';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--horror-accent);
+        }
+
+        .contact-link {
+            color: var(--horror-accent);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .contact-link:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        /* --- Footer --- */
+        .site-footer {
+            background: #000;
+            padding: 80px 5% 30px;
+            border-top: 1px solid #222;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.5fr;
+            gap: 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-brand h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: var(--horror-accent);
+            margin-bottom: 15px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--horror-accent);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #111;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2.5rem;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">QalamVerse</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="stories.html">Stories</a></li>
+                <li><a href="audio.html">Audio</a></li>
+                <li><a href="books.html">Books</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <h1 class="page-title">Terms & Conditions</h1>
+        <p style="color: #888; max-width: 600px; margin: 0 auto;">Please read these terms carefully before making any
+            purchase on QalamVerse.</p>
+    </div>
+
+    <div class="terms-container">
+        <!-- 1. General Terms -->
+        <div class="terms-section">
+            <h2 class="section-heading">1. General Terms</h2>
+            <div class="terms-content">
+                <p>Welcome to QalamVerse. By accessing our website and purchasing our books or audio stories, you agree
+                    to be bound by these Terms and Conditions. If you do not agree with any part of these terms, please
+                    do not use our services.</p>
+                <p>We reserve the right to update or modify these terms at any time without prior notice. Your continued
+                    use of the website following any changes constitutes your acceptance of the new terms.</p>
+            </div>
+        </div>
+
+        <!-- 2. Payment Terms -->
+        <div class="terms-section">
+            <h2 class="section-heading">2. Payment Policy</h2>
+            <div class="terms-content">
+                <p>We accept payments through secure online payment gateways including Razorpay, Credit/Debit Cards,
+                    UPI, and Net Banking. All prices listed on the website are in Indian Rupees (INR) unless stated
+                    otherwise.</p>
+                <ul>
+                    <li>Full payment must be made at the time of purchase.</li>
+                    <li>We do not store your card details. All transactions are processed through secure third-party
+                        payment providers.</li>
+                    <li>In case of a payment failure where the amount is deducted from your account but the order is not
+                        confirmed, the amount will be automatically refunded by the gateway within 5-7 working days.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 3. Shipping & Delivery -->
+        <div class="terms-section">
+            <h2 class="section-heading">3. Shipping & Delivery Policy</h2>
+            <div class="terms-content">
+                <p>For physical books, we strive to deliver your order as quickly as possible.</p>
+                <ul>
+                    <li><strong>Processing Time:</strong> Orders are processed within 1-2 business days.</li>
+                    <li><strong>Delivery Time:</strong> Standard delivery takes 5-7 business days depending on your
+                        location.</li>
+                    <li><strong>Digital Products:</strong> eBooks and Audio stories are available for immediate
+                        access/download upon successful payment.</li>
+                    <li>Shipping charges (if any) will be calculated and displayed at checkout.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 4. Refund & Cancellation -->
+        <div class="terms-section">
+            <h2 class="section-heading">4. Refund & Cancellation Policy</h2>
+            <div class="terms-content">
+                <p>We want you to be completely satisfied with your purchase. However, certain restrictions apply.</p>
+                <ul>
+                    <li><strong>Physical Books:</strong> You may request a return or replacement within 7 days of
+                        delivery IF the book is damaged or defective. Please contact us with proof of damage.</li>
+                    <li><strong>Digital Products:</strong> Due to the nature of digital content (eBooks, Audio), we
+                        generally do not offer refunds once the content has been accessed or downloaded.</li>
+                    <li><strong>Cancellations:</strong> Orders for physical books can be cancelled before they are
+                        shipped. Once shipped, they cannot be cancelled.</li>
+                </ul>
+                <p>To request a refund or cancellation, please contact us at <a href="mailto:bilalnandoliya60@gmail.com"
+                        class="contact-link">bilalnandoliya60@gmail.com</a>.</p>
+            </div>
+        </div>
+
+        <!-- 5. Privacy Policy -->
+        <div class="terms-section">
+            <h2 class="section-heading">5. Privacy Policy</h2>
+            <div class="terms-content">
+                <p>Your privacy is important to us. We collect only necessary information to process your order (Name,
+                    Email, Phone, Address).</p>
+                <ul>
+                    <li>We do not sell or share your personal data with third parties for marketing purposes.</li>
+                    <li>Your data is securely stored and used only for order processing and communication regarding your
+                        purchase.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="terms-section" style="text-align: center; border: 1px solid var(--horror-accent);">
+            <h2 class="section-heading" style="border-bottom: none; margin-bottom: 10px;">Questions?</h2>
+            <p>If you have any questions about these terms, please contact us.</p>
+            <a href="contact.html"
+                style="display: inline-block; padding: 12px 30px; background: var(--horror-accent); color: #000; text-decoration: none; font-weight: 600; border-radius: 5px; margin-top: 15px;">Contact
+                Support</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <h3 class="footer-brand">Sabirkhan Pathan</h3>
+                <p>Weaving stories that touch your soul.</p>
+            </div>
+            <div class="footer-col links-col">
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="stories.html">Stories</a></li>
+                    <li><a href="terms.html">Terms & Conditions</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col social-col">
+                <!-- Social Icons if needed -->
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/global-horror.js"></script>
+</body>
+
+</html>

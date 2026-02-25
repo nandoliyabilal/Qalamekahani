@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - QalamVerse</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .profile-header {
+            background: linear-gradient(to bottom, #111, #1a1a1a);
+            padding: 140px 0 50px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: #d4af37;
+            color: #000;
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border: 4px solid #1a1a1a;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .profile-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .profile-email {
+            font-family: 'Poppins', sans-serif;
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            color: #d4af37;
+            font-weight: 600;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .profile-content {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .profile-tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            padding-bottom: 10px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #d4af37;
+            border-bottom: 2px solid #d4af37;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .activity-card {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #222;
+        }
+
+        .activity-title {
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            font-family: 'Playfair Display';
+        }
+
+        .activity-date {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Premium Notification Toggle */
+        .notif-settings {
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .notif-settings:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(212, 175, 55, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .notif-label {
+            color: #ccc;
+            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .switch-container {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch-container input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: #888;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #d4af37;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+            background-color: #000;
+        }
+
+        .notif-icon-premium {
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        input:checked~.notif-icon-premium {
+            color: #d4af37;
+        }
+
+        .status-text {
+            min-width: 35px;
+            font-weight: 600;
+            color: #d4af37;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">QalamVerse</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="stories.html">Stories</a></li>
+                <li><a href="audio.html">Audio Stories</a></li>
+                <li><a href="books.html">Books</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <span id="auth-links"></span>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="profile-header">
+        <div class="profile-avatar" id="avatar">U</div>
+        <h1 class="profile-name" id="user-name">User Name</h1>
+        <p class="profile-email" id="user-email">user@example.com</p>
+        <button onclick="logout()"
+            style="margin-top: 15px; background: transparent; border: 1px solid #d4af37; color: #d4af37; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-family: 'Poppins'; transition: all 0.3s;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+
+        <div class="notif-settings">
+            <i class="fas fa-bell notif-icon-premium" id="notif-icon"></i>
+            <span class="notif-label">Email Notifications</span>
+            <label class="switch-container">
+                <input type="checkbox" id="notif-checkbox" onchange="toggleNotifications(this)">
+                <span class="slider"></span>
+            </label>
+            <span class="status-text" id="notif-status">OFF</span>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat-item">
+                <span class="stat-value" id="count-stories">0</span>
+                <span class="stat-label">Liked Stories</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="count-blogs">0</span>
+                <span class="stat-label">Saved Blogs</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="count-audio">0</span>
+                <span class="stat-label" id="count-audio-label">Saved Audios</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-tabs">
+            <button class="tab-btn active" onclick="switchTab('liked')">Liked Stories</button>
+            <button class="tab-btn" onclick="switchTab('saved')">Saved Blogs</button>
+            <button class="tab-btn" onclick="switchTab('history')">Saved Audios</button>
+            <button class="tab-btn" id="orders-tab-btn" onclick="switchTab('orders')"> My Orders</button>
+        </div>
+
+        <div id="liked" class="tab-content active">
+            <p style="color:#666; text-align:center;">List of liked stories will appear here.</p>
+        </div>
+        <div id="saved" class="tab-content">
+            <p style="color:#666; text-align:center;">Your saved blogs will appear here.</p>
+        </div>
+        <div id="history" class="tab-content">
+            <p style="color:#666; text-align:center;">Your listening history will appear here.</p>
+        </div>
+        <div id="orders" class="tab-content">
+            <p style="color:#666; text-align:center;">Your orders will appear here.</p>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        async function loadProfile() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                // Cache Buster
+                const res = await fetch(`/api/auth/me?t=${Date.now()}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+
+                    document.getElementById('user-name').innerText = user.name;
+                    document.getElementById('user-email').innerText = user.email;
+                    document.getElementById('avatar').innerText = user.name.charAt(0).toUpperCase();
+
+                    // Update stats
+                    document.getElementById('count-stories').innerText = user.likedStories ? user.likedStories.length : 0;
+                    document.getElementById('count-blogs').innerText = user.savedBlogs ? user.savedBlogs.length : 0;
+                    document.getElementById('count-audio-label').innerText = "SAVED AUDIOS"; // Logic change
+                    document.getElementById('count-audio').innerText = user.savedAudios ? user.savedAudios.length : 0;
+
+                    // Set Notification Toggle State
+                    const notifCheckbox = document.getElementById('notif-checkbox');
+                    const statusText = document.getElementById('notif-status');
+                    const notifIcon = document.getElementById('notif-icon');
+
+                    const isPowered = user.notificationsOn !== false; // Mapped from backend notifications_on
+                    notifCheckbox.checked = isPowered;
+                    statusText.innerText = isPowered ? 'ON' : 'OFF';
+                    notifIcon.className = isPowered ? 'fas fa-bell' : 'fas fa-bell-slash';
+                    notifIcon.style.color = isPowered ? '#d4af37' : '#666';
+
+                    // Render Tabs
+                    renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories yet.');
+                    renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs yet.');
+
+                    // Saved Audios
+                    renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios yet.');
+
+                    // Fetch and Render Orders
+                    loadOrders(token);
+
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadOrders(token) {
+            try {
+                const res = await fetch('/api/orders/mine', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const orders = await res.json();
+                    renderOrders(orders);
+                }
+            } catch (err) {
+                console.error('Error loading orders:', err);
+            }
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById('orders');
+            container.innerHTML = '';
+
+            if (!orders || orders.length === 0) {
+                container.innerHTML = `<p style="color:#666; text-align:center; padding: 20px;">No orders found.</p>`;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'activity-grid';
+
+            orders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = 'activity-card';
+
+                const status = (order.status || 'pending').toUpperCase();
+                const statusColor = status === 'PAID' ? '#4caf50' : '#d4af37';
+
+                card.style.borderLeft = `4px solid ${statusColor}`;
+
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <h4 class="activity-title">${order.book_title || 'Item'}</h4>
+                        <span style="background: rgba(0,0,0,0.3); color: ${statusColor}; border: 1px solid ${statusColor}; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight:bold;">${status}</span>
+                    </div>
+                    <p style="color:#888; font-size:0.85rem; margin: 5px 0;">Order ID: ${order.razorpay_order_id}</p>
+                    <p style="color:#fff; font-weight:600; margin-bottom: 5px;">₹${order.amount}</p>
+                    <span class="activity-date">${new Date(order.created_at).toLocaleDateString()}</span>
+                    ${status !== 'PAID' ? `<p style="margin-top:10px;"><a href="checkout.html" style="color:#d4af37; font-size:0.8rem; text-decoration:none;"><i class="fas fa-redo"></i> Retry Payment</a></p>` : ''}
+                `;
+                grid.appendChild(card);
+            });
+
+            container.appendChild(grid);
+        }
+
+        function renderContent(containerId, items, linkPrefix, emptyMsg) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                container.innerHTML = `<p style="color:#666; text-align:center; padding: 20px;">${emptyMsg}</p>`;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'activity-grid';
+
+            items.forEach(item => {
+                if (!item) return; // Skip nulls
+                const card = document.createElement('div');
+                card.className = 'activity-card';
+                // Handle different ID fields if necessary, usually .id or ._id
+                const id = item.id || item._id;
+
+                // Determine link: Use slug if available and valid, otherwise fallback to ID
+                let href = `${linkPrefix}?id=${id}`;
+                if (item.slug && item.slug.trim() !== '' && !item.slug.match(/^--/)) { // check for valid slug
+                    href = `${linkPrefix}?slug=${item.slug}`;
+                    // Special case: audio details usually use ?id=
+                    if (linkPrefix.includes('audio-detail')) {
+                        href = `${linkPrefix}?id=${id}`;
+                    }
+                    // Special case: story detail can use id or slug, but let's stick to consistent param if known
+                    if (linkPrefix.includes('story-detail')) {
+                        href = `${linkPrefix}?id=${item.slug}`;
+                    }
+                }
+
+                card.innerHTML = `
+                    <h4 class="activity-title">${item.title}</h4>
+                    <span class="activity-date" style="color: #d4af37; font-size: 0.8rem; text-transform:uppercase; letter-spacing:1px;">${item.category || 'Content'}</span>
+                    <a href="${href}" style="display:block; margin-top:10px; color:#ccc; font-size:0.9rem; text-decoration:none;">View Details <i class="fas fa-arrow-right" style="font-size:0.8em;"></i></a>
+                `;
+                grid.appendChild(card);
+            });
+
+            container.appendChild(grid);
+        }
+
+        async function toggleNotifications(checkbox) {
+            const token = localStorage.getItem('token');
+            const statusText = document.getElementById('notif-status');
+            const notifIcon = document.getElementById('notif-icon');
+            const newStatus = checkbox.checked;
+
+            statusText.innerText = newStatus ? 'ON' : 'OFF';
+            notifIcon.className = newStatus ? 'fas fa-bell' : 'fas fa-bell-slash';
+            notifIcon.style.color = newStatus ? '#d4af37' : '#666';
+
+            try {
+                const res = await fetch('/api/auth/toggle-notifications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (res.ok) {
+                    // Update local storage info if needed
+                    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                    userInfo.notificationsOn = newStatus;
+                    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                } else {
+                    alert('Failed to update notification settings.');
+                    // Revert UI
+                    checkbox.checked = !newStatus;
+                    statusText.innerText = !newStatus ? 'ON' : 'OFF';
+                    notifIcon.className = !newStatus ? 'fas fa-bell' : 'fas fa-bell-slash';
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Connection error. Please try again.');
+                checkbox.checked = !newStatus;
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            // Find button that triggered this
+            const btn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
+            if (btn) btn.classList.add('active');
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userInfo');
+            window.location.href = 'index.html';
+        }
+
+        loadProfile();
+    </script>
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <h3 class="footer-brand">Sabirkhan Pathan</h3>
+                <p class="footer-tagline">Weaving stories that touch your soul.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link"
+                        target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i
+                            class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-col links-col">
+                <h4 class="footer-heading">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="stories.html">Stories</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="books.html">Books</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col newsletter-col">
+                <h4 class="footer-heading">Stay Updated</h4>
+                <p class="newsletter-text">Subscribe to get the latest stats.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your Email" class="newsletter-input" required>
+                    <button type="submit" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

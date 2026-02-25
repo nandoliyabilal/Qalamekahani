@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Player | QalamVerse</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Circular+Std:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-base: #121212;
+            --bg-highlight: #1a1a1a;
+            --bg-press: #000000;
+            --text-base: #ffffff;
+            --text-subdued: #b3b3b3;
+            --accent-gold: #d4af37;
+            --player-height: 90px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-press);
+            color: var(--text-base);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: 1fr var(--player-height);
+            grid-template-columns: 350px 1fr;
+            /* Sidebar | Main */
+        }
+
+        /* SIDEBAR (Queue/Chapters) */
+        .sidebar {
+            background-color: var(--bg-base);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #282828;
+            grid-row: 1 / 2;
+            grid-column: 1 / 2;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: var(--text-base);
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .queue-list {
+            list-style: none;
+        }
+
+        .queue-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: var(--text-subdued);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .queue-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-base);
+        }
+
+        .queue-item.active {
+            color: var(--accent-gold);
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .queue-num {
+            margin-right: 15px;
+            font-variant-numeric: tabular-nums;
+            width: 20px;
+            text-align: right;
+        }
+
+        .queue-title {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .queue-icon {
+            margin-left: auto;
+            opacity: 0;
+        }
+
+        .queue-item.active .queue-icon {
+            opacity: 1;
+        }
+
+        /* MAIN CONTENT */
+        .main-view {
+            background: linear-gradient(180deg, #2a2a2a 0%, var(--bg-base) 100%);
+            grid-row: 1 / 2;
+            grid-column: 2 / 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px;
+            overflow: hidden;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .queue-toggle-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ... existing styles ... */
+
+        /* ... */
+
+        .now-playing-art {
+            width: 300px;
+            height: 300px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s;
+        }
+
+        .now-playing-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .now-playing-art.playing {
+            transform: scale(1.02);
+        }
+
+        .track-display {
+            text-align: center;
+        }
+
+        .track-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .track-artist {
+            color: var(--text-subdued);
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chapter-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        /* END SCREEN OVERLAY */
+        .end-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .end-overlay.visible {
+            display: flex;
+            opacity: 1;
+        }
+
+        .end-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--accent-gold);
+        }
+
+        .end-subtitle {
+            color: #ccc;
+            margin-bottom: 30px;
+        }
+
+        .rating-stars {
+            font-size: 2rem;
+            color: #444;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .rating-stars i.active {
+            color: var(--accent-gold);
+        }
+
+        .review-input {
+            width: 400px;
+            max-width: 90%;
+            height: 100px;
+            background: #222;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            resize: none;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+
+        .review-input:focus {
+            outline: 1px solid var(--accent-gold);
+        }
+
+        .submit-btn {
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* PLAYER BAR */
+        .player-bar {
+            grid-row: 2 / 3;
+            grid-column: 1 / 3;
+            background-color: #181818;
+            border-top: 1px solid #282828;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .player-left {
+            display: flex;
+            align-items: center;
+            width: 30%;
+            min-width: 180px;
+        }
+
+        .mini-art {
+            width: 56px;
+            height: 56px;
+            margin-right: 15px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .mini-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mini-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .mini-title {
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .mini-desc {
+            color: #b3b3b3;
+            font-size: 0.75rem;
+        }
+
+        .like-btn-mini {
+            margin-left: 20px;
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+        }
+
+        .like-btn-mini:hover {
+            color: #fff;
+        }
+
+        .like-btn-mini.active {
+            color: var(--accent-gold);
+        }
+
+        .player-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+            max-width: 722px;
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 8px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .control-btn:hover {
+            color: #fff;
+        }
+
+        .play-pause-btn {
+            width: 35px;
+            height: 35px;
+            background: #fff;
+            border-radius: 50%;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: transform 0.1s;
+        }
+
+        .play-pause-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .progress-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.7rem;
+            color: #b3b3b3;
+            font-family: monospace;
+        }
+
+        .progress-bg {
+            flex-grow: 1;
+            height: 4px;
+            background: #4d4d4d;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-gold);
+            width: 0%;
+            border-radius: 2px;
+        }
+
+        /* SIDEBAR TOGGLE STATE */
+        body.sidebar-closed {
+            grid-template-columns: 0px 1fr;
+        }
+
+        body.sidebar-closed .sidebar {
+            display: none;
+        }
+
+        @media (max-width: 800px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 85%;
+                height: 100%;
+                z-index: 200;
+                box-shadow: 5px 0 20px black;
+                background-color: #121212;
+            }
+
+            .sidebar.active {
+                display: block;
+            }
+
+            /* --- FINAL MOBILE FIX (Body Flex Column) --- */
+            @media (max-width: 800px) {
+                body {
+                    display: flex;
+                    /* Make body a flex container */
+                    flex-direction: column;
+                    height: 100dvh;
+                    /* Exact viewport height */
+                    overflow: hidden;
+                    /* No scrolling */
+                    background-color: #000;
+                }
+
+                .sidebar {
+                    position: absolute;
+                    height: 100%;
+                    z-index: 5000;
+                    /* Ensure sidebar covers everything */
+                }
+
+                /* 1. TOP SECTION (Image + Text) - Takes available space */
+                .main-view {
+                    grid-column: 1 / 2;
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1;
+                    /* Grow to fill space */
+                    min-height: 0;
+                    /* Allow shrinking */
+                    padding: 10px 20px 0;
+                    overflow: hidden;
+                    width: 100%;
+                    justify-content: center;
+                    /* Center content vertically */
+                }
+
+                .art-container {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    max-height: 50vh;
+                    /* CAP IMAGE HEIGHT to 50% of screen */
+                    min-height: 0;
+                    margin-top: 70px;
+                    /* User Request: 2px down */
+                    margin-bottom: 10px;
+                }
+
+                .now-playing-art {
+                    width: auto !important;
+                    height: auto !important;
+                    max-width: 100% !important;
+                    max-height: 100% !important;
+                    object-fit: contain !important;
+                    margin: 0 !important;
+                }
+
+                .track-display {
+                    flex-shrink: 0;
+                    width: 100%;
+                    text-align: left;
+                    margin-bottom: 5px;
+                }
+
+                /* 2. BOTTOM SECTION (Player Bar) - Fixed size */
+                .player-bar {
+                    flex-shrink: 0;
+                    /* Do not shrink */
+                    width: 100%;
+                    padding: 5px 20px 20px;
+                    /* Adjust padding */
+                    background: #000;
+                    /* Solid background */
+                    display: flex !important;
+                    /* Force visible */
+                    flex-direction: column;
+                    position: relative;
+                    z-index: 100;
+                }
+
+                .mobile-actions {
+                    display: flex !important;
+                    /* Force Visible */
+                    justify-content: space-around;
+                    /* Spread out options */
+                    margin-top: 15px;
+                    padding-top: 15px;
+                    border-top: 1px solid #222;
+                }
+            }
+
+            /* ---------------------------------------- */
+
+            /* Image Container - Flex Grow to take available space */
+            .art-container {
+                flex: 1;
+                /* Take all available space */
+                min-height: 0;
+                /* PERMIT SHRINKING */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            /* Main Art styling */
+            .now-playing-art {
+                width: auto;
+                height: auto;
+                max-width: 100%;
+                max-height: 100%;
+                /* Fit within container */
+                aspect-ratio: 1/1;
+                border-radius: 12px;
+                box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+                object-fit: contain;
+                /* Ensure full art is visible */
+            }
+
+            /* Info styling */
+            .track-display {
+                text-align: left;
+                width: 85vw;
+                max-width: 380px;
+                margin-bottom: 10px;
+            }
+
+            .track-title {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+
+            .track-artist {
+                font-size: 1rem;
+                color: #b3b3b3;
+            }
+
+            #chapter-badge {
+                display: none;
+            }
+
+            /* Player Bar Transform */
+            .player-bar {
+                position: static;
+                /* Move flow into main view essentially */
+                grid-row: auto;
+                background: transparent;
+                border: none;
+                height: auto;
+                flex-direction: column;
+                padding: 0;
+                width: 85vw;
+                max-width: 380px;
+                margin: 0 auto;
+            }
+
+            .player-left,
+            .player-right {
+                display: none;
+            }
+
+            .player-center {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+            }
+
+            /* Progress Bar Styling */
+            .progress-container {
+                width: 100%;
+                margin-bottom: 20px;
+                position: relative;
+                margin-top: 10px;
+            }
+
+            .progress-bg {
+                background: #333;
+                height: 4px;
+                border-radius: 2px;
+            }
+
+            #time-current {
+                position: absolute;
+                top: 10px;
+                left: 0;
+                font-size: 0.8rem;
+                color: #b3b3b3;
+            }
+
+            #time-total {
+                position: absolute;
+                top: 10px;
+                right: 0;
+                font-size: 0.8rem;
+                color: #b3b3b3;
+            }
+
+            /* Controls Styling */
+            .controls-row {
+                justify-content: space-between;
+                width: 100%;
+                margin-bottom: 20px;
+                gap: 0;
+            }
+
+            .play-pause-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+                background: #fff;
+                color: #000;
+            }
+
+            .control-btn {
+                font-size: 1.5rem;
+                /* Larger icons */
+                color: #fff;
+            }
+
+            /* Show Skip Buttons, Hide Shuffle/Repeat */
+            #shuffle-btn,
+            #repeat-btn {
+                display: none;
+            }
+
+            .skip-btn {
+                display: block;
+                /* Shown on mobile */
+                font-size: 0.9rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
+            }
+
+            .skip-btn i {
+                font-size: 1.4rem;
+                margin-bottom: 4px;
+            }
+
+            /* Mobile Actions Bar */
+            .mobile-actions {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                margin-top: 10px;
+                padding: 15px 30px;
+                background: #2a2a2a;
+                /* Card-like background */
+                border-radius: 40px;
+            }
+
+            .action-btn {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 1.2rem;
+                cursor: pointer;
+            }
+
+            .action-btn.active,
+            .action-btn.active i {
+                color: var(--accent-gold);
+            }
+        }
+
+        /* Default (Desktop) overrides to hide mobile elements */
+        @media (min-width: 801px) {
+            .mobile-actions {
+                display: none;
+            }
+
+            .skip-btn {
+                display: none;
+            }
+        }
+
+        .toast-msg {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-gold);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast-msg.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(10px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR WITH PLAYLIST -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div style="display:flex; gap:20px;">
+                <span id="tab-playlist"
+                    style="cursor:pointer; color:white; border-bottom: 2px solid var(--accent-gold);"
+                    onclick="switchTab('playlist')">Playlist</span>
+                <span id="tab-reviews" style="cursor:pointer; color:var(--text-subdued);"
+                    onclick="switchTab('reviews')">Reviews</span>
+            </div>
+            <div style="display:flex; gap:15px;">
+                <i class="fas fa-times" onclick="toggleSidebar()"
+                    style="cursor:pointer; font-size:1.1rem; opacity:0.8;"></i>
+            </div>
+        </div>
+
+        <!-- Playlist Container -->
+        <ul class="queue-list" id="queue-list">
+            <!-- Loaded via JS -->
+        </ul>
+
+        <!-- Reviews Container -->
+        <div id="reviews-container" style="display:none; color: #ccc; padding-top:10px;">
+            <div id="reviews-list"></div>
+            <button onclick="document.getElementById('end-overlay').classList.add('visible')"
+                style="width:100%; padding:10px; margin-top:20px; background:var(--accent-gold); border:none; border-radius:4px; font-weight:bold; cursor:pointer; color:black;">
+                Write a Review
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main View -->
+
+    <!-- Script merged below -->
+
+
+    <!-- MAIN VIEW -->
+    <main class="main-view">
+        <button class="back-btn" onclick="window.location.href='audio.html'"><i class="fas fa-arrow-left"></i></button>
+        <button class="queue-toggle-btn" onclick="toggleSidebar()"><i class="fas fa-list"></i></button>
+
+        <div class="art-container" id="art-container">
+            <img id="main-art" src="" alt="Album Art" class="now-playing-art">
+        </div>
+
+        <div class="track-display">
+            <h1 class="track-title" id="main-title">Loading...</h1>
+            <p class="track-artist" id="main-artist">Loading...</p>
+            <span class="chapter-tag" id="chapter-badge">Chapter 1</span>
+        </div>
+
+        <div class="end-overlay" id="end-overlay">
+            <h2 class="end-title">Thanks for Listening!</h2>
+            <p class="end-subtitle">How was the story?</p>
+            <div class="rating-stars" id="rating-stars">
+                <i class="far fa-star" data-val="1"></i>
+                <i class="far fa-star" data-val="2"></i>
+                <i class="far fa-star" data-val="3"></i>
+                <i class="far fa-star" data-val="4"></i>
+                <i class="far fa-star" data-val="5"></i>
+            </div>
+            <textarea class="review-input" id="review-text" placeholder="Write your review here..."></textarea>
+            <button class="submit-btn" onclick="submitReview()">Submit Review</button>
+            <button class="control-btn" onclick="location.reload()"
+                style="margin-top:15px; font-size:0.9rem;">Replay</button>
+        </div>
+    </main>
+
+    <!-- PLAYER BAR -->
+    <footer class="player-bar">
+        <div class="player-left">
+            <div class="mini-art">
+                <img id="mini-art-img" src="" alt="">
+            </div>
+            <div class="mini-text">
+                <div class="mini-title" id="mini-title">Story Title</div>
+                <div class="mini-desc" id="mini-chapter">Chapter 1</div>
+            </div>
+            <button class="like-btn-mini" onclick="toggleHeart()" id="like-btn"><i class="far fa-heart"></i></button>
+        </div>
+
+        <div class="player-center">
+            <div class="progress-container">
+                <span id="time-current">0:00</span>
+                <div class="progress-bg">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <span id="time-total">--:--</span>
+            </div>
+            <div class="controls-row" style="margin-top: 5px;">
+                <button class="control-btn" id="shuffle-btn" onclick="toggleShuffle()" title="Shuffle"><i
+                        class="fas fa-random"></i></button>
+                <button class="control-btn" onclick="prevChapter()"><i class="fas fa-step-backward"></i></button>
+
+                <!-- NEW: Skip Buttons -->
+                <button class="control-btn skip-btn" onclick="skipTime(-10)"><i class="fas fa-rotate-left"></i>
+                    10</button>
+
+                <button class="play-pause-btn" id="play-btn"><i class="fas fa-play"></i></button>
+
+                <button class="control-btn skip-btn" onclick="skipTime(10)"><i class="fas fa-rotate-right"></i>
+                    10</button>
+
+                <button class="control-btn" onclick="nextChapter(true)"><i class="fas fa-step-forward"></i></button>
+                <button class="control-btn" id="repeat-btn" onclick="toggleRepeat()" title="Repeat"><i
+                        class="fas fa-redo"></i></button>
+            </div>
+        </div>
+
+        <div class="player-right">
+            <i class="fas fa-volume-up" id="vol-icon" onclick="toggleMute()"
+                style="color:#b3b3b3; font-size:0.9rem; cursor:pointer;"></i>
+            <div id="vol-bar"
+                style="width: 80px; height: 4px; background: #4d4d4d; border-radius:2px; cursor:pointer; margin-left:10px;">
+                <div id="vol-fill" style="width: 100%; height:100%; background:#b3b3b3; border-radius:2px;"></div>
+            </div>
+        </div>
+
+        <!-- NEW: Mobile Action Bar (Speed, Like, Download, Share) -->
+        <div class="mobile-actions">
+            <button class="action-btn" onclick="toggleSpeed()">
+                <span id="speed-label">1x</span>
+            </button>
+            <button class="action-btn" onclick="toggleHeart()">
+                <i class="far fa-heart"></i>
+            </button>
+            <button class="action-btn" onclick="downloadAudio()">
+                <i class="fas fa-download"></i>
+            </button>
+            <button class="action-btn" onclick="shareAudio()">
+                <i class="fas fa-share-alt"></i>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        // --- LOGIC ---
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('You must be logged in to listen to audio stories.');
+            window.location.href = 'login.html';
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        let currentId = params.get('id');
+        let audioList = [];
+        let currentIndex = 0;
+        let audioPlayer = new Audio();
+        let isPlaying = false;
+
+        // New State Variables
+        let isShuffle = false;
+        let repeatMode = 0; // 0: None, 1: All, 2: One
+        let currentVolume = 1.0;
+        let isMuted = false;
+        let preMuteVolume = 1.0;
+
+        // DOM Elements
+        const els = {
+            mainTitle: document.getElementById('main-title'),
+            mainArtist: document.getElementById('main-artist'),
+            mainArt: document.getElementById('main-art'),
+            artContainer: document.getElementById('art-container'),
+            badge: document.getElementById('chapter-badge'),
+
+            miniTitle: document.getElementById('mini-title'),
+            miniCh: document.getElementById('mini-chapter'),
+            miniArt: document.getElementById('mini-art-img'),
+
+            playBtn: document.getElementById('play-btn'),
+            progressFill: document.getElementById('progress-fill'),
+            progressBg: document.querySelector('.player-center .progress-bg'),
+            endOverlay: document.getElementById('end-overlay'),
+
+            timeCurrent: document.getElementById('time-current'),
+            timeTotal: document.getElementById('time-total'),
+
+            shuffleBtn: document.getElementById('shuffle-btn'),
+            repeatBtn: document.getElementById('repeat-btn'),
+            volIcon: document.getElementById('vol-icon'),
+            volBar: document.getElementById('vol-bar'),
+            volFill: document.getElementById('vol-fill')
+        };
+
+        // --- REVIEW & TAB LOGIC ---
+        let currentTab = 'playlist';
+        let selectedRating = 5;
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const plTab = document.getElementById('tab-playlist');
+            const rvTab = document.getElementById('tab-reviews');
+            const plView = document.getElementById('queue-list');
+            const rvView = document.getElementById('reviews-container');
+
+            if (tab === 'playlist') {
+                plTab.style.color = 'white';
+                plTab.style.borderBottom = '2px solid var(--accent-gold)';
+                rvTab.style.color = 'var(--text-subdued)';
+                rvTab.style.borderBottom = 'none';
+                plView.style.display = 'block';
+                rvView.style.display = 'none';
+            } else {
+                rvTab.style.color = 'white';
+                rvTab.style.borderBottom = '2px solid var(--accent-gold)';
+                plTab.style.color = 'var(--text-subdued)';
+                plTab.style.borderBottom = 'none';
+                plView.style.display = 'none';
+                rvView.style.display = 'block';
+                loadReviews();
+            }
+        }
+
+        async function loadReviews() {
+            const container = document.getElementById('reviews-list');
+            container.innerHTML = '<p style="text-align:center;">Loading...</p>';
+
+            if (!currentId) return;
+
+            try {
+                const res = await fetch(`/api/reviews?targetId=${currentId}&targetType=audio`);
+                if (!res.ok) throw new Error('Failed');
+                const reviews = await res.json();
+
+                // Filter approved
+                const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true);
+
+                if (approved.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; opacity:0.7;">No reviews yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = approved.map(r => `
+                    <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #333;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span style="font-weight:bold; color:white; font-size:0.9rem;">${r.user_name || 'Listener'}</span>
+                            <span style="color:var(--accent-gold); font-size:0.8rem;">${'★'.repeat(r.rating)}</span>
+                        </div>
+                        <p style="font-size:0.85rem; line-height:1.4;">${r.comment}</p>
+                         <span style="font-size: 0.75rem; color: #666; display:block; margin-top:5px;">
+                            ${new Date(r.created_at).toLocaleDateString()}
+                        </span>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<p style="text-align:center; color:red;">Error loading reviews.</p>';
+            }
+        }
+
+        function showToast(msg) {
+            let t = document.getElementById('toast-msg');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'toast-msg';
+                t.className = 'toast-msg';
+                document.body.appendChild(t);
+            }
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => {
+                t.classList.remove('show');
+            }, 3000);
+        }
+
+        async function submitReview() {
+            const text = document.getElementById('review-text').value;
+
+            if (!text.trim()) {
+                showToast('Please write a review');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showToast('Please login to review');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        targetType: 'audio',
+                        targetId: currentId,
+                        rating: selectedRating,
+                        comment: text
+                        // name: 'Guest Listener' // Removed
+                    })
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(`${res.status}: ${errData.message || 'Unknown Error'}`);
+                }
+
+                showToast('Review submitted for approval!');
+                els.endOverlay.classList.remove('visible');
+                document.getElementById('review-text').value = '';
+                // Don't reload reviews immediately as it requires approval
+            } catch (e) {
+                console.error(e);
+                showToast(`Error: ${e.message}`);
+                alert(`Error submitting review: ${e.message}`);
+            }
+        }
+
+        function updateStars(val) {
+            document.querySelectorAll('#rating-stars i').forEach(star => {
+                const sVal = star.getAttribute('data-val');
+                if (sVal <= val) {
+                    star.className = 'fas fa-star active';
+                    star.style.color = '#d4af37';
+                } else {
+                    star.className = 'far fa-star';
+                    star.style.color = '#444';
+                }
+            });
+        }
+
+        // Init Stars
+        document.querySelectorAll('#rating-stars i').forEach(star => {
+            star.addEventListener('click', function () {
+                selectedRating = this.getAttribute('data-val');
+                updateStars(selectedRating);
+            });
+        });
+
+        async function init() {
+            try {
+                const res = await fetch('/api/audio');
+                if (!res.ok) throw new Error('Failed to fetch');
+                audioList = await res.json();
+
+                if (audioList.length > 0) {
+                    renderPlaylist();
+
+                    // Find requested ID or default to first
+                    const startIdx = audioList.findIndex(a => (a.id == currentId || a._id == currentId));
+
+                    if (startIdx >= 0) {
+                        loadTrack(startIdx);
+                    } else {
+                        // ID not found, load first
+                        console.warn('ID not found, loading first track');
+                        loadTrack(0);
+                    }
+                } else {
+                    els.mainTitle.textContent = "No Audio Stories Found";
+                }
+
+                // Check for payment success param
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('payment') === 'success') {
+                    showToast('Payment Successful! Story Unlocked.');
+                    // Clean URL
+                    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + currentId;
+                    window.history.replaceState({ path: newUrl }, '', newUrl);
+                }
+
+            } catch (e) {
+                console.error(e);
+                els.mainTitle.textContent = "Error Loading Audio";
+            }
+        }
+
+        function renderPlaylist() {
+            const list = document.getElementById('queue-list');
+            list.innerHTML = audioList.map((s, i) => `
+                <li class="queue-item ${i === currentIndex ? 'active' : ''}" onclick="playTrack(${i})">
+                    <span class="queue-num">${i + 1}</span>
+                    <span class="queue-title">${s.title}</span>
+                    ${i === currentIndex ? '<i class="fas fa-volume-up queue-icon" style="opacity:1;"></i>' : ''}
+                </li>
+            `).join('');
+        }
+
+        // DYNAMICALLY ADD OVERLAY
+        if (!document.getElementById('premium-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'end-overlay';
+            overlay.id = 'premium-overlay';
+            overlay.style.zIndex = '60';
+            overlay.style.background = 'rgba(0,0,0,0.95)';
+            overlay.innerHTML = `
+            <i class="fas fa-lock" style="font-size: 3rem; color: var(--accent-gold); margin-bottom: 20px;"></i>
+            <h2 class="end-title">Premium Content</h2>
+            <p class="end-subtitle" id="premium-msg">Unlock this audio story to listen.</p>
+            <button class="submit-btn" id="unlock-btn">Unlock Now</button>
+            <button class="control-btn" onclick="window.location.href='audio.html'"
+                style="margin-top:15px; font-size:0.9rem;">Back to Audio</button>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        async function loadTrack(index) {
+            if (index < 0 || index >= audioList.length) return;
+            currentIndex = index;
+            const track = audioList[index];
+            currentId = track.id || track._id;
+
+            // Update UI (Title, Image, etc.)
+            els.mainTitle.textContent = track.title;
+            els.mainArtist.textContent = track.author || 'Unknown Author';
+            els.mainArt.src = track.image || 'images/audio-cover.png';
+            els.badge.textContent = track.category || 'General';
+
+            els.miniTitle.textContent = track.title;
+            els.miniCh.textContent = track.category || 'Audio';
+            els.miniArt.src = track.image || 'images/audio-cover.png';
+
+            // --- PREMIUM CHECK ---
+            const price = parseFloat(track.price || 0);
+            const discount = parseFloat(track.discount || 0);
+            let isPremium = price > 0;
+            let hasAccess = !isPremium;
+
+            if (isPremium) {
+                // Check if user owns it
+                const token = localStorage.getItem('token');
+                if (token) {
+                    try {
+                        // Optimisation: Cache orders or fetch once?
+                        // For now, fetch to be safe.
+                        const res = await fetch('/api/orders/mine', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (res.ok) {
+                            const orders = await res.json();
+                            // Check if audioId is in orders
+                            // Backend order structure handles story_id / book_id. 
+                            // I need to ensure backend stores audio_id or generic item_id.
+                            // Assuming backend was updated or I will update it next.
+                            const bought = orders.some(o => o.audio_id === currentId || (o.items && o.items.some(i => i.audio_id === currentId)));
+                            if (bought) hasAccess = true;
+                        }
+                    } catch (e) { console.error('Error checking orders', e); }
+                }
+            }
+
+            if (!hasAccess) {
+                // LOCK IT
+                let displayPrice = price;
+                if (discount > 0) {
+                    displayPrice = Math.round(price - (price * discount / 100));
+                }
+
+                document.getElementById('premium-msg').innerHTML = `Unlock for <span style="color:var(--accent-gold); font-weight:bold;">₹${displayPrice}</span>`;
+                els.unlockBtn.onclick = () => {
+                    window.location.href = `checkout.html?audioId=${currentId}`;
+                };
+
+                document.getElementById('premium-overlay').classList.add('visible');
+
+                // Hide or Disable Player
+                audioPlayer.src = "";
+                resetTimer();
+                return;
+            } else {
+                document.getElementById('premium-overlay').classList.remove('visible');
+            }
+
+            // Set Audio Source
+            // Assuming file_url is relative 'uploads/...'
+            audioPlayer.src = track.file_url.startsWith('http') ? track.file_url : '/' + track.file_url;
+
+            renderPlaylist();
+            resetTimer();
+        }
+
+        window.playTrack = (index) => {
+            loadTrack(index);
+            // Only play if not locked (audioPlayer.src will be empty if locked)
+            if (audioPlayer.src && audioPlayer.src !== window.location.href) {
+                // Check if overlay is visible
+                if (!document.getElementById('premium-overlay').classList.contains('visible')) {
+                    togglePlay();
+                }
+            }
+        };
+
+        function resetTimer() {
+            els.timeCurrent.textContent = "0:00";
+            els.timeTotal.textContent = "--:--"; // Will update on metadata
+            els.progressFill.style.width = '0%';
+            isPlaying = false;
+            updatePlayIcon();
+            els.artContainer.classList.remove('playing');
+        }
+
+        // Audio Events
+        audioPlayer.onloadedmetadata = () => {
+            els.timeTotal.textContent = formatTime(audioPlayer.duration);
+        };
+
+        audioPlayer.ontimeupdate = () => {
+            if (audioPlayer.duration) {
+                const pct = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                els.progressFill.style.width = pct + '%';
+                els.timeCurrent.textContent = formatTime(audioPlayer.currentTime);
+            }
+        };
+
+        audioPlayer.onended = () => {
+            if (repeatMode === 2) {
+                // Repeat One
+                audioPlayer.currentTime = 0;
+                audioPlayer.play();
+            } else {
+                nextChapter(true); // Auto next
+            }
+        };
+
+        function togglePlay() {
+            if (audioPlayer.paused) {
+                audioPlayer.play().then(() => {
+                    isPlaying = true;
+                    updatePlayIcon();
+                    els.artContainer.classList.add('playing');
+                }).catch(e => console.error(e));
+            } else {
+                audioPlayer.pause();
+                isPlaying = false;
+                updatePlayIcon();
+                els.artContainer.classList.remove('playing');
+            }
+        }
+
+        els.playBtn.addEventListener('click', togglePlay);
+
+        function updatePlayIcon() {
+            const i = els.playBtn.querySelector('i');
+            i.className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+        }
+
+        // Seeking
+        els.progressBg.addEventListener('click', (e) => {
+            const rect = els.progressBg.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            if (audioPlayer.duration) {
+                audioPlayer.currentTime = pos * audioPlayer.duration;
+            }
+        });
+
+        // Controls Logic
+
+        window.toggleShuffle = () => {
+            isShuffle = !isShuffle;
+            els.shuffleBtn.style.color = isShuffle ? 'var(--accent-gold)' : '#b3b3b3';
+        };
+
+        window.toggleRepeat = () => {
+            repeatMode = (repeatMode + 1) % 3;
+            // 0: #b3b3b3, 1: gold (All), 2: gold + '1' badge logic usually, but here simple color
+            if (repeatMode === 0) {
+                els.repeatBtn.style.color = '#b3b3b3';
+                els.repeatBtn.innerHTML = '<i class="fas fa-redo"></i>';
+            } else if (repeatMode === 1) {
+                els.repeatBtn.style.color = 'var(--accent-gold)';
+                els.repeatBtn.innerHTML = '<i class="fas fa-redo"></i>';
+            } else {
+                els.repeatBtn.style.color = 'var(--accent-gold)';
+                els.repeatBtn.innerHTML = '<i class="fas fa-redo-alt"></i><span style="font-size:0.6rem; vertical-align:top;">1</span>';
+            }
+        };
+
+        window.nextChapter = (auto = false) => {
+            if (isShuffle) {
+                // Random index
+                let r;
+                do {
+                    r = Math.floor(Math.random() * audioList.length);
+                } while (r === currentIndex && audioList.length > 1);
+                playTrack(r);
+            } else {
+                if (currentIndex < audioList.length - 1) {
+                    playTrack(currentIndex + 1);
+                } else if (repeatMode === 1 && auto) {
+                    // Loop back to start if Repeat All
+                    playTrack(0);
+                } else if (auto) {
+                    // End of playlist
+                    showEndScreen();
+                }
+            }
+        };
+
+        window.prevChapter = () => {
+            if (audioPlayer.currentTime > 3) {
+                audioPlayer.currentTime = 0;
+                return;
+            }
+            if (currentIndex > 0) playTrack(currentIndex - 1);
+            else playTrack(0);
+        };
+
+        // Volume Logic
+        window.toggleMute = () => {
+            if (audioPlayer.muted) {
+                audioPlayer.muted = false;
+                els.volFill.style.width = (preMuteVolume * 100) + '%';
+                if (preMuteVolume === 0) els.volIcon.className = 'fas fa-volume-off';
+                else if (preMuteVolume < 0.5) els.volIcon.className = 'fas fa-volume-down';
+                else els.volIcon.className = 'fas fa-volume-up';
+            } else {
+                preMuteVolume = audioPlayer.volume;
+                audioPlayer.muted = true;
+                els.volFill.style.width = '0%';
+                els.volIcon.className = 'fas fa-volume-mute';
+            }
+        };
+
+        els.volBar.addEventListener('click', (e) => {
+            const rect = els.volBar.getBoundingClientRect();
+            let val = (e.clientX - rect.left) / rect.width;
+            if (val < 0) val = 0;
+            if (val > 1) val = 1;
+
+            audioPlayer.volume = val;
+            audioPlayer.muted = false;
+            els.volFill.style.width = (val * 100) + '%';
+
+            if (val === 0) els.volIcon.className = 'fas fa-volume-off';
+            else if (val < 0.5) els.volIcon.className = 'fas fa-volume-down';
+            else els.volIcon.className = 'fas fa-volume-up';
+        });
+
+        function formatTime(secs) {
+            if (!secs || isNaN(secs)) return "0:00";
+            const m = Math.floor(secs / 60);
+            const s = Math.floor(secs % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function showEndScreen() {
+            isPlaying = false;
+            updatePlayIcon();
+            els.artContainer.classList.remove('playing');
+            els.endOverlay.classList.add('visible');
+        }
+
+        // Legacy code removed. API-based submitReview is defined in the previous script block.
+
+
+        window.toggleSidebar = () => {
+            const body = document.body;
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth > 800) {
+                body.classList.toggle('sidebar-closed');
+            } else {
+                sidebar.style.display = (getComputedStyle(sidebar).display === 'none') ? 'block' : 'none';
+            }
+        };
+
+        window.toggleHeart = (btn) => {
+            // Toggle all heart buttons
+            const hearts = document.querySelectorAll('.like-btn-mini, .mobile-actions .action-btn .fa-heart');
+            const isActive = document.getElementById('like-btn').classList.contains('active');
+
+            hearts.forEach(h => {
+                if (h.tagName === 'BUTTON') {
+                    h.classList.toggle('active');
+                } else if (h.classList.contains('fa-heart')) {
+                    // For the icon inside the mobile button
+                    if (isActive) {
+                        h.classList.remove('fas');
+                        h.classList.add('far');
+                        h.parentElement.classList.remove('active');
+                    } else {
+                        h.classList.remove('far');
+                        h.classList.add('fas');
+                        h.parentElement.classList.add('active');
+                    }
+                }
+            });
+            // Update the main one specifically if needed or rely on above
+            document.getElementById('like-btn').classList.toggle('active', !isActive);
+        };
+
+        window.skipTime = (seconds) => {
+            if (audioPlayer.duration) {
+                audioPlayer.currentTime = Math.min(Math.max(audioPlayer.currentTime + seconds, 0), audioPlayer.duration);
+            }
+        };
+
+        window.toggleSpeed = () => {
+            const speeds = [1.0, 1.25, 1.5, 2.0, 0.5];
+            // Find current index
+            let currentSpeed = audioPlayer.playbackRate;
+            let idx = speeds.indexOf(currentSpeed);
+            if (idx === -1) idx = 0;
+
+            let nextIdx = (idx + 1) % speeds.length;
+            let nextSpeed = speeds[nextIdx];
+
+            audioPlayer.playbackRate = nextSpeed;
+            document.getElementById('speed-label').textContent = nextSpeed + 'x';
+        };
+
+        // NEW FUNCTIONS: Download & Share
+        async function downloadAudio() {
+            if (audioList.length > 0) {
+                const track = audioList[currentIndex];
+                const url = track.audio_url || track.audio || track.url || track.file_url;
+                if (!url) { showToast('No audio URL found'); return; }
+
+                showToast('Starting download...');
+
+                try {
+                    // Fetch blob to force download
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const blob = await response.blob();
+                    const blobUrl = window.URL.createObjectURL(blob);
+
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = (track.title || 'audio') + '.mp3';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(blobUrl);
+                    showToast('Download complete!');
+                } catch (e) {
+                    console.error('Download failed:', e);
+                    // Fallback to direct link
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.target = '_blank';
+                    link.download = (track.title || 'audio') + '.mp3';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+        }
+
+        async function shareAudio() {
+            if (audioList.length > 0) {
+                const track = audioList[currentIndex];
+                const shareData = {
+                    title: track.title,
+                    text: 'Listen to ' + track.title + ' on QalamVerse!',
+                    url: window.location.href
+                };
+
+                try {
+                    // Try Native Share
+                    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                        await navigator.share(shareData);
+                    } else {
+                        throw new Error('Web Share API not supported');
+                    }
+                } catch (err) {
+                    console.log('Share API failed, falling back to clipboard', err);
+
+                    // Try Modern Clipboard
+                    try {
+                        await navigator.clipboard.writeText(window.location.href);
+                        showToast('Link copied to clipboard!');
+                    } catch (clipErr) {
+                        // Fallback: Legacy Input Hack (Works everywhere)
+                        const tempInput = document.createElement("input");
+                        tempInput.style.position = "absolute";
+                        tempInput.style.left = "-9999px";
+                        tempInput.value = window.location.href;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        try {
+                            document.execCommand("copy");
+                            showToast('Link copied to clipboard!');
+                        } catch (execErr) {
+                            showToast('Could not share or copy link');
+                        }
+                        document.body.removeChild(tempInput);
+                    }
+                }
+            }
+        }
+
+        // Initialize
+        async function init() {
+            try {
+                const res = await fetch('/api/audio');
+                if (!res.ok) throw new Error(`Server Error: ${res.status}`);
+                let allAudio = await res.json();
+
+                if (allAudio.length > 0) {
+                    // Find requested ID
+                    let targetTrack = allAudio.find(a => (a.id == currentId || a._id == currentId));
+
+                    // If not found in list but we have an ID, maybe it's valid but not in the default list?
+                    // But assume allAudio is complete list for now.
+                    if (!targetTrack && currentId) {
+                        // Try fetching single if missing from list (edge case)
+                        try {
+                            const singleRes = await fetch(`/api/audio/${currentId}`);
+                            if (singleRes.ok) targetTrack = await singleRes.json();
+                        } catch (e) { }
+                    }
+
+                    if (!targetTrack) {
+                        // Fallback to first if ID invalid
+                        targetTrack = allAudio[0];
+                        currentId = targetTrack.id;
+                    }
+
+                    // --- FILTERING LOGIC ---
+                    const price = parseFloat(targetTrack.price || 0);
+                    const isPremium = price > 0;
+
+                    if (isPremium) {
+                        // If Premium: Playlist = ONLY this track (Isolation)
+                        audioList = [targetTrack];
+                    } else {
+                        // If Free: Playlist = All FREE tracks (Exclude Premium)
+                        audioList = allAudio.filter(t => !t.price || parseFloat(t.price) <= 0);
+                    }
+
+                    renderPlaylist();
+
+                    // Find new index in filtered list
+                    const startIdx = audioList.findIndex(a => (a.id == currentId || a._id == currentId));
+
+                    if (startIdx >= 0) {
+                        loadTrack(startIdx);
+                    } else {
+                        // Should not happen if logic is correct
+                        loadTrack(0);
+                    }
+                } else {
+                    els.mainTitle.textContent = "No Audio Stories Found";
+                }
+
+                // Check for reviews if id exists
+                if (currentId) {
+                    loadReviews();
+                }
+
+            } catch (e) {
+                console.error(e);
+                els.mainTitle.textContent = "Error Logged";
+                els.mainArtist.textContent = e.message;
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

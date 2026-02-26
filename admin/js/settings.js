@@ -171,7 +171,6 @@ async function handleContactSettings(e) {
         contactAddress: document.getElementById('contactAddress').value
     };
     await saveSettings(data, 'Contact information saved successfully!');
-    await saveSettings(data, 'Contact information saved successfully!');
 }
 
 window.previewAboutImage = function (input) {

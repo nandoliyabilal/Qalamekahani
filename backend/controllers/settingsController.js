@@ -5,10 +5,12 @@ const supabase = require('../config/supabase');
 // @route   GET /api/settings
 // @access  Public
 const getSettings = asyncHandler(async (req, res) => {
-    let { data: settings, error } = await supabase
+    let { data: settingsArray, error } = await supabase
         .from('settings')
         .select('*')
-        .single();
+        .limit(1);
+
+    let settings = settingsArray && settingsArray.length > 0 ? settingsArray[0] : null;
 
     if (error || !settings) {
         // If not found, insert defaults
@@ -56,7 +58,33 @@ const getSettings = asyncHandler(async (req, res) => {
 // @route   PUT /api/settings
 // @access  Private/Admin
 const updateSettings = asyncHandler(async (req, res) => {
-    let { data: settings } = await supabase.from('settings').select('*').single();
+    // Safely get the settings row - use limit(1) instead of single() to avoid error if multiple rows exist
+    let { data: settingsArray, error: fetchError } = await supabase
+        .from('settings')
+        .select('*')
+        .limit(1);
+
+    if (fetchError) {
+        res.status(500);
+        throw new Error('Failed to fetch settings');
+    }
+
+    let settings = settingsArray && settingsArray.length > 0 ? settingsArray[0] : null;
+
+    // If no settings exist yet, create one
+    if (!settings) {
+        const { data: newSettings, error: insertError } = await supabase
+            .from('settings')
+            .insert([{}])
+            .select()
+            .single();
+
+        if (insertError) {
+            res.status(500);
+            throw new Error('Failed to create settings');
+        }
+        settings = newSettings;
+    }
 
     const updates = {
         site_name: req.body.siteName,

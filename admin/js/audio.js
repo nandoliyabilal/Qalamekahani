@@ -64,9 +64,10 @@ function renderTable() {
             <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                     <div class="relative">
-                        <img src="../${audio.image || 'images/audio-cover.png'}" onerror="this.src='https://placehold.co/40'" class="w-10 h-10 rounded-lg object-cover bg-gray-700">
+                        <img src="${(audio.image && audio.image.startsWith('http')) ? audio.image : '../' + (audio.image || 'images/audio-cover.png')}" onerror="this.src='https://placehold.co/40'" class="w-10 h-10 rounded-lg object-cover bg-gray-700">
                         ${isPremium ? '<div class="absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border border-gray-800"></div>' : ''}
                     </div>
+
                     <div class="font-medium text-white">
                         ${audio.title} ${premiumBadge}
                         <div class="text-xs text-gray-500 font-normal">${audio.author || 'Unknown Author'}</div>

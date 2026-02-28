@@ -11,11 +11,11 @@ router.post('/', protect, upload.single('file'), (req, res) => {
         return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    // Return relative path
-    const relativePath = `uploads/${req.file.filename}`;
+    // Return Cloudinary Secure URL
+    const fileUrl = req.file.path;
 
     res.status(200).json({
-        url: relativePath,
+        url: fileUrl,
         filename: req.file.filename
     });
 });

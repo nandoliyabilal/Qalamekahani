@@ -118,7 +118,8 @@ function setupImageUpload() {
             urlInput.value = data.url; // Assuming backend returns relative path or full URL
 
             // Show preview
-            preview.style.backgroundImage = `url(/${data.url})`;
+            const previewUrl = data.url.startsWith('http') ? data.url : `/${data.url}`;
+            preview.style.backgroundImage = `url(${previewUrl})`;
             preview.classList.remove('hidden');
 
             status.textContent = 'Upload Successful';
@@ -199,9 +200,11 @@ window.editBlog = (id) => {
     document.getElementById('language').value = blog.language || 'English';
 
     if (blog.image) {
-        document.getElementById('imagePreview').style.backgroundImage = `url(/${blog.image})`;
+        const previewUrl = blog.image.startsWith('http') ? blog.image : `/${blog.image}`;
+        document.getElementById('imagePreview').style.backgroundImage = `url(${previewUrl})`;
         document.getElementById('imagePreview').classList.remove('hidden');
     }
+
 };
 
 // Delete Blog

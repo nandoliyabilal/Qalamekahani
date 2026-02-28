@@ -56,6 +56,25 @@ function populateSettings(settings) {
     setVal('aboutShort', settings.aboutShort || settings.aboutText); // Fallback
     setVal('aboutLong', settings.aboutLong);
     setVal('aboutImage', settings.aboutImage);
+
+    // Initial Previews
+    if (settings.heroImage) {
+        const heroPreview = document.getElementById('heroImagePreview');
+        if (heroPreview) {
+            const img = heroPreview.querySelector('img');
+            img.src = settings.heroImage;
+            heroPreview.classList.remove('hidden');
+        }
+    }
+    if (settings.aboutImage) {
+        const aboutPreview = document.getElementById('aboutImagePreview');
+        if (aboutPreview) {
+            const img = aboutPreview.querySelector('img');
+            img.src = settings.aboutImage;
+            aboutPreview.classList.remove('hidden');
+        }
+    }
+
 }
 
 // Load Admin Profile (Name, Email)
@@ -129,7 +148,7 @@ async function handleHeroSettings(e) {
             // We need to make sure the URL is accessible from frontend.
             // Usually it's relative path like 'uploads/file.jpg'.
             // If frontend is separate, might need full URL, but here backend serves static.
-            imageUrl = uploadData.url.startsWith('/') ? uploadData.url : '/' + uploadData.url;
+            imageUrl = uploadData.url;
 
             // Update the hidden/visual input
             document.getElementById('heroImage').value = imageUrl;
@@ -218,7 +237,7 @@ async function handleAboutSettings(e) {
             }
 
             const uploadData = await uploadRes.json();
-            imageUrl = uploadData.url.startsWith('/') ? uploadData.url : '/' + uploadData.url;
+            imageUrl = uploadData.url;
             document.getElementById('aboutImage').value = imageUrl;
         }
 

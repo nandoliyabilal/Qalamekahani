@@ -1,4 +1,5 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * Premium Email Template Wrapper
@@ -160,13 +161,7 @@ const getPremiumTemplate = (content, previewText = '') => {
  * Master Email Sender Utility
  */
 const sendEmail = async ({ email, subject, message, html, type, itemData }) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USERNAME,
-            pass: process.env.EMAIL_PASSWORD
-        }
-    });
+    // The Resend SDK will be used instead of Nodemailer
 
     let finalHtml = html;
 
@@ -299,16 +294,25 @@ const sendEmail = async ({ email, subject, message, html, type, itemData }) => {
         finalHtml = getPremiumTemplate(`<div class="message">${message || ''}</div>`);
     }
 
-    const mailOptions = {
-        from: `QalamVerse <${process.env.EMAIL_USERNAME}>`,
-        to: Array.isArray(email) ? undefined : email,
-        bcc: Array.isArray(email) ? email.join(',') : undefined,
-        subject: subject,
-        text: message,
-        html: finalHtml
-    };
+    try {
+        const { data, error } = await resend.emails.send({
+            from: 'QalamVerse <onboarding@resend.dev>', // Update to your domain once verified
+            to: Array.isArray(email) ? email : [email],
+            subject: subject,
+            html: finalHtml,
+            text: message || 'Please enable HTML to view this message.'
+        });
 
-    return await transporter.sendMail(mailOptions);
+        if (error) {
+            console.error('[EMAIL ERROR] Resend Fail:', error);
+            throw new Error(error.message);
+        }
+
+        return data;
+    } catch (err) {
+        console.error('[EMAIL ERROR] System Fail:', err.message);
+        throw err;
+    }
 };
 
 module.exports = { sendEmail };

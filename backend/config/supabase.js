@@ -6,7 +6,15 @@ dotenv.config();
 const https = require('https');
 
 // Custom fetch to bypass local DNS poison/block
+// Only apply manual IP bypass if specifically needed for local DNS blocks
+const isBypassNeeded = !process.env.RENDER && (process.env.NODE_ENV !== 'production');
+
 const customFetch = (url, options = {}) => {
+    // If not on a blocked environment, use standard fetch
+    if (!isBypassNeeded) {
+        return fetch(url, options);
+    }
+
     return new Promise((resolve, reject) => {
         const urlObj = new URL(url);
 

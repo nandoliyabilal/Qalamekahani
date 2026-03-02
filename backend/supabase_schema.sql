@@ -77,7 +77,7 @@ create table public.reviews (
 -- 6. Settings Table
 create table public.settings (
   id uuid default gen_random_uuid() primary key,
-  site_name text default 'QalamVerse',
+  site_name text default 'Qalamekahani',
   maintenance_mode boolean default false,
   contact_email text,
   created_at timestamp with time zone default timezone('utc'::text, now())

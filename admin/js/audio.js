@@ -78,7 +78,7 @@ function renderTable() {
             <td class="px-6 py-4 text-gray-400 font-mono text-xs">${audio.duration || '--:--'}</td>
             <td class="px-6 py-4"><span class="px-2 py-1 text-xs rounded-full bg-gray-700 text-gray-300">${audio.category || 'General'}</span></td>
             <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="flex items-center justify-end gap-2 transition-opacity">
                     <button onclick="editAudio('${audio.id || audio._id}')" class="p-2 bg-gray-700 hover:bg-indigo-600 text-gray-300 hover:text-white rounded-lg"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
                     <button onclick="deleteAudio('${audio.id || audio._id}')" class="p-2 bg-gray-700 hover:bg-red-600 text-gray-300 hover:text-white rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </div>
@@ -160,8 +160,16 @@ async function deleteAudio(id) {
     if (!confirm('Are you sure?')) return;
     try {
         const response = await fetchWithAuth(`/audio/${id}`, { method: 'DELETE' });
-        if (response.ok) fetchAudio();
-    } catch (e) { console.error(e); }
+        if (response.ok) {
+            fetchAudio();
+        } else {
+            const err = await response.json();
+            alert(`Delete failed: ${err.message}`);
+        }
+    } catch (e) {
+        console.error(e);
+        alert(`Error: ${e.message}`);
+    }
 }
 
 async function handleFormSubmit(e) {

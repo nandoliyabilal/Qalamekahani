@@ -187,8 +187,8 @@ const createStory = asyncHandler(async (req, res) => {
         throw new Error(error.message);
     }
 
-    // Trigger Notification (Async - don't block response)
-    sendEmailNotification(data, 'story');
+    // Trigger Notification (Wait for it to send)
+    await sendEmailNotification(data, 'story');
 
     res.status(201).json(data);
 });

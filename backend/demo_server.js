@@ -230,7 +230,7 @@ app.get('/api/admin/stats', (req, res) => {
 // Mock Users API
 app.get('/api/users', (req, res) => {
     res.json([
-        { id: 1, name: 'Admin User', email: 'admin@qalamverse.com', role: 'Super Admin', status: 'Active' },
+        { id: 1, name: 'Admin User', email: 'admin@qalamekahani.com', role: 'Super Admin', status: 'Active' },
         { id: 2, name: 'Bilal Nandoliya', email: 'user@example.com', role: 'Editor', status: 'Active' },
         { id: 3, name: 'John Doe', email: 'john@gmail.com', role: 'User', status: 'Blocked' }
     ]);
@@ -243,7 +243,7 @@ app.get('/api/reviews', (req, res) => {
 
 // Mock Settings API
 app.get('/api/settings', (req, res) => {
-    res.json({ siteName: 'QalamVerse', maintenanceMode: false });
+    res.json({ siteName: 'Qalamekahani', maintenanceMode: false });
 });
 
 // 4. Auth API (Mock - Always Success)

@@ -64,7 +64,7 @@ const createBlog = asyncHandler(async (req, res) => {
     }
 
     // Trigger Notification
-    sendEmailNotification(data, 'blog');
+    await sendEmailNotification(data, 'blog');
 
     res.status(201).json(data);
 });

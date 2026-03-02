@@ -31,56 +31,21 @@ const getAudioStoryById = asyncHandler(async (req, res) => {
         story = result.data;
         error = result.error;
     } catch (e) {
-        // Checking for fetch error (e.g. invalid syntax for UUID if 'id' is int)
         console.log(`[DEBUG] Query by 'id' failed: ${e.message}`);
     }
 
-    // Attempt 2: If failed or not found, try '_id' column (if it exists)
-    if (!story || (error && error.code !== 'PGRST116')) {
-        console.log(`[DEBUG] Retrying with '_id'...`);
-        try {
-            const fallback = await supabase
-                .from('audio_stories')
-                .select('*')
-                .eq('_id', id)
-                .single();
-
-            if (fallback.data) {
-                story = fallback.data;
-                error = null; // Clear error if found
-            }
-        } catch (e2) {
-            console.log(`[DEBUG] Query by '_id' also failed: ${e2.message}`);
-        }
-    }
-
     if (error || !story) {
-        // Fallback for list scanning (Last Resort - Slow but reliable)
-        if (!story) {
-            console.log(`[DEBUG] Last Resort: Scanning list...`);
-            const { data: all } = await supabase.from('audio_stories').select('*');
-            if (all) {
-                story = all.find(s => String(s.id) === id || String(s._id) === id);
-            }
+        // Fallback for list scanning
+        console.log(`[DEBUG] Attempting scan/fallback...`);
+        const { data: all } = await supabase.from('audio_stories').select('*');
+        if (all) {
+            story = all.find(s => String(s.id) === id);
         }
     }
 
     if (!story) {
-        // Collect diagnostics
-        const diagnostics = {
-            searchedId: id,
-            idLength: id.length,
-            errorMsg: error ? error.message : 'No DB Error',
-            fallbackChecked: true,
-            foundInFallback: false
-        };
-        console.error(`[ERROR] Audio 404 Diagnostics:`, diagnostics);
-
-        res.status(404).json({
-            message: `Audio story not found. Diagnostics: ID=${id}, Len=${id.length}, DB_Err=${error?.code}`,
-            diagnostics
-        });
-        throw new Error('Audio story not found'); // This might be caught by error handler but json sent already
+        res.status(404).json({ message: 'Audio story not found' });
+        return;
     }
 
     res.status(200).json(story);
@@ -100,13 +65,10 @@ const createAudioStory = asyncHandler(async (req, res) => {
         throw new Error(error.message);
     }
 
-    // Trigger Notification
-    sendEmailNotification(data, 'audio');
-
+    await sendEmailNotification(data, 'audio');
     res.status(201).json(data);
 });
 
-// Implement Update/Delete similarly if needed
 const updateAudioStory = asyncHandler(async (req, res) => {
     const { data, error } = await supabase
         .from('audio_stories')
@@ -123,16 +85,65 @@ const updateAudioStory = asyncHandler(async (req, res) => {
 });
 
 const deleteAudioStory = asyncHandler(async (req, res) => {
-    const { error } = await supabase
+    const id = req.params.id;
+    console.log(`[DEBUG] Deleting Audio ID: '${id}'`);
+
+    if (!id) {
+        res.status(400);
+        throw new Error('ID is required for deletion');
+    }
+
+    // Step 0: Handle Foreign Key Constraints in 'orders' table
+    // If an audio story has orders, the DB will block deletion due to foreign key constraint.
+    // We nullify the reference in orders so we can delete the audio story.
+    try {
+        await supabase
+            .from('orders')
+            .update({ audio_id: null })
+            .eq('audio_id', id);
+
+        // Also try for numeric ID just in case
+        if (!isNaN(id)) {
+            await supabase
+                .from('orders')
+                .update({ audio_id: null })
+                .eq('audio_id', parseInt(id));
+        }
+    } catch (err) {
+        console.warn(`[DEBUG] Orders cleanup warning:`, err.message);
+    }
+
+    // Step 1: Try deleting by id (Standard UUID/String)
+    const { data, error } = await supabase
         .from('audio_stories')
         .delete()
-        .eq('id', req.params.id);
+        .eq('id', id)
+        .select();
 
     if (error) {
+        console.error(`[DEBUG] Delete error:`, error.message);
+        // Fallback for numeric ID
+        if (!isNaN(id)) {
+            const { data: dataInt, error: errorInt } = await supabase
+                .from('audio_stories')
+                .delete()
+                .eq('id', parseInt(id))
+                .select();
+
+            if (dataInt && dataInt.length > 0) {
+                return res.status(200).json({ status: 'success', id });
+            }
+        }
         res.status(400);
         throw new Error(error.message);
     }
-    res.status(200).json({ id: req.params.id });
+
+    if (data && data.length > 0) {
+        return res.status(200).json({ status: 'success', id });
+    }
+
+    res.status(404);
+    throw new Error('Audio story not found');
 });
 
 module.exports = { getAudioStories, getAudioStoryById, createAudioStory, updateAudioStory, deleteAudioStory };

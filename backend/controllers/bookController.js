@@ -43,7 +43,7 @@ const createBook = asyncHandler(async (req, res) => {
     }
 
     // Trigger Notification
-    sendEmailNotification(data, 'book');
+    await sendEmailNotification(data, 'book');
 
     res.status(201).json(data);
 });

@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(story => {
             // Populate Hero Meta
-            document.title = `${story.title} | Read QalamVerse`;
+            document.title = `${story.title} | Read Qalamekahani`;
             document.getElementById('header-story-title').textContent = story.title;
             document.getElementById('hero-title').textContent = story.title;
             document.getElementById('hero-category').textContent = story.category || 'Story';

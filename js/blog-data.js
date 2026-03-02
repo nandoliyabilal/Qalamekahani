@@ -58,16 +58,16 @@ const blogData = [
     },
     {
         id: 4,
-        title: "The Future of QalamVerse: What's Coming Next?",
+        title: "The Future of Qalamekahani: What's Coming Next?",
         category: "Updates",
         author: "Sabirkhan Pathan",
         date: "December 15, 2025",
         readTime: "2 min read",
         image: "images/hero.png",
         excerpt: "Sneak peeks into the upcoming 'Neon Nights' audio series and the launch of our exclusive merchandise store.",
-        tags: ["News", "Updates", "QalamVerse"],
+        tags: ["News", "Updates", "Qalamekahani"],
         content: `
-            <p>2026 is going to be a massive year for QalamVerse. We started as a small blog, and now we are an ecosystem of stories. I am incredibly grateful for this community.</p>
+            <p>2026 is going to be a massive year for Qalamekahani. We started as a small blog, and now we are an ecosystem of stories. I am incredibly grateful for this community.</p>
             <h2>Project: Neon Nights</h2>
             <p>I am thrilled to announce our first full-cast Cyberpunk audio drama, "Neon Nights." It's set in a dystopian Mumbai where memories are currency. Casting is complete, and production begins next week.</p>
             <h2>Qalam Shop</h2>

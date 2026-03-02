@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Story Details | QalamVerse</title>
+    <title>Story Details | Qalamekahani</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
         rel="stylesheet">
@@ -24,7 +24,7 @@
 <body>
     <header class="header">
         <div class="nav-container">
-            <a href="index.html" class="logo">QalamVerse</a>
+            <a href="index.html" class="logo">Qalamekahani</a>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="stories.html" class="active">Stories</a></li>
@@ -245,7 +245,7 @@
                 if (!story.price || story.price <= 0) window.storyHasAccess = true;
 
                 // Populate Page
-                document.title = `${story.title} | QalamVerse`;
+                document.title = `${story.title} | Qalamekahani`;
 
                 document.getElementById('story-title').textContent = story.title;
                 document.getElementById('story-author').textContent = story.author || 'Sabirkhan Pathan';
@@ -767,7 +767,7 @@
         async function shareStory() {
             const shareData = {
                 title: document.title,
-                text: `Read "${document.getElementById('story-title').textContent}" on QalamVerse!`,
+                text: `Read "${document.getElementById('story-title').textContent}" on Qalamekahani!`,
                 url: window.location.href
             };
 

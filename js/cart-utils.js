@@ -1,5 +1,5 @@
 const CartUtils = {
-    KEY: 'qalamverse_cart',
+    KEY: 'qalamekahani_cart',
 
     getCart() {
         return JSON.parse(localStorage.getItem(this.KEY) || '[]');

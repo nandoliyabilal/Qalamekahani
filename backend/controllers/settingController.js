@@ -15,7 +15,7 @@ const getSettings = asyncHandler(async (req, res) => {
         // Create default if not exists
         const { data: newVal } = await supabase
             .from('settings')
-            .insert([{ site_name: 'QalamVerse' }])
+            .insert([{ site_name: 'Qalamekahani' }])
             .select()
             .single();
         return res.json(newVal);

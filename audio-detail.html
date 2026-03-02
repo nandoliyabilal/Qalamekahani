@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Details | QalamVerse</title>
+    <title>Audio Details | Qalamekahani</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
         rel="stylesheet">
@@ -23,7 +23,7 @@
 <body>
     <header class="header">
         <div class="nav-container">
-            <a href="index.html" class="logo">QalamVerse</a>
+            <a href="index.html" class="logo">Qalamekahani</a>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="stories.html">Stories</a></li>
@@ -165,7 +165,7 @@
                 if (!audio) throw new Error('Empty response from server');
 
                 // Populate Page
-                document.title = `${audio.title} | QalamVerse`;
+                document.title = `${audio.title} | Qalamekahani`;
                 document.getElementById('audio-title').textContent = audio.title;
                 document.getElementById('audio-author').textContent = audio.author || 'Sabirkhan Pathan';
 
@@ -260,7 +260,7 @@
         async function shareAudio() {
             const shareData = {
                 title: document.title,
-                text: `Listen to "${document.getElementById('audio-title').textContent}" on QalamVerse!`,
+                text: `Listen to "${document.getElementById('audio-title').textContent}" on Qalamekahani!`,
                 url: window.location.href
             };
             try {

@@ -15,9 +15,13 @@ const sendEmailNotification = async (item, type) => {
         }
 
         if (!users || users.length === 0) {
-            console.log('No subscribers found for notifications.');
+            console.log(`[NOTIFICATION DEBUG] No subscribers found where notifications_on = true.`);
             return;
         }
+
+        console.log(`[NOTIFICATION DEBUG] Found ${users.length} subscribers.`);
+        const recipientList = users.map(u => u.email);
+        console.log(`[NOTIFICATION DEBUG] Recipient List:`, recipientList);
 
         // 2. Prepare Email Content based on type
         const itemTitle = item.title;
@@ -34,8 +38,6 @@ const sendEmailNotification = async (item, type) => {
 
         const itemLink = `${baseUrl}/${type === 'story' ? 'story-detail.html' : type === 'book' ? 'book-detail.html' : type === 'audio' ? 'audio-detail.html' : 'blog-detail.html'}?id=${item.slug || item.id}`;
         const typeLabel = type === 'audio' ? 'Audio' : type.charAt(0).toUpperCase() + type.slice(1);
-
-        const recipientList = users.map(u => u.email);
 
         await sendEmail({
             email: recipientList,

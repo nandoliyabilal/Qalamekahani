@@ -68,7 +68,7 @@ const registerUser = asyncHandler(async (req, res) => {
     try {
         await sendEmail({
             email: user.email,
-            subject: 'Verify Your Email - QalamVerse',
+            subject: 'Verify Your Email - Qalamekahani',
             message: otp,
             type: 'otp'
         });
@@ -135,7 +135,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
         try {
             await sendEmail({
                 email: user.email,
-                subject: 'Welcome to QalamVerse!',
+                subject: 'Welcome to Qalamekahani!',
                 type: 'welcome',
                 itemData: { name: user.name }
             });
@@ -195,7 +195,7 @@ const resendOtp = asyncHandler(async (req, res) => {
     try {
         await sendEmail({
             email: user.email,
-            subject: 'New Verification Code - QalamVerse',
+            subject: 'New Verification Code - Qalamekahani',
             message: otp,
             type: 'otp'
         });
@@ -233,7 +233,7 @@ const loginUser = asyncHandler(async (req, res) => {
             try {
                 await sendEmail({
                     email: user.email,
-                    subject: 'Verify Your Identity - QalamVerse',
+                    subject: 'Verify Your Identity - Qalamekahani',
                     message: otp,
                     type: 'otp'
                 });
@@ -306,7 +306,7 @@ const initiateAdminLogin = asyncHandler(async (req, res) => {
         try {
             await sendEmail({
                 email: user.email,
-                subject: 'Admin Login OTP - QalamVerse',
+                subject: 'Admin Login OTP - Qalamekahani',
                 message: otp,
                 type: 'otp'
             });
@@ -551,7 +551,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     try {
         await sendEmail({
             email: user.email,
-            subject: 'Password Reset - QalamVerse',
+            subject: 'Password Reset - Qalamekahani',
             type: 'password_reset',
             itemData: { resetUrl }
         });

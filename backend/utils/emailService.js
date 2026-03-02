@@ -11,7 +11,7 @@ const getPremiumTemplate = (content, previewText = '') => {
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>QalamVerse</title>
+        <title>Qalamekahani</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Poppins:wght@300;400;600&display=swap');
             
@@ -132,7 +132,7 @@ const getPremiumTemplate = (content, previewText = '') => {
         <div class="wrapper">
             <div class="content">
                 <div class="header">
-                    <h1 class="logo">QalamVerse</h1>
+                    <h1 class="logo">Qalamekahani</h1>
                     <div class="tagline">Where Stories Come to Life</div>
                 </div>
                 
@@ -146,9 +146,9 @@ const getPremiumTemplate = (content, previewText = '') => {
                         <a href="#" style="color: #666; text-decoration: underline; margin: 0 10px;">Terms of Service</a>
                         <a href="#" style="color: #666; text-decoration: underline; margin: 0 10px;">Support</a>
                     </div>
-                    <p style="margin-bottom: 5px;">QalamVerse Digital Platforms, Inc.</p>
+                    <p style="margin-bottom: 5px;">Qalamekahani Digital Platforms, Inc.</p>
                     <p style="margin-bottom: 5px;">123 Storyteller Lane, Creative District, Mumbai, India</p>
-                    <p style="margin-top: 15px; color: #444;">&copy; 2026 QalamVerse. All Rights Reserved.</p>
+                    <p style="margin-top: 15px; color: #444;">&copy; 2026 Qalamekahani. All Rights Reserved.</p>
                     <p style="margin-top: 10px; font-size: 10px; color: #333;">This is an automated system message. Please do not reply to this email.</p>
                 </div>
             </div>
@@ -225,19 +225,19 @@ const sendEmail = async ({ email, subject, message, html, type, itemData }) => {
         const { name, userMessage } = itemData;
         const content = `
             <div class="title">Message Received</div>
-            <div class="message">Hi ${name}, thank you for reaching out to QalamVerse. We've received your message and our team will get back to you shortly.</div>
+            <div class="message">Hi ${name}, thank you for reaching out to Qalamekahani. We've received your message and our team will get back to you shortly.</div>
             <div style="text-align: left; background: #111; padding: 20px; border-radius: 4px; margin-bottom: 30px;">
                 <p style="font-size: 13px; color: #888; margin-bottom: 10px;">Your Message:</p>
                 <p style="color: #bbb; font-style: italic;">"${userMessage}"</p>
             </div>
-            <a href="${process.env.FRONTEND_URL || 'https://qalamverse.com'}" class="btn">Explore More Stories</a>
+            <a href="${process.env.FRONTEND_URL || 'https://qalamekahani.com'}" class="btn">Explore More Stories</a>
         `;
         finalHtml = getPremiumTemplate(content);
     }
     else if (type === 'newsletter_admin') {
         const content = `
             <div class="title">New Subscriber!</div>
-            <div class="message">Great news! Someone just joined the QalamVerse newsletter.</div>
+            <div class="message">Great news! Someone just joined the Qalamekahani newsletter.</div>
             <div style="font-size: 18px; color: #fff; margin: 20px 0;"><strong>${itemData.email}</strong></div>
             <div style="color: #666; font-size: 12px;">Joined on: ${new Date().toLocaleString()}</div>
         `;
@@ -255,11 +255,11 @@ const sendEmail = async ({ email, subject, message, html, type, itemData }) => {
     }
     else if (type === 'welcome') {
         const content = `
-            <div class="title">Welcome to QalamVerse!</div>
+            <div class="title">Welcome to Qalamekahani!</div>
             <div class="message">Hi ${itemData.name}, we're thrilled to have you join our community of storytellers and dreamers.</div>
             <div class="message" style="margin-top: 20px; color: #888;">Your account has been successfully verified. You now have full access to our exclusive collection of stories, audiobooks, and more.</div>
-            <a href="${process.env.FRONTEND_URL || 'https://qalamverse.com'}" class="btn">Start Your Journey</a>
-            <div style="font-size: 12px; color: #666; margin-top: 30px;">Thank you for choosing QalamVerse. We hope our stories touch your soul.</div>
+            <a href="${process.env.FRONTEND_URL || 'https://qalamekahani.com'}" class="btn">Start Your Journey</a>
+            <div style="font-size: 12px; color: #666; margin-top: 30px;">Thank you for choosing Qalamekahani. We hope our stories touch your soul.</div>
         `;
         finalHtml = getPremiumTemplate(content);
     }
@@ -285,7 +285,7 @@ const sendEmail = async ({ email, subject, message, html, type, itemData }) => {
                 <p><strong>Amount:</strong> ₹${itemData.amount}</p>
             </div>
             <div class="message" style="font-size: 14px; color: #888;">If you encountered an issue, you can try paying again from your profile or the checkout page. If you cancelled the payment, you can ignore this email.</div>
-            <a href="${process.env.FRONTEND_URL || 'https://qalamverse.com'}/checkout.html" class="btn">Retry Payment</a>
+            <a href="${process.env.FRONTEND_URL || 'https://qalamekahani.com'}/checkout.html" class="btn">Retry Payment</a>
         `;
         finalHtml = getPremiumTemplate(content);
     }
@@ -295,22 +295,26 @@ const sendEmail = async ({ email, subject, message, html, type, itemData }) => {
     }
 
     try {
+        const recipients = Array.isArray(email) ? email : [email];
+        console.log(`[EMAIL DEBUG] Preparing to send to: ${recipients.length} addresses`);
+
         const { data, error } = await resend.emails.send({
-            from: 'QalamVerse <onboarding@resend.dev>', // Update to your domain once verified
-            to: Array.isArray(email) ? email : [email],
+            from: process.env.EMAIL_FROM || 'Qalamekahani <onboarding@resend.dev>',
+            to: recipients,
             subject: subject,
             html: finalHtml,
             text: message || 'Please enable HTML to view this message.'
         });
 
         if (error) {
-            console.error('[EMAIL ERROR] Resend Fail:', error);
+            console.error('[EMAIL ERROR] Resend Fail Detail:', JSON.stringify(error, null, 2));
             throw new Error(error.message);
         }
 
+        console.log(`[EMAIL DEBUG] Resend success, ID:`, data?.id);
         return data;
     } catch (err) {
-        console.error('[EMAIL ERROR] System Fail:', err.message);
+        console.error('[EMAIL ERROR] System Fail Trace:', err);
         throw err;
     }
 };

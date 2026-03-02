@@ -15,7 +15,7 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: async (req, file) => {
         const fileType = file.mimetype.split('/')[0];
-        const folder = fileType === 'audio' ? 'qalamverse/audio' : 'qalamverse/images';
+        const folder = fileType === 'audio' ? 'qalamekahani/audio' : 'qalamekahani/images';
 
         return {
             folder: folder,

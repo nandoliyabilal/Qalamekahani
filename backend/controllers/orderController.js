@@ -113,13 +113,13 @@ const verifyPayment = asyncHandler(async (req, res) => {
             try {
                 await sendEmail({
                     email: orderData.customer_email,
-                    subject: 'Payment Successful - QalamVerse',
+                    subject: 'Payment Successful - Qalamekahani',
                     type: 'payment_success',
                     itemData: {
                         itemTitle: orderData.book_title || 'Item',
                         orderId: razorpay_order_id,
                         amount: orderData.amount,
-                        itemUrl: process.env.FRONTEND_URL || 'https://qalamverse.com'
+                        itemUrl: process.env.FRONTEND_URL || 'https://qalamekahani.com'
                     }
                 });
             } catch (e) {
@@ -197,7 +197,7 @@ const cancelPayment = asyncHandler(async (req, res) => {
         try {
             await sendEmail({
                 email: orderData.customer_email,
-                subject: 'Payment Pending - QalamVerse',
+                subject: 'Payment Pending - Qalamekahani',
                 type: 'payment_pending',
                 itemData: {
                     itemTitle: orderData.book_title || 'Item',

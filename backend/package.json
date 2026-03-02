@@ -1,7 +1,7 @@
 {
-  "name": "qalamverse-backend",
+  "name": "qalamekahani-backend",
   "version": "1.0.0",
-  "description": "Backend API for QalamVerse",
+  "description": "Backend API for Qalamekahani",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

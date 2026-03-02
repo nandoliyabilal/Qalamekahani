@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const settingsSchema = mongoose.Schema({
-    siteName: { type: String, default: 'QalamVerse' },
+    siteName: { type: String, default: 'Qalamekahani' },
     heroTitle: { type: String, default: 'Stories That Touch The Soul' },
     heroSubtitle: { type: String, default: 'Written & Narrated by Sabirkhan Pathan' },
     heroImage: { type: String, default: 'images/hero.png' },

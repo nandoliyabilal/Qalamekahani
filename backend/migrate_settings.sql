@@ -19,5 +19,5 @@ ALTER TABLE public.settings ADD COLUMN IF NOT EXISTS blog_categories TEXT[] DEFA
 
 -- Insert default settings if none exist
 INSERT INTO public.settings (site_name)
-SELECT 'QalamVerse'
+SELECT 'Qalamekahani'
 WHERE NOT EXISTS (SELECT 1 FROM public.settings);

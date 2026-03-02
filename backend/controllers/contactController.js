@@ -18,7 +18,7 @@ const submitContactForm = asyncHandler(async (req, res) => {
         // 1. Send email to Admin
         await sendEmail({
             email: adminEmail,
-            subject: `New Message from ${name} - QalamVerse`,
+            subject: `New Message from ${name} - Qalamekahani`,
             type: 'contact_admin',
             itemData: {
                 name,
@@ -30,7 +30,7 @@ const submitContactForm = asyncHandler(async (req, res) => {
         // 2. Send confirmation to User
         await sendEmail({
             email: email,
-            subject: 'Thank You for contacting QalamVerse!',
+            subject: 'Thank You for contacting Qalamekahani!',
             type: 'contact_user',
             itemData: {
                 name,
@@ -63,7 +63,7 @@ const subscribeNewsletter = asyncHandler(async (req, res) => {
         // Notify Admin
         await sendEmail({
             email: adminEmail,
-            subject: 'New Newsletter Subscriber - QalamVerse',
+            subject: 'New Newsletter Subscriber - Qalamekahani',
             type: 'newsletter_admin',
             itemData: { email }
         });

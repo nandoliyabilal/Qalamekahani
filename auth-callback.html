@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authenticating - Qalamekahani</title>
+    <style>
+        body {
+            background: #0b0b0b;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        .loader {
+            text-align: center;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #1a1a1a;
+            border-top: 5px solid #d4af37;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="spinner"></div>
+        <p id="status">Verifying your account...</p>
+    </div>
+
+    <script>
+        async function handleAuth() {
+            try {
+                // 1. Get token from URL hash (Supabase redirects with #access_token=...)
+                const hash = window.location.hash.substring(1);
+                const params = new URLSearchParams(hash);
+                const accessToken = params.get('access_token');
+
+                if (!accessToken) {
+                    throw new Error('No access token found. Please try logging in again.');
+                }
+
+                document.getElementById('status').innerText = 'Signing you in...';
+
+                // 2. Send token to our backend for verification and login
+                const backendRes = await fetch('/api/auth/google-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: accessToken })
+                });
+
+                const backendData = await backendRes.json();
+
+                if (backendRes.ok) {
+                    // 3. Save backend token and session
+                    localStorage.setItem('token', backendData.token);
+                    localStorage.setItem('userInfo', JSON.stringify(backendData));
+                    
+                    document.getElementById('status').innerText = 'Login successful! Redirecting...';
+                    
+                    // 4. Redirect to home
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 800);
+                } else {
+                    throw new Error(backendData.message || 'Failed to sync account.');
+                }
+
+            } catch (error) {
+                console.error('Auth Error:', error);
+                document.getElementById('status').innerHTML = `<span style="color: #ff6b6b;">Error: ${error.message}</span><br><br><a href="login.html" style="color: #d4af37; text-decoration: none;">Back to Login</a>`;
+            }
+        }
+
+        window.onload = handleAuth;
+    </script>
+</body>
+</html>

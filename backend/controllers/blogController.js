@@ -27,6 +27,15 @@ const getBlog = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error('Blog not found');
     }
+
+    // Increment Views
+    if (req.query.increment !== 'false') {
+        supabase.from('blogs')
+            .update({ views: (data.views || 0) + 1 })
+            .eq('id', data.id)
+            .then(() => { });
+    }
+
     res.status(200).json(data);
 });
 

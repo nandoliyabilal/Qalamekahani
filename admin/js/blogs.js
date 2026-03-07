@@ -45,6 +45,12 @@ function renderBlogs() {
                     ${blog.category}
                 </span>
             </td>
+            <td class="px-6 py-4 text-center">
+                <div class="flex items-center justify-center gap-1 text-xs text-gray-400">
+                    <i data-lucide="eye" class="w-3 h-3 text-indigo-400"></i>
+                    <span>${blog.views || 0}</span>
+                </div>
+            </td>
             <td class="px-6 py-4 text-gray-400 text-xs">
                 ${new Date(blog.created_at).toLocaleDateString()}
             </td>

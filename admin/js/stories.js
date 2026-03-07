@@ -79,6 +79,12 @@ function renderTable() {
                 ? `<span class="text-green-400">₹${story.price}</span>${parseFloat(story.discount) > 0 ? ` <span class="text-gray-500 line-through text-[10px]">(${story.discount}%)</span>` : ''}`
                 : '<span class="text-blue-300">Free</span>'}
             </td>
+            <td class="px-6 py-4 text-center">
+                <div class="flex items-center justify-center gap-1 text-xs text-gray-400">
+                    <i data-lucide="eye" class="w-3 h-3 text-indigo-400"></i>
+                    <span>${story.views || 0}</span>
+                </div>
+            </td>
             <td class="px-6 py-4 text-gray-500 text-xs">
                 ${moment(story.created_at || story.date).format('MMM D, YYYY')}
             </td>

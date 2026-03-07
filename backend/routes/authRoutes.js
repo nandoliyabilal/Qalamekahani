@@ -17,7 +17,8 @@ const {
     resetPassword,
     getAllUsers,
     getUserById,
-    toggleNotifications
+    toggleNotifications,
+    googleLogin
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -25,6 +26,7 @@ router.post('/register', registerUser);
 router.post('/verify-otp', verifyOtp);
 router.post('/resend-otp', resendOtp);
 router.post('/login', loginUser);
+router.post('/google-login', googleLogin);
 // Admin Routes
 router.post('/admin-login-init', initiateAdminLogin);
 router.post('/admin-login-verify', verifyAdminLogin);

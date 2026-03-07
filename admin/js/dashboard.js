@@ -27,11 +27,12 @@ async function fetchStats() {
         const audio = data.content?.audio || 0;
         const blogs = data.content?.blogs || 0;
         const reviews = data.content?.reviews || 0;
+        const totalViews = data.content?.totalViews || 0;
 
         // Render detailed stats
         statsGrid.innerHTML = `
                 ${createStatCard('Total Users', users, 'users', 'blue')}
-                ${createStatCard('Active Users (24h)', activeUsers, 'activity', 'green')}
+                ${createStatCard('Total Views', totalViews, 'eye', 'green')}
                 ${createStatCard('Published Stories', stories, 'book-open', 'purple')}
                 ${createStatCard('Published Books', books, 'library', 'indigo')}
                 ${createStatCard('Audio Stories', audio, 'headphones', 'amber')}

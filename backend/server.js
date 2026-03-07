@@ -15,7 +15,8 @@ const app = express();
 app.use(helmet({
     contentSecurityPolicy: false,
 })); // Set security headers with CSP disabled
-app.use(express.json()); // Body parser
+app.use(express.json({ limit: '50mb' })); // Body parser with higher limit
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // app.use(mongoSanitize()); // Prevent NoSQL injection (Not needed)
 app.use(xss()); // Prevent XSS attacks
 

@@ -48,6 +48,14 @@ const getAudioStoryById = asyncHandler(async (req, res) => {
         return;
     }
 
+    // Increment Views
+    if (req.query.increment !== 'false') {
+        supabase.from('audio_stories')
+            .update({ views: (story.views || 0) + 1 })
+            .eq('id', story.id)
+            .then(() => { });
+    }
+
     res.status(200).json(story);
 });
 

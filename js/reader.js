@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Fetch from API
-    fetch(`/api/stories/${storyId}`)
+    fetch(`/api/stories/${storyId}?increment=false`)
         .then(res => {
             if (!res.ok) throw new Error('Story not found');
             return res.json();

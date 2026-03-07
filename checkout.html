@@ -373,17 +373,17 @@
             try {
                 if (bookId) {
                     itemType = 'book';
-                    const response = await fetch(`/api/books/${bookId}`);
+                    const response = await fetch(`/api/books/${bookId}?increment=false`);
                     if (!response.ok) throw new Error('Book not found');
                     selectedItem = await response.json();
                 } else if (storyId) {
                     itemType = 'story';
-                    const response = await fetch(`/api/stories/${storyId}`);
+                    const response = await fetch(`/api/stories/${storyId}?increment=false`);
                     if (!response.ok) throw new Error('Story not found');
                     selectedItem = await response.json();
                 } else if (audioId) {
                     itemType = 'audio';
-                    const response = await fetch(`/api/audio/${audioId}`);
+                    const response = await fetch(`/api/audio/${audioId}?increment=false`);
                     if (!response.ok) throw new Error('Audio not found');
                     selectedItem = await response.json();
                 }

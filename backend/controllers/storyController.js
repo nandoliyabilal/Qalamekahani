@@ -49,15 +49,17 @@ const getStory = asyncHandler(async (req, res) => {
 
     // Increment views (Safe approach)
     // We ignore errors here so it doesn't block the response
-    supabase.rpc('increment_story_views', { row_id: data.id }).then(({ error }) => {
-        if (error) {
-            // Fallback if RPC doesn't exist
-            supabase.from('stories')
-                .update({ views: (data.views || 0) + 1 })
-                .eq('id', data.id)
-                .then(() => { });
-        }
-    });
+    if (req.query.increment !== 'false') {
+        supabase.rpc('increment_story_views', { row_id: data.id }).then(({ error }) => {
+            if (error) {
+                // Fallback if RPC doesn't exist
+                supabase.from('stories')
+                    .update({ views: (data.views || 0) + 1 })
+                    .eq('id', data.id)
+                    .then(() => { });
+            }
+        });
+    }
 
     // Clone data to ensure mutability
     let storyData = { ...data };

@@ -717,6 +717,89 @@ const toggleNotifications = asyncHandler(async (req, res) => {
     res.json({ success: true, notificationsOn: status });
 });
 
+// @desc    Google OAuth Login/Signup
+// @route   POST /api/auth/google-login
+// @access  Public
+const googleLogin = asyncHandler(async (req, res) => {
+    const { token } = req.body;
+
+    if (!token) {
+        res.status(400);
+        throw new Error('Supabase token is required');
+    }
+
+    // 1. Verify token and get user info from Supabase server-side
+    const { data: { user: sbUser }, error: sbError } = await supabase.auth.getUser(token);
+
+    if (sbError || !sbUser) {
+        res.status(401);
+        throw new Error('Invalid or expired Supabase token');
+    }
+
+    const email = sbUser.email;
+    const name = sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || email.split('@')[0];
+
+    // 2. Check if user exists in OUR users table
+    let { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+
+    if (!user) {
+        // 3. Create new user if doesn't exist
+        const { data: newUser, error: createError } = await supabase
+            .from('users')
+            .insert([{
+                name: name,
+                email: email,
+                is_verified: true, // Google accounts are verified
+                notifications_on: true,
+                role: 'user',
+                last_login: new Date().toISOString()
+            }])
+            .select()
+            .single();
+
+        if (createError) {
+            res.status(400);
+            throw new Error(createError.message);
+        }
+        user = newUser;
+
+        // Send Welcome Email
+        try {
+            await sendEmail({
+                email: user.email,
+                subject: 'Welcome to Qalamekahani!',
+                type: 'welcome',
+                itemData: { name: user.name }
+            });
+        } catch (e) {
+            console.error('[AUTH] Google Welcome Email Error:', e);
+        }
+    } else {
+        // 4. Update last login
+        await supabase
+            .from('users')
+            .update({ last_login: new Date().toISOString() })
+            .eq('id', user.id);
+    }
+
+    // 5. Generate Token
+    res.json({
+        _id: user.id,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        likedCount: user.liked_stories ? user.liked_stories.length : 0,
+        savedCount: user.saved_blogs ? user.saved_blogs.length : 0,
+        notificationsOn: user.notifications_on,
+        token: generateToken(user.id)
+    });
+});
+
 module.exports = {
     registerUser,
     loginUser,
@@ -734,5 +817,6 @@ module.exports = {
     getAllUsers,
     getUserById,
     saveAudio,
-    toggleNotifications
+    toggleNotifications,
+    googleLogin
 };

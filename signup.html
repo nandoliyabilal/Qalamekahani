@@ -108,6 +108,33 @@
             margin-bottom: 1rem;
             display: none;
         }
+
+        .btn-google {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-google:hover {
+            background: #f1f1f1;
+        }
+
+        .btn-google img {
+            width: 20px;
+            height: 20px;
+        }
     </style>
 </head>
 
@@ -142,6 +169,17 @@
                         placeholder="Confirm your password">
                 </div>
                 <button type="submit" class="btn-auth">Sign Up</button>
+                
+                <div style="display: flex; align-items: center; margin: 1.5rem 0; color: #666;">
+                    <div style="flex: 1; height: 1px; background: #333;"></div>
+                    <span style="padding: 0 10px; font-size: 0.8rem;">OR</span>
+                    <div style="flex: 1; height: 1px; background: #333;"></div>
+                </div>
+
+                <button type="button" id="google-login" class="btn-google">
+                    <img src="https://www.google.com/favicon.ico" alt="Google">
+                    Continue with Google
+                </button>
             </form>
             <div class="auth-footer">
                 Already have an account? <a href="login.html" class="auth-link">Login here</a>
@@ -149,7 +187,15 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        const SUPABASE_URL = 'https://irtsycfpwsjxrodwpthw.supabase.co';
+        
+        document.getElementById('google-login').addEventListener('click', async () => {
+            const redirectUrl = window.location.origin + '/auth-callback.html';
+            window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectUrl}`;
+        });
+
         const signupForm = document.getElementById('signup-form');
         const errorMsg = document.getElementById('error-msg');
 

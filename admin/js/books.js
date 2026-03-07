@@ -44,6 +44,12 @@ function renderTable() {
             <td class="px-6 py-4">
                 ${percent > 0 ? `<span class="px-2 py-1 text-xs rounded-full bg-green-500/10 text-green-400">${percent}% OFF</span>` : '-'}
             </td>
+            <td class="px-6 py-4 text-center">
+                <div class="flex items-center justify-center gap-1 text-xs text-gray-400">
+                    <i data-lucide="eye" class="w-3 h-3 text-indigo-400"></i>
+                    <span>${book.views || 0}</span>
+                </div>
+            </td>
             <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onclick="editBook('${book.id || book._id}')" class="p-2 bg-gray-700 hover:bg-indigo-600 text-gray-300 hover:text-white rounded-lg"><i data-lucide="edit-2" class="w-4 h-4"></i></button>

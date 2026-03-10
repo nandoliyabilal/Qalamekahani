@@ -291,11 +291,12 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify({ email })
         });
 
+        const data = await res.json();
         if (res.ok) {
-          window.showToast('Thank you for subscribing! We have sent a confirmation to your email.');
+          window.showToast(data.message || 'Thank you for subscribing! We have sent a confirmation to your email.');
           newsletterForm.reset();
         } else {
-          window.showToast('Subscription failed. This email might already be subscribed.', 'error');
+          window.showToast(data.message || 'Subscription failed. This email might already be subscribed.', 'error');
         }
       } catch (err) {
         console.error('Newsletter Error:', err);

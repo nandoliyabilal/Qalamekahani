@@ -68,7 +68,7 @@ const subscribeNewsletter = asyncHandler(async (req, res) => {
             .maybeSingle();
 
         if (existing) {
-            return res.status(200).json({ success: true, message: 'You are already subscribed to our newsletter!' });
+            return res.status(200).json({ success: true, message: 'Aapne pehle hi newsletter subscribe kar rakha hai! Dhanyawad.' });
         }
 
         // 2. Add to database

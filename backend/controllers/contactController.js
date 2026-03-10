@@ -60,11 +60,19 @@ const subscribeNewsletter = asyncHandler(async (req, res) => {
     try {
         const adminEmail = process.env.EMAIL_USERNAME || 'sabirkhanp646@gmail.com';
 
-        // Notify Admin
+        // 1. Notify Admin
         await sendEmail({
             email: adminEmail,
             subject: 'New Newsletter Subscriber - Qalamekahani',
             type: 'newsletter_admin',
+            itemData: { email }
+        });
+
+        // 2. Send Confirmation to User
+        await sendEmail({
+            email: email,
+            subject: 'Welcome to the Qalamekahani Newsletter!',
+            type: 'newsletter_user',
             itemData: { email }
         });
 

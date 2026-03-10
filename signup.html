@@ -193,7 +193,7 @@
         
         document.getElementById('google-login').addEventListener('click', async () => {
             const redirectUrl = window.location.origin + '/auth-callback.html';
-            window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectUrl}`;
+            window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
         });
 
         const signupForm = document.getElementById('signup-form');

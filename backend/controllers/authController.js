@@ -58,6 +58,12 @@ const registerUser = asyncHandler(async (req, res) => {
         }])
         .select()
         .single();
+    
+    // LOG OTP FOR DEVELOPMENT (In case email service fails)
+    console.log(`\n--- [AUTH DEBUG] ---`);
+    console.log(`User: ${name} (${email})`);
+    console.log(`Generated OTP: ${otp}`);
+    console.log(`--------------------\n`);
 
     if (error || !user) {
         res.status(400);
@@ -83,7 +89,7 @@ const registerUser = asyncHandler(async (req, res) => {
         // Delete user if email fails to allow retry
         await supabase.from('users').delete().eq('id', user.id);
         res.status(500);
-        throw new Error('Verification email failed to send. Please try again.');
+        throw new Error(`Verification email failed: ${emailError.message}. Note: Resend free tier only allows sending to your own verified email.`);
     }
 });
 
@@ -295,8 +301,6 @@ const initiateAdminLogin = asyncHandler(async (req, res) => {
             .from('users')
             .update({ otp, otp_expire: otpExpire })
             .eq('email', email) // Using email for safer update
-            .select();
-
         if (updateError) {
             console.error('[AUTH] DB Update Error:', updateError);
             res.status(500);
@@ -304,6 +308,7 @@ const initiateAdminLogin = asyncHandler(async (req, res) => {
         }
 
         try {
+            console.log(`[AUTH] Admin Login OTP for ${user.email}: ${otp}`); // Added console log for OTP
             await sendEmail({
                 email: user.email,
                 subject: 'Admin Login OTP - Qalamekahani',

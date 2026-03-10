@@ -191,10 +191,8 @@
         // For now, we will use a direct redirect approach if the key is missing or we'll handle it via callback.
         
         document.getElementById('google-login').addEventListener('click', async () => {
-            // Initiate Google Login through Supabase
-            // This will redirect the user to Google
             const redirectUrl = window.location.origin + '/auth-callback.html';
-            window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectUrl}`;
+            window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
         });
 
         const loginForm = document.getElementById('login-form');

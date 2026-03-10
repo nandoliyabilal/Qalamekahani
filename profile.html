@@ -500,8 +500,9 @@
                     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
                     userInfo.notificationsOn = newStatus;
                     localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                    window.showToast(newStatus ? 'Notifications enabled' : 'Notifications disabled');
                 } else {
-                    alert('Failed to update notification settings.');
+                    window.showToast('Failed to update notification settings.', 'error');
                     // Revert UI
                     checkbox.checked = !newStatus;
                     statusText.innerText = !newStatus ? 'ON' : 'OFF';
@@ -509,7 +510,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                alert('Connection error. Please try again.');
+                window.showToast('Connection error. Please try again.', 'error');
                 checkbox.checked = !newStatus;
             }
         }

@@ -505,7 +505,7 @@
 
             // Simple validation
             if (!name || !email || !message) {
-                alert('Please fill in all fields.');
+                window.showToast('Please fill in all fields.', 'error');
                 return;
             }
 

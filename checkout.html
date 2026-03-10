@@ -365,8 +365,10 @@
             const audioId = urlParams.get('audioId');
 
             if (!bookId && !storyId && !audioId) {
-                alert('No item selected!');
-                window.location.href = 'index.html';
+                window.showToast('No item selected! Redirecting...', 'error');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
                 return;
             }
 
@@ -406,7 +408,7 @@
 
             } catch (error) {
                 console.error('Checkout Error:', error);
-                alert(`Error loading item details: ${error.message}`);
+                window.showToast(`Error loading item details: ${error.message}`, 'error');
             }
 
             // Prefill user info if logged in
@@ -442,14 +444,16 @@
 
             if (price <= 0) {
                 // If free, redirect immediately
-                alert('This item is currently free! You can access it directly.');
-                if (type === 'audio') {
-                    window.location.href = `listen.html?id=${item.id}`;
-                } else if (type === 'story') {
-                    window.location.href = `story-detail.html?id=${item.slug || item.id}`;
-                } else {
-                    window.location.href = 'books.html';
-                }
+                window.showToast('This item is currently free! Redirecting to content...');
+                setTimeout(() => {
+                    if (type === 'audio') {
+                        window.location.href = `listen.html?id=${item.id}`;
+                    } else if (type === 'story') {
+                        window.location.href = `story-detail.html?id=${item.slug || item.id}`;
+                    } else {
+                        window.location.href = 'books.html';
+                    }
+                }, 1500);
                 return;
             }
 
@@ -487,7 +491,7 @@
 
             const termsCheck = document.getElementById('terms-check');
             if (!termsCheck.checked) {
-                alert('Please agree to the Terms & Conditions to proceed.');
+                window.showToast('Please agree to the Terms & Conditions to proceed.', 'error');
                 return;
             }
 
@@ -534,7 +538,7 @@
                 if (!createRes.ok) {
                     const errData = await createRes.json();
                     const errMsg = errData.message || 'Failed to create order';
-                    alert('Order Creation Error: ' + errMsg);
+                    window.showToast('Order Creation Error: ' + errMsg, 'error');
                     throw new Error(errMsg);
                 }
 
@@ -606,7 +610,7 @@
 
             } catch (error) {
                 console.error(error);
-                alert('Order creation failed: ' + error.message);
+                window.showToast('Order creation failed: ' + error.message, 'error');
                 loading.style.display = 'none';
                 payBtn.disabled = false;
             }

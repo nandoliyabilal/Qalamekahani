@@ -722,8 +722,10 @@
 
             const token = localStorage.getItem('token');
             if (!token) {
-                alert('Please login to submit a review.');
-                window.location.href = 'login.html';
+                window.showToast('Please login to submit a review.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
                 return;
             }
 
@@ -752,7 +754,7 @@
                 if (!res.ok) throw new Error('Failed to submit review');
 
                 // Reload reviews
-                alert('Review submitted successfully!');
+                window.showToast('Thank you! Your review has been submitted successfully.');
                 document.getElementById('review-form').reset();
                 setRating(5);
                 loadReviews(window.currentStoryUUID);
@@ -760,7 +762,7 @@
 
             } catch (err) {
                 console.error(err);
-                alert('Error submitting review');
+                window.showToast('Error submitting review. Please try again.', 'error');
             }
         }
 
@@ -776,7 +778,7 @@
                     await navigator.share(shareData);
                 } else {
                     await navigator.clipboard.writeText(window.location.href);
-                    alert('Link copied to clipboard!');
+                    window.showToast('Link copied to clipboard! You can now share it.');
                 }
             } catch (err) {
                 console.error('Error sharing:', err);

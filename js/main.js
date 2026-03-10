@@ -1,3 +1,41 @@
+// Toast Notification System
+window.showToast = function(message, type = 'success') {
+  let container = document.querySelector('.toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+  
+  toast.innerHTML = `
+    <i class="fas ${icon}"></i>
+    <span class="toast-message">${message}</span>
+  `;
+
+  container.appendChild(toast);
+
+  // Auto remove after 5 seconds
+  setTimeout(() => {
+    toast.classList.add('toast-fade-out');
+    setTimeout(() => {
+      toast.remove();
+      if (container.childNodes.length === 0) {
+        container.remove();
+      }
+    }, 500);
+  }, 5000);
+
+  // Manual remove on click
+  toast.addEventListener('click', () => {
+    toast.remove();
+  });
+};
+
 // Header Scroll Effect
 window.addEventListener('scroll', function () {
   const header = document.querySelector('.header');
@@ -254,14 +292,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (res.ok) {
-          alert('Thank you for subscribing! Keep an eye on your inbox for new stories.');
+          window.showToast('Thank you for subscribing! We have sent a confirmation to your email.');
           newsletterForm.reset();
         } else {
-          alert('Subscription failed. Please try again later.');
+          window.showToast('Subscription failed. This email might already be subscribed.', 'error');
         }
       } catch (err) {
         console.error('Newsletter Error:', err);
-        alert('An error occurred. Please check your connection.');
+        window.showToast('An error occurred. Please check your connection.', 'error');
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';

@@ -248,6 +248,76 @@ body {
   transform-origin: left;
 }
 
+/* ================= DROPDOWN MENU ================= */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: rgba(8, 8, 8, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  min-width: 220px;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-top: 3px solid #d4af37;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 1000;
+  padding: 10px 0;
+  list-style: none; /* Remove bullet points */
+  display: flex !important; /* Ensure block display inside */
+  flex-direction: column !important; /* Stack vertically */
+  gap: 0 !important; /* No gap between li in dropdown */
+}
+
+/* Fix flex overlap */
+.nav-links .dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu li {
+  width: 100%;
+  overflow: visible !important;
+}
+
+.dropdown-menu a {
+  display: block !important;
+  padding: 12px 20px !important;
+  color: #cfcfcf !important;
+  font-size: 0.9rem !important;
+  text-transform: capitalize !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s ease !important;
+}
+
+.dropdown-menu a:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: #d4af37 !important;
+  padding-left: 28px !important;
+  letter-spacing: 0.5px !important; /* Prevent excessive width change */
+  text-shadow: none !important;
+}
+
+/* Remove original active underline for dropdown items */
+.dropdown-menu li:not(.user-avatar-container) a::after {
+  display: none !important;
+}
+
 /* ================= LOGIN BUTTON IN NAVBAR ================= */
 /* ================= LOGIN BUTTON IN NAVBAR ================= */
 .nav-login-btn {

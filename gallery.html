@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Images & Wallpapers | Qalamekahani</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=2.2">
+    <style>
+        .page-header {
+            padding: 180px 5% 60px;
+            text-align: center;
+            background: #0b0b0b;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: #d4af37;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .page-subtitle {
+            color: #888;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+
+        /* Responsive Columns/Masonry for Images */
+        .masonry-grid {
+            column-count: 3;
+            column-gap: 20px;
+            padding: 20px 5%;
+        }
+
+        @media (max-width: 900px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .masonry-grid {
+                column-count: 1;
+            }
+        }
+
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #1a1a1a;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .masonry-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .masonry-item img {
+            width: 100%;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .img-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .masonry-item:hover .img-overlay {
+            opacity: 1;
+        }
+
+        .img-title {
+            color: #fff;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            margin: 0;
+            margin-bottom: 5px;
+        }
+        
+        .img-category {
+            color: #d4af37;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .img-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #d4af37;
+            color: #000;
+            border-color: #d4af37;
+        }
+
+        /* Lightbox CSS */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .lightbox.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 80vh;
+            border-radius: 4px;
+            box-shadow: 0 0 30px rgba(0,0,0,1);
+        }
+
+        .close-lightbox {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-lightbox:hover {
+            color: #d4af37;
+        }
+        
+        .lightbox-title {
+            color: #d4af37;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .lightbox-controls {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .lightbox-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-download {
+            background: #d4af37;
+            color: #000;
+        }
+        
+        .btn-download:hover {
+            background: #fff;
+        }
+        
+        .btn-save {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #d4af37;
+        }
+        
+        .btn-save:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">Qalamekahani</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="stories.html" class="active">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="stories.html">Reading Stories</a></li>
+                        <li><a href="gallery.html">Images & Wallpapers</a></li>
+                    </ul>
+                </li>
+                <li><a href="audio.html">Audio Stories</a></li>
+                <li><a href="books.html">Books</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <span id="auth-links"></span>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <h1 class="page-title">Images & Wallpapers</h1>
+        <p class="page-subtitle">Download exclusive artwork, covers, and wallpapers related to Qalamekahani stories.</p>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="search-filter-container" style="padding: 0 5%; margin-bottom: 20px;">
+        <div class="search-box" style="margin: 0 auto 20px;">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search images...">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+        <div id="category-filters" class="filter-buttons" style="flex-wrap: wrap; justify-content: center; gap: 10px;">
+            <button class="filter-btn active" data-filter="all">All</button>
+        </div>
+    </div>
+
+    <!-- Masonry Grid Section -->
+    <section>
+        <div class="masonry-grid" id="gallery-grid">
+            <div style="text-align: center; color: white; padding: 50px; width: 100%; column-span: all;">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p style="margin-top: 15px;">Loading Images...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <i class="fas fa-times close-lightbox" onclick="closeLightbox()"></i>
+        <img id="lb-image" src="" alt="Full view">
+        <div class="lightbox-title" id="lb-title">Image Title</div>
+        <div class="lightbox-controls">
+            <button class="lightbox-btn btn-save" id="lb-save-btn" onclick="saveImage()"><i class="far fa-heart"></i> Save to Profile</button>
+            <button class="lightbox-btn btn-download" id="lb-download-btn" onclick="downloadImage()"><i class="fas fa-download"></i> Download</button>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <h3 class="footer-brand">Sabirkhan Pathan</h3>
+                <p class="footer-tagline">Weaving stories that touch your soul.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-col links-col">
+                <h4 class="footer-heading">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="stories.html">Stories</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col newsletter-col">
+                <h4 class="footer-heading">Stay Updated</h4>
+                <p class="newsletter-text">Subscribe to get the latest artwork.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your Email" class="newsletter-input" required>
+                    <button type="submit" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        const API_URL = '/api/gallery';
+        let allImages = [];
+        let currentImage = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchImages();
+            
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const activeBtn = document.querySelector('.filter-btn.active');
+                const filter = activeBtn ? activeBtn.dataset.filter : 'all';
+                filterImages(filter, e.target.value);
+            });
+        });
+
+        async function fetchImages() {
+            try {
+                const res = await fetch(API_URL);
+                if (res.ok) {
+                    allImages = await res.json();
+                    extractCategories(allImages);
+                    renderImages(allImages);
+                } else {
+                    document.getElementById('gallery-grid').innerHTML = '<p style="text-align:center; color:#ff6b6b; padding:40px;">Failed to load images.</p>';
+                }
+            } catch (err) {
+                document.getElementById('gallery-grid').innerHTML = '<p style="text-align:center; color:#ff6b6b; padding:40px;">Connection error.</p>';
+            }
+        }
+
+        function extractCategories(data) {
+            const filterContainer = document.getElementById('category-filters');
+            const categories = new Set();
+            data.forEach(item => {
+                if (item.category) categories.add(item.category);
+            });
+
+            filterContainer.innerHTML = '<button class="filter-btn active" data-filter="all">All</button>';
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.dataset.filter = cat.toLowerCase();
+                btn.textContent = cat;
+                filterContainer.appendChild(btn);
+            });
+
+            const buttons = filterContainer.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    buttons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterImages(btn.dataset.filter, document.getElementById('searchInput').value);
+                });
+            });
+        }
+
+        function filterImages(category, query) {
+            const q = query.toLowerCase();
+            const filtered = allImages.filter(img => {
+                const matchesCategory = category === 'all' || (img.category && img.category.toLowerCase() === category);
+                const matchesSearch = !q || (img.title && img.title.toLowerCase().includes(q));
+                return matchesCategory && matchesSearch;
+            });
+            renderImages(filtered);
+        }
+
+        function renderImages(data) {
+            const grid = document.getElementById('gallery-grid');
+            if (!data || data.length === 0) {
+                grid.innerHTML = '<p style="text-align:center; color:#ccc; width:100%; column-span:all;">No images found.</p>';
+                return;
+            }
+
+            grid.innerHTML = data.map((img, index) => {
+                let imgUrl = img.image || '';
+                if (imgUrl && !imgUrl.startsWith('http')) {
+                    imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\/?/, '');
+                }
+
+                return `
+                <div class="masonry-item" onclick="openLightbox(${index})">
+                    <img src="${imgUrl}" alt="${img.title}" loading="lazy">
+                    <div class="img-overlay">
+                        <div>
+                            <h3 class="img-title">${img.title}</h3>
+                            <span class="img-category">${img.category || 'General'}</span>
+                        </div>
+                        <div class="img-actions">
+                            <i class="fas fa-expand action-btn"></i>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function openLightbox(index) {
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = allImages.filter(img => {
+                const matchesCategory = activeFilter === 'all' || (img.category && img.category.toLowerCase() === activeFilter);
+                const matchesSearch = !query || (img.title && img.title.toLowerCase().includes(query));
+                return matchesCategory && matchesSearch;
+            });
+
+            currentImage = filtered[index];
+            if (!currentImage) return;
+
+            let imgUrl = currentImage.image;
+            if (imgUrl && !imgUrl.startsWith('http')) {
+                imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\/?/, '');
+            }
+
+            document.getElementById('lb-image').src = imgUrl;
+            document.getElementById('lb-title').innerText = currentImage.title;
+            document.getElementById('lightbox').classList.add('active');
+
+            // check if user saved it
+            const saveBtn = document.getElementById('lb-save-btn');
+            const token = localStorage.getItem('token');
+            if (token) {
+                // Determine save state visually if me API was used. We will verify server side.
+                // Just keep generic for now
+                saveBtn.innerHTML = '<i class="far fa-heart"></i> Save to Profile';
+            }
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            currentImage = null;
+        }
+
+        async function downloadImage() {
+            if (!currentImage) return;
+
+            // Notify server for download count
+            fetch('/api/gallery/' + currentImage.id + '/download', { method: 'POST' }).catch(err => console.log(err));
+
+            // Execute download
+            let imgUrl = currentImage.image;
+            if (imgUrl && !imgUrl.startsWith('http')) {
+                imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\/?/, '');
+            }
+
+            try {
+                const response = await fetch(imgUrl);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = currentImage.title.replace(/\s+/g, '_') + '.jpg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+
+                window.showToast('Download started successfully!');
+            } catch (error) {
+                window.showToast('Could not download image directly. Try right click -> Save Image As', 'error');
+            }
+        }
+
+        async function saveImage() {
+            if (!currentImage) return;
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.showToast('Please login to save images to your profile.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/save-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ imageId: currentImage.id })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const isSaved = data.savedImages.includes(currentImage.id);
+                    const btn = document.getElementById('lb-save-btn');
+                    
+                    if (isSaved) {
+                        btn.innerHTML = '<i class="fas fa-heart"></i> Saved';
+                        window.showToast('Image saved to your profile!');
+                    } else {
+                        btn.innerHTML = '<i class="far fa-heart"></i> Save to Profile';
+                        window.showToast('Image removed from profile.');
+                    }
+                } else {
+                    window.showToast('Failed to save image.', 'error');
+                }
+            } catch (err) {
+                window.showToast('Connection error.', 'error');
+            }
+        }
+
+        // Close lightbox on outside click
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('lightbox')) {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>

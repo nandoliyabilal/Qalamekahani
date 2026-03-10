@@ -462,15 +462,17 @@ const getMe = asyncHandler(async (req, res) => {
     };
 
     // Fetch details
-    const [likedStories, savedBlogs, savedAudios] = await Promise.all([
+    const [likedStories, savedBlogs, savedAudios, savedImagesDetails] = await Promise.all([
         fetchDetails('stories', userProfile.likedStories),
         fetchDetails('blogs', userProfile.savedBlogs),
-        fetchDetails('audio_stories', userProfile.savedAudios)
+        fetchDetails('audio_stories', userProfile.savedAudios),
+        fetchDetails('galleries', user.saved_images || [])
     ]);
 
     userProfile.likedStories = likedStories;
     userProfile.savedBlogs = savedBlogs;
     userProfile.savedAudios = savedAudios;
+    userProfile.savedImages = savedImagesDetails;
 
     res.status(200).json(userProfile);
 });
@@ -702,6 +704,38 @@ const saveAudio = asyncHandler(async (req, res) => {
         savedAudios: savedAudios.map(id => String(id))
     });
 });
+
+// @desc    Save an Image
+// @route   POST /api/auth/save-image
+// @access  Private
+const saveImage = asyncHandler(async (req, res) => {
+    const { imageId } = req.body;
+
+    if (!imageId) {
+        res.status(400);
+        throw new Error('Image ID is required');
+    }
+
+    const { data: user } = await supabase.from('users').select('saved_images').eq('id', req.user.id).single();
+    let savedImages = user.saved_images || [];
+
+    const strImageId = String(imageId);
+    const existingIndex = savedImages.findIndex(id => String(id) === strImageId);
+
+    if (existingIndex > -1) {
+        savedImages.splice(existingIndex, 1);
+    } else {
+        savedImages.push(strImageId);
+    }
+
+    await supabase.from('users').update({ saved_images: savedImages }).eq('id', req.user.id);
+
+    res.json({
+        success: true,
+        savedImages: savedImages.map(id => String(id))
+    });
+});
+
 
 // @desc    Toggle Notifications
 // @route   POST /api/auth/toggle-notifications

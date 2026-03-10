@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Images - Qalamekahani Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/admin/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+</head>
+
+<body class="bg-gray-900 text-gray-100 font-sans antialiased">
+    <!-- Sidebar Overlay & Sidebar -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()"
+        class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
+    <aside id="sidebar"
+        class="fixed top-0 left-0 z-50 h-screen w-64 bg-gray-800 border-r border-gray-700 transition-transform duration-300 transform -translate-x-full lg:translate-x-0">
+        <div class="h-16 flex items-center justify-between px-6 border-b border-gray-700">
+            <span
+                class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Qalamekahani</span>
+            <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white"><i
+                    data-lucide="x"></i></button>
+        </div>
+        <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
+            <a href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="layout-dashboard"></i>Dashboard</a>
+            <a href="stories.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="book-open"></i>Stories</a>
+            <a href="books.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="library"></i>Books</a>
+            <a href="audio.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="headphones"></i>Audio Stories</a>
+            <a href="blogs.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="file-text"></i>Blogs</a>
+            <a href="images.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"><i
+                    data-lucide="image"></i>Images</a>
+            <a href="reviews.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="star"></i>Reviews</a>
+            <a href="settings.html"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
+                    data-lucide="settings"></i>Settings</a>
+        </nav>
+    </aside>
+
+    <main class="lg:pl-64 min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4 lg:px-8">
+            <button onclick="toggleSidebar()"
+                class="lg:hidden p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700"><i
+                    data-lucide="menu"></i></button>
+            <div class="flex items-center gap-4 ml-auto">
+                <div class="flex items-center gap-3">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=random"
+                        class="w-8 h-8 rounded-full ring-2 ring-gray-700">
+                    <span id="adminName" class="hidden md:block text-sm font-medium text-gray-200">Admin</span>
+                </div>
+                <button onclick="logout()" class="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                    title="Logout"><i data-lucide="log-out"></i></button>
+            </div>
+        </header>
+
+        <div class="p-4 lg:p-8 flex-1 overflow-y-auto">
+            <!-- Page Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Images & Wallpapers</h1>
+                    <p class="text-gray-400">Manage gallery images.</p>
+                </div>
+                <button onclick="openModal()"
+                    class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Upload New Image
+                </button>
+            </div>
+
+            <!-- Table Card -->
+            <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-400">
+                        <thead class="bg-gray-700/50 text-gray-200 font-medium uppercase text-xs">
+                            <tr>
+                                <th class="px-6 py-4">Image</th>
+                                <th class="px-6 py-4">Title</th>
+                                <th class="px-6 py-4">Category</th>
+                                <th class="px-6 py-4 text-center">Downloads</th>
+                                <th class="px-6 py-4">Date</th>
+                                <th class="px-6 py-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="imageTableBody" class="divide-y divide-gray-700 text-gray-300">
+                            <!-- JS will populate rows -->
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">Loading images...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="imageModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl border border-gray-700 max-h-[90vh] overflow-y-auto">
+            <h2 id="modalTitle" class="text-xl font-bold text-white mb-6">Upload Image</h2>
+
+            <form id="imageForm" class="space-y-4">
+                <input type="hidden" id="imageId">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Title</label>
+                    <input type="text" id="title" required
+                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Category</label>
+                    <select id="category" required
+                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="General">General</option>
+                        <option value="Wallpaper">Wallpaper</option>
+                        <option value="Character Design">Character Design</option>
+                        <option value="Cover Art">Cover Art</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Upload File</label>
+                    <div class="flex flex-col gap-2">
+                        <input type="file" id="imageFile" accept="image/*" required
+                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white fill:indigo text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700">
+                        <input type="hidden" id="imageUrl">
+                        <div id="imagePreview" class="hidden h-32 w-full bg-gray-700 rounded-lg bg-cover bg-center">
+                        </div>
+                        <p id="uploadStatus" class="text-xs text-gray-400 hidden">Uploading...</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal()"
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">Cancel</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-lg transition-colors">Upload
+                        Image</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/admin/js/main.js"></script>
+    <script src="/admin/js/images.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>

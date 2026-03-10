@@ -13,6 +13,7 @@ const {
     saveBlog,
     trackAudio,
     saveAudio,
+    saveImage,
     forgotPassword,
     resetPassword,
     getAllUsers,
@@ -40,7 +41,9 @@ router.post('/like-story', protect, likeStory);
 router.post('/save-blog', protect, saveBlog);
 router.post('/track-audio', protect, trackAudio);
 router.post('/save-audio', protect, saveAudio);
+router.post('/save-image', protect, saveImage);
 router.post('/toggle-notifications', protect, toggleNotifications);
+
 
 // Admin Routes
 router.get('/users', protect, authorize('admin'), getAllUsers);

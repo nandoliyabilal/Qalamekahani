@@ -306,6 +306,7 @@
             <button class="tab-btn" onclick="switchTab('saved')">Saved Blogs</button>
             <button class="tab-btn" onclick="switchTab('history')">Saved Audios</button>
             <button class="tab-btn" id="orders-tab-btn" onclick="switchTab('orders')"> My Orders</button>
+            <button class="tab-btn" onclick="switchTab('images')">Saved Images</button>
         </div>
 
         <div id="liked" class="tab-content active">
@@ -319,6 +320,9 @@
         </div>
         <div id="orders" class="tab-content">
             <p style="color:#666; text-align:center;">Your orders will appear here.</p>
+        </div>
+        <div id="images" class="tab-content">
+            <p style="color:#666; text-align:center; margin-top: 30px;">Your saved images will appear here.</p>
         </div>
     </div>
 
@@ -367,6 +371,9 @@
 
                     // Saved Audios
                     renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios yet.');
+
+                    // Saved Images
+                    renderImages('images', user.savedImages, 'No saved images yet.');
 
                     // Fetch and Render Orders
                     loadOrders(token);
@@ -468,6 +475,45 @@
                     <h4 class="activity-title">${item.title}</h4>
                     <span class="activity-date" style="color: #d4af37; font-size: 0.8rem; text-transform:uppercase; letter-spacing:1px;">${item.category || 'Content'}</span>
                     <a href="${href}" style="display:block; margin-top:10px; color:#ccc; font-size:0.9rem; text-decoration:none;">View Details <i class="fas fa-arrow-right" style="font-size:0.8em;"></i></a>
+                `;
+                grid.appendChild(card);
+            });
+
+            container.appendChild(grid);
+        }
+
+        function renderImages(containerId, items, emptyMsg) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                container.innerHTML = `<p style="color:#666; text-align:center; padding: 20px;">${emptyMsg}</p>`;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'activity-grid'; 
+            grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
+
+            items.forEach(item => {
+                if (!item) return;
+                const card = document.createElement('div');
+                card.className = 'activity-card';
+                card.style.padding = '10px';
+                card.style.textAlign = 'center';
+                
+                let imgUrl = item.image;
+                if (imgUrl && !imgUrl.startsWith('http')) {
+                    imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\\/?/, '');
+                }
+
+                card.innerHTML = `
+                    <div style="background: #111; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">
+                        <img src="${imgUrl}" alt="${item.title}" style="width:100%; height:150px; object-fit:cover; display: block;">
+                    </div>
+                    <h4 class="activity-title" style="font-size:1rem; margin-bottom:5px;">${item.title}</h4>
+                    <span class="activity-date" style="color:#d4af37; font-size:0.7rem; text-transform:uppercase;">${item.category || 'Image'}</span>
+                    <a href="gallery.html" style="display:block; margin-top:10px; padding:5px; border:1px solid #333; border-radius:4px; color:#ccc; font-size:0.8rem; text-decoration:none;">Go to Gallery</a>
                 `;
                 grid.appendChild(card);
             });

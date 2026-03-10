@@ -4,23 +4,34 @@ const supabase = require('../config/supabase');
 const sendEmailNotification = async (item, type) => {
     try {
         // 1. Get all users who have notifications turned ON
-        const { data: users, error } = await supabase
+        const { data: users, error: userError } = await supabase
             .from('users')
-            .select('email, name')
+            .select('email')
             .eq('notifications_on', true);
 
-        if (error) {
-            console.error('Error fetching subscribers:', error);
+        // 2. Get all newsletter subscribers
+        const { data: subscribers, error: subError } = await supabase
+            .from('subscribers')
+            .select('email');
+
+        if (userError || subError) {
+            console.error('Error fetching subscribers:', userError || subError);
             return;
         }
 
-        if (!users || users.length === 0) {
-            console.log(`[NOTIFICATION DEBUG] No subscribers found where notifications_on = true.`);
+        // Combine and unique list of emails
+        const emailSet = new Set();
+        if (users) users.forEach(u => emailSet.add(u.email));
+        if (subscribers) subscribers.forEach(s => emailSet.add(s.email));
+
+        const recipientList = Array.from(emailSet);
+
+        if (recipientList.length === 0) {
+            console.log(`[NOTIFICATION DEBUG] No subscribers found.`);
             return;
         }
 
-        console.log(`[NOTIFICATION DEBUG] Found ${users.length} subscribers.`);
-        const recipientList = users.map(u => u.email);
+        console.log(`[NOTIFICATION DEBUG] Found ${recipientList.length} unique subscribers.`);
         console.log(`[NOTIFICATION DEBUG] Recipient List:`, recipientList);
 
         // 2. Prepare Email Content based on type

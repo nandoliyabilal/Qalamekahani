@@ -46,6 +46,8 @@ const submitContactForm = asyncHandler(async (req, res) => {
     }
 });
 
+const supabase = require('../config/supabase'); // Ensure supabase is available
+
 // @desc    Newsletter Subscription
 // @route   POST /api/contact/subscribe
 // @access  Public
@@ -58,9 +60,31 @@ const subscribeNewsletter = asyncHandler(async (req, res) => {
     }
 
     try {
+        // 1. Check if already subscribed
+        const { data: existing, error: checkError } = await supabase
+            .from('subscribers')
+            .select('id')
+            .eq('email', email)
+            .maybeSingle();
+
+        if (existing) {
+            return res.status(200).json({ success: true, message: 'You are already subscribed to our newsletter!' });
+        }
+
+        // 2. Add to database
+        const { error: insertError } = await supabase
+            .from('subscribers')
+            .insert([{ email }]);
+
+        if (insertError) {
+            console.error('Subscription Insert Error:', insertError);
+            res.status(400);
+            throw new Error('Already subscribed or invalid email');
+        }
+
         const adminEmail = process.env.EMAIL_USERNAME || 'sabirkhanp646@gmail.com';
 
-        // 1. Notify Admin
+        // 3. Notify Admin
         await sendEmail({
             email: adminEmail,
             subject: 'New Newsletter Subscriber - Qalamekahani',
@@ -68,7 +92,7 @@ const subscribeNewsletter = asyncHandler(async (req, res) => {
             itemData: { email }
         });
 
-        // 2. Send Confirmation to User
+        // 4. Send Confirmation to User
         await sendEmail({
             email: email,
             subject: 'Welcome to the Qalamekahani Newsletter!',
@@ -79,6 +103,9 @@ const subscribeNewsletter = asyncHandler(async (req, res) => {
         res.status(200).json({ success: true, message: 'Successfully subscribed!' });
     } catch (error) {
         console.error('Subscription Email Error:', error);
+        if (res.statusCode === 400) {
+            throw error;
+        }
         res.status(500);
         throw new Error('Subscription failed due to server error');
     }

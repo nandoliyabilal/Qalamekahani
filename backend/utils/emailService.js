@@ -190,6 +190,18 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
             <p style="font-size: 13px; color: #888;">Thank you for your patience.</p>
         `;
         finalHtml = getPremiumTemplate(content);
+    } else if (type === 'new_item') {
+        const content = `
+            <div style="text-transform: uppercase; color: #d4af37; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">New ${itemData.typeLabel} Arrival</div>
+            <div class="title">${itemData.title}</div>
+            ${itemData.image ? `<img src="${itemData.image}" style="width: 100%; max-width: 500px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #333;" alt="${itemData.title}">` : ''}
+            <div class="message" style="color: #ccc; margin-bottom: 30px;">${itemData.summary}</div>
+            <a href="${itemData.link}" class="btn">View ${itemData.typeLabel}</a>
+            <div style="margin-top: 40px; color: #777; font-size: 12px; border-top: 1px solid #1a1a1a; padding-top: 20px;">
+                You are receiving this because you subscribed to Qalamekahani updates.
+            </div>
+        `;
+        finalHtml = getPremiumTemplate(content);
     } else {
         finalHtml = getPremiumTemplate(`<div class="message">${message}</div>`);
     }

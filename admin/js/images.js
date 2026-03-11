@@ -1,4 +1,3 @@
-const API_URL = '/api';
 const UPLOAD_URL = '/api/upload';
 
 let currentImages = [];

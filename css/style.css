@@ -200,8 +200,7 @@ body {
 
 .nav-links li {
   position: relative;
-  overflow: hidden;
-  /* For underline effect */
+  overflow: visible; /* Changed from hidden to fix dropdowns */
 }
 
 .nav-links a {

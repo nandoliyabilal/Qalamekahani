@@ -856,6 +856,7 @@ module.exports = {
     getAllUsers,
     getUserById,
     saveAudio,
+    saveImage,
     toggleNotifications,
     googleLogin
 };

@@ -422,58 +422,64 @@ const getMe = asyncHandler(async (req, res) => {
         if (table === 'galleries') fields = 'id, title, image, category';
 
         // Attempt 1: Fetch by 'id'
-        let { data: byId } = await supabase
+        let { data: byId, error: errorId } = await supabase
             .from(table)
             .select(fields)
             .in('id', uniqueIds);
 
         if (byId) foundData = [...byId];
 
-        // Attempt 2: Fetch by 'slug' (for items saved via slug)
-        const missingIds = uniqueIds.filter(id => !foundData.some(item => String(item.id) === id || String(item.slug) === id));
-        if (missingIds.length > 0) {
-            let { data: bySlug } = await supabase
-                .from(table)
-                .select(fields)
-                .in('slug', missingIds);
-
-            if (bySlug) {
-                bySlug.forEach(item => {
-                    if (!foundData.some(existing => String(existing.id) === String(item.id))) {
-                        foundData.push(item);
-                    }
-                });
-            }
-        }
-
-        // Attempt 3: Fetch by '_id' (legacy Mongo IDs)
-        const stillMissing = uniqueIds.filter(id => !foundData.some(item => String(item.id) === id || String(item.slug) === id || String(item._id) === id));
-        if (stillMissing.length > 0) {
-            try {
-                let { data: byMongoId } = await supabase
+        // Attempt 2: Fetch by 'slug' (Only if table has slugs)
+        const hasSlug = table === 'stories' || table === 'blogs';
+        if (hasSlug) {
+            const missingIds = uniqueIds.filter(id => !foundData.some(item => String(item.id) === id || String(item.slug) === id));
+            if (missingIds.length > 0) {
+                let { data: bySlug } = await supabase
                     .from(table)
                     .select(fields)
-                    .in('_id', stillMissing);
+                    .in('slug', missingIds);
 
-                if (byMongoId) {
-                    byMongoId.forEach(item => {
+                if (bySlug) {
+                    bySlug.forEach(item => {
                         if (!foundData.some(existing => String(existing.id) === String(item.id))) {
                             foundData.push(item);
                         }
                     });
                 }
-            } catch (e) { }
+            }
+        }
+
+        // Attempt 3: Fetch by '_id' (legacy Mongo IDs - only for old tables)
+        const hasLegacyId = table === 'stories' || table === 'blogs' || table === 'audio_stories' || table === 'galleries';
+        if (hasLegacyId) {
+            const stillMissing = uniqueIds.filter(id => !foundData.some(item => String(item.id) === id || (hasSlug && String(item.slug) === id) || String(item._id) === id));
+            if (stillMissing.length > 0) {
+                try {
+                    let { data: byMongoId } = await supabase
+                        .from(table)
+                        .select(fields)
+                        .in('_id', stillMissing);
+
+                    if (byMongoId) {
+                        byMongoId.forEach(item => {
+                            if (!foundData.some(existing => String(existing.id) === String(item.id))) {
+                                foundData.push(item);
+                            }
+                        });
+                    }
+                } catch (e) { }
+            }
         }
 
         return foundData;
     };
 
-    // Fetch details
+    // Fetch details (Filtering out null/empty IDs to prevent DB errors)
     const [likedStories, savedBlogs, savedAudios, savedImagesDetails] = await Promise.all([
-        fetchDetails('stories', userProfile.likedStories),
-        fetchDetails('blogs', userProfile.savedBlogs),
-        fetchDetails('audio_stories', userProfile.savedAudios),
-        fetchDetails('galleries', user.saved_images || [])
+        fetchDetails('stories', (userProfile.likedStories || []).filter(id => id)),
+        fetchDetails('blogs', (userProfile.savedBlogs || []).filter(id => id)),
+        fetchDetails('audio_stories', (userProfile.savedAudios || []).filter(id => id)),
+        fetchDetails('galleries', (user.saved_images || []).filter(id => id))
     ]);
 
     userProfile.likedStories = likedStories;

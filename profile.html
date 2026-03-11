@@ -344,9 +344,9 @@
                 if (res.ok) {
                     const user = await res.json();
 
-                    document.getElementById('user-name').innerText = user.name;
-                    document.getElementById('user-email').innerText = user.email;
-                    document.getElementById('avatar').innerText = user.name.charAt(0).toUpperCase();
+                    document.getElementById('user-name').innerText = user.name || 'User';
+                    document.getElementById('user-email').innerText = user.email || 'No Email';
+                    document.getElementById('avatar').innerText = (user.name || 'U').charAt(0).toUpperCase();
 
                     // Update stats
                     document.getElementById('count-stories').innerText = user.likedStories ? user.likedStories.length : 0;
@@ -384,6 +384,7 @@
                 }
             } catch (err) {
                 console.error(err);
+                if(window.showToast) window.showToast('Profile load failed. Please login again.', 'error');
             }
         }
 
@@ -459,7 +460,7 @@
 
                 // Determine link: Use slug if available and valid, otherwise fallback to ID
                 let href = `${linkPrefix}?id=${id}`;
-                if (item.slug && item.slug.trim() !== '' && !item.slug.match(/^--/)) { // check for valid slug
+                if (item.slug && typeof item.slug === 'string' && item.slug.trim() !== '' && !item.slug.startsWith('--')) { // check for valid slug
                     href = `${linkPrefix}?slug=${item.slug}`;
                     // Special case: audio details usually use ?id=
                     if (linkPrefix.includes('audio-detail')) {

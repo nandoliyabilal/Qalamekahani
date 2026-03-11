@@ -383,6 +383,8 @@ const verifyAdminLogin = asyncHandler(async (req, res) => {
 // @route   GET /api/auth/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
+    console.log(`[ME] Fetching profile for user ID: ${req.user.id}`);
+    
     // 1. Get User from Supabase
     const { data: user, error } = await supabase
         .from('users')
@@ -391,103 +393,66 @@ const getMe = asyncHandler(async (req, res) => {
         .single();
 
     if (error || !user) {
+        console.error(`[ME] User not found or error:`, error);
         res.status(404);
         throw new Error('User not found');
     }
 
-    // Map fields
-    const userProfile = {
-        ...user,
-        likedStories: user.liked_stories || [],
-        savedBlogs: user.saved_blogs || [],
-        savedAudios: user.saved_audios || [],
-        listenedAudios: user.listened_audios || [],
-        notificationsOn: user.notifications_on
-    };
-
-    // 2. Supabase is already required at the top level in this migrated file
-
-    // 3. Helper to fetch details from Supabase (Robust: Checks id, slug, AND _id)
+    // 2. Helper to fetch details with fallback and logging
     const fetchDetails = async (table, ids) => {
         if (!ids || ids.length === 0) return [];
+        const uniqueIds = [...new Set(ids.filter(id => id).map(id => String(id)))];
+        if (uniqueIds.length === 0) return [];
 
-        const uniqueIds = [...new Set(ids.map(id => String(id)))];
-        let foundData = [];
-        
-        // Define fields to avoid fetching huge fullContent strings
-        let fields = '*';
-        if (table === 'stories') fields = 'id, title, slug, image, category';
-        if (table === 'blogs') fields = 'id, title, slug, image, category';
-        if (table === 'audio_stories') fields = 'id, title, image, category';
-        if (table === 'galleries') fields = 'id, title, image, category';
+        let fields = 'id, title, image, category';
+        if (table === 'stories' || table === 'blogs') fields += ', slug';
 
-        // Attempt 1: Fetch by 'id'
-        let { data: byId, error: errorId } = await supabase
-            .from(table)
-            .select(fields)
-            .in('id', uniqueIds);
-
-        if (byId) foundData = [...byId];
-
-        // Attempt 2: Fetch by 'slug' (Only if table has slugs)
-        const hasSlug = table === 'stories' || table === 'blogs';
-        if (hasSlug) {
-            const missingIds = uniqueIds.filter(id => !foundData.some(item => String(item.id) === id || String(item.slug) === id));
-            if (missingIds.length > 0) {
-                let { data: bySlug } = await supabase
-                    .from(table)
-                    .select(fields)
-                    .in('slug', missingIds);
-
-                if (bySlug) {
-                    bySlug.forEach(item => {
-                        if (!foundData.some(existing => String(existing.id) === String(item.id))) {
-                            foundData.push(item);
-                        }
-                    });
+        try {
+            // Attempt 1: Fetch by ID
+            let { data, error } = await supabase.from(table).select(fields).in('id', uniqueIds);
+            
+            // Attempt 2: If many missing (likely old slugs/IDs), try slug
+            const hasSlug = table === 'stories' || table === 'blogs';
+            if (hasSlug && (!data || data.length < uniqueIds.length)) {
+                const foundIds = data ? data.map(d => String(d.id)) : [];
+                const missingIds = uniqueIds.filter(id => !foundIds.includes(id));
+                if (missingIds.length > 0) {
+                    const { data: bySlug } = await supabase.from(table).select(fields).in('slug', missingIds);
+                    if (bySlug) data = [...(data || []), ...bySlug];
                 }
             }
+            return data || [];
+        } catch (err) {
+            console.error(`[ME] Error fetching from ${table}:`, err);
+            return [];
         }
-
-        // Attempt 3: Fetch by '_id' (legacy Mongo IDs - only for old tables)
-        const hasLegacyId = table === 'stories' || table === 'blogs' || table === 'audio_stories' || table === 'galleries';
-        if (hasLegacyId) {
-            const stillMissing = uniqueIds.filter(id => !foundData.some(item => String(item.id) === id || (hasSlug && String(item.slug) === id) || String(item._id) === id));
-            if (stillMissing.length > 0) {
-                try {
-                    let { data: byMongoId } = await supabase
-                        .from(table)
-                        .select(fields)
-                        .in('_id', stillMissing);
-
-                    if (byMongoId) {
-                        byMongoId.forEach(item => {
-                            if (!foundData.some(existing => String(existing.id) === String(item.id))) {
-                                foundData.push(item);
-                            }
-                        });
-                    }
-                } catch (e) { }
-            }
-        }
-
-        return foundData;
     };
 
-    // Fetch details (Filtering out null/empty IDs to prevent DB errors)
+    // 3. Parallel fetch of all linked data
     const [likedStories, savedBlogs, savedAudios, savedImagesDetails] = await Promise.all([
-        fetchDetails('stories', (userProfile.likedStories || []).filter(id => id)),
-        fetchDetails('blogs', (userProfile.savedBlogs || []).filter(id => id)),
-        fetchDetails('audio_stories', (userProfile.savedAudios || []).filter(id => id)),
-        fetchDetails('galleries', (user.saved_images || []).filter(id => id))
+        fetchDetails('stories', user.liked_stories),
+        fetchDetails('blogs', user.saved_blogs),
+        fetchDetails('audio_stories', user.saved_audios),
+        fetchDetails('galleries', user.saved_images)
     ]);
 
-    userProfile.likedStories = likedStories;
-    userProfile.savedBlogs = savedBlogs;
-    userProfile.savedAudios = savedAudios;
-    userProfile.savedImages = savedImagesDetails;
+    // 4. Construct Clean Profile Object
+    const responseData = {
+        id: user.id,
+        name: user.name || 'User',
+        email: user.email,
+        role: user.role,
+        notificationsOn: user.notifications_on,
+        likedStories: likedStories,
+        savedBlogs: savedBlogs,
+        savedAudios: savedAudios,
+        savedImages: savedImagesDetails,
+        likedCount: likedStories.length,
+        savedCount: savedBlogs.length
+    };
 
-    res.status(200).json(userProfile);
+    console.log(`[ME] Success: Returning profile for ${user.email}`);
+    res.status(200).json(responseData);
 });
 
 // @desc    Like a Story

@@ -53,18 +53,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 const { errorHandler } = require('./middleware/errorMiddleware');
 
-// Import Routes
-app.use((req, res, next) => {
-    if (req.path === '/api/auth/me') {
-        const oldJson = res.json;
-        res.json = function (data) {
-            console.log(`[DEBUG] /api/auth/me response for ${data.email}: Stories=${data.likedStories?.length}, Blogs=${data.savedBlogs?.length}, Audios=${data.savedAudios?.length}`);
-            return oldJson.apply(res, arguments);
-        };
-    }
-    next();
-});
-
+// Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes')); // Admin Stats
 app.use('/api/stories', require('./routes/storyRoutes'));

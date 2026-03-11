@@ -335,56 +335,68 @@
                 return;
             }
 
+            console.log('Loading profile...');
+
             try {
-                // Cache Buster
                 const res = await fetch(`/api/auth/me?t=${Date.now()}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 if (res.ok) {
                     const user = await res.json();
+                    console.log('Profile data received:', user);
 
-                    document.getElementById('user-name').innerText = user.name || 'User';
-                    document.getElementById('user-email').innerText = user.email || 'No Email';
-                    document.getElementById('avatar').innerText = (user.name || 'U').charAt(0).toUpperCase();
+                    // Update UI safely
+                    const safeSetText = (id, text) => {
+                        const el = document.getElementById(id);
+                        if (el) el.innerText = text;
+                        else console.warn(`Element with ID ${id} not found`);
+                    };
+
+                    safeSetText('user-name', user.name || 'User');
+                    safeSetText('user-email', user.email || 'No Email');
+                    
+                    const avatarEl = document.getElementById('avatar');
+                    if (avatarEl) {
+                        avatarEl.innerText = (user.name || 'U').charAt(0).toUpperCase();
+                    }
 
                     // Update stats
-                    document.getElementById('count-stories').innerText = user.likedStories ? user.likedStories.length : 0;
-                    document.getElementById('count-blogs').innerText = user.savedBlogs ? user.savedBlogs.length : 0;
-                    document.getElementById('count-audio-label').innerText = "SAVED AUDIOS"; // Logic change
-                    document.getElementById('count-audio').innerText = user.savedAudios ? user.savedAudios.length : 0;
+                    safeSetText('count-stories', user.likedStories ? user.likedStories.length : 0);
+                    safeSetText('count-blogs', user.savedBlogs ? user.savedBlogs.length : 0);
+                    safeSetText('count-audio', user.savedAudios ? user.savedAudios.length : 0);
+                    safeSetText('count-audio-label', "Saved Audios");
 
                     // Set Notification Toggle State
                     const notifCheckbox = document.getElementById('notif-checkbox');
                     const statusText = document.getElementById('notif-status');
                     const notifIcon = document.getElementById('notif-icon');
 
-                    const isPowered = user.notificationsOn !== false; // Mapped from backend notifications_on
-                    notifCheckbox.checked = isPowered;
-                    statusText.innerText = isPowered ? 'ON' : 'OFF';
-                    notifIcon.className = isPowered ? 'fas fa-bell' : 'fas fa-bell-slash';
-                    notifIcon.style.color = isPowered ? '#d4af37' : '#666';
+                    if (notifCheckbox && statusText && notifIcon) {
+                        const isPowered = user.notificationsOn !== false;
+                        notifCheckbox.checked = isPowered;
+                        statusText.innerText = isPowered ? 'ON' : 'OFF';
+                        notifIcon.className = isPowered ? 'fas fa-bell' : 'fas fa-bell-slash';
+                        notifIcon.style.color = isPowered ? '#d4af37' : '#666';
+                    }
 
-                    // Render Tabs
-                    renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories yet.');
-                    renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs yet.');
-
-                    // Saved Audios
-                    renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios yet.');
-
-                    // Saved Images
-                    renderImages('images', user.savedImages, 'No saved images yet.');
+                    // Render Tabs (Try-Catch each to isolate failures)
+                    try { renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories yet.'); } catch (e) { console.error('Error rendering liked stories:', e); }
+                    try { renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs yet.'); } catch (e) { console.error('Error rendering saved blogs:', e); }
+                    try { renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios yet.'); } catch (e) { console.error('Error rendering audios:', e); }
+                    try { renderImages('images', user.savedImages, 'No saved images yet.'); } catch (e) { console.error('Error rendering images:', e); }
 
                     // Fetch and Render Orders
                     loadOrders(token);
 
                 } else {
+                    console.error('API responded with error:', res.status);
                     localStorage.removeItem('token');
                     window.location.href = 'login.html';
                 }
             } catch (err) {
-                console.error(err);
-                if(window.showToast) window.showToast('Profile load failed. Please login again.', 'error');
+                console.error('Crash in loadProfile:', err);
+                if(window.showToast) window.showToast('Error loading profile. Please refresh.', 'error');
             }
         }
 

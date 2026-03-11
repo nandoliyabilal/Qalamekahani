@@ -100,10 +100,8 @@ async function uploadCoverImage(e) {
     statusEl.classList.replace('text-red-400', 'text-gray-400');
 
     try {
-        const token = localStorage.getItem('adminToken');
-        const res = await fetch(UPLOAD_URL, {
+        const res = await fetchWithAuth('/upload', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
             body: formData
         });
 
@@ -151,14 +149,8 @@ async function saveImage(e) {
     };
 
     try {
-        const token = localStorage.getItem('adminToken');
-        
-        const res = await fetch(`${API_URL}/gallery`, {
+        const res = await fetchWithAuth('/gallery', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
             body: JSON.stringify(payload)
         });
 
@@ -176,10 +168,8 @@ async function deleteImage(id, title) {
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
 
     try {
-        const token = localStorage.getItem('adminToken');
-        const res = await fetch(`${API_URL}/gallery/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetchWithAuth(`/gallery/${id}`, {
+            method: 'DELETE'
         });
 
         if (!res.ok) throw new Error('Failed to delete');

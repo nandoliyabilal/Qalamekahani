@@ -57,6 +57,20 @@ if (hamburger) {
   });
 }
 
+// Mobile Dropdown Toggle
+const dropdowns = document.querySelectorAll('.nav-links .dropdown');
+dropdowns.forEach(dropdown => {
+    const link = dropdown.querySelector('a');
+    if(link) {
+        link.addEventListener('click', (e) => {
+            if (window.innerWidth <= 960) {
+                e.preventDefault(); // Prevent jump to page on first click
+                dropdown.classList.toggle('active');
+            }
+        });
+    }
+});
+
 // Auth Check Logic
 // Auth Check Logic
 // Auth Check Logic

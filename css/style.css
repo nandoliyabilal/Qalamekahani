@@ -553,6 +553,44 @@ body {
     background: rgba(212, 175, 55, 0.05);
   }
 
+  /* Dropdown on Mobile */
+  .dropdown {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .dropdown-menu {
+    position: static !important;
+    max-height: 0;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    transition: all 0.4s ease !important;
+    padding: 0 !important;
+    margin-left: 15px;
+    border-left: 2px solid #d4af37 !important;
+  }
+
+  .nav-links li.dropdown.active .dropdown-menu {
+    max-height: 300px;
+    opacity: 1 !important;
+    visibility: visible !important;
+    padding: 10px 0 !important;
+    margin-top: 10px;
+  }
+
+  .dropdown-menu a {
+    font-size: 1.2rem !important;
+    padding: 8px 15px !important;
+    font-family: 'Poppins', sans-serif !important;
+    border: none !important;
+  }
+
+
   /* Mobile User Profile - Premium Integrated Design */
   .user-avatar-container {
     width: 100% !important;

@@ -92,7 +92,7 @@ async function uploadCoverImage(e) {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('file', file);
 
     const statusEl = document.getElementById('uploadStatus');
     statusEl.classList.remove('hidden');
@@ -110,7 +110,7 @@ async function uploadCoverImage(e) {
         if (!res.ok) throw new Error('Upload failed');
 
         const data = await res.json();
-        const fileUrl = data.fileUrl;
+        const fileUrl = data.url;
 
         document.getElementById('imageUrl').value = fileUrl;
         

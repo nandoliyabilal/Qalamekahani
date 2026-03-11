@@ -5,7 +5,7 @@ const supabase = require('../config/supabase');
 const getBlogs = asyncHandler(async (req, res) => {
     const { data, error } = await supabase
         .from('blogs')
-        .select('*')
+        .select('id, title, slug, author, category, read_time, excerpt, image, views, likes, created_at, language')
         .order('created_at', { ascending: false });
 
     if (error) {

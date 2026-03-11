@@ -413,11 +413,18 @@ const getMe = asyncHandler(async (req, res) => {
 
         const uniqueIds = [...new Set(ids.map(id => String(id)))];
         let foundData = [];
+        
+        // Define fields to avoid fetching huge fullContent strings
+        let fields = '*';
+        if (table === 'stories') fields = 'id, title, slug, image, category';
+        if (table === 'blogs') fields = 'id, title, slug, image, category';
+        if (table === 'audio_stories') fields = 'id, title, image, category';
+        if (table === 'galleries') fields = 'id, title, image, category';
 
         // Attempt 1: Fetch by 'id'
         let { data: byId } = await supabase
             .from(table)
-            .select('*')
+            .select(fields)
             .in('id', uniqueIds);
 
         if (byId) foundData = [...byId];
@@ -427,7 +434,7 @@ const getMe = asyncHandler(async (req, res) => {
         if (missingIds.length > 0) {
             let { data: bySlug } = await supabase
                 .from(table)
-                .select('*')
+                .select(fields)
                 .in('slug', missingIds);
 
             if (bySlug) {
@@ -445,7 +452,7 @@ const getMe = asyncHandler(async (req, res) => {
             try {
                 let { data: byMongoId } = await supabase
                     .from(table)
-                    .select('*')
+                    .select(fields)
                     .in('_id', stillMissing);
 
                 if (byMongoId) {

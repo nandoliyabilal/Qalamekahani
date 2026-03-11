@@ -7,7 +7,7 @@ const supabase = require('../config/supabase');
 const getStories = asyncHandler(async (req, res) => {
     const { data, error } = await supabase
         .from('stories')
-        .select('*')
+        .select('id, title, slug, image, category, summary, author, views, likes, status, created_at, language, youtube_link, price, discount')
         .order('created_at', { ascending: false });
 
     if (error) {

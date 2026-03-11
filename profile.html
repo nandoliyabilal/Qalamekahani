@@ -331,20 +331,23 @@
         async function loadProfile() {
             const token = localStorage.getItem('token');
             if (!token) {
+                console.warn('No token found, redirecting to login');
                 window.location.href = 'login.html';
                 return;
             }
 
-            console.log('Loading profile...');
+            console.log('Profile Load Started - Token exists');
 
             try {
                 const res = await fetch(`/api/auth/me?t=${Date.now()}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
+                console.log('API Status:', res.status);
+
                 if (res.ok) {
                     const user = await res.json();
-                    console.log('Profile data received:', user);
+                    console.log('Profile Data:', user);
 
                     // Update UI safely
                     const safeSetText = (id, text) => {
@@ -353,17 +356,19 @@
                         else console.warn(`Element with ID ${id} not found`);
                     };
 
-                    safeSetText('user-name', user.name || 'User');
+                    // Use name or email or 'User'
+                    const displayName = user.name || (user.email ? user.email.split('@')[0] : 'User');
+                    safeSetText('user-name', displayName);
                     safeSetText('user-email', user.email || 'No Email');
                     
                     const avatarEl = document.getElementById('avatar');
                     if (avatarEl) {
-                        avatarEl.innerText = (user.name || 'U').charAt(0).toUpperCase();
+                        avatarEl.innerText = displayName.charAt(0).toUpperCase();
                     }
 
-                    // Update stats
-                    safeSetText('count-stories', user.likedStories ? user.likedStories.length : 0);
-                    safeSetText('count-blogs', user.savedBlogs ? user.savedBlogs.length : 0);
+                    // Update stats (using keys from responseData)
+                    safeSetText('count-stories', user.likedStories ? user.likedStories.length : (user.likedCount || 0));
+                    safeSetText('count-blogs', user.savedBlogs ? user.savedBlogs.length : (user.savedCount || 0));
                     safeSetText('count-audio', user.savedAudios ? user.savedAudios.length : 0);
                     safeSetText('count-audio-label', "Saved Audios");
 
@@ -381,22 +386,24 @@
                     }
 
                     // Render Tabs (Try-Catch each to isolate failures)
-                    try { renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories yet.'); } catch (e) { console.error('Error rendering liked stories:', e); }
-                    try { renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs yet.'); } catch (e) { console.error('Error rendering saved blogs:', e); }
-                    try { renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios yet.'); } catch (e) { console.error('Error rendering audios:', e); }
-                    try { renderImages('images', user.savedImages, 'No saved images yet.'); } catch (e) { console.error('Error rendering images:', e); }
+                    try { renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories yet.'); } catch (e) { console.error('Liked stories render crash:', e); }
+                    try { renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs yet.'); } catch (e) { console.error('Blogs render crash:', e); }
+                    try { renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios yet.'); } catch (e) { console.error('Audios render crash:', e); }
+                    try { renderImages('images', user.savedImages, 'No saved images yet.'); } catch (e) { console.error('Images render crash:', e); }
 
                     // Fetch and Render Orders
                     loadOrders(token);
 
                 } else {
-                    console.error('API responded with error:', res.status);
-                    localStorage.removeItem('token');
-                    window.location.href = 'login.html';
+                    console.error('API Error Response');
+                    if (res.status === 401 || res.status === 403) {
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                    }
                 }
             } catch (err) {
-                console.error('Crash in loadProfile:', err);
-                if(window.showToast) window.showToast('Error loading profile. Please refresh.', 'error');
+                console.error('CRITIAL FRONTEND CRASH in loadProfile:', err);
+                if(window.showToast) window.showToast('Failed to load profile details. Please try again.', 'error');
             }
         }
 

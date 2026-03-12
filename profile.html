@@ -346,18 +346,19 @@
 
     <script src="js/main.js"></script>
     <script>
-        // Global Logger
+        console.log('--- SCRIPT EXECUTION START ---');
+        const debugEl = document.getElementById('debug-log');
         function vLog(msg) {
-            const el = document.getElementById('debug-log');
-            if (el) {
-                const time = new Date().toLocaleTimeString().split(' ')[0];
-                el.innerHTML += `<div>[${time}] ${msg}</div>`;
-                el.scrollTop = el.scrollHeight;
+            if (debugEl) {
+                debugEl.innerHTML += `<div>${msg}</div>`;
+                debugEl.scrollTop = debugEl.scrollHeight;
             }
-            console.log(`[PROFILE_DEBUG] ${msg}`);
+            console.log(`[DEBUG] ${msg}`);
         }
 
-        // Tab Switching
+        vLog('Script active');
+
+        // Tab Switching (kept from original for functionality)
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -369,20 +370,14 @@
             if (btn) btn.classList.add('active');
         }
 
-        // Safe Text Helper
-        function safeSetText(id, text) {
-            const el = document.getElementById(id);
-            if (el) el.innerText = text;
-        }
-
-        // Global Logout for HTML onclick
+        // Global Logout for HTML onclick (kept from original for functionality)
         window.logout = function() {
             localStorage.removeItem('token');
             localStorage.removeItem('userInfo');
             window.location.href = 'index.html';
         };
 
-        // Render Functions (Defined before use)
+        // Render Functions (kept from original for functionality)
         function renderContent(containerId, items, linkPrefix, emptyMsg) {
             const container = document.getElementById(containerId);
             if (!container) return;
@@ -419,6 +414,7 @@
             container.appendChild(grid);
         }
 
+        // renderImages function (kept from original for functionality)
         function renderImages(containerId, items, emptyMsg) {
             const container = document.getElementById(containerId);
             if (!container) return;
@@ -457,69 +453,65 @@
         }
 
         async function loadProfile() {
-            vLog('loadProfile START');
+            vLog('loadProfile func called');
             const token = localStorage.getItem('token');
             if (!token) {
-                vLog('No token found!');
+                vLog('No token found');
                 window.location.href = 'login.html';
                 return;
             }
 
             try {
                 vLog('Fetching /api/auth/me...');
-                const res = await fetch(`/api/auth/me?nocache=${Date.now()}`, {
+                const res = await fetch(`/api/auth/me?v=${Math.random()}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                vLog(`Response Status: ${res.status}`);
-
+                vLog(`Status: ${res.status}`);
                 if (res.ok) {
                     const user = await res.json();
-                    vLog('Data received, updating UI...');
+                    vLog('Data obtained!');
 
-                    const displayName = user.name || (user.email ? user.email.split('@')[0] : 'User');
-                    safeSetText('user-name', displayName);
-                    safeSetText('user-email', user.email || 'No Email');
-                    
-                    const avatarEl = document.getElementById('avatar');
-                    if (avatarEl) avatarEl.innerText = displayName.charAt(0).toUpperCase();
+                    const name = user.name || (user.email ? user.email.split('@')[0] : 'User');
+                    document.getElementById('user-name').innerText = name;
+                    document.getElementById('user-email').innerText = user.email || '';
+                    document.getElementById('avatar').innerText = name.charAt(0).toUpperCase();
 
                     // Stats
-                    safeSetText('count-stories', user.likedStories ? user.likedStories.length : (user.likedCount || 0));
-                    safeSetText('count-blogs', user.savedBlogs ? user.savedBlogs.length : (user.savedCount || 0));
-                    safeSetText('count-audio', user.savedAudios ? user.savedAudios.length : 0);
+                    document.getElementById('count-stories').innerText = user.likedStories ? user.likedStories.length : (user.likedCount || 0);
+                    document.getElementById('count-blogs').innerText = user.savedBlogs ? user.savedBlogs.length : (user.savedCount || 0);
+                    document.getElementById('count-audio').innerText = user.savedAudios ? user.savedAudios.length : 0; // Kept from original
 
-                    // Notifications
+                    // Notifications (kept from original for functionality)
                     const cb = document.getElementById('notif-checkbox');
                     if (cb) {
                         cb.checked = user.notificationsOn !== false;
                         document.getElementById('notif-status').innerText = cb.checked ? 'ON' : 'OFF';
                         document.getElementById('notif-icon').style.color = cb.checked ? '#d4af37' : '#666';
                     }
-
-                    // Tabs
-                    try { renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories.'); } catch(e) {}
-                    try { renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs.'); } catch(e) {}
-                    try { renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios.'); } catch(e) {}
-                    try { renderImages('images', user.savedImages, 'No saved images.'); } catch(e) {}
-
-                    vLog('Profile Load COMPLETE');
-                } else if (res.status === 401) {
+                    
+                    // Render (Silent fails for tabs)
+                    if (user.likedStories) try { renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories.'); } catch(e){}
+                    if (user.savedBlogs) try { renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs.'); } catch(e){}
+                    if (user.savedAudios) try { renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios.'); } catch(e){} // Kept from original
+                    if (user.savedImages) try { renderImages('images', user.savedImages, 'No saved images.'); } catch(e){} // Kept from original
+                    
+                    vLog('UI Update Complete');
+                } else if (res.status === 401) { // Kept from original
                     vLog('Session expired');
                     localStorage.removeItem('token');
                     window.location.href = 'login.html';
+                } else {
+                    vLog('API Error: ' + res.status);
                 }
             } catch (err) {
-                vLog(`Critical Error: ${err.message}`);
-                console.error(err);
+                vLog('Fetch Fail: ' + err.message);
+                console.error(err); // Kept from original
             }
         }
 
-        // Initialize on load
-        window.addEventListener('DOMContentLoaded', () => {
-            vLog('DOM Content Loaded');
-            loadProfile();
-        });
+        // Execute immediately
+        loadProfile();
     </script>
     <footer class="site-footer">
         <div class="footer-container">

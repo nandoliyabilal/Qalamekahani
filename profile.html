@@ -346,145 +346,46 @@
 
     <script src="js/main.js"></script>
     <script>
-        const debugEl = document.getElementById('debug-log');
+        // Global Logger
         function vLog(msg) {
-            if (debugEl) {
-                const time = new Date().toLocaleTimeString();
-                debugEl.innerHTML += `<div>[${time}] ${msg}</div>`;
-                debugEl.scrollTop = debugEl.scrollHeight;
+            const el = document.getElementById('debug-log');
+            if (el) {
+                const time = new Date().toLocaleTimeString().split(' ')[0];
+                el.innerHTML += `<div>[${time}] ${msg}</div>`;
+                el.scrollTop = el.scrollHeight;
             }
+            console.log(`[PROFILE_DEBUG] ${msg}`);
         }
 
-        async function loadProfile() {
-            vLog('loadProfile started');
-            const token = localStorage.getItem('token');
-            if (!token) {
-                vLog('NO TOKEN! Redirecting...');
-                window.location.href = 'login.html';
-                return;
-            }
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 
-            vLog('Token found, fetching metadata...');
-
-            try {
-                const res = await fetch(`/api/auth/me?t=${Date.now()}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                vLog(`API Status: ${res.status}`);
-
-                if (res.ok) {
-                    const user = await res.json();
-                    vLog('Data received, updating UI...');
-                    console.log('Profile Data:', user);
-
-                    // Update UI safely
-                    const safeSetText = (id, text) => {
-                        const el = document.getElementById(id);
-                        if (el) el.innerText = text;
-                        else vLog(`ERR: ID ${id} not found`);
-                    };
-
-                    const displayName = user.name || (user.email ? user.email.split('@')[0] : 'User');
-                    safeSetText('user-name', displayName);
-                    safeSetText('user-email', user.email || 'No Email');
-                    
-                    const avatarEl = document.getElementById('avatar');
-                    if (avatarEl) {
-                        avatarEl.innerText = displayName.charAt(0).toUpperCase();
-                    }
-
-                    safeSetText('count-stories', user.likedStories ? user.likedStories.length : (user.likedCount || 0));
-                    safeSetText('count-blogs', user.savedBlogs ? user.savedBlogs.length : (user.savedCount || 0));
-                    safeSetText('count-audio', user.savedAudios ? user.savedAudios.length : 0);
-                    safeSetText('count-audio-label', "Saved Audios");
-
-                    const notifCheckbox = document.getElementById('notif-checkbox');
-                    const statusText = document.getElementById('notif-status');
-                    const notifIcon = document.getElementById('notif-icon');
-
-                    if (notifCheckbox && statusText && notifIcon) {
-                        const isPowered = user.notificationsOn !== false;
-                        notifCheckbox.checked = isPowered;
-                        statusText.innerText = isPowered ? 'ON' : 'OFF';
-                        notifIcon.className = isPowered ? 'fas fa-bell' : 'fas fa-bell-slash';
-                        notifIcon.style.color = isPowered ? '#d4af37' : '#666';
-                    }
-
-                    try { renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories yet.'); } catch (e) { vLog(`liked-render crash: ${e.message}`); }
-                    try { renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs yet.'); } catch (e) { vLog(`blog-render crash: ${e.message}`); }
-                    try { renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios yet.'); } catch (e) { vLog(`audio-render crash: ${e.message}`); }
-                    try { renderImages('images', user.savedImages, 'No saved images yet.'); } catch (e) { vLog(`images-render crash: ${e.message}`); }
-
-                    loadOrders(token);
-                    vLog('Profile load complete!');
-
-                } else {
-                    vLog(`ERR: API failed with ${res.status}`);
-                    if (res.status === 401 || res.status === 403) {
-                        localStorage.removeItem('token');
-                        window.location.href = 'login.html';
-                    }
-                }
-            } catch (err) {
-                vLog(`CRITICAL ERROR: ${err.message}`);
-                console.error('CRITIAL FRONTEND CRASH:', err);
-            }
+            const target = document.getElementById(tabId);
+            if (target) target.classList.add('active');
+            
+            const btn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
+            if (btn) btn.classList.add('active');
         }
 
-        async function loadOrders(token) {
-            try {
-                const res = await fetch('/api/orders/mine', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const orders = await res.json();
-                    renderOrders(orders);
-                }
-            } catch (err) {
-                console.error('Error loading orders:', err);
-            }
+        // Safe Text Helper
+        function safeSetText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
         }
 
-        function renderOrders(orders) {
-            const container = document.getElementById('orders');
-            container.innerHTML = '';
+        // Global Logout for HTML onclick
+        window.logout = function() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userInfo');
+            window.location.href = 'index.html';
+        };
 
-            if (!orders || orders.length === 0) {
-                container.innerHTML = `<p style="color:#666; text-align:center; padding: 20px;">No orders found.</p>`;
-                return;
-            }
-
-            const grid = document.createElement('div');
-            grid.className = 'activity-grid';
-
-            orders.forEach(order => {
-                const card = document.createElement('div');
-                card.className = 'activity-card';
-
-                const status = (order.status || 'pending').toUpperCase();
-                const statusColor = status === 'PAID' ? '#4caf50' : '#d4af37';
-
-                card.style.borderLeft = `4px solid ${statusColor}`;
-
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:start;">
-                        <h4 class="activity-title">${order.book_title || 'Item'}</h4>
-                        <span style="background: rgba(0,0,0,0.3); color: ${statusColor}; border: 1px solid ${statusColor}; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight:bold;">${status}</span>
-                    </div>
-                    <p style="color:#888; font-size:0.85rem; margin: 5px 0;">Order ID: ${order.razorpay_order_id}</p>
-                    <p style="color:#fff; font-weight:600; margin-bottom: 5px;">₹${order.amount}</p>
-                    <span class="activity-date">${new Date(order.created_at).toLocaleDateString()}</span>
-                    ${status !== 'PAID' ? `<p style="margin-top:10px;"><a href="checkout.html" style="color:#d4af37; font-size:0.8rem; text-decoration:none;"><i class="fas fa-redo"></i> Retry Payment</a></p>` : ''}
-                `;
-                grid.appendChild(card);
-            });
-
-            container.appendChild(grid);
-        }
-
+        // Render Functions (Defined before use)
         function renderContent(containerId, items, linkPrefix, emptyMsg) {
             const container = document.getElementById(containerId);
+            if (!container) return;
             container.innerHTML = '';
 
             if (!items || items.length === 0) {
@@ -496,39 +397,31 @@
             grid.className = 'activity-grid';
 
             items.forEach(item => {
-                if (!item) return; // Skip nulls
+                if (!item) return;
                 const card = document.createElement('div');
                 card.className = 'activity-card';
-                // Handle different ID fields if necessary, usually .id or ._id
                 const id = item.id || item._id;
-
-                // Determine link: Use slug if available and valid, otherwise fallback to ID
                 let href = `${linkPrefix}?id=${id}`;
-                if (item.slug && typeof item.slug === 'string' && item.slug.trim() !== '' && !item.slug.startsWith('--')) { // check for valid slug
+                if (item.slug && !item.slug.startsWith('--')) {
                     href = `${linkPrefix}?slug=${item.slug}`;
-                    // Special case: audio details usually use ?id=
-                    if (linkPrefix.includes('audio-detail')) {
-                        href = `${linkPrefix}?id=${id}`;
-                    }
-                    // Special case: story detail can use id or slug, but let's stick to consistent param if known
-                    if (linkPrefix.includes('story-detail')) {
-                        href = `${linkPrefix}?id=${item.slug}`;
+                    if (linkPrefix.includes('audio-detail') || linkPrefix.includes('story-detail')) {
+                        href = `${linkPrefix}?id=${item.slug || id}`;
                     }
                 }
 
                 card.innerHTML = `
                     <h4 class="activity-title">${item.title}</h4>
-                    <span class="activity-date" style="color: #d4af37; font-size: 0.8rem; text-transform:uppercase; letter-spacing:1px;">${item.category || 'Content'}</span>
-                    <a href="${href}" style="display:block; margin-top:10px; color:#ccc; font-size:0.9rem; text-decoration:none;">View Details <i class="fas fa-arrow-right" style="font-size:0.8em;"></i></a>
+                    <span class="activity-date" style="color: #d4af37; font-size: 0.8rem; text-transform:uppercase;">${item.category || 'Content'}</span>
+                    <a href="${href}" style="display:block; margin-top:10px; color:#ccc; font-size:0.9rem; text-decoration:none;">View Details <i class="fas fa-arrow-right"></i></a>
                 `;
                 grid.appendChild(card);
             });
-
             container.appendChild(grid);
         }
 
         function renderImages(containerId, items, emptyMsg) {
             const container = document.getElementById(containerId);
+            if (!container) return;
             container.innerHTML = '';
 
             if (!items || items.length === 0) {
@@ -545,9 +438,8 @@
                 const card = document.createElement('div');
                 card.className = 'activity-card';
                 card.style.padding = '10px';
-                card.style.textAlign = 'center';
                 
-                let imgUrl = item.image;
+                let imgUrl = item.image || '';
                 if (imgUrl && !imgUrl.startsWith('http')) {
                     imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\\/?/, '');
                 }
@@ -556,73 +448,78 @@
                     <div style="background: #111; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">
                         <img src="${imgUrl}" alt="${item.title}" style="width:100%; height:150px; object-fit:cover; display: block;">
                     </div>
-                    <h4 class="activity-title" style="font-size:1rem; margin-bottom:5px;">${item.title}</h4>
-                    <span class="activity-date" style="color:#d4af37; font-size:0.7rem; text-transform:uppercase;">${item.category || 'Image'}</span>
-                    <a href="gallery.html" style="display:block; margin-top:10px; padding:5px; border:1px solid #333; border-radius:4px; color:#ccc; font-size:0.8rem; text-decoration:none;">Go to Gallery</a>
+                    <h4 class="activity-title" style="font-size:1rem;">${item.title}</h4>
+                    <a href="gallery.html" style="display:block; margin-top:10px; color:#d4af37; font-size:0.8rem;">Go to Gallery</a>
                 `;
                 grid.appendChild(card);
             });
-
             container.appendChild(grid);
         }
 
-        async function toggleNotifications(checkbox) {
+        async function loadProfile() {
+            vLog('loadProfile START');
             const token = localStorage.getItem('token');
-            const statusText = document.getElementById('notif-status');
-            const notifIcon = document.getElementById('notif-icon');
-            const newStatus = checkbox.checked;
-
-            statusText.innerText = newStatus ? 'ON' : 'OFF';
-            notifIcon.className = newStatus ? 'fas fa-bell' : 'fas fa-bell-slash';
-            notifIcon.style.color = newStatus ? '#d4af37' : '#666';
+            if (!token) {
+                vLog('No token found!');
+                window.location.href = 'login.html';
+                return;
+            }
 
             try {
-                const res = await fetch('/api/auth/toggle-notifications', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ status: newStatus })
+                vLog('Fetching /api/auth/me...');
+                const res = await fetch(`/api/auth/me?nocache=${Date.now()}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
 
+                vLog(`Response Status: ${res.status}`);
+
                 if (res.ok) {
-                    // Update local storage info if needed
-                    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-                    userInfo.notificationsOn = newStatus;
-                    localStorage.setItem('userInfo', JSON.stringify(userInfo));
-                    window.showToast(newStatus ? 'Notifications enabled' : 'Notifications disabled');
-                } else {
-                    window.showToast('Failed to update notification settings.', 'error');
-                    // Revert UI
-                    checkbox.checked = !newStatus;
-                    statusText.innerText = !newStatus ? 'ON' : 'OFF';
-                    notifIcon.className = !newStatus ? 'fas fa-bell' : 'fas fa-bell-slash';
+                    const user = await res.json();
+                    vLog('Data received, updating UI...');
+
+                    const displayName = user.name || (user.email ? user.email.split('@')[0] : 'User');
+                    safeSetText('user-name', displayName);
+                    safeSetText('user-email', user.email || 'No Email');
+                    
+                    const avatarEl = document.getElementById('avatar');
+                    if (avatarEl) avatarEl.innerText = displayName.charAt(0).toUpperCase();
+
+                    // Stats
+                    safeSetText('count-stories', user.likedStories ? user.likedStories.length : (user.likedCount || 0));
+                    safeSetText('count-blogs', user.savedBlogs ? user.savedBlogs.length : (user.savedCount || 0));
+                    safeSetText('count-audio', user.savedAudios ? user.savedAudios.length : 0);
+
+                    // Notifications
+                    const cb = document.getElementById('notif-checkbox');
+                    if (cb) {
+                        cb.checked = user.notificationsOn !== false;
+                        document.getElementById('notif-status').innerText = cb.checked ? 'ON' : 'OFF';
+                        document.getElementById('notif-icon').style.color = cb.checked ? '#d4af37' : '#666';
+                    }
+
+                    // Tabs
+                    try { renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories.'); } catch(e) {}
+                    try { renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs.'); } catch(e) {}
+                    try { renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios.'); } catch(e) {}
+                    try { renderImages('images', user.savedImages, 'No saved images.'); } catch(e) {}
+
+                    vLog('Profile Load COMPLETE');
+                } else if (res.status === 401) {
+                    vLog('Session expired');
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
                 }
             } catch (err) {
+                vLog(`Critical Error: ${err.message}`);
                 console.error(err);
-                window.showToast('Connection error. Please try again.', 'error');
-                checkbox.checked = !newStatus;
             }
         }
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
-            document.getElementById(tabId).classList.add('active');
-            // Find button that triggered this
-            const btn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
-            if (btn) btn.classList.add('active');
-        }
-
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('userInfo');
-            window.location.href = 'index.html';
-        }
-
-        loadProfile();
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            vLog('DOM Content Loaded');
+            loadProfile();
+        });
     </script>
     <footer class="site-footer">
         <div class="footer-container">

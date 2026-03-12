@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile v2 - Qalamekahani</title>
+    <title>My Profile V7 - Qalamekahani</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
         rel="stylesheet">
@@ -84,6 +84,8 @@
             gap: 20px;
             border-bottom: 1px solid #333;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .tab-btn {
@@ -92,10 +94,14 @@
             color: #888;
             font-family: 'Poppins', sans-serif;
             font-size: 1rem;
-            padding-bottom: 10px;
+            padding: 10px 15px;
             cursor: pointer;
             border-bottom: 2px solid transparent;
             transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #ccc;
         }
 
         .tab-btn.active {
@@ -241,36 +247,116 @@
             color: #d4af37;
         }
 
-        #debug-log {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.9);
-            color: #0f0;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 10px;
-            z-index: 10000;
-            max-width: 300px;
-            max-height: 200px;
-            overflow: auto;
-            border: 1px solid #d4af37;
-            pointer-events: none;
+        /* Improved Gallery Grid */
+        .gallery-grid-premium {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
+        }
+        
+        .gallery-card-premium {
+            background: #111;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+        }
+        
+        .gallery-card-premium:hover {
+            transform: translateY(-8px);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+        
+        .gallery-img-container {
+            width: 100%;
+            aspect-ratio: 16/10;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .gallery-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+        
+        .gallery-card-premium:hover img {
+            transform: scale(1.1);
+        }
+        
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: flex-end;
+            padding: 15px;
+        }
+        
+        .gallery-card-premium:hover .gallery-overlay {
+            opacity: 1;
+        }
+        
+        .gallery-info {
+            padding: 15px;
+            background: #111;
+        }
+        
+        .gallery-title {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .gallery-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .gallery-link {
+            color: #d4af37;
+            font-size: 0.8rem;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .gallery-download {
+            color: #666;
+            transition: color 0.3s;
+        }
+        
+        .gallery-download:hover {
+            color: #fff;
         }
     </style>
 </head>
 
 <body>
-    <div style="background: #ff0000; color: #fff; padding: 20px; font-weight: bold; text-align: center; font-size: 24px; position: fixed; top: 0; left: 0; width: 100%; z-index: 999999; border-bottom: 5px solid #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.5);">
-        ⚠️ VERSION 2.5 LOADED - IF YOU DON'T SEE THIS, CLEAR CACHE ⚠️
-    </div>
-    <div id="debug-log">Debug Init...</div>
+    
+
     <header class="header">
         <div class="nav-container">
             <a href="index.html" class="logo">Qalamekahani</a>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="stories.html">Stories</a></li>
+                <li class="dropdown">
+                    <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="stories.html">Reading Stories</a></li>
+                        <li><a href="gallery.html">Images & Wallpapers</a></li>
+                    </ul>
+                </li>
                 <li><a href="audio.html">Audio Stories</a></li>
                 <li><a href="books.html">Books</a></li>
                 <li><a href="blog.html">Blog</a></li>
@@ -295,10 +381,10 @@
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
 
-        <div class="notif-settings">
+        <div class="notif-settings" onclick="document.getElementById('notif-checkbox').click()">
             <i class="fas fa-bell notif-icon-premium" id="notif-icon"></i>
             <span class="notif-label">Email Notifications</span>
-            <label class="switch-container">
+            <label class="switch-container" onclick="event.stopPropagation()">
                 <input type="checkbox" id="notif-checkbox" onchange="toggleNotifications(this)">
                 <span class="slider"></span>
             </label>
@@ -306,15 +392,15 @@
         </div>
 
         <div class="profile-stats">
-            <div class="stat-item">
+            <div class="stat-item" onclick="switchTab('liked')" style="cursor:pointer">
                 <span class="stat-value" id="count-stories">0</span>
                 <span class="stat-label">Liked Stories</span>
             </div>
-            <div class="stat-item">
+            <div class="stat-item" onclick="switchTab('saved')" style="cursor:pointer">
                 <span class="stat-value" id="count-blogs">0</span>
                 <span class="stat-label">Saved Blogs</span>
             </div>
-            <div class="stat-item">
+            <div class="stat-item" onclick="switchTab('history')" style="cursor:pointer">
                 <span class="stat-value" id="count-audio">0</span>
                 <span class="stat-label" id="count-audio-label">Saved Audios</span>
             </div>
@@ -348,174 +434,6 @@
     </div>
 
     <script src="js/main.js"></script>
-    <script>
-        console.log('--- SCRIPT EXECUTION START ---');
-        const debugEl = document.getElementById('debug-log');
-        function vLog(msg) {
-            if (debugEl) {
-                debugEl.innerHTML += `<div>${msg}</div>`;
-                debugEl.scrollTop = debugEl.scrollHeight;
-            }
-            console.log(`[DEBUG] ${msg}`);
-        }
-
-        vLog('Script active');
-
-        // Tab Switching (kept from original for functionality)
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
-            const target = document.getElementById(tabId);
-            if (target) target.classList.add('active');
-            
-            const btn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
-            if (btn) btn.classList.add('active');
-        }
-
-        // Global Logout for HTML onclick (kept from original for functionality)
-        window.logout = function() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('userInfo');
-            window.location.href = 'index.html';
-        };
-
-        // Render Functions (kept from original for functionality)
-        function renderContent(containerId, items, linkPrefix, emptyMsg) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            container.innerHTML = '';
-
-            if (!items || items.length === 0) {
-                container.innerHTML = `<p style="color:#666; text-align:center; padding: 20px;">${emptyMsg}</p>`;
-                return;
-            }
-
-            const grid = document.createElement('div');
-            grid.className = 'activity-grid';
-
-            items.forEach(item => {
-                if (!item) return;
-                const card = document.createElement('div');
-                card.className = 'activity-card';
-                const id = item.id || item._id;
-                let href = `${linkPrefix}?id=${id}`;
-                if (item.slug && !item.slug.startsWith('--')) {
-                    href = `${linkPrefix}?slug=${item.slug}`;
-                    if (linkPrefix.includes('audio-detail') || linkPrefix.includes('story-detail')) {
-                        href = `${linkPrefix}?id=${item.slug || id}`;
-                    }
-                }
-
-                card.innerHTML = `
-                    <h4 class="activity-title">${item.title}</h4>
-                    <span class="activity-date" style="color: #d4af37; font-size: 0.8rem; text-transform:uppercase;">${item.category || 'Content'}</span>
-                    <a href="${href}" style="display:block; margin-top:10px; color:#ccc; font-size:0.9rem; text-decoration:none;">View Details <i class="fas fa-arrow-right"></i></a>
-                `;
-                grid.appendChild(card);
-            });
-            container.appendChild(grid);
-        }
-
-        // renderImages function (kept from original for functionality)
-        function renderImages(containerId, items, emptyMsg) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            container.innerHTML = '';
-
-            if (!items || items.length === 0) {
-                container.innerHTML = `<p style="color:#666; text-align:center; padding: 20px;">${emptyMsg}</p>`;
-                return;
-            }
-
-            const grid = document.createElement('div');
-            grid.className = 'activity-grid'; 
-            grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
-
-            items.forEach(item => {
-                if (!item) return;
-                const card = document.createElement('div');
-                card.className = 'activity-card';
-                card.style.padding = '10px';
-                
-                let imgUrl = item.image || '';
-                if (imgUrl && !imgUrl.startsWith('http')) {
-                    imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\\/?/, '');
-                }
-
-                card.innerHTML = `
-                    <div style="background: #111; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">
-                        <img src="${imgUrl}" alt="${item.title}" style="width:100%; height:150px; object-fit:cover; display: block;">
-                    </div>
-                    <h4 class="activity-title" style="font-size:1rem;">${item.title}</h4>
-                    <a href="gallery.html" style="display:block; margin-top:10px; color:#d4af37; font-size:0.8rem;">Go to Gallery</a>
-                `;
-                grid.appendChild(card);
-            });
-            container.appendChild(grid);
-        }
-
-        async function loadProfile() {
-            vLog('loadProfile func called');
-            const token = localStorage.getItem('token');
-            if (!token) {
-                vLog('No token found');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            try {
-                vLog('Fetching /api/auth/me...');
-                const res = await fetch(`/api/auth/me?v=${Math.random()}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                vLog(`Status: ${res.status}`);
-                if (res.ok) {
-                    const user = await res.json();
-                    vLog('Data obtained!');
-
-                    const name = user.name || (user.email ? user.email.split('@')[0] : 'User');
-                    document.getElementById('user-name').innerText = name;
-                    document.getElementById('user-email').innerText = user.email || '';
-                    document.getElementById('avatar').innerText = name.charAt(0).toUpperCase();
-
-                    // Stats
-                    document.getElementById('count-stories').innerText = user.likedStories ? user.likedStories.length : (user.likedCount || 0);
-                    document.getElementById('count-blogs').innerText = user.savedBlogs ? user.savedBlogs.length : (user.savedCount || 0);
-                    document.getElementById('count-audio').innerText = user.savedAudios ? user.savedAudios.length : 0; // Kept from original
-
-                    // Notifications (kept from original for functionality)
-                    const cb = document.getElementById('notif-checkbox');
-                    if (cb) {
-                        cb.checked = user.notificationsOn !== false;
-                        document.getElementById('notif-status').innerText = cb.checked ? 'ON' : 'OFF';
-                        document.getElementById('notif-icon').style.color = cb.checked ? '#d4af37' : '#666';
-                    }
-                    
-                    // Render (Silent fails for tabs)
-                    if (user.likedStories) try { renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories.'); } catch(e){}
-                    if (user.savedBlogs) try { renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs.'); } catch(e){}
-                    if (user.savedAudios) try { renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios.'); } catch(e){} // Kept from original
-                    if (user.savedImages) try { renderImages('images', user.savedImages, 'No saved images.'); } catch(e){} // Kept from original
-                    
-                    vLog('UI Update Complete');
-                } else if (res.status === 401) { // Kept from original
-                    vLog('Session expired');
-                    localStorage.removeItem('token');
-                    window.location.href = 'login.html';
-                } else {
-                    vLog('API Error: ' + res.status);
-                }
-            } catch (err) {
-                vLog('Fetch Fail: ' + err.message);
-                console.error(err); // Kept from original
-            }
-        }
-
-        // Execute immediately
-        loadProfile();
-    </script>
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-col brand-col">
@@ -536,7 +454,13 @@
                 <h4 class="footer-heading">Quick Links</h4>
                 <ul class="footer-links">
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="stories.html">Stories</a></li>
+                    <li class="dropdown">
+                    <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="stories.html">Reading Stories</a></li>
+                        <li><a href="gallery.html">Images & Wallpapers</a></li>
+                    </ul>
+                </li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="books.html">Books</a></li>
                     <li><a href="contact.html">Contact</a></li>
@@ -555,6 +479,264 @@
             <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
         </div>
     </footer>
+
+    <script>
+        // --- GLOBAL HELPERS ---
+        window.switchTab = function(tabId) {
+            console.log('Switching to Tab:', tabId);
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            const target = document.getElementById(tabId);
+            if (target) {
+                target.classList.add('active');
+            }
+            
+            // Highlight current button
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => {
+                const onclickStr = btn.getAttribute('onclick') || '';
+                if (onclickStr.includes(`'${tabId}'`)) {
+                    btn.classList.add('active');
+                }
+            });
+        };
+
+        window.logout = function() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userInfo');
+            window.location.href = 'index.html';
+        };
+
+        window.toggleNotifications = async function(checkbox) {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const status = checkbox.checked;
+            document.getElementById('notif-status').innerText = status ? 'ON' : 'OFF';
+            document.getElementById('notif-icon').style.color = status ? '#d4af37' : '#666';
+
+            try {
+                await fetch('/api/auth/toggle-notifications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ status })
+                });
+            } catch (err) { console.error('Toggle Fail:', err); }
+        };
+
+        window.renderContent = function(containerId, items, linkPrefix, emptyMsg) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            
+            if (!items || items.length === 0) {
+                container.innerHTML = `<p style="color:#666; text-align:center; padding: 50px;">${emptyMsg}</p>`;
+                return;
+            }
+            
+            const grid = document.createElement('div');
+            grid.className = 'activity-grid';
+            
+            items.forEach(item => {
+                if (!item) return;
+                const card = document.createElement('div');
+                card.className = 'activity-card';
+                
+                const id = item.id || item._id;
+                
+                // --- ROBUST LINK GENERATION ---
+                // For Blogs: must use ?slug=
+                // For Stories/Audio: must use ?id= (detail pages look for 'id')
+                let paramName = 'id';
+                if (linkPrefix.includes('blog-detail')) {
+                    paramName = 'slug';
+                }
+                
+                let paramValue = item.slug || id;
+                let href = `${linkPrefix}?${paramName}=${paramValue}`;
+                
+                card.innerHTML = `
+                    <h4 class="activity-title">${item.title || 'Untitled'}</h4>
+                    <span class="activity-date" style="color: #d4af37; font-size: 0.8rem;">${item.category || 'Content'}</span>
+                    <a href="${href}" style="display:block; margin-top:15px; color:#ccc; font-size:0.9rem; text-decoration:none; border-top:1px solid #333; padding-top:10px;">
+                        Open Details <i class="fas fa-external-link-alt" style="margin-left:5px; font-size:0.7rem;"></i>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        };
+
+        window.renderOrders = function(containerId, orders, emptyMsg) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            if (!orders || orders.length === 0) {
+                container.innerHTML = `<p style="color:#666; text-align:center; padding: 50px;">${emptyMsg}</p>`;
+                return;
+            }
+            const grid = document.createElement('div');
+            grid.className = 'activity-grid';
+            orders.forEach(order => {
+                if (!order) return;
+                const card = document.createElement('div');
+                card.className = 'activity-card';
+                const date = new Date(order.created_at).toLocaleDateString();
+                const title = order.book_title || (order.story ? order.story.title : (order.audio ? order.audio.title : 'Item'));
+                card.innerHTML = `
+                    <h4 class="activity-title">${title}</h4>
+                    <span class="activity-date" style="color: ${order.status === 'paid' ? '#4caf50' : '#ffa500'}">${order.status.toUpperCase()}</span>
+                    <p style="color:#888; font-size:0.8rem; margin-top:5px;">Order Date: ${date}</p>
+                    <p style="color:#fff; font-size:0.9rem; margin-top:5px; font-weight:600;">Paid: ₹${order.amount}</p>
+                `;
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        };
+
+        window.renderImages = function(containerId, items, emptyMsg) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            if (!items || items.length === 0) {
+                container.innerHTML = `<p style="color:#666; text-align:center; padding: 50px;">${emptyMsg}</p>`;
+                return;
+            }
+            
+            const grid = document.createElement('div');
+            grid.className = 'gallery-grid-premium';
+
+            items.forEach(item => {
+                if (!item) return;
+                const card = document.createElement('div');
+                card.className = 'gallery-card-premium';
+                
+                let imgUrl = item.image || '';
+                if (imgUrl && !imgUrl.startsWith('http')) {
+                    imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\//, '');
+                }
+                
+                card.innerHTML = `
+                    <div class="gallery-img-container">
+                        <img src="${imgUrl}" alt="${item.title}" loading="lazy">
+                        <div class="gallery-overlay">
+                            <a href="${imgUrl}" target="_blank" class="gallery-download" title="View Full Image">
+                                <i class="fas fa-expand"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h4 class="gallery-title">${item.title || 'Untitled Image'}</h4>
+                        <div class="gallery-actions">
+                            <a href="gallery.html" class="gallery-link">In Gallery</a>
+                            <a href="${imgUrl}" download="${item.title || 'image'}.jpg" class="gallery-download" title="Download">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        };
+
+        // --- DATA LOADING LOGIC ---
+        (async function() {
+            console.log('Profile Script Running...');
+            const token = localStorage.getItem('token');
+            if (!token) { window.location.href = 'login.html'; return; }
+
+            async function start() {
+                // 1. Initial UI from cache (Instant response)
+                try {
+                    const cached = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                    if(cached.email) {
+                        console.log('Loading from cache...');
+                        updateUI(cached);
+                    }
+                } catch(e) {}
+
+                // 2. Fresh Fetch from Server
+                try {
+                    console.log('Fetching fresh profile data...');
+                    const res = await fetch('/api/auth/me?v=' + Date.now(), {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const user = await res.json();
+                        console.log('Profile Data Received:', user);
+                        updateUI(user);
+                        localStorage.setItem('userInfo', JSON.stringify(user));
+                    } else if (res.status === 401) {
+                        console.warn('Unauthorized. Logging out.');
+                        logout();
+                    }
+                } catch(e) { console.error('Profile fetch fail:', e); }
+
+                // 3. Separate Fetch for Orders
+                try {
+                    const oRes = await fetch('/api/orders/mine?v=' + Date.now(), { 
+                        headers: { 'Authorization': `Bearer ${token}` } 
+                    });
+                    if (oRes.ok) {
+                        const orders = await oRes.json();
+                        renderOrders('orders', orders, 'No orders found.');
+                    }
+                } catch(e) { console.error('Orders fetch fail:', e); }
+            }
+
+            function updateUI(user) {
+                const nameComp = user.name || (user.email ? user.email.split('@')[0] : 'User');
+                
+                // Update text fields
+                const nameEl = document.getElementById('user-name');
+                if (nameEl) nameEl.innerText = nameComp;
+                
+                const emailEl = document.getElementById('user-email');
+                if (emailEl) emailEl.innerText = user.email || '';
+                
+                const avatarEl = document.getElementById('avatar');
+                if (avatarEl) avatarEl.innerText = nameComp.charAt(0).toUpperCase();
+
+                // Update Stat Counts
+                const sCount = document.getElementById('count-stories');
+                if(sCount) sCount.innerText = user.likedStories ? user.likedStories.length : (user.likedCount || 0);
+                
+                const bCount = document.getElementById('count-blogs');
+                if(bCount) bCount.innerText = user.savedBlogs ? user.savedBlogs.length : (user.savedCount || 0);
+                
+                const aCount = document.getElementById('count-audio');
+                if(aCount) aCount.innerText = user.savedAudios ? user.savedAudios.length : 0;
+
+                // Notifications
+                const cb = document.getElementById('notif-checkbox');
+                if (cb) {
+                    cb.checked = user.notificationsOn !== false;
+                    document.getElementById('notif-status').innerText = cb.checked ? 'ON' : 'OFF';
+                    document.getElementById('notif-icon').style.color = cb.checked ? '#d4af37' : '#666';
+                }
+
+                // Render Multi-Lists
+                if (user.likedStories) 
+                    renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories yet.');
+                
+                if (user.savedBlogs) 
+                    renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs yet.');
+                else
+                    console.log('No saved blogs in user data');
+
+                if (user.savedAudios) 
+                    renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios yet.');
+                
+                if (user.savedImages) 
+                    renderImages('images', user.savedImages, 'No saved images yet.');
+            }
+
+            // Execute
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+            else start();
+        })();
+    </script>
 </body>
 
 </html>

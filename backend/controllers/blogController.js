@@ -5,12 +5,13 @@ const supabase = require('../config/supabase');
 const getBlogs = asyncHandler(async (req, res) => {
     const { data, error } = await supabase
         .from('blogs')
-        .select('id, title, slug, author, category, read_time, excerpt, image, views, likes, created_at, language')
+        .select('*') // Changed from specific columns to * to avoid schema mismatch errors
         .order('created_at', { ascending: false });
 
     if (error) {
+        console.error('SERVER ERROR: Fetching blogs failed:', error);
         res.status(500);
-        throw new Error(error.message);
+        throw new Error(`Database Error: ${error.message}`);
     }
     res.status(200).json(data);
 });
@@ -28,13 +29,15 @@ const getBlog = asyncHandler(async (req, res) => {
         throw new Error('Blog not found');
     }
 
-    // Increment Views
+    // Increment Views (Disabled temporarily as column might be missing)
+    /*
     if (req.query.increment !== 'false') {
         supabase.from('blogs')
             .update({ views: (data.views || 0) + 1 })
             .eq('id', data.id)
             .then(() => { });
     }
+    */
 
     res.status(200).json(data);
 });

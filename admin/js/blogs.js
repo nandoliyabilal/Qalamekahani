@@ -20,12 +20,15 @@ let isEditing = false;
 async function loadBlogs() {
     try {
         const res = await fetch('/api/blogs');
-        if (!res.ok) throw new Error('Failed to fetch blogs');
+        if (!res.ok) {
+            const errBody = await res.json().catch(() => ({}));
+            throw new Error(errBody.message || 'Failed to fetch blogs');
+        }
         blogs = await res.json();
         renderBlogs();
     } catch (err) {
         console.error(err);
-        blogTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Error loading blogs</td></tr>`;
+        blogTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Error loading blogs: ${err.message}</td></tr>`;
     }
 }
 

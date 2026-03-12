@@ -1,5 +1,5 @@
 // Toast Notification System
-window.showToast = function(message, type = 'success') {
+window.showToast = function (message, type = 'success') {
   let container = document.querySelector('.toast-container');
   if (!container) {
     container = document.createElement('div');
@@ -9,9 +9,9 @@ window.showToast = function(message, type = 'success') {
 
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  
+
   const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-  
+
   toast.innerHTML = `
     <i class="fas ${icon}"></i>
     <span class="toast-message">${message}</span>
@@ -57,18 +57,33 @@ if (hamburger) {
   });
 }
 
-// Mobile Dropdown Toggle
+// Dropdown Toggle (Mobile & Desktop Click)
 const dropdowns = document.querySelectorAll('.nav-links .dropdown');
 dropdowns.forEach(dropdown => {
-    const link = dropdown.querySelector('a');
-    if(link) {
-        link.addEventListener('click', (e) => {
-            if (window.innerWidth <= 960) {
-                e.preventDefault(); // Prevent jump to page on first click
-                dropdown.classList.toggle('active');
-            }
-        });
+  const link = dropdown.querySelector('a');
+  if (link) {
+    link.addEventListener('click', (e) => {
+      // On mobile, always toggle. On desktop, toggle if needed.
+      if (window.innerWidth <= 960) {
+        e.preventDefault();
+        dropdown.classList.toggle('active');
+      } else {
+        // Optional: toggle on desktop if you want exclusive click behavior
+        // But since hover already works, click can just toggle the 'active' class
+        e.preventDefault();
+        dropdown.classList.toggle('active');
+      }
+    });
+  }
+});
+
+// Close dropdowns on outside click
+document.addEventListener('click', (e) => {
+  dropdowns.forEach(dropdown => {
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.remove('active');
     }
+  });
 });
 
 // Auth Check Logic
@@ -91,7 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Inject Avatar and Dropdown HTML (Including Bell/Notification Toggle)
       li.innerHTML = `
-          <div class="user-avatar">${firstLetter}</div>
+          <div class="user-profile-trigger">
+            <div class="user-avatar">${firstLetter}</div>
+          </div>
           <div class="avatar-dropdown">
               <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
               <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>

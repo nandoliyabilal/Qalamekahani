@@ -49,7 +49,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         supabase.from('stories').select('views'),
         supabase.from('audio_stories').select('views'),
         supabase.from('books').select('views'),
-        supabase.from('blogs').select('views')
+        supabase.from('blogs').select('*') // Changed from 'views' to '*' to avoid potential error if views column is missing
     ]);
 
     // Sum views
@@ -58,7 +58,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         ...(audioViews.data || []),
         ...(booksViews.data || []),
         ...(blogsViews.data || [])
-    ].reduce((sum, item) => sum + (item.views || 0), 0);
+    ].reduce((sum, item) => sum + (parseInt(item.views) || 0), 0);
 
     res.json({
         users: {

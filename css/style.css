@@ -67,6 +67,7 @@ body {
     opacity: 0;
     transform: translateX(100%);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -200,7 +201,8 @@ body {
 
 .nav-links li {
   position: relative;
-  overflow: visible; /* Changed from hidden to fix dropdowns */
+  overflow: visible;
+  /* Changed from hidden to fix dropdowns */
 }
 
 .nav-links a {
@@ -229,22 +231,20 @@ body {
 .nav-links li:not(.user-avatar-container) a::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  bottom: -2px;
   left: 0;
   width: 100%;
   height: 2px;
-  /* Slightly thicker for premium feel */
-  background: #d4af37;
+  background: linear-gradient(90deg, transparent, #d4af37, transparent);
   transform: scaleX(0);
   transition: transform 0.4s cubic-bezier(0.5, 0, 0, 1);
-  transform-origin: right;
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  transform-origin: center;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
 }
 
 .nav-links li:not(.user-avatar-container) a:hover::after,
 .nav-links li:not(.user-avatar-container) a.active::after {
   transform: scaleX(1);
-  transform-origin: left;
 }
 
 /* ================= DROPDOWN MENU ================= */
@@ -255,61 +255,76 @@ body {
 .dropdown-menu {
   position: absolute;
   top: 100%;
-  left: 0;
-  background: rgba(8, 8, 8, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  min-width: 220px;
-  border: 1px solid rgba(212, 175, 55, 0.15);
-  border-top: 3px solid #d4af37;
-  border-radius: 0 0 8px 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  left: 50%;
+  transform: translateX(-50%) translateY(15px);
+  background: rgba(10, 10, 10, 0.98);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  min-width: 260px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-top: 4px solid #d4af37;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(212, 175, 55, 0.05);
   opacity: 0;
   visibility: hidden;
-  transform: translateY(15px);
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.2, 1, 0.2, 1);
   z-index: 1000;
-  padding: 10px 0;
-  list-style: none; /* Remove bullet points */
-  display: flex !important; /* Ensure block display inside */
-  flex-direction: column !important; /* Stack vertically */
-  gap: 0 !important; /* No gap between li in dropdown */
-}
-
-/* Fix flex overlap */
-.nav-links .dropdown-menu {
+  padding: 20px 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
-.dropdown:hover .dropdown-menu {
+/* Tree Line Structure */
+.dropdown-menu::before {
+  content: '';
+  position: absolute;
+  left: 25px;
+  top: 25px;
+  bottom: 25px;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(212, 175, 55, 0.3), transparent);
+}
+
+.dropdown:hover .dropdown-menu,
+.dropdown.active .dropdown-menu {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
 .dropdown-menu li {
   width: 100%;
-  overflow: visible !important;
+  position: relative;
+  padding-left: 15px;
+}
+
+.dropdown-menu li::after {
+  content: '';
+  position: absolute;
+  left: 25px;
+  top: 50%;
+  width: 12px;
+  height: 1px;
+  background: rgba(212, 175, 55, 0.3);
 }
 
 .dropdown-menu a {
-  display: block !important;
-  padding: 12px 20px !important;
-  color: #cfcfcf !important;
+  display: block;
+  padding: 12px 25px 12px 50px !important;
+  color: #aaa !important;
   font-size: 0.9rem !important;
   text-transform: capitalize !important;
-  letter-spacing: 0.5px !important;
+  letter-spacing: 1px !important;
   transition: all 0.3s ease !important;
+  background: transparent !important;
 }
 
 .dropdown-menu a:hover {
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.08) !important;
   color: #d4af37 !important;
-  padding-left: 28px !important;
-  letter-spacing: 0.5px !important; /* Prevent excessive width change */
-  text-shadow: none !important;
+  padding-left: 55px !important;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.4) !important;
 }
 
 /* Remove original active underline for dropdown items */
@@ -449,24 +464,24 @@ body {
     /* Premium drawer width */
     max-width: 380px;
     height: 100vh;
-    background: rgba(10, 10, 10, 0.98);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
+    background: rgba(8, 8, 8, 0.98);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-    padding: 100px 40px 40px;
+    padding: 110px 30px 40px;
     gap: 0;
     opacity: 0;
     visibility: hidden;
     transform: translateX(100%);
-    transition: all 0.7s cubic-bezier(0.86, 0, 0.07, 1);
+    transition: transform 0.6s cubic-bezier(0.86, 0, 0.07, 1), opacity 0.4s ease;
     z-index: 2000;
-    border-left: 1px solid rgba(212, 175, 55, 0.15);
-    box-shadow: -15px 0 40px rgba(0, 0, 0, 0.8);
-    clip-path: none !important;
-    /* Disabling the old clip-path for stable slide */
-    -webkit-clip-path: none !important;
+    border-left: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: -20px 0 50px rgba(0, 0, 0, 0.9);
+    overflow-y: auto;
+    /* Enable scrolling for long menus */
+    max-height: 100vh;
   }
 
   .nav-links.open {
@@ -558,7 +573,7 @@ body {
     width: 100%;
     margin-bottom: 5px;
   }
-  
+
   .dropdown-menu {
     position: static !important;
     max-height: 0;
@@ -584,8 +599,8 @@ body {
   }
 
   .dropdown-menu a {
-    font-size: 1.2rem !important;
-    padding: 8px 15px !important;
+    font-size: 1.15rem !important;
+    padding: 12px 15px !important;
     font-family: 'Poppins', sans-serif !important;
     border: none !important;
   }
@@ -594,22 +609,30 @@ body {
   /* Mobile User Profile - Premium Integrated Design */
   .user-avatar-container {
     width: 100% !important;
-    margin-top: auto !important;
-    /* Push to bottom */
-    padding: 30px 0 !important;
-    border-top: 1px solid rgba(212, 175, 55, 0.2) !important;
+    margin-top: 30px !important;
+    padding: 25px 0 !important;
+    border-top: 1px solid rgba(212, 175, 55, 0.15) !important;
     flex-direction: column !important;
     align-items: flex-start !important;
     background: transparent !important;
+    order: 20;
   }
 
   .user-avatar {
-    width: 65px !important;
-    height: 65px !important;
-    font-size: 1.6rem !important;
-    margin-bottom: 20px !important;
+    width: 45px !important;
+    height: 45px !important;
+    font-size: 1.2rem !important;
+    margin-bottom: 0px !important;
+    /* Reset for flex row */
     border: 2px solid #d4af37 !important;
-    box-shadow: 0 0 25px rgba(212, 175, 55, 0.3) !important;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.2) !important;
+  }
+
+  .user-profile-trigger {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
   }
 
   /* Interactive Mobile Profile Accordion */
@@ -619,26 +642,30 @@ body {
     overflow: hidden;
     opacity: 0 !important;
     visibility: hidden !important;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
     margin-top: 0;
     padding: 0 !important;
     width: 100% !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 12px;
+    margin-top: 5px;
   }
 
   .user-avatar-container.active .avatar-dropdown {
-    max-height: 200px;
+    max-height: 400px;
+    /* Increased for better clearance */
     opacity: 1 !important;
     visibility: visible !important;
     margin-top: 15px;
-    padding: 10px 0 !important;
+    padding: 10px !important;
   }
 
   .avatar-dropdown a {
     font-family: 'Poppins', sans-serif !important;
-    font-size: 1.05rem !important;
+    font-size: 1.15rem !important;
     font-weight: 400 !important;
     color: rgba(255, 255, 255, 0.7) !important;
-    padding: 12px 0 !important;
+    padding: 15px 0 !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     text-transform: none !important;
     display: flex !important;
@@ -681,6 +708,11 @@ body {
   gap: 10px;
   cursor: pointer;
   overflow: visible !important;
+}
+
+.user-profile-trigger {
+  display: flex;
+  align-items: center;
 }
 
 .user-avatar {

@@ -12,6 +12,10 @@ dotenv.config();
 const app = express();
 
 // Security Middleware
+app.use((req, res, next) => {
+    console.log(`[REQUEST] ${req.method} ${req.url} - ${new Date().toLocaleTimeString()}`);
+    next();
+});
 app.use(helmet({
     contentSecurityPolicy: false,
 })); // Set security headers with CSP disabled

@@ -240,10 +240,28 @@
             font-weight: 600;
             color: #d4af37;
         }
+
+        #debug-log {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #0f0;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 10px;
+            z-index: 10000;
+            max-width: 300px;
+            max-height: 200px;
+            overflow: auto;
+            border: 1px solid #d4af37;
+            pointer-events: none;
+        }
     </style>
 </head>
 
 <body>
+    <div id="debug-log">Debug Init...</div>
     <header class="header">
         <div class="nav-container">
             <a href="index.html" class="logo">Qalamekahani</a>
@@ -328,35 +346,45 @@
 
     <script src="js/main.js"></script>
     <script>
+        const debugEl = document.getElementById('debug-log');
+        function vLog(msg) {
+            if (debugEl) {
+                const time = new Date().toLocaleTimeString();
+                debugEl.innerHTML += `<div>[${time}] ${msg}</div>`;
+                debugEl.scrollTop = debugEl.scrollHeight;
+            }
+        }
+
         async function loadProfile() {
+            vLog('loadProfile started');
             const token = localStorage.getItem('token');
             if (!token) {
-                console.warn('No token found, redirecting to login');
+                vLog('NO TOKEN! Redirecting...');
                 window.location.href = 'login.html';
                 return;
             }
 
-            console.log('Profile Load Started - Token exists');
+            vLog('Token found, fetching metadata...');
 
             try {
                 const res = await fetch(`/api/auth/me?t=${Date.now()}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                console.log('API Status:', res.status);
+                vLog(`API Status: ${res.status}`);
 
                 if (res.ok) {
                     const user = await res.json();
+                    vLog('Data received, updating UI...');
                     console.log('Profile Data:', user);
 
                     // Update UI safely
                     const safeSetText = (id, text) => {
                         const el = document.getElementById(id);
                         if (el) el.innerText = text;
-                        else console.warn(`Element with ID ${id} not found`);
+                        else vLog(`ERR: ID ${id} not found`);
                     };
 
-                    // Use name or email or 'User'
                     const displayName = user.name || (user.email ? user.email.split('@')[0] : 'User');
                     safeSetText('user-name', displayName);
                     safeSetText('user-email', user.email || 'No Email');
@@ -366,13 +394,11 @@
                         avatarEl.innerText = displayName.charAt(0).toUpperCase();
                     }
 
-                    // Update stats (using keys from responseData)
                     safeSetText('count-stories', user.likedStories ? user.likedStories.length : (user.likedCount || 0));
                     safeSetText('count-blogs', user.savedBlogs ? user.savedBlogs.length : (user.savedCount || 0));
                     safeSetText('count-audio', user.savedAudios ? user.savedAudios.length : 0);
                     safeSetText('count-audio-label', "Saved Audios");
 
-                    // Set Notification Toggle State
                     const notifCheckbox = document.getElementById('notif-checkbox');
                     const statusText = document.getElementById('notif-status');
                     const notifIcon = document.getElementById('notif-icon');
@@ -385,25 +411,24 @@
                         notifIcon.style.color = isPowered ? '#d4af37' : '#666';
                     }
 
-                    // Render Tabs (Try-Catch each to isolate failures)
-                    try { renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories yet.'); } catch (e) { console.error('Liked stories render crash:', e); }
-                    try { renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs yet.'); } catch (e) { console.error('Blogs render crash:', e); }
-                    try { renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios yet.'); } catch (e) { console.error('Audios render crash:', e); }
-                    try { renderImages('images', user.savedImages, 'No saved images yet.'); } catch (e) { console.error('Images render crash:', e); }
+                    try { renderContent('liked', user.likedStories, 'story-detail.html', 'No liked stories yet.'); } catch (e) { vLog(`liked-render crash: ${e.message}`); }
+                    try { renderContent('saved', user.savedBlogs, 'blog-detail.html', 'No saved blogs yet.'); } catch (e) { vLog(`blog-render crash: ${e.message}`); }
+                    try { renderContent('history', user.savedAudios, 'audio-detail.html', 'No saved audios yet.'); } catch (e) { vLog(`audio-render crash: ${e.message}`); }
+                    try { renderImages('images', user.savedImages, 'No saved images yet.'); } catch (e) { vLog(`images-render crash: ${e.message}`); }
 
-                    // Fetch and Render Orders
                     loadOrders(token);
+                    vLog('Profile load complete!');
 
                 } else {
-                    console.error('API Error Response');
+                    vLog(`ERR: API failed with ${res.status}`);
                     if (res.status === 401 || res.status === 403) {
                         localStorage.removeItem('token');
                         window.location.href = 'login.html';
                     }
                 }
             } catch (err) {
-                console.error('CRITIAL FRONTEND CRASH in loadProfile:', err);
-                if(window.showToast) window.showToast('Failed to load profile details. Please try again.', 'error');
+                vLog(`CRITICAL ERROR: ${err.message}`);
+                console.error('CRITIAL FRONTEND CRASH:', err);
             }
         }
 

@@ -229,6 +229,46 @@
         </div>
     </div>
 
+    <!-- Chapters Management Modal -->
+    <div id="chaptersModal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeChaptersModal()"></div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 max-h-[90vh] flex flex-col overflow-hidden">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-gray-800 flex items-center justify-between bg-gray-800/50">
+                <div>
+                    <h2 id="chaptersModalTitle" class="text-xl font-bold text-white">Story Chapters</h2>
+                    <p id="chaptersModalSubtitle" class="text-sm text-gray-400">Manage chapters and view performance
+                        stats.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="addNewChapter()"
+                        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all font-medium text-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        Add Chapter
+                    </button>
+                    <button onclick="closeChaptersModal()" class="p-2 text-gray-400 hover:text-white rounded-lg">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chapters List Container -->
+            <div id="chaptersList" class="p-6 overflow-y-auto flex-1 space-y-4 bg-gray-900/50">
+                <!-- Chapter Cards will be injected here -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-gray-800 bg-gray-800/80 flex justify-end gap-3">
+                <button onclick="closeChaptersModal()"
+                    class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium">Close</button>
+                <button onclick="saveChaptersChanges()"
+                    class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-lg shadow-indigo-500/20 transition-all font-medium">Save
+                    All Changes</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/admin/js/main.js"></script>
     <script src="/admin/js/stories.js"></script>
     <script>lucide.createIcons();</script>

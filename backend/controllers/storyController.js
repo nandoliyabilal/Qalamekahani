@@ -229,6 +229,30 @@ const updateStory = asyncHandler(async (req, res) => {
     res.status(200).json(data);
 });
 
+// @desc    Delete story
+// @route   DELETE /api/stories/:id
+// @access  Private (Admin)
+const deleteStory = asyncHandler(async (req, res) => {
+    // 1. Nullify references in orders to avoid FK block
+    await supabase.from('orders').update({ story_id: null }).eq('story_id', req.params.id);
+
+    // 2. Clear reviews related to this story
+    await supabase.from('reviews').delete().eq('item_id', req.params.id);
+
+    // 3. Delete the story
+    const { error } = await supabase
+        .from('stories')
+        .delete()
+        .eq('id', req.params.id);
+
+    if (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+
+    res.status(200).json({ id: req.params.id });
+});
+
 // @desc    Increment chapter view
 // @route   POST /api/stories/:id/chapters/:index/view
 // @access  Public

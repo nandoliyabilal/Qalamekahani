@@ -5,7 +5,8 @@ const {
     getStory,
     createStory,
     updateStory,
-    deleteStory
+    deleteStory,
+    incrementChapterView
 } = require('../controllers/storyController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 

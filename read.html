@@ -578,22 +578,43 @@
             }
         }
 
-        /* Rating & Review Styles */
-        .rating-container {
+        /* Updated Chapter Heading Styles (Centered & Better) */
+        .article-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
             text-align: center;
-            margin: 40px 0;
+            margin-top: 3rem;
+            margin-bottom: 2rem;
+            color: #d4af37;
+            /* Premium Gold Color */
+            position: relative;
+            padding-bottom: 15px;
         }
 
-        .star-rating {
-            font-size: 2rem;
-            color: #ccc;
-            cursor: pointer;
-            transition: color 0.2s;
+        .article-content h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #ff3333;
+            /* Red underline for contrast */
+            border-radius: 2px;
         }
 
         .star-rating.active {
-            color: red;
-            /* User requested Red */
+            color: #ff3333 !important;
+            /* Vivid Red for active stars */
+            text-shadow: 0 0 10px rgba(255, 51, 51, 0.4);
+        }
+
+        /* Floating Rating Active State */
+        .anim-star.active {
+            color: #ff3333 !important;
+            transform: scale(1.3);
+            text-shadow: 0 0 15px rgba(255, 51, 51, 0.8);
         }
 
         .review-section {

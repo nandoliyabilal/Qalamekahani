@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let chapters = [];
     let currentChapterIndex = 0;
     let storyUUID = null; // Store real UUID after fetch
+    let isSubmittingReview = false;
 
     if (!storyUrlParam) {
         document.body.innerHTML = '<div style="text-align:center; padding:50px;"><h1>No Story Selected</h1><a href="stories.html">Go Back</a></div>';
@@ -19,10 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Fetch Story Content
     fetch(`/api/stories/${storyUrlParam}?increment=false`)
         .then(res => {
-            if (!res.ok) throw new Error('Story not found');
+            if (!res.ok) throw new Error(res.status === 404 ? 'Story not found in database. Please check the URL or try searching again.' : 'Server error while loading story.');
             return res.json();
         })
         .then(data => {
+            if (!data || !data.id) throw new Error('Invalid story data received.');
+
             storyUUID = data.id;
             window.currentStoryId = data.id;
 
@@ -32,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('hero-title').textContent = data.title;
             document.getElementById('hero-category').textContent = data.category || 'Story';
             document.getElementById('hero-author').textContent = data.author || 'Sabirkhan Pathan';
-            document.getElementById('hero-date').textContent = new Date(data.created_at).toLocaleDateString();
+            document.getElementById('hero-date').textContent = new Date(data.created_at || Date.now()).toLocaleDateString();
 
             // Word Count / Read Time
             const words = (data.content || '').split(/\s+/).length;
@@ -51,33 +54,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // --- NAVIGATION GENERATION ---
             generateTOC();
-            generateMobileTOC();
 
             // Initial Load
             renderChapter(0);
         })
         .catch(err => {
             console.error(err);
-            document.body.innerHTML = `<div style="text-align:center; padding:50px; color:red;"><h1>Error Loading Story</h1><p>${err.message}</p><a href="stories.html">Back to Stories</a></div>`;
+            document.body.innerHTML = `
+                <div style="text-align:center; padding:80px 20px; color:#fff; background:#000; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                    <i class="fas fa-exclamation-triangle" style="font-size:3rem; color:#ff3333; margin-bottom:20px;"></i>
+                    <h1 style="font-family:'Playfair Display'; margin-bottom:10px;">Error Loading Story</h1>
+                    <p style="color:#888; max-width:400px; margin-bottom:30px; font-size:1.1rem;">${err.message}</p>
+                    <a href="stories.html" style="background:#d4af37; color:#000; padding:12px 30px; border-radius:30px; text-decoration:none; font-weight:bold; transition:all 0.3s;">Back to Stories</a>
+                </div>`;
         });
 
     // --- PARSING LOGIC ---
     function parseChapters(html) {
         if (!html) return;
-
-        // Decode HTML entities if any
         const txt = document.createElement('textarea');
         txt.innerHTML = html;
         const decoded = txt.value;
-
         const parser = new DOMParser();
         const doc = parser.parseFromString(decoded, 'text/html');
-
-        // Find all H2s regardless of depth
         const headings = Array.from(doc.querySelectorAll('h2'));
 
         if (headings.length === 0) {
-            chapters.push({ title: "Start", nodes: Array.from(doc.body.childNodes) });
+            chapters.push({ title: "Full Story", nodes: Array.from(doc.body.childNodes) });
             return;
         }
 
@@ -95,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- TOC GENERATION ---
     function generateTOC() {
         const tocList = document.getElementById('toc-list');
         if (!tocList) return;
@@ -105,16 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${ch.title.replace(/^Chapter\s+\d+[:\s]*/i, '') || ch.title}
                 </a>
             </li>
-        `).join('');
-    }
-
-    function generateMobileTOC() {
-        const mobileMenu = document.getElementById('mobile-chapter-menu');
-        if (!mobileMenu) return;
-        mobileMenu.innerHTML = chapters.map((ch, i) => `
-            <a href="#" class="toc-link" data-index="${i}">
-                ${ch.title.replace(/^Chapter\s+\d+[:\s]*/i, '') || ch.title}
-            </a>
         `).join('');
     }
 
@@ -129,36 +121,32 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             container.innerHTML = '';
             const ch = chapters[index];
-
-            // Append nodes
             ch.nodes.forEach(n => container.appendChild(n.cloneNode(true)));
 
-            // Animations for focus
             const paras = container.querySelectorAll('p');
             paras.forEach((p, i) => {
                 p.style.animation = `fadeInUp 0.8s forwards ${i * 0.05}s`;
                 p.style.opacity = '0';
             });
 
-            // Update Active States
             document.querySelectorAll('.toc-link').forEach(l => {
                 l.classList.remove('active');
                 if (parseInt(l.getAttribute('data-index')) === index) l.classList.add('active');
             });
 
-            // Tracking
             if (storyUUID) trackView(storyUUID, index);
 
             // Nav Buttons
             const nav = document.createElement('div');
             nav.className = 'chapter-nav';
-            nav.style.cssText = 'display:flex; justify-content:space-between; margin-top:60px; padding-top:20px; border-top:1px solid rgba(0,0,0,0.05);';
+            nav.style.cssText = 'display:flex; justify-content:space-between; margin-top:60px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);';
 
             if (index > 0) {
                 const b = document.createElement('button');
                 b.className = 'reader-btn';
                 b.innerHTML = '<i class="fas fa-arrow-left"></i> Previous';
-                b.onclick = () => renderChapter(index - 1);
+                b.style.cssText = 'background:rgba(255,255,255,0.05); color:#fff; border:1px solid #333; padding:10px 25px; border-radius:30px; cursor:pointer;';
+                b.onclick = () => { renderChapter(index - 1); scrollToTop(); };
                 nav.appendChild(b);
             } else {
                 nav.appendChild(document.createElement('div'));
@@ -166,17 +154,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (index < chapters.length - 1) {
                 const b = document.createElement('button');
-                b.className = 'reader-btn';
-                b.style.cssText = 'background:#d4af37; color:#fff; padding:10px 25px; border-radius:30px; font-weight:500;';
+                b.className = 'reader-btn next-ch-btn';
+                b.style.cssText = 'background:#d4af37; color:#000; padding:12px 30px; border-radius:30px; font-weight:800; border:none; cursor:pointer; display:flex; align-items:center; gap:10px; box-shadow:0 4px 15px rgba(212,175,55,0.3);';
                 b.innerHTML = 'Next Chapter <i class="fas fa-arrow-right"></i>';
                 b.onclick = () => { renderChapter(index + 1); scrollToTop(); };
                 nav.appendChild(b);
             }
             container.appendChild(nav);
 
-            // End Story Controls
             handleFooter(index);
-
             scrollToTop();
             container.style.opacity = '1';
         }, 150);
@@ -201,52 +187,71 @@ document.addEventListener('DOMContentLoaded', () => {
         box.id = 'story-end-features';
         box.innerHTML = `
             <div style="text-align:center; padding:40px 0;">
-                <h3 style="font-family:'Playfair Display'; font-size:1.8rem;">The End.</h3>
-                <p style="color:#888;">Thanks for reading. We'd love your feedback!</p>
+                <h3 style="font-family:'Playfair Display'; font-size:2.5rem; margin-bottom:10px; color:#d4af37;">The End.</h3>
+                <p style="color:#888; font-size:1.1rem;">We hope you enjoyed "${document.getElementById('hero-title').textContent}".</p>
             </div>
             <div class="rating-box" style="text-align:center; margin-bottom:40px;">
-                <div id="star-box" style="font-size:2.5rem; cursor:pointer;">
-                    <i class="fas fa-star ch-star" data-v="1" style="color:#444;"></i>
-                    <i class="fas fa-star ch-star" data-v="2" style="color:#444;"></i>
-                    <i class="fas fa-star ch-star" data-v="3" style="color:#444;"></i>
-                    <i class="fas fa-star ch-star" data-v="4" style="color:#444;"></i>
-                    <i class="fas fa-star ch-star" data-v="5" style="color:#444;"></i>
+                <p style="margin-bottom:15px; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; color:#666;">Rate this story</p>
+                <div id="star-box" style="font-size:3.5rem; cursor:pointer; display:flex; justify-content:center; gap:10px;">
+                    <i class="fas fa-star ch-star" data-v="1" style="color:#222; transition:all 0.3s;"></i>
+                    <i class="fas fa-star ch-star" data-v="2" style="color:#222; transition:all 0.3s;"></i>
+                    <i class="fas fa-star ch-star" data-v="3" style="color:#222; transition:all 0.3s;"></i>
+                    <i class="fas fa-star ch-star" data-v="4" style="color:#222; transition:all 0.3s;"></i>
+                    <i class="fas fa-star ch-star" data-v="5" style="color:#222; transition:all 0.3s;"></i>
                 </div>
             </div>
-            <div class="rev-box">
-                <textarea id="rev-input" style="width:100%; height:100px; padding:15px; background:rgba(255,255,255,0.02); border:1px solid #444; border-radius:8px; color:inherit;" placeholder="Tell us what you thought..."></textarea>
-                <button id="rev-submit" style="background:#d4af37; color:#000; border:none; padding:12px 30px; border-radius:30px; margin-top:15px; cursor:pointer; font-weight:bold;">Submit Review</button>
+            <div class="rev-box" style="max-width:600px; margin:0 auto;">
+                <textarea id="rev-input" style="width:100%; height:120px; padding:20px; background:rgba(255,255,255,0.03); border:1px solid #333; border-radius:15px; color:#fff; font-family:inherit; outline:none; transition:border 0.3s;" placeholder="Write your thoughts here..."></textarea>
+                <button id="rev-submit" style="background:#d4af37; color:#000; border:none; padding:15px 40px; border-radius:30px; margin-top:20px; cursor:pointer; font-weight:900; font-size:1.1rem; transition:all 0.3s; width:100%; text-transform:uppercase; letter-spacing:1px; box-shadow:0 8px 25px rgba(212,175,55,0.2);">Post My Review</button>
             </div>
-            <ul id="rev-list" style="list-style:none; padding:0; margin-top:50px;"></ul>
+            <div id="rev-status" style="text-align:center; margin-top:15px; font-size:0.9rem;"></div>
+            <ul id="rev-list" style="list-style:none; padding:0; margin-top:60px;"></ul>
         `;
         container.appendChild(box);
 
-        // Star logic
         const stars = box.querySelectorAll('.ch-star');
         stars.forEach(s => {
             s.onclick = () => {
                 const val = s.getAttribute('data-v');
-                stars.forEach(st => st.style.color = st.getAttribute('data-v') <= val ? 'red' : '#444');
+                stars.forEach(st => st.style.color = st.getAttribute('data-v') <= val ? '#ff3333' : '#222');
                 box.setAttribute('data-rating', val);
             };
         });
 
-        // Submit logic
         box.querySelector('#rev-submit').onclick = async () => {
+            if (isSubmittingReview) return;
             const rating = box.getAttribute('data-rating');
-            const comment = document.getElementById('rev-input').value;
-            if (!rating) { alert('Please select a rating'); return; }
+            const comment = document.getElementById('rev-input').value.trim();
+            if (!rating) { alert('Please select a star rating first.'); return; }
+            if (!comment) { alert('Please write a short review before posting.'); return; }
+
+            isSubmittingReview = true;
+            const btn = document.getElementById('rev-submit');
+            btn.textContent = 'Submitting...';
+            btn.style.opacity = '0.5';
 
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/reviews', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ targetType: 'story', targetId: storyUUID, rating, comment })
-            });
+            try {
+                const res = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ targetType: 'story', targetId: storyUUID, rating, comment })
+                });
 
-            if (res.ok) {
-                alert('Success!');
-                loadReviews(storyUUID, box);
+                if (res.ok) {
+                    alert('Rating & Review submitted successfully!');
+                    document.getElementById('rev-input').value = '';
+                    loadReviews(storyUUID, box);
+                } else {
+                    const error = await res.json();
+                    alert('Submission failed: ' + (error.message || 'Something went wrong.'));
+                }
+            } catch (e) {
+                alert('Connection error. Please check your internet and try again.');
+            } finally {
+                isSubmittingReview = false;
+                btn.textContent = 'Post My Review';
+                btn.style.opacity = '1';
             }
         };
 
@@ -258,18 +263,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`/api/reviews?targetId=${id}`);
             const data = await res.json();
             const list = container.querySelector('#rev-list');
-            list.innerHTML = data.filter(r => r.status === 'approved').map(r => `
-                <li style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 20px 0;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <strong style="color:#d4af37;">${r.user_name}</strong>
-                        <small style="color:#666;">${new Date(r.created_at).toLocaleDateString()}</small>
+            const approved = data.filter(r => r.status === 'approved');
+            if (approved.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#555;">No reviews yet. Be the first to write one!</p>';
+                return;
+            }
+            list.innerHTML = approved.map(r => `
+                <li style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 30px 0;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <strong style="color:#d4af37; font-size:1.2rem;">${r.user_name}</strong>
+                        <small style="color:#555;">${new Date(r.created_at).toLocaleDateString()}</small>
                     </div>
-                    <div style="color:red; margin-bottom:10px;">${'★'.repeat(r.rating)}</div>
-                    <p style="opacity:0.8; font-style:italic;">"${r.comment}"</p>
+                    <div style="color:#ff3333; margin-bottom:15px; font-size:1.3rem;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+                    <p style="opacity:0.85; font-style:italic; line-height:1.7; font-size:1.1rem; color:#ccc;">"${r.comment}"</p>
                     ${r.reply ? `
-                        <div style="margin-top:15px; padding:12px; border-left:2px solid #d4af37; background:rgba(212,175,55,0.05);">
-                            <small style="color:#d4af37; font-weight:800;">ADMIN REPLY</small>
-                            <p style="margin:5px 0 0;">${r.reply}</p>
+                        <div style="margin-top:25px; padding:20px; border-left:4px solid #d4af37; background:rgba(212,175,55,0.04); border-radius:0 12px 12px 0; border:1px solid rgba(212,175,55,0.1); border-left:4px solid #d4af37;">
+                            <small style="color:#d4af37; font-weight:900; letter-spacing:2px; text-transform:uppercase; font-size:0.7rem; display:block; margin-bottom:8px;">Author Reponse</small>
+                            <p style="margin:0; color:#eee; line-height:1.6; font-size:1rem;">${r.reply}</p>
                         </div>
                     ` : ''}
                 </li>
@@ -278,57 +288,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function trackView(id, index) {
-        try {
-            await fetch(`/api/stories/${id}/chapters/${index}/view`, { method: 'POST' });
-        } catch (e) { }
+        try { fetch(`/api/stories/${id}/chapters/${index}/view`, { method: 'POST' }); } catch (e) { }
     }
 
     function scrollToTop() {
         const grid = document.querySelector('.reader-grid');
-        const pos = currentChapterIndex === 0 ? 0 : grid.offsetTop - 100;
-        window.scrollTo({ top: pos, behavior: 'smooth' });
+        const pos = currentChapterIndex === 0 ? 0 : grid.offsetTop - 80;
+        window.scrollTo({ top: pos, behavior: 'instant' });
     }
 
-    // --- GLOBAL LISTENERS ---
+    // --- INTERACTIVE LISTENERS ---
 
-    // Sidebar TOC click
+    // Toggle Chapter Menu
     document.addEventListener('click', (e) => {
         const link = e.target.closest('.toc-link');
         if (link) {
             e.preventDefault();
-            const idx = parseInt(link.getAttribute('data-index'));
-            renderChapter(idx);
-
-            // Close mobile things if open
+            renderChapter(parseInt(link.getAttribute('data-index')));
             document.querySelector('.chapter-sidebar')?.classList.remove('active');
-            document.getElementById('mobile-chapter-menu')?.classList.remove('active');
             document.getElementById('sidebar-overlay')?.classList.remove('active');
-
-            const triggerIcon = document.querySelector('#mobile-toc-trigger i');
-            if (triggerIcon) triggerIcon.className = 'fas fa-list';
-        }
-    });
-
-    // Mobile Toggle
-    document.getElementById('mobile-toc-trigger')?.addEventListener('click', () => {
-        const drawer = document.querySelector('.chapter-sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        const menu = document.getElementById('mobile-chapter-menu');
-
-        if (window.innerWidth > 900) {
-            document.querySelector('.reader-grid').classList.toggle('sidebar-closed');
-        } else {
-            if (menu) menu.classList.toggle('active');
-            else { drawer.classList.toggle('active'); overlay.classList.toggle('active'); }
         }
     });
 
     // Theme Toggle
     document.getElementById('theme-toggle')?.addEventListener('click', () => {
         document.body.classList.toggle('dark-theme');
+        const icon = document.querySelector('#theme-toggle i');
+        if (icon) {
+            if (document.body.classList.contains('dark-theme')) icon.className = 'fas fa-sun';
+            else icon.className = 'fas fa-moon';
+        }
     });
 
-    // Floating Rating
+    // Floating Rating Logic
     const fTrigger = document.getElementById('floating-rating-trigger');
     const toast = document.getElementById('rating-toast');
     if (fTrigger) {
@@ -336,43 +328,73 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.anim-star').forEach(s => {
             s.onclick = async (e) => {
                 e.stopPropagation();
+                if (isSubmittingReview) return;
                 const v = s.getAttribute('data-v');
-                const token = localStorage.getItem('token');
-                const res = await fetch('/api/reviews', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ targetType: 'story', targetId: storyUUID, rating: v, comment: 'Quick star rating' })
+
+                // Visual Immediate Feedback
+                const sNodes = document.querySelectorAll('.anim-star');
+                sNodes.forEach(st => {
+                    if (st.getAttribute('data-v') <= v) st.classList.add('active');
+                    else st.classList.remove('active');
                 });
-                if (res.ok) {
-                    toast.classList.add('show');
-                    setTimeout(() => toast.classList.remove('show'), 3000);
-                    fTrigger.classList.remove('expanded');
+
+                isSubmittingReview = true;
+                const token = localStorage.getItem('token');
+                try {
+                    const res = await fetch('/api/reviews', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ targetType: 'story', targetId: storyUUID, rating: v, comment: 'Rated via quick-star' })
+                    });
+
+                    if (res.ok) {
+                        toast.classList.add('show');
+                        setTimeout(() => {
+                            toast.classList.remove('show');
+                            fTrigger.classList.remove('expanded');
+                            sNodes.forEach(st => st.classList.remove('active'));
+                        }, 2500);
+                    } else {
+                        const err = await res.json();
+                        alert('Rating failed: ' + (err.message || 'Error'));
+                        sNodes.forEach(st => st.classList.remove('active'));
+                    }
+                } catch (e) {
+                    alert('Network error while rating.');
+                } finally {
+                    isSubmittingReview = false;
                 }
             };
         });
     }
 
-    // Settings Toggle
-    document.getElementById('settings-toggle')?.addEventListener('click', () => {
+    // Settings Menu
+    document.getElementById('settings-toggle')?.addEventListener('click', (e) => {
+        e.stopPropagation();
         document.getElementById('settings-menu').classList.toggle('active');
     });
 
-    // Header hide on scroll
+    document.addEventListener('click', () => {
+        document.getElementById('settings-menu')?.classList.remove('active');
+    });
+
+    // Header hide/show on scroll
     let lastY = window.scrollY;
     window.addEventListener('scroll', () => {
         const header = document.getElementById('reader-header');
-        if (window.scrollY > lastY && window.scrollY > 100) header.classList.add('hidden');
+        if (window.scrollY > lastY && window.scrollY > 120) header.classList.add('hidden');
         else header.classList.remove('hidden');
         lastY = window.scrollY;
     });
 
 });
 
-// Font Function (Global)
+// Font Adjustment (Global)
 let fSize = 18;
 function adjustFontSize(delta) {
     fSize += delta;
     if (fSize < 14) fSize = 14;
-    if (fSize > 28) fSize = 28;
-    document.getElementById('article-content').style.fontSize = fSize + 'px';
+    if (fSize > 32) fSize = 32;
+    const content = document.getElementById('article-content');
+    if (content) content.style.fontSize = fSize + 'px';
 }

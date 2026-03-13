@@ -16,7 +16,7 @@ async function fetchReviews() {
         renderTable();
     } catch (e) {
         console.error(e);
-        tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-red-400">Error loading reviews</td></tr>`;
+        if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-red-400">Error loading reviews</td></tr>`;
     }
 }
 
@@ -29,10 +29,12 @@ function renderTable() {
         return;
     }
 
-    tableBody.innerHTML = reviews.map(review => `
+    tableBody.innerHTML = reviews.map(review => {
+        const rId = review.id || review._id;
+        return `
         <tr class="hover:bg-gray-700/30 transition-colors border-b border-gray-700/50">
             <td class="px-6 py-4 align-top">
-                <div class="font-bold text-white">${review.user_name || 'Anonymous'}</div>
+                <div class="font-bold text-white">${review.user_name || 'Anonymous User'}</div>
                 <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest mt-1">${new Date(review.created_at).toLocaleDateString()}</div>
             </td>
             <td class="px-6 py-4 align-top">
@@ -49,10 +51,10 @@ function renderTable() {
                         </div>
                     ` : ''}
                     <div class="flex gap-2">
-                        <input type="text" id="reply-input-${review._id}" placeholder="Write a reply..." 
-                            class="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500"
+                        <input type="text" id="reply-input-${rId}" placeholder="Write a reply..." 
+                            class="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs outline-none focus:border-indigo-500 text-white"
                             value="${review.reply || ''}">
-                        <button onclick="submitReply('${review._id}')" 
+                        <button onclick="submitReply('${rId}')" 
                             class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-[10px] font-black uppercase transition-all">
                             Save
                         </button>
@@ -73,21 +75,22 @@ function renderTable() {
             <td class="px-6 py-4 text-right align-top">
                 <div class="flex justify-end gap-2">
                     ${review.status !== 'approved' ? `
-                        <button onclick="updateStatus('${review._id}', 'approved')" class="p-2 bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-white rounded-lg transition-all" title="Approve">
+                        <button onclick="updateStatus('${rId}', 'approved')" class="p-2 bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-white rounded-lg transition-all" title="Approve">
                             <i data-lucide="check" class="w-4 h-4"></i>
                         </button>
                     ` : `
-                        <button onclick="updateStatus('${review._id}', 'pending')" class="p-2 bg-yellow-600/20 hover:bg-yellow-600 text-yellow-400 hover:text-white rounded-lg transition-all" title="Make Pending">
+                        <button onclick="updateStatus('${rId}', 'pending')" class="p-2 bg-yellow-600/20 hover:bg-yellow-600 text-yellow-400 hover:text-white rounded-lg transition-all" title="Make Pending">
                             <i data-lucide="clock" class="w-4 h-4"></i>
                         </button>
                     `}
-                    <button onclick="deleteReview('${review._id}')" class="p-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg transition-all" title="Delete">
+                    <button onclick="deleteReview('${rId}')" class="p-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg transition-all" title="Delete">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
     if (window.lucide) lucide.createIcons();
 }
 
@@ -104,10 +107,12 @@ async function submitReply(id) {
             alert('Reply added successfully!');
             fetchReviews();
         } else {
-            alert('Failed to save reply');
+            const data = await response.json();
+            alert('Error: ' + (data.message || 'Failed to save reply'));
         }
     } catch (e) {
         console.error(e);
+        alert('Network error. Check console.');
     }
 }
 

@@ -94,8 +94,14 @@ const createReview = asyncHandler(async (req, res) => {
 // @route   PUT /api/reviews/:id
 // @access  Private (Admin)
 const updateReviewStatus = asyncHandler(async (req, res) => {
-    const updateData = { status: req.body.status };
+    const updateData = {};
+    if (req.body.status !== undefined) updateData.status = req.body.status;
     if (req.body.reply !== undefined) updateData.reply = req.body.reply;
+
+    if (Object.keys(updateData).length === 0) {
+        res.status(400);
+        throw new Error('No update data provided');
+    }
 
     const { data: review, error } = await supabase
         .from('reviews')

@@ -1,12 +1,6 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD // Gmail App Password
-    }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * Premium Email Template Wrapper
@@ -126,7 +120,7 @@ const getPremiumTemplate = (content, previewText = '') => {
 };
 
 /**
- * Master Email Sender Utility
+ * Master Email Sender Utility using Resend API
  */
 const sendEmail = async ({ email, subject, message, type, itemData }) => {
     let finalHtml = '';
@@ -206,20 +200,24 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
         finalHtml = getPremiumTemplate(`<div class="message">${message}</div>`);
     }
 
-    const mailOptions = {
-        from: `"Qalamekahani" <${process.env.EMAIL_USERNAME}>`,
-        to: email,
-        subject: subject,
-        html: finalHtml,
-        text: message
-    };
-
     try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('[EMAIL] Sent successfully:', info.messageId);
-        return info;
+        const { data, error } = await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Qalamekahani <onboarding@resend.dev>',
+            to: email,
+            subject: subject,
+            html: finalHtml,
+            text: message // Fallback plain text
+        });
+
+        if (error) {
+            console.error('[RESEND ERROR] Failed to send email:', error);
+            throw new Error(error.message);
+        }
+
+        console.log('[EMAIL] Sent successfully via Resend:', data.id);
+        return data;
     } catch (err) {
-        console.error('[EMAIL ERROR] Failed to send email:', err);
+        console.error('[EMAIL ERROR] Error in sendEmail:', err);
         throw err;
     }
 };

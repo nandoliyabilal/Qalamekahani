@@ -2,7 +2,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     fetchReviews();
     const user = JSON.parse(localStorage.getItem('adminUser'));
-    if (user && user.name) document.getElementById('adminName').textContent = user.name;
+    if (user && user.name) {
+        const adminNameEl = document.getElementById('adminName');
+        if (adminNameEl) adminNameEl.textContent = user.name;
+    }
 });
 
 let reviews = [];
@@ -15,8 +18,8 @@ async function fetchReviews() {
         reviews = await response.json();
         renderTable();
     } catch (e) {
-        console.error(e);
-        if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-red-400">Error loading reviews</td></tr>`;
+        console.error('Fetch Error:', e);
+        if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-red-400">Error loading reviews from database</td></tr>`;
     }
 }
 
@@ -25,16 +28,16 @@ function renderTable() {
     if (!tableBody) return;
 
     if (reviews.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No reviews found.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No reviews found in this category.</td></tr>`;
         return;
     }
 
     tableBody.innerHTML = reviews.map(review => {
-        const rId = review.id || review._id;
+        const rId = review.id; // Correct Supabase ID
         return `
         <tr class="hover:bg-gray-700/30 transition-colors border-b border-gray-700/50">
             <td class="px-6 py-4 align-top">
-                <div class="font-bold text-white">${review.user_name || 'Anonymous User'}</div>
+                <div class="font-bold text-white">${review.user_name || 'Reader'}</div>
                 <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest mt-1">${new Date(review.created_at).toLocaleDateString()}</div>
             </td>
             <td class="px-6 py-4 align-top">
@@ -46,7 +49,7 @@ function renderTable() {
                         <i data-lucide="message-square" class="w-3 h-3"></i> ADMIN REPLY
                     </div>
                     ${review.reply ? `
-                        <div class="text-xs text-green-400 font-medium mb-2 pl-2 border-l border-green-500/30">
+                        <div class="text-xs text-green-400 font-medium mb-2 pl-2 border-l border-green-400/30">
                             ${review.reply}
                         </div>
                     ` : ''}
@@ -95,6 +98,10 @@ function renderTable() {
 }
 
 async function submitReply(id) {
+    if (!id) {
+        alert('Internal Error: Review ID is missing.');
+        return;
+    }
     const replyInput = document.getElementById(`reply-input-${id}`);
     const reply = replyInput.value.trim();
 
@@ -104,15 +111,15 @@ async function submitReply(id) {
             body: JSON.stringify({ reply })
         });
         if (response.ok) {
-            alert('Reply added successfully!');
+            alert('Admin reply saved successfully!');
             fetchReviews();
         } else {
             const data = await response.json();
-            alert('Error: ' + (data.message || 'Failed to save reply'));
+            alert('Could not save reply: ' + (data.message || 'Server error'));
         }
     } catch (e) {
-        console.error(e);
-        alert('Network error. Check console.');
+        console.error('Submit Error:', e);
+        alert('Network error. Is the server running?');
     }
 }
 
@@ -124,18 +131,24 @@ async function updateStatus(id, status) {
         });
         if (response.ok) {
             fetchReviews();
+        } else {
+            alert('Failed to update status.');
         }
     } catch (e) {
-        console.error(e);
+        console.error('Status Update Error:', e);
     }
 }
 
 async function deleteReview(id) {
-    if (!confirm('Are you sure?')) return;
+    if (!confirm('Permanently delete this review?')) return;
     try {
         const response = await fetchWithAuth(`/reviews/${id}`, { method: 'DELETE' });
-        if (response.ok) fetchReviews();
+        if (response.ok) {
+            fetchReviews();
+        } else {
+            alert('Delete failed.');
+        }
     } catch (e) {
-        console.error(e);
+        console.error('Delete Error:', e);
     }
 }

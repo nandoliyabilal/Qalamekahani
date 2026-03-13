@@ -232,12 +232,21 @@ async function handleFormSubmit(e) {
 // Chapter Modal Logic (On-Demand Fetch)
 let activeStoryId = null;
 let currentChapters = [];
+let chapterStats = [];
 
 async function openChaptersView(id) {
     activeStoryId = id;
     try {
         const res = await fetchWithAuth(`/stories/${id}`);
         const story = await res.json();
+
+        // Fetch Stats
+        const statsRes = await fetchWithAuth(`/stories/${id}/chapters/stats`);
+        if (statsRes.ok) {
+            chapterStats = await statsRes.json();
+        } else {
+            chapterStats = [];
+        }
 
         const modal = document.getElementById('chaptersModal');
         if (modal) {
@@ -268,9 +277,14 @@ function renderChapterCards(story) {
         const wc = (ch.body.replace(/<[^>]*>/g, '').trim().split(/\s+/).length) || 0;
         const rt = Math.max(1, Math.ceil(wc / 200));
 
-        // Chapter Stats
-        const chViews = ch.views || 0;
-        const chDate = ch.created_at ? new Date(ch.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB');
+        // GET STATS FROM NEW STRUCTURE
+        const vData = (chapterStats && chapterStats.views) || {};
+        const rData = (chapterStats && chapterStats.ratings && chapterStats.ratings[idx]) || { total: 0, count: 0 };
+
+        const chViews = vData[`ch_${idx}`] || 0;
+        const chRating = rData.count > 0 ? (rData.total / rData.count).toFixed(1) : 0;
+        const chRateCount = rData.count || 0;
+        const chDate = story.created_at ? new Date(story.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB');
 
         return `
         <div class="bg-gray-800 border border-gray-700/50 rounded-2xl p-6 shadow-xl mb-5 relative group">
@@ -287,6 +301,10 @@ function renderChapterCards(story) {
                         <div class="flex items-center gap-1.5 text-[10px] text-green-400 font-black uppercase tracking-widest bg-green-500/5 px-2 py-1 rounded">
                             <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                             ${chViews} VIEWS
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[10px] text-red-400 font-black uppercase tracking-widest bg-red-500/5 px-2 py-1 rounded">
+                            <i data-lucide="star" class="w-3.5 h-3.5"></i>
+                            ${chRating} (${chRateCount})
                         </div>
                         <div class="flex items-center gap-1.5 text-[10px] text-amber-400 font-black uppercase tracking-widest bg-amber-500/5 px-2 py-1 rounded">
                             <i data-lucide="clock" class="w-3.5 h-3.5"></i>

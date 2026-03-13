@@ -331,20 +331,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isSubmittingReview) return;
                 const v = s.getAttribute('data-v');
 
-                // Visual Immediate Feedback
+                // Visual Immediate Feedback (Force RED)
                 const sNodes = document.querySelectorAll('.anim-star');
                 sNodes.forEach(st => {
-                    if (st.getAttribute('data-v') <= v) st.classList.add('active');
-                    else st.classList.remove('active');
+                    if (st.getAttribute('data-v') <= v) {
+                        st.style.color = '#ff3333';
+                        st.classList.add('active');
+                    } else {
+                        st.style.color = 'rgba(255,255,255,0.4)';
+                        st.classList.remove('active');
+                    }
                 });
 
                 isSubmittingReview = true;
                 const token = localStorage.getItem('token');
                 try {
-                    const res = await fetch('/api/reviews', {
+                    // NEW: Submit to Chapter-Specific Endpoint
+                    const res = await fetch(`/api/stories/${storyUUID}/chapters/${currentChapterIndex}/rating`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                        body: JSON.stringify({ targetType: 'story', targetId: storyUUID, rating: v, comment: 'Rated via quick-star' })
+                        body: JSON.stringify({ rating: v })
                     });
 
                     if (res.ok) {
@@ -352,15 +358,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         setTimeout(() => {
                             toast.classList.remove('show');
                             fTrigger.classList.remove('expanded');
-                            sNodes.forEach(st => st.classList.remove('active'));
+                            sNodes.forEach(st => {
+                                st.classList.remove('active');
+                                st.style.color = ''; // Reset to auto
+                            });
                         }, 2500);
                     } else {
                         const err = await res.json();
-                        alert('Rating failed: ' + (err.message || 'Error'));
-                        sNodes.forEach(st => st.classList.remove('active'));
+                        alert('Chapter Rating failed: ' + (err.message || 'Error'));
                     }
                 } catch (e) {
-                    alert('Network error while rating.');
+                    alert('Network error while rating chapter.');
                 } finally {
                     isSubmittingReview = false;
                 }

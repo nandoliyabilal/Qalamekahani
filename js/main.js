@@ -108,12 +108,35 @@ document.addEventListener('DOMContentLoaded', () => {
       li.innerHTML = `
           <div class="user-profile-trigger">
             <div class="user-avatar">${firstLetter}</div>
+            <div id="notif-dot" style="display:none; position:absolute; top:0; right:0; width:12px; height:12px; background:#d4af37; border-radius:50%; border:2px solid #000; z-index:10;"></div>
           </div>
           <div class="avatar-dropdown">
-              <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+              <a href="profile.html"><i class="fas fa-user"></i> Profile <span id="notif-count" style="display:none; background:#d4af37; color:#000; border-radius:10px; padding:2px 8px; font-size:10px; font-weight:bold; float:right; margin-top:3px;">0</span></a>
               <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
           </div>
       `;
+
+      // Fetch Notifications Count
+      async function checkNotifications() {
+        try {
+          const res = await fetch('/api/notifications/unread-count', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const { count } = await res.json();
+            if (count > 0) {
+              document.getElementById('notif-dot').style.display = 'block';
+              const countBadge = document.getElementById('notif-count');
+              if (countBadge) {
+                countBadge.style.display = 'inline-block';
+                countBadge.textContent = count;
+              }
+            }
+          }
+        } catch (e) { }
+      }
+      checkNotifications();
+      setInterval(checkNotifications, 60000); // Check every minute
 
       // Replace placeholder with proper LI
       authLinksHelper.replaceWith(li);

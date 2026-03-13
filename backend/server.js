@@ -72,6 +72,7 @@ app.use('/api/analytics', require('./routes/analyticsRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/gallery', require('./routes/galleryRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 const PORT = process.env.PORT || 5000;
 

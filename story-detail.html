@@ -28,7 +28,8 @@
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
                 <li class="dropdown">
-                    <a href="stories.html" class="active">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
+                    <a href="stories.html" class="active">Stories <i class="fas fa-chevron-down"
+                            style="font-size: 0.8em;"></i></a>
                     <ul class="dropdown-menu">
                         <li><a href="stories.html">Reading Stories</a></li>
                         <li><a href="gallery.html">Images & Wallpapers</a></li>
@@ -207,12 +208,12 @@
                 <ul class="footer-links">
                     <li><a href="index.html">Home</a></li>
                     <li class="dropdown">
-                    <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="stories.html">Reading Stories</a></li>
-                        <li><a href="gallery.html">Images & Wallpapers</a></li>
-                    </ul>
-                </li>
+                        <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="stories.html">Reading Stories</a></li>
+                            <li><a href="gallery.html">Images & Wallpapers</a></li>
+                        </ul>
+                    </li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="books.html">Books</a></li>
                     <li><a href="contact.html">Contact</a></li>
@@ -592,12 +593,22 @@
                         const reviewDiv = document.createElement('div');
                         reviewDiv.className = 'review-item';
                         reviewDiv.innerHTML = `
-                        <div class="review-header">
-                            <span class="reviewer-name">${r.user_name || r.name || 'Reader'}</span>
+                        <div class="review-header" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="reviewer-name" style="font-weight:600; color:#d4af37;">${r.user_name || r.name || 'Reader'}</span>
                             <div class="review-stars">${starsHtml}</div>
                         </div>
-                        <p class="review-text">${r.comment}</p>
-                        <span style="font-size: 0.75rem; color: #666; display:block; margin-top:5px;">
+                        <p class="review-text" style="color:#ddd; margin:10px 0; font-style:italic;">"${r.comment}"</p>
+                        
+                        ${r.reply ? `
+                            <div class="admin-reply" style="margin-top:15px; padding:15px; background:rgba(212,175,55,0.05); border-left:3px solid #d4af37; border-radius:4px;">
+                                <div style="font-size:0.75rem; color:#d4af37; font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;">
+                                    ${r.admin_reply_name || 'Admin'} RESPONSE
+                                </div>
+                                <p style="margin:0; color:#eee; font-size:0.9rem;">${r.reply}</p>
+                            </div>
+                        ` : ''}
+
+                        <span style="font-size: 0.7rem; color: #666; display:block; margin-top:10px; text-align:right;">
                             ${new Date(r.created_at).toLocaleDateString()}
                         </span>
                     `;

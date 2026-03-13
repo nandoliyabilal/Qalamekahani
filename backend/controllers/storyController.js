@@ -292,11 +292,84 @@ const incrementChapterView = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, views: stats[key] });
 });
 
+// @desc    Add rating for a specific chapter
+// @route   POST /api/stories/:id/chapters/:index/rating
+// @access  Public
+const addChapterRating = asyncHandler(async (req, res) => {
+    const { id, index } = req.params;
+    const { rating } = req.body;
+
+    if (!rating) {
+        res.status(400);
+        throw new Error('Rating is required');
+    }
+
+    const { error } = await supabase.from('chapter_ratings').insert([{
+        story_id: id,
+        chapter_index: parseInt(index),
+        rating: parseInt(rating)
+    }]);
+
+    if (error) {
+        console.error('Chapter Rating Fail:', error);
+        res.status(400);
+        throw new Error('Failed to save chapter rating');
+    }
+
+    res.status(201).json({ message: 'Chapter rated successfully' });
+});
+
+// @desc    Get stats for all chapters (Admin)
+// @route   GET /api/stories/:id/chapters/stats
+// @access  Private (Admin)
+const getChapterStats = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    // 1. Get Ratings
+    const { data: ratings, error: rateError } = await supabase
+        .from('chapter_ratings')
+        .select('*')
+        .eq('story_id', id);
+
+    // 2. Get Views from story JSON
+    const { data: story, error: storyError } = await supabase
+        .from('stories')
+        .select('chapter_stats')
+        .eq('id', id)
+        .single();
+
+    if (storyError) {
+        res.status(404);
+        throw new Error('Story stats not found');
+    }
+
+    const views = typeof story.chapter_stats === 'string' ? JSON.parse(story.chapter_stats) : (story.chapter_stats || {});
+
+    // Aggregate Ratings by Chapter Index
+    const aggregated = {};
+    if (ratings) {
+        ratings.forEach(r => {
+            const idx = r.chapter_index;
+            if (!aggregated[idx]) aggregated[idx] = { total: 0, count: 0 };
+            aggregated[idx].total += r.rating;
+            aggregated[idx].count += 1;
+        });
+    }
+
+    // Return structured data
+    res.status(200).json({
+        views: views,
+        ratings: aggregated
+    });
+});
+
 module.exports = {
     getStories,
     getStory,
     createStory,
     updateStory,
     deleteStory,
-    incrementChapterView
+    incrementChapterView,
+    addChapterRating,
+    getChapterStats
 };

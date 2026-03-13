@@ -72,30 +72,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(decoded, 'text/html');
-        const nodes = Array.from(doc.body.children);
 
-        let currentCh = [];
-        let chTitle = "Chapter 1";
+        // Find all H2s regardless of depth
+        const headings = Array.from(doc.querySelectorAll('h2'));
 
-        nodes.forEach(node => {
-            if (node.tagName === 'H2') {
-                if (currentCh.length > 0) {
-                    chapters.push({ title: chTitle, nodes: currentCh });
-                }
-                chTitle = node.textContent;
-                currentCh = [node];
-            } else {
-                currentCh.push(node);
-            }
-        });
-
-        if (currentCh.length > 0) {
-            chapters.push({ title: chTitle, nodes: currentCh });
-        }
-
-        if (chapters.length === 0 && nodes.length > 0) {
+        if (headings.length === 0) {
             chapters.push({ title: "Start", nodes: Array.from(doc.body.childNodes) });
+            return;
         }
+
+        headings.forEach((h2, idx) => {
+            let chNodes = [h2];
+            let curr = h2.nextSibling;
+            while (curr && curr.nodeName !== 'H2') {
+                chNodes.push(curr);
+                curr = curr.nextSibling;
+            }
+            chapters.push({
+                title: h2.textContent.trim() || `Chapter ${idx + 1}`,
+                nodes: chNodes
+            });
+        });
     }
 
     // --- TOC GENERATION ---

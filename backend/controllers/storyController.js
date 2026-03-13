@@ -229,28 +229,43 @@ const updateStory = asyncHandler(async (req, res) => {
     res.status(200).json(data);
 });
 
-// @desc    Delete story
-// @route   DELETE /api/stories/:id
-// @access  Private (Admin)
-const deleteStory = asyncHandler(async (req, res) => {
-    // 1. Nullify references in orders to avoid FK block
-    await supabase.from('orders').update({ story_id: null }).eq('story_id', req.params.id);
+// @desc    Increment chapter view
+// @route   POST /api/stories/:id/chapters/:index/view
+// @access  Public
+const incrementChapterView = asyncHandler(async (req, res) => {
+    const { id, index } = req.params;
 
-    // 2. Clear reviews related to this story (Optional but clean)
-    await supabase.from('reviews').delete().eq('item_id', req.params.id);
-
-    // 3. Delete the story
-    const { error } = await supabase
+    // 1. Get current stats
+    const { data: story, error: getError } = await supabase
         .from('stories')
-        .delete()
-        .eq('id', req.params.id);
+        .select('chapter_stats')
+        .eq('id', id)
+        .single();
 
-    if (error) {
-        res.status(400);
-        throw new Error(error.message);
+    if (getError || !story) {
+        res.status(404);
+        throw new Error('Story not found');
     }
 
-    res.status(200).json({ id: req.params.id });
+    let stats = story.chapter_stats || {};
+    if (typeof stats === 'string') stats = JSON.parse(stats);
+
+    // 2. Increment view for this index
+    const key = `ch_${index}`;
+    stats[key] = (stats[key] || 0) + 1;
+
+    // 3. Update DB
+    const { error: updateError } = await supabase
+        .from('stories')
+        .update({ chapter_stats: stats })
+        .eq('id', id);
+
+    if (updateError) {
+        res.status(500);
+        throw new Error('Failed to update chapter views');
+    }
+
+    res.status(200).json({ success: true, views: stats[key] });
 });
 
 module.exports = {
@@ -258,5 +273,6 @@ module.exports = {
     getStory,
     createStory,
     updateStory,
-    deleteStory
+    deleteStory,
+    incrementChapterView
 };

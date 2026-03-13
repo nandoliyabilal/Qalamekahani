@@ -19,4 +19,7 @@ router.route('/:id')
     .put(protect, authorize('admin', 'editor'), updateStory)
     .delete(protect, authorize('admin'), deleteStory);
 
+router.route('/:id/chapters/:index/view')
+    .post(incrementChapterView);
+
 module.exports = router;

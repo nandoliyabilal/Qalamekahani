@@ -268,6 +268,10 @@ function renderChapterCards(story) {
         const wc = (ch.body.replace(/<[^>]*>/g, '').trim().split(/\s+/).length) || 0;
         const rt = Math.max(1, Math.ceil(wc / 200));
 
+        // Chapter Stats
+        const chViews = ch.views || 0;
+        const chDate = ch.created_at ? new Date(ch.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB');
+
         return `
         <div class="bg-gray-800 border border-gray-700/50 rounded-2xl p-6 shadow-xl mb-5 relative group">
             <button onclick="removeChapterLocal('${ch.id}')" class="absolute top-5 right-5 text-gray-500 hover:text-red-400 p-2"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
@@ -275,11 +279,24 @@ function renderChapterCards(story) {
                 <div class="bg-indigo-500/10 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black border border-indigo-500/20">${idx + 1}</div>
                 <div class="flex-1">
                     <input type="text" onchange="updateChapterTitle('${ch.id}', this.value)" value="${ch.title}" class="bg-transparent border-none text-white font-black text-xl w-full focus:ring-0 p-0">
-                    <div class="text-[10px] text-gray-400 mt-2 font-black uppercase tracking-widest">${rt} MIN READ</div>
+                    <div class="flex flex-wrap items-center gap-4 mt-2">
+                        <div class="flex items-center gap-1.5 text-[10px] text-indigo-400 font-black uppercase tracking-widest bg-indigo-500/5 px-2 py-1 rounded">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                            ${chDate}
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[10px] text-green-400 font-black uppercase tracking-widest bg-green-500/5 px-2 py-1 rounded">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                            ${chViews} VIEWS
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[10px] text-amber-400 font-black uppercase tracking-widest bg-amber-500/5 px-2 py-1 rounded">
+                            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                            ${rt} MIN READ
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="flex justify-between items-center bg-gray-900 border border-gray-700 p-2.5 rounded-xl mt-4">
-                <button onclick="toggleChapterEditor('${ch.id}')" class="px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-[10px] font-black transition-all">EDIT CONTENT</button>
+                <button onclick="toggleChapterEditor('${ch.id}')" class="px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-[10px] font-black tracking-widest transition-all">EDIT CONTENT</button>
             </div>
             <div id="editor-${ch.id}" class="hidden mt-4 pt-4 border-t border-gray-700/50">
                 <textarea onchange="updateChapterBody('${ch.id}', this.value)" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-5 text-sm text-gray-300 h-64 outline-none">${ch.body.replace(/<p>/g, '').replace(/<\/p>/g, '\n').trim()}</textarea>

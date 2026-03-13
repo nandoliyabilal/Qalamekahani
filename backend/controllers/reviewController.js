@@ -94,9 +94,12 @@ const createReview = asyncHandler(async (req, res) => {
 // @route   PUT /api/reviews/:id
 // @access  Private (Admin)
 const updateReviewStatus = asyncHandler(async (req, res) => {
+    const updateData = { status: req.body.status };
+    if (req.body.reply !== undefined) updateData.reply = req.body.reply;
+
     const { data: review, error } = await supabase
         .from('reviews')
-        .update({ status: req.body.status })
+        .update(updateData)
         .eq('id', req.params.id)
         .select()
         .single();

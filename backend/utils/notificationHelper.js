@@ -50,23 +50,37 @@ const sendEmailNotification = async (item, type) => {
         const itemLink = `${baseUrl}/${type === 'story' ? 'story-detail.html' : type === 'book' ? 'book-detail.html' : type === 'audio' ? 'audio-detail.html' : 'blog-detail.html'}?id=${item.slug || item.id}`;
         const typeLabel = type === 'audio' ? 'Audio' : type.charAt(0).toUpperCase() + type.slice(1);
 
-        await sendEmail({
-            email: recipientList,
-            subject: `New ${typeLabel} Added: ${itemTitle}`,
-            type: 'new_item',
-            itemData: {
-                title: itemTitle,
-                summary: itemDesc,
-                image: itemImage,
-                link: itemLink,
-                typeLabel
-            }
-        });
+        console.log(`[NOTIFICATION] Starting notifications for ${recipientList.length} recipients...`);
 
-        console.log(`Notification sent to ${users.length} users for ${type}: ${itemTitle}`);
+        // Send to each recipient individually to avoid batch failure in Sandbox mode
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const recipient of recipientList) {
+            try {
+                await sendEmail({
+                    email: recipient,
+                    subject: `New ${typeLabel} Added: ${itemTitle}`,
+                    type: 'new_item',
+                    itemData: {
+                        title: itemTitle,
+                        summary: itemDesc,
+                        image: itemImage,
+                        link: itemLink,
+                        typeLabel
+                    }
+                });
+                successCount++;
+            } catch (err) {
+                console.warn(`[NOTIFICATION] Failed for ${recipient}:`, err.message);
+                failCount++;
+            }
+        }
+
+        console.log(`[NOTIFICATION DONE] Success: ${successCount}, Failed: ${failCount}`);
 
     } catch (err) {
-        console.error('Notification System Error:', err);
+        console.error('Notification System Fatal Error:', err);
     }
 };
 

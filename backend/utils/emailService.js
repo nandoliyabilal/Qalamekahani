@@ -184,6 +184,17 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
             <p style="font-size: 13px; color: #888;">Thank you for your patience.</p>
         `;
         finalHtml = getPremiumTemplate(content);
+    } else if (type === 'password_reset') {
+        const content = `
+            <div style="text-transform: uppercase; color: #d4af37; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Account Recovery</div>
+            <div class="title">Password Reset</div>
+            <div class="message" style="color: #ccc; margin-bottom: 30px;">We received a request to reset your password. Click the button below to choose a new one.</div>
+            <a href="${itemData.resetUrl}" class="btn">Reset Password</a>
+            <div style="margin-top: 40px; color: #777; font-size: 12px; border-top: 1px solid #1a1a1a; padding-top: 20px;">
+                If you didn't request this, you can safely ignore this email. This link will expire in 10 minutes.
+            </div>
+        `;
+        finalHtml = getPremiumTemplate(content);
     } else if (type === 'new_item') {
         const content = `
             <div style="text-transform: uppercase; color: #d4af37; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">New ${itemData.typeLabel} Arrival</div>

@@ -546,8 +546,9 @@ const forgotPassword = asyncHandler(async (req, res) => {
             reset_password_token: null,
             reset_password_expire: null
         }).eq('id', user.id);
+        console.error('[AUTH] Forgot Password Email Error:', err);
         res.status(500);
-        throw new Error('Email could not be sent');
+        throw new Error(`Email could not be sent: ${err.message}. Note: Resend free tier only allows sending to your own verified email.`);
     }
 });
 

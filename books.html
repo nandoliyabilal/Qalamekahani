@@ -412,6 +412,99 @@
                 font-size: 1.2rem;
             }
         }
+
+        /* Language Selector Styles */
+        .language-selector {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lang-dropdown-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+            padding: 10px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            height: 50px;
+            white-space: nowrap;
+        }
+
+        .lang-dropdown-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+        }
+
+        .lang-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            background: #1a1a1a;
+            min-width: 150px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .lang-dropdown-content.show {
+            display: block;
+        }
+
+        .lang-dropdown-content a {
+            color: #ccc;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .lang-dropdown-content a:hover {
+            background: rgba(212, 175, 55, 0.1);
+            color: #d4af37;
+        }
+
+        .lang-dropdown-content a.active {
+            background: #d4af37;
+            color: #000;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 480px) {
+            .search-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .language-selector, .lang-dropdown-btn {
+                width: 100%;
+                justify-content: center;
+                height: 45px;
+            }
+        }
     </style>
 </head>
 
@@ -529,15 +622,30 @@
     </style>
 
     <div class="book-search-container">
-        <div class="book-search-box">
-            <input type="text" class="book-search-input" placeholder="Search books..." id="searchInput">
-            <i class="fas fa-search book-search-icon"></i>
+        <div class="search-row">
+            <div class="book-search-box" style="flex: 1; max-width: none;">
+                <input type="text" class="book-search-input" placeholder="Search books..." id="searchInput">
+                <i class="fas fa-search book-search-icon"></i>
+            </div>
+            
+            <div class="language-selector">
+                <button class="lang-dropdown-btn" id="langDropdownBtn">
+                    <span style="font-size: 1.2rem; font-weight: 500;">अA</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
+                </button>
+                <div class="lang-dropdown-content" id="langDropdownContent">
+                    <a href="javascript:void(0)" data-lang="all" class="active">All Languages</a>
+                    <a href="javascript:void(0)" data-lang="hindi">Hindi</a>
+                    <a href="javascript:void(0)" data-lang="gujarati">Gujarati</a>
+                    <a href="javascript:void(0)" data-lang="english">English</a>
+                </div>
+            </div>
         </div>
         <div class="book-filters" id="filterContainer">
-            <button class="book-filter-btn active" onclick="filterBooks('all', this)">All</button>
-            <button class="book-filter-btn" onclick="filterBooks('mystery', this)">Mystery</button>
-            <button class="book-filter-btn" onclick="filterBooks('emotional', this)">Emotional</button>
-            <button class="book-filter-btn" onclick="filterBooks('drama', this)">Drama</button>
+            <button class="book-filter-btn active" onclick="filterBooks('all', this)">All Categories</button>
+            <button class="book-filter-btn" onclick="filterBooks('Mystery', this)">Mystery</button>
+            <button class="book-filter-btn" onclick="filterBooks('Emotional', this)">Emotional</button>
+            <button class="book-filter-btn" onclick="filterBooks('Drama', this)">Drama</button>
         </div>
     </div>
 
@@ -545,36 +653,7 @@
         <!-- Rendered via JS -->
     </section>
 
-    <!-- Cart Floating Icon -->
-    <div class="cart-float-icon" onclick="toggleCart()">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-count-badge" id="cart-count">0</span>
-    </div>
-
-    <!-- Cart Sidebar -->
-    <div class="cart-sidebar" id="cart-sidebar">
-        <div class="cart-header">
-            <span>Your Cart</span>
-            <i class="fas fa-times cart-close" onclick="toggleCart()"></i>
-        </div>
-        <div class="cart-items" id="cart-items-container">
-            <!-- Items -->
-        </div>
-        <div class="cart-footer">
-            <div style="display:flex; justify-content:space-between; color:#fff; margin-bottom:10px;">
-                <span>Total:</span>
-                <span id="cart-total" style="color:#d4af37; font-weight:bold;">₹0</span>
-            </div>
-            <button class="checkout-btn" onclick="(() => {
-                const cart = CartUtils.getCart();
-                if (cart.length > 0) {
-                    window.location.href = `checkout.html?bookId=${cart[0]}`;
-                } else {
-                    alert('Your cart is empty!');
-                }
-            })()">Proceed to Checkout</button>
-        </div>
-    </div>
+    <!-- Internal Cart Removed to support external Buy Links -->
 
     <!-- Footer Section -->
     <footer class="site-footer">
@@ -632,64 +711,9 @@
 
         // --- SEARCH & FILTER LOGIC ---
         let currentFilter = 'all';
+        let currentLang = 'all';
         let searchQuery = '';
         let booksData = []; // Data will be fetched from API
-
-        function renderBooks(books) {
-            const grid = document.getElementById('books-grid');
-            if (books.length === 0) {
-                grid.innerHTML = '<p style="color:#aaa; text-align:center; grid-column:1/-1;">No books found matching your criteria.</p>';
-                return;
-            }
-            grid.innerHTML = books.map(book => {
-                const price = book.original_price || book.originalPrice || 0;
-                const discounted = book.discounted_price || book.discountedPrice || price;
-
-                // Percent
-                let percent = 0;
-                if (price > 0 && discounted < price) {
-                    percent = Math.round(((price - discounted) / price) * 100);
-                }
-
-                // Stars Helper
-                const getStars = (r) => {
-                    let s = '';
-                    for (let i = 1; i <= 5; i++) {
-                        if (i <= r) s += '<i class="fas fa-star"></i>';
-                        else if (i === Math.ceil(r) && !Number.isInteger(r)) s += '<i class="fas fa-star-half-alt"></i>';
-                        else s += '<i class="far fa-star"></i>';
-                    }
-                    return s;
-                };
-
-                return `
-            <div class="book-card" onclick="goToDetail('${book.id}')">
-                <div class="image-wrapper">
-                    <img src="${book.image}" alt="${book.title}" class="book-cover">
-                    ${percent > 0 ? `<span class="discount-badge">-${percent}%</span>` : ''}
-                    <div class="image-overlay"></div>
-                </div>
-                
-                <div class="book-info">
-                    <div class="meta-row">
-                        <span class="book-category">${book.category || 'General'}</span>
-                        <div class="stars">${getStars(book.rating || 4.5)}</div>
-                    </div>
-                    
-                    <h3 class="book-title">${book.title}</h3>
-                    <p class="book-author">by ${book.author}</p>
-                    
-                    <div class="price-row">
-                        <span class="current-price">₹${discounted}</span>
-                        ${percent > 0 ? `<span class="original-price">₹${price}</span>` : ''}
-                    </div>
-                    
-                    <button class="action-btn" onclick="event.stopPropagation(); goToDetail('${book.id}')">View Details</button>
-                </div>
-            </div>
-            `;
-            }).join('');
-        }
 
         function filterBooks(category, btnElement) {
             if (btnElement) {
@@ -700,6 +724,33 @@
             applyFilters();
         }
 
+        // Language Selection Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropdownBtn = document.getElementById('langDropdownBtn');
+            const dropdownContent = document.getElementById('langDropdownContent');
+            const langOptions = dropdownContent.querySelectorAll('a');
+
+            dropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownContent.classList.toggle('show');
+            });
+
+            document.addEventListener('click', () => {
+                dropdownContent.classList.remove('show');
+            });
+
+            langOptions.forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    langOptions.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    dropdownContent.classList.remove('show');
+                    currentLang = opt.dataset.lang;
+                    applyFilters();
+                });
+            });
+        });
+
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchQuery = e.target.value.toLowerCase();
             applyFilters();
@@ -709,11 +760,66 @@
             const filtered = booksData.filter(book => {
                 const matchesSearch = book.title.toLowerCase().includes(searchQuery) ||
                     book.author.toLowerCase().includes(searchQuery);
-                // Simple category check
-                const matchesCategory = currentFilter === 'all' || (book.category && book.category.toLowerCase() === currentFilter.toLowerCase());
-                return matchesSearch && matchesCategory;
+                
+                const matchesCategory = currentFilter === 'all' || 
+                    (book.category && book.category.toLowerCase() === currentFilter.toLowerCase());
+                
+                const matchesLang = currentLang === 'all' || 
+                    (book.language && book.language.toLowerCase() === currentLang.toLowerCase());
+                
+                return matchesSearch && matchesCategory && matchesLang;
             });
             renderBooks(filtered);
+        }
+
+        function renderBooks(data) {
+            const grid = document.getElementById('books-grid');
+            if (!data || data.length === 0) {
+                grid.innerHTML = '<div style="text-align:center; color:#ccc; grid-column:1/-1; padding: 50px;">No books found matching criteria.</div>';
+                return;
+            }
+
+            grid.innerHTML = data.map(book => {
+                const ogPrice = book.original_price || book.originalPrice || 0;
+                const discPercent = book.discount_percent || book.discountPercent || 0;
+                const currentPrice = book.discounted_price || book.discountedPrice || (ogPrice - (ogPrice * discPercent / 100));
+                const rating = book.rating || 5;
+                
+                let starsHtml = '';
+                for(let i=1; i<=5; i++) {
+                    starsHtml += `<i class="${i <= rating ? 'fas' : 'far'} fa-star"></i>`;
+                }
+
+                return `
+                <article class="book-card" onclick="goToDetail('${book.id || book._id}')">
+                    <div class="image-wrapper">
+                        <img src="${book.image || 'images/story-default.png'}" alt="${book.title}" class="book-cover" onerror="this.src='https://placehold.co/600x800/222/FFF?text=No+Cover'">
+                        <div class="image-overlay"></div>
+                        ${discPercent > 0 ? `<div class="discount-badge">${discPercent}% OFF</div>` : ''}
+                    </div>
+                    <div class="book-info">
+                        <div class="meta-row">
+                            <span class="book-category">${book.category || 'Paperback'}</span>
+                            <div class="stars">${starsHtml}</div>
+                        </div>
+                        <h3 class="book-title">${book.title}</h3>
+                        <p class="book-author">By ${book.author || 'Sabirkhan Pathan'}</p>
+                        <div class="price-row">
+                            <span class="current-price">₹${Math.round(currentPrice)}</span>
+                            ${discPercent > 0 ? `<span class="original-price">₹${ogPrice}</span>` : ''}
+                        </div>
+                        <div class="button-group" style="display: flex; gap: 8px; margin-top: 10px;">
+                            <button class="action-btn" style="flex: 1; padding: 8px;" onclick="event.stopPropagation(); goToDetail('${book.id || book._id}')">Details</button>
+                            ${book.buy_link ? `
+                            <button class="action-btn" style="flex: 1; background: #d4af37; color: #000; border-color: #d4af37; padding: 8px;" 
+                                onclick="event.stopPropagation(); window.open('${book.buy_link}', '_blank')">
+                                Buy Now
+                            </button>` : ''}
+                        </div>
+                    </div>
+                </article>
+                `;
+            }).join('');
         }
 
         // Initial Fetch from Backend
@@ -734,59 +840,7 @@
                 document.getElementById('books-grid').innerHTML = '<div style="text-align:center; color:red; grid-column:1/-1;"><p>Failed to load books.</p><small>Please try again later.</small></div>';
             });
 
-        // --- CART LOGIC ---
-        function toggleCart() {
-            const sidebar = document.getElementById('cart-sidebar');
-            // Simply toggle CSS class, let CSS handle the width/position
-            if (sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-                sidebar.style.removeProperty('right'); // Clear inline style if any
-            } else {
-                renderCartUI();
-                sidebar.classList.add('open');
-            }
-        }
-
-        function renderCartUI() {
-            const cartIds = CartUtils.getCart();
-            const container = document.getElementById('cart-items-container');
-            document.getElementById('cart-count').textContent = cartIds.length;
-
-            let total = 0;
-            if (cartIds.length === 0) {
-                container.innerHTML = "<p style='color:#666; text-align:center; margin-top:50px;'>Your cart is empty.</p>";
-            } else {
-                container.innerHTML = cartIds.map(id => {
-                    const b = booksData.find(x => x.id === id);
-                    if (!b) return '';
-                    const ogPrice = b.original_price || b.originalPrice || 0;
-                    const price = b.discounted_price || b.discountedPrice || ogPrice;
-                    total += price;
-
-                    return `
-                    <div class="cart-item">
-                        <img src="${b.image}" class="cart-img">
-                        <div class="cart-details">
-                            <h4 class="cart-title">${b.title}</h4>
-                            <span class="cart-price">₹${price}</span>
-                        </div>
-                        <i class="fas fa-trash cart-remove" onclick="removeCartItem('${id}')"></i>
-                    </div>
-                    `;
-                }).join('');
-            }
-            document.getElementById('cart-total').textContent = '₹' + total;
-        }
-
-        function removeCartItem(id) {
-            CartUtils.removeFromCart(id);
-            renderCartUI();
-        }
-
-        // Init Load
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('cart-count').textContent = CartUtils.count();
-        });
+        // Cart Logic Removed
     </script>
     <script src="js/global-horror.js"></script>
 </body>

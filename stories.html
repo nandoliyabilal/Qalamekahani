@@ -33,6 +33,98 @@
             margin: 0 auto;
             font-weight: 300;
         }
+
+        /* Language Selector Styles */
+        .language-selector {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lang-dropdown-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+            padding: 10px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            height: 50px;
+            white-space: nowrap;
+        }
+
+        .lang-dropdown-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+        }
+
+        .lang-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            background: #1a1a1a;
+            min-width: 150px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .lang-dropdown-content.show {
+            display: block;
+        }
+
+        .lang-dropdown-content a {
+            color: #ccc;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .lang-dropdown-content a:hover {
+            background: rgba(212, 175, 55, 0.1);
+            color: #d4af37;
+        }
+
+        .lang-dropdown-content a.active {
+            background: #d4af37;
+            color: #000;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 480px) {
+            .search-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .language-selector, .lang-dropdown-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 
@@ -72,13 +164,28 @@
 
     <!-- Search & Filter -->
     <div class="search-filter-container">
-        <div class="search-box">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search stories...">
-            <i class="fas fa-search search-icon"></i>
+        <div class="search-row">
+            <div class="search-box" style="flex: 1; margin-bottom: 0;">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search stories...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            
+            <div class="language-selector">
+                <button class="lang-dropdown-btn" id="langDropdownBtn">
+                    <span style="font-size: 1.2rem; font-weight: 500;">अA</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
+                </button>
+                <div class="lang-dropdown-content" id="langDropdownContent">
+                    <a href="javascript:void(0)" data-lang="all" class="active">All Languages</a>
+                    <a href="javascript:void(0)" data-lang="hindi">Hindi</a>
+                    <a href="javascript:void(0)" data-lang="gujarati">Gujarati</a>
+                    <a href="javascript:void(0)" data-lang="english">English</a>
+                </div>
+            </div>
         </div>
-        <div id="category-filters" class="filter-buttons" style="flex-wrap: wrap; justify-content: center; gap: 10px;">
-            <!-- Dynamic Filters -->
-            <button class="filter-btn active" data-filter="all">All</button>
+        
+        <div id="category-filters" class="filter-buttons" style="flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px;">
+            <button class="filter-btn active" data-filter="all">All Genres</button>
         </div>
     </div>
 
@@ -202,34 +309,73 @@
 
             // Filter & Search Logic
             function setupFilterListeners() {
-                const buttons = filterContainer.querySelectorAll('.filter-btn');
-                buttons.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        // Active state
-                        buttons.forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
+                const catButtons = filterContainer.querySelectorAll('.filter-btn');
+                const dropdownBtn = document.getElementById('langDropdownBtn');
+                const dropdownContent = document.getElementById('langDropdownContent');
+                const langOptions = dropdownContent.querySelectorAll('a');
 
-                        const filter = btn.dataset.filter;
-                        filterStories(filter, searchInput.value);
+                // Dropdown Toggle
+                dropdownBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdownContent.classList.toggle('show');
+                });
+
+                // Close dropdown on click outside
+                document.addEventListener('click', () => {
+                    dropdownContent.classList.remove('show');
+                });
+
+                catButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        catButtons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        applyAllFilters();
+                    });
+                });
+
+                langOptions.forEach(opt => {
+                    opt.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        langOptions.forEach(o => o.classList.remove('active'));
+                        opt.classList.add('active');
+                        dropdownContent.classList.remove('show');
+                        applyAllFilters();
                     });
                 });
             }
 
-            // Search Input Listener
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => {
-                    const activeBtn = filterContainer.querySelector('.filter-btn.active');
-                    const filter = activeBtn ? activeBtn.dataset.filter : 'all';
-                    filterStories(filter, e.target.value);
-                });
+            // Centralized Filter Logic
+            function applyAllFilters() {
+                const activeCatBtn = filterContainer.querySelector('.filter-btn.active');
+                const activeLangBtn = document.querySelector('#langDropdownContent a.active');
+                
+                const category = activeCatBtn ? activeCatBtn.dataset.filter : 'all';
+                const language = activeLangBtn ? activeLangBtn.dataset.lang : 'all';
+                const query = searchInput.value;
+
+                filterStories(category, language, query);
             }
 
-            function filterStories(category, query) {
+            // Search Input Listener
+            if (searchInput) {
+                searchInput.addEventListener('input', () => applyAllFilters());
+            }
+
+            function filterStories(category, language, query) {
                 const q = query.toLowerCase();
                 const filtered = allStories.filter(story => {
-                    const matchesCategory = category === 'all' || (story.category && story.category.toLowerCase() === category);
-                    const matchesSearch = !q || (story.title && story.title.toLowerCase().includes(q)) || (story.description && story.description.toLowerCase().includes(q));
-                    return matchesCategory && matchesSearch;
+                    const matchesCategory = category === 'all' || 
+                        (story.category && story.category.toLowerCase() === category.toLowerCase());
+                    
+                    const matchesLanguage = language === 'all' || 
+                        (story.language && story.language.toLowerCase() === language.toLowerCase());
+                    
+                    const matchesSearch = !q || 
+                        (story.title && story.title.toLowerCase().includes(q)) || 
+                        (story.description && story.description.toLowerCase().includes(q)) ||
+                        (story.summary && story.summary.toLowerCase().includes(q));
+                    
+                    return matchesCategory && matchesLanguage && matchesSearch;
                 });
                 renderStories(filtered);
             }

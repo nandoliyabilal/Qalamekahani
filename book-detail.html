@@ -680,7 +680,7 @@
                 document.title = `${book.title} | Qalamekahani`;
 
                 // Store the buy link (fallback to default if missing)
-                currentBookLink = book.buy_link || book.buyLink || "https://shopizon-eta.vercel.app/";
+                currentBookLink = book.buy_link || book.buyLink || "";
 
                 // Store global book object for modal
                 currentBook = book;
@@ -787,7 +787,11 @@
             }
 
             function startPurchase(bookId) {
-                window.location.href = `checkout.html?bookId=${bookId}`;
+                if (currentBookLink) {
+                    window.open(currentBookLink, '_blank');
+                } else {
+                    alert('Buy link not available for this book yet.');
+                }
             }
 
             function getStars(rating) {

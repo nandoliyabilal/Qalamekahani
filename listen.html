@@ -20,6 +20,44 @@
             --player-height: 90px;
         }
 
+        /* Rating Animations */
+        @keyframes star-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+
+        .rating-stars-sidebar i {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .rating-stars-sidebar i.active {
+            color: #ff3b3b !important; /* RED as requested */
+            animation: star-pulse 0.4s ease-out;
+            text-shadow: 0 0 10px rgba(255, 59, 59, 0.4);
+        }
+
+        .rating-stars-sidebar i:hover {
+            transform: scale(1.2);
+            color: #ff3b3b !important;
+        }
+
+        .review-msg-success {
+            background: rgba(46, 213, 115, 0.1);
+            color: #2ed573;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            border: 1px solid rgba(46, 213, 115, 0.2);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -785,10 +823,25 @@
 
         <!-- Reviews Container -->
         <div id="reviews-container" style="display:none; color: #ccc; padding-top:10px;">
+            <!-- Instant Rating Row -->
+            <div id="sidebar-rating-card" style="background: rgba(255,59,59,0.05); padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid rgba(255,59,59,0.15); text-align: center;">
+                <p style="font-size: 0.85rem; color: #fff; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Rate this Part</p>
+                <div class="rating-stars-sidebar" id="rating-stars-sidebar" style="display: flex; gap: 10px; font-size: 1.8rem; cursor: pointer; color: #333; justify-content: center; margin-bottom: 10px;">
+                    <i class="far fa-star" data-val="1"></i>
+                    <i class="far fa-star" data-val="2"></i>
+                    <i class="far fa-star" data-val="3"></i>
+                    <i class="far fa-star" data-val="4"></i>
+                    <i class="far fa-star" data-val="5"></i>
+                </div>
+                <div id="rating-response-msg"></div>
+                <p id="rating-status-text" style="font-size: 0.7rem; color: #666; margin-top: 5px; font-weight: 500;">Your rating will count per part</p>
+            </div>
+
             <div id="reviews-list"></div>
+            
             <button onclick="document.getElementById('end-overlay').classList.add('visible')"
-                style="width:100%; padding:10px; margin-top:20px; background:var(--accent-gold); border:none; border-radius:4px; font-weight:bold; cursor:pointer; color:black;">
-                Write a Review
+                style="width:100%; padding:15px; margin-top:20px; background:transparent; border:1px solid #333; border-radius:12px; font-weight:700; cursor:pointer; color:#fff; text-transform:uppercase; letter-spacing:1px; font-size:0.75rem; transition: all 0.3s;">
+                Write Detailed Review
             </button>
         </div>
     </aside>
@@ -810,7 +863,15 @@
         <div class="track-display">
             <h1 class="track-title" id="main-title">Loading...</h1>
             <p class="track-artist" id="main-artist">Loading...</p>
-            <span class="chapter-tag" id="chapter-badge">Chapter 1</span>
+            <!-- Instant Rating Stars (Red) -->
+            <div id="main-rating-stars" class="rating-stars-sidebar" style="display:flex; gap:8px; margin-top:10px; color:#333; font-size:1.4rem; cursor:pointer;">
+                <i class="far fa-star" data-val="1"></i>
+                <i class="far fa-star" data-val="2"></i>
+                <i class="far fa-star" data-val="3"></i>
+                <i class="far fa-star" data-val="4"></i>
+                <i class="far fa-star" data-val="5"></i>
+            </div>
+            <span class="chapter-tag" id="chapter-badge" style="margin-top: 15px;">Chapter 1</span>
         </div>
 
         <div class="end-overlay" id="end-overlay">
@@ -1087,51 +1148,184 @@
             });
         }
 
-        // Init Stars
-        document.querySelectorAll('#rating-stars i').forEach(star => {
-            star.addEventListener('click', function () {
-                selectedRating = this.getAttribute('data-val');
-                updateStars(selectedRating);
+        // Consolidated Rating Logic
+        function initRatingStars() {
+            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars'];
+            
+            allStarContainers.forEach(containerSelector => {
+                const container = document.querySelector(containerSelector);
+                if (!container) return;
+
+                container.querySelectorAll('i').forEach(star => {
+                    star.addEventListener('click', async function () {
+                        const val = parseInt(this.getAttribute('data-val'));
+                        const token = localStorage.getItem('token');
+                        
+                        if (!token) {
+                            showToast('Please login to rate');
+                            return;
+                        }
+
+                        // Update ALL rating star views in sync
+                        allStarContainers.forEach(sel => {
+                            const c = document.querySelector(sel);
+                            if (c) {
+                                c.querySelectorAll('i').forEach(s => {
+                                    const sVal = parseInt(s.getAttribute('data-val'));
+                                    if (sVal <= val) {
+                                        s.className = 'fas fa-star active';
+                                    } else {
+                                        s.className = 'far fa-star';
+                                        s.classList.remove('active');
+                                    }
+                                });
+                            }
+                        });
+
+                        // Submit rating instantly
+                        const currentTrack = audioList[currentIndex];
+                        if (!currentTrack) return;
+                        
+                        const targetId = currentTrack.id || currentTrack._id;
+                        const targetType = currentTrack.audio_story_id ? 'episode' : 'audio';
+                        
+                        try {
+                            const res = await fetch('/api/reviews', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    targetType: targetType,
+                                    targetId: targetId,
+                                    rating: val,
+                                    comment: `User rated ${targetType} ${val} stars during playback.`
+                                })
+                            });
+
+                            if (res.ok) {
+                                const msg = document.getElementById('rating-response-msg');
+                                if (msg) {
+                                    msg.innerHTML = '<div class="review-msg-success">Rating saved!</div>';
+                                    setTimeout(() => { msg.innerHTML = ''; }, 3000);
+                                }
+                                showToast(`${val} Star Rating Submitted!`);
+                            } else {
+                                const data = await res.json();
+                                if (data.message && data.message.includes('already reviewed')) {
+                                     showToast('You already rated this part');
+                                } else {
+                                     showToast(data.message || 'Error saving rating');
+                                }
+                            }
+                        } catch (e) {
+                            showToast('Failed to submit rating');
+                        }
+                    });
+                });
             });
-        });
+        }
+
+        // Call it
+        initRatingStars();
+
+        // Reset stars on track change
+        function resetRatingStars() {
+            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars'];
+            allStarContainers.forEach(sel => {
+                const c = document.querySelector(sel);
+                if (c) {
+                    c.querySelectorAll('i').forEach(s => {
+                        s.className = 'far fa-star';
+                        s.classList.remove('active');
+                    });
+                }
+            });
+        }
 
         async function init() {
             try {
-                const res = await fetch('/api/audio');
-                if (!res.ok) throw new Error('Failed to fetch');
-                audioList = await res.json();
-
-                if (audioList.length > 0) {
-                    renderPlaylist();
-
-                    // Find requested ID or default to first
-                    const startIdx = audioList.findIndex(a => (a.id == currentId || a._id == currentId));
-
-                    if (startIdx >= 0) {
-                        loadTrack(startIdx);
-                    } else {
-                        // ID not found, load first
-                        console.warn('ID not found, loading first track');
+                if (!currentId) {
+                    // Fallback: If no ID, load all audio
+                    const res = await fetch('/api/audio');
+                    if (!res.ok) throw new Error(`Server Error: ${res.status}`);
+                    const allAudio = await res.json();
+                    if (allAudio.length > 0) {
+                        audioList = allAudio.map(a => ({ ...a, hasAccess: true })); // Default all free as accessible for now
+                        renderPlaylist();
                         loadTrack(0);
                     }
+                    return;
+                }
+
+                const res = await fetch(`/api/audio/${currentId}?increment=false`);
+                if (!res.ok) throw new Error(`Server Error: ${res.status}`);
+                const story = await res.json();
+                console.log("[DEBUG] Consolidate Init story:", story);
+
+                if (story) {
+                    const price = parseFloat(story.price || 0);
+                    const isPremium = price > 0;
+                    
+                    // Access Logic
+                    let hasAccess = !isPremium;
+                    const token = localStorage.getItem('token');
+                    
+                    // Admin always has access (Check both common keys)
+                    const user = JSON.parse(localStorage.getItem('user') || localStorage.getItem('adminUser'));
+                    if (user && (user.role === 'admin' || user.isAdmin)) hasAccess = true;
+
+                    if (isPremium && !hasAccess && token) {
+                        try {
+                            const ordersRes = await fetch('/api/orders/mine', {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (ordersRes.ok) {
+                                const orders = await ordersRes.json();
+                                const bought = orders.some(o => String(o.audio_id) === String(currentId));
+                                console.log("[DEBUG] Order found status:", bought);
+                                if (bought) hasAccess = true;
+                            }
+                        } catch (e) { console.error('Order check error', e); }
+                    }
+
+                    console.log("[DEBUG] Final Access Decision:", hasAccess, "| Price:", price);
+
+                    if (story.episodes && story.episodes.length > 0) {
+                        audioList = story.episodes.map(ep => ({
+                            ...ep,
+                            author: story.author,
+                            image: story.image,
+                            category: story.category,
+                            price: price,
+                            discount: parseFloat(story.discount || 0),
+                            hasAccess: hasAccess 
+                        }));
+                    } else {
+                        audioList = [{ ...story, hasAccess: hasAccess, price: price, discount: parseFloat(story.discount || 0) }];
+                    }
+
+                    renderPlaylist();
+                    loadTrack(0);
+                    
+                    // Payment success check
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('payment') === 'success') {
+                        showToast('Payment Successful!');
+                        const newUrl = window.location.origin + window.location.pathname + '?id=' + currentId;
+                        window.history.replaceState({}, '', newUrl);
+                    }
                 } else {
-                    els.mainTitle.textContent = "No Audio Stories Found";
+                    els.mainTitle.textContent = "Audio Not Found";
                 }
-
-                // Check for payment success param
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('payment') === 'success') {
-                    showToast('Payment Successful! Story Unlocked.');
-                    // Clean URL
-                    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + currentId;
-                    window.history.replaceState({ path: newUrl }, '', newUrl);
-                }
-
             } catch (e) {
-                console.error(e);
+                console.error("Init error:", e);
                 els.mainTitle.textContent = "Error Loading Audio";
+                els.mainArtist.textContent = e.message;
             }
         }
+
 
         function renderPlaylist() {
             const list = document.getElementById('queue-list');
@@ -1166,62 +1360,33 @@
             if (index < 0 || index >= audioList.length) return;
             currentIndex = index;
             const track = audioList[index];
-            currentId = track.id || track._id;
+            const trackId = track.id || track._id;
 
-            // Update UI (Title, Image, etc.)
+            // Reset Stars for new track
+            resetRatingStars();
+
+            // Update UI
             els.mainTitle.textContent = track.title;
-            els.mainArtist.textContent = track.author || 'Unknown Author';
+            els.mainArtist.textContent = track.author || 'Sabirkhan Pathan';
             els.mainArt.src = track.image || 'images/audio-cover.png';
-            els.badge.textContent = track.category || 'General';
+            els.badge.textContent = track.category || 'Audio';
 
             els.miniTitle.textContent = track.title;
-            els.miniCh.textContent = track.category || 'Audio';
+            els.miniCh.textContent = track.audio_story_id ? 'Episode' : 'Audio Story';
             els.miniArt.src = track.image || 'images/audio-cover.png';
 
-            // --- PREMIUM CHECK ---
-            const price = parseFloat(track.price || 0);
-            const discount = parseFloat(track.discount || 0);
-            let isPremium = price > 0;
-            let hasAccess = !isPremium;
-
-            if (isPremium) {
-                // Check if user owns it
-                const token = localStorage.getItem('token');
-                if (token) {
-                    try {
-                        // Optimisation: Cache orders or fetch once?
-                        // For now, fetch to be safe.
-                        const res = await fetch('/api/orders/mine', {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        if (res.ok) {
-                            const orders = await res.json();
-                            // Check if audioId is in orders
-                            // Backend order structure handles story_id / book_id. 
-                            // I need to ensure backend stores audio_id or generic item_id.
-                            // Assuming backend was updated or I will update it next.
-                            const bought = orders.some(o => o.audio_id === currentId || (o.items && o.items.some(i => i.audio_id === currentId)));
-                            if (bought) hasAccess = true;
-                        }
-                    } catch (e) { console.error('Error checking orders', e); }
-                }
-            }
-
-            if (!hasAccess) {
-                // LOCK IT
+            // Check Access (Inherited from parent during init)
+            if (!track.hasAccess) {
+                const price = parseFloat(track.price || 0);
+                const discount = parseFloat(track.discount || 0);
                 let displayPrice = price;
-                if (discount > 0) {
-                    displayPrice = Math.round(price - (price * discount / 100));
-                }
-
-                document.getElementById('premium-msg').innerHTML = `Unlock for <span style="color:var(--accent-gold); font-weight:bold;">₹${displayPrice}</span>`;
-                els.unlockBtn.onclick = () => {
-                    window.location.href = `checkout.html?audioId=${currentId}`;
-                };
+                if (discount > 0) displayPrice = Math.round(price - (price * discount / 100));
 
                 document.getElementById('premium-overlay').classList.add('visible');
-
-                // Hide or Disable Player
+                document.getElementById('premium-msg').innerHTML = `Unlock series for <span style="color:var(--accent-gold); font-weight:bold;">₹${displayPrice}</span>`;
+                document.getElementById('unlock-btn').onclick = () => {
+                    window.location.href = `checkout.html?audioId=${currentId}`;
+                };
                 audioPlayer.src = "";
                 resetTimer();
                 return;
@@ -1230,11 +1395,20 @@
             }
 
             // Set Audio Source
-            // Assuming file_url is relative 'uploads/...'
             audioPlayer.src = track.file_url.startsWith('http') ? track.file_url : '/' + track.file_url;
+            
+            // Increment Views for Episode if applicable
+            if (track.audio_story_id) {
+                const sessionKey = `viewed_${trackId}`;
+                if (!sessionStorage.getItem(sessionKey)) {
+                    fetch(`/api/audio/episodes/${trackId}/view`, { method: 'POST' }).catch(() => {});
+                    sessionStorage.setItem(sessionKey, 'true');
+                }
+            }
 
             renderPlaylist();
             resetTimer();
+            if (currentId) loadReviews();
         }
 
         window.playTrack = (index) => {
@@ -1548,70 +1722,7 @@
         }
 
         // Initialize
-        async function init() {
-            try {
-                const res = await fetch('/api/audio');
-                if (!res.ok) throw new Error(`Server Error: ${res.status}`);
-                let allAudio = await res.json();
-
-                if (allAudio.length > 0) {
-                    // Find requested ID
-                    let targetTrack = allAudio.find(a => (a.id == currentId || a._id == currentId));
-
-                    // If not found in list but we have an ID, maybe it's valid but not in the default list?
-                    // But assume allAudio is complete list for now.
-                    if (!targetTrack && currentId) {
-                        // Try fetching single if missing from list (edge case)
-                        try {
-                            const singleRes = await fetch(`/api/audio/${currentId}`);
-                            if (singleRes.ok) targetTrack = await singleRes.json();
-                        } catch (e) { }
-                    }
-
-                    if (!targetTrack) {
-                        // Fallback to first if ID invalid
-                        targetTrack = allAudio[0];
-                        currentId = targetTrack.id;
-                    }
-
-                    // --- FILTERING LOGIC ---
-                    const price = parseFloat(targetTrack.price || 0);
-                    const isPremium = price > 0;
-
-                    if (isPremium) {
-                        // If Premium: Playlist = ONLY this track (Isolation)
-                        audioList = [targetTrack];
-                    } else {
-                        // If Free: Playlist = All FREE tracks (Exclude Premium)
-                        audioList = allAudio.filter(t => !t.price || parseFloat(t.price) <= 0);
-                    }
-
-                    renderPlaylist();
-
-                    // Find new index in filtered list
-                    const startIdx = audioList.findIndex(a => (a.id == currentId || a._id == currentId));
-
-                    if (startIdx >= 0) {
-                        loadTrack(startIdx);
-                    } else {
-                        // Should not happen if logic is correct
-                        loadTrack(0);
-                    }
-                } else {
-                    els.mainTitle.textContent = "No Audio Stories Found";
-                }
-
-                // Check for reviews if id exists
-                if (currentId) {
-                    loadReviews();
-                }
-
-            } catch (e) {
-                console.error(e);
-                els.mainTitle.textContent = "Error Logged";
-                els.mainArtist.textContent = e.message;
-            }
-        }
+        // Initialize call is at the end of loadTrack or here
 
         init();
     </script>

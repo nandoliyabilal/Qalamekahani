@@ -71,35 +71,42 @@
         </header>
 
         <div class="p-4 lg:p-8 flex-1 overflow-y-auto">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <!-- Page Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
                 <div>
-                    <h1 class="text-2xl font-bold text-white">Books</h1>
-                    <p class="text-gray-400">Manage your published books.</p>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight">Books Library</h1>
+                    <p class="text-gray-400 mt-1">Curate and manage your collection of storytelling masterpieces.</p>
                 </div>
                 <button onclick="openModal()"
-                    class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium shadow-lg shadow-indigo-500/20">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    class="group flex items-center gap-3 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all font-semibold shadow-xl shadow-indigo-500/20 active:scale-95">
+                    <i data-lucide="plus-circle" class="w-5 h-5 group-hover:rotate-90 transition-transform"></i>
                     Add New Book
                 </button>
             </div>
 
-            <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+            <!-- Table Container -->
+            <div class="bg-gray-800/40 backdrop-blur-xl rounded-3xl border border-gray-700/50 shadow-2xl overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-400">
-                        <thead class="bg-gray-700/50 text-gray-200 font-medium uppercase text-xs">
+                        <thead class="bg-gray-900/40 text-gray-400 font-semibold uppercase text-[10px] tracking-wider border-b border-gray-700/50">
                             <tr>
-                                <th class="px-6 py-4">Title</th>
-                                <th class="px-6 py-4">Author</th>
-                                <th class="px-6 py-4">Price</th>
-                                <th class="px-6 py-4">Discount</th>
-                                <th class="px-6 py-4 text-center">Views</th>
-                                <th class="px-6 py-4 text-right">Actions</th>
+                                <th class="px-8 py-5">Published Title</th>
+                                <th class="px-6 py-5">Author</th>
+                                <th class="px-6 py-5">Price Detail</th>
+                                <th class="px-6 py-5">Offer Status</th>
+                                <th class="px-6 py-5 text-center">Engagement</th>
+                                <th class="px-8 py-5 text-right">Settings</th>
                             </tr>
                         </thead>
-                        <tbody id="bookTableBody" class="divide-y divide-gray-700 text-gray-300">
-                            <!-- JS will populate rows -->
+                        <tbody id="bookTableBody" class="divide-y divide-gray-700/30 text-gray-300">
+                            <!-- JS populated rows -->
                             <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">Loading books...</td>
+                                <td colspan="6" class="px-6 py-20 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+                                        <p class="text-sm font-medium text-gray-500">Syncing with library...</p>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -115,85 +122,94 @@
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl border border-gray-700 max-h-[90vh] overflow-y-auto">
             <h2 id="modalTitle" class="text-xl font-bold text-white mb-6">Add New Book</h2>
 
-            <form id="bookForm" class="space-y-4">
+            <form id="bookForm" class="space-y-5">
                 <input type="hidden" id="bookId">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Title & Author -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Title</label>
-                        <input type="text" id="title" required
-                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Title</label>
+                        <input type="text" id="title" required placeholder="Book Title"
+                            class="w-full bg-gray-700/50 border border-gray-600 rounded-xl px-4 py-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Author</label>
-                        <input type="text" id="author" required
-                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Author</label>
+                        <input type="text" id="author" required placeholder="Author Name"
+                            class="w-full bg-gray-700/50 border border-gray-600 rounded-xl px-4 py-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Price, Discount, Language -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Price (₹)</label>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Price (₹)</label>
                         <input type="number" id="price" required
-                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                            class="w-full bg-gray-700/50 border border-gray-600 rounded-xl px-4 py-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Discount (%)</label>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Discount (%)</label>
                         <input type="number" id="discountPercent" value="0"
-                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                            class="w-full bg-gray-700/50 border border-gray-600 rounded-xl px-4 py-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Category</label>
-                        <input type="text" id="category"
-                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-
-
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Language</label>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Language</label>
                         <select id="language" required
-                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="English">English</option>
+                            class="w-full bg-gray-700/50 border border-gray-600 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
                             <option value="Hindi">Hindi</option>
                             <option value="Gujarati">Gujarati</option>
-                            <option value="Urdu">Urdu</option>
+                            <option value="English">English</option>
                         </select>
                     </div>
+                </div>
 
+                <!-- Buy Link & Category -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Book Cover</label>
-                        <div class="flex items-center gap-4">
-                            <div id="imagePreview"
-                                class="w-20 h-28 bg-gray-700/50 rounded-lg bg-cover bg-center border border-gray-600 hidden">
-                            </div>
-                            <label
-                                class="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg cursor-pointer transition-colors border border-gray-600">
-                                <i data-lucide="image" class="w-4 h-4"></i>
-                                <span class="text-sm">Choose Cover</span>
-                                <input type="file" id="imageFile" accept="image/*" class="hidden"
-                                    onchange="previewImage(this)">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Buy Link (e.g. Amazon)</label>
+                        <input type="url" id="buyLink" placeholder="https://amazon.in/..."
+                            class="w-full bg-gray-700/50 border border-gray-600 rounded-xl px-4 py-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Category</label>
+                        <input type="text" id="category" placeholder="e.g. Mystery, Horror"
+                            class="w-full bg-gray-700/50 border border-gray-600 rounded-xl px-4 py-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                    </div>
+                </div>
+
+                <!-- Book Cover -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Book Cover Image</label>
+                    <div class="flex items-center gap-6 p-4 bg-gray-900/50 border border-dashed border-gray-600 rounded-2xl">
+                        <div id="imagePreview"
+                            class="w-20 h-28 bg-gray-700/50 rounded-lg bg-cover bg-center border border-gray-600 hidden flex-shrink-0">
+                        </div>
+                        <div class="flex-1">
+                            <label class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 rounded-xl cursor-pointer transition-all border border-indigo-500/30">
+                                <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                                <span class="text-sm font-medium">Upload Cover</span>
+                                <input type="file" id="imageFile" accept="image/*" class="hidden" onchange="previewImage(this)">
                             </label>
-                            <input type="text" id="image" class="hidden" placeholder="Or Image URL">
-                            <span id="fileName" class="text-xs text-gray-500 truncate max-w-[150px]">No file
-                                chosen</span>
+                            <input type="text" id="image" class="hidden">
+                            <p id="fileName" class="text-xs text-gray-500 mt-2 truncate max-w-[200px]">No file chosen</p>
                         </div>
                     </div>
+                </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Description</label>
-                        <textarea id="description" rows="3"
-                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                    </div>
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Book Description</label>
+                    <textarea id="description" rows="4" placeholder="Brief about the book..."
+                        class="w-full bg-gray-700/50 border border-gray-600 rounded-xl px-4 py-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all"></textarea>
+                </div>
 
-                    <div class="flex justify-end gap-3 mt-6">
-                        <button type="button" onclick="closeModal()"
-                            class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">Cancel</button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-lg">Save
-                            Book</button>
-                    </div>
+                <div class="flex justify-end gap-4 pt-4 border-t border-gray-700">
+                    <button type="button" onclick="closeModal()"
+                        class="px-6 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-all font-medium">Cancel</button>
+                    <button type="submit"
+                        class="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/20 font-bold transition-all">
+                        Save Changes
+                    </button>
+                </div>
             </form>
         </div>
     </div>

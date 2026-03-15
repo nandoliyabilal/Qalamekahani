@@ -69,7 +69,7 @@ const createReview = asyncHandler(async (req, res) => {
             item_type: targetType,
             rating,
             comment,
-            status: 'pending' // Reviews now require admin approval by default
+            status: 'approved' // Auto-approve ratings as requested
         }])
         .select()
         .single();

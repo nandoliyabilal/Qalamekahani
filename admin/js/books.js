@@ -32,32 +32,55 @@ function renderTable() {
         }
 
         return `
-        <tr class="hover:bg-gray-700/30 transition-colors group">
-            <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                    <img src="${book.image.startsWith('http') ? book.image : '../' + book.image}" onerror="this.src='https://placehold.co/40'" class="w-10 h-10 rounded-lg object-cover bg-gray-700">
-                    <div class="font-medium text-white">${book.title}</div>
+        <tr class="hover:bg-indigo-500/5 transition-all group border-b border-gray-700/30">
+            <td class="px-8 py-5">
+                <div class="flex items-center gap-4">
+                    <img src="${book.image.startsWith('http') ? book.image : '../' + book.image}" onerror="this.src='https://placehold.co/40'" class="w-12 h-12 rounded-xl object-cover bg-gray-700 shadow-lg">
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-white group-hover:text-indigo-400 transition-colors">${book.title}</span>
+                        <span class="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">${book.category || 'Standard'}</span>
+                    </div>
                 </div>
             </td>
-            <td class="px-6 py-4">${book.author}</td>
-            <td class="px-6 py-4 font-mono text-indigo-400">₹${price}</td>
-            <td class="px-6 py-4">
-                ${percent > 0 ? `<span class="px-2 py-1 text-xs rounded-full bg-green-500/10 text-green-400">${percent}% OFF</span>` : '-'}
+            <td class="px-6 py-5">
+                <span class="text-sm text-gray-400">${book.author}</span>
             </td>
-            <td class="px-6 py-4 text-center">
-                <div class="flex items-center justify-center gap-1 text-xs text-gray-400">
-                    <i data-lucide="eye" class="w-3 h-3 text-indigo-400"></i>
-                    <span>${book.views || 0}</span>
+            <td class="px-6 py-5">
+                <div class="flex flex-col">
+                    <span class="font-mono text-indigo-400 font-medium">₹${price}</span>
+                    ${percent > 0 ? `<span class="text-[10px] text-gray-500 line-through mt-0.5">₹${price}</span>` : ''}
                 </div>
             </td>
-            <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="editBook('${book.id || book._id}')" class="p-2 bg-gray-700 hover:bg-indigo-600 text-gray-300 hover:text-white rounded-lg"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                    <button onclick="deleteBook('${book.id || book._id}')" class="p-2 bg-gray-700 hover:bg-red-600 text-gray-300 hover:text-white rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            <td class="px-6 py-5">
+                ${percent > 0 ? `
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <div class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></div>
+                        <span class="text-[10px] font-bold uppercase tracking-tight">${percent}% OFF</span>
+                    </div>
+                ` : '<span class="text-gray-600 text-[10px] font-bold">REGULAR</span>'}
+            </td>
+            <td class="px-6 py-5 text-center">
+                <div class="flex flex-col items-center gap-1">
+                    <div class="flex items-center gap-1.5 text-xs text-gray-300">
+                        <i data-lucide="eye" class="w-3 h-3 text-indigo-400"></i>
+                        <span class="font-bold">${book.views || 0}</span>
+                    </div>
+                    <span class="text-[10px] text-gray-500 uppercase tracking-tighter italic">Total Views</span>
+                </div>
+            </td>
+            <td class="px-8 py-5 text-right">
+                <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                    <button onclick="editBook('${book.id || book._id}')" class="p-2.5 bg-gray-700/50 hover:bg-indigo-600 text-gray-300 hover:text-white rounded-xl transition-all border border-gray-600">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="deleteBook('${book.id || book._id}')" class="p-2.5 bg-gray-700/50 hover:bg-red-600 text-gray-300 hover:text-white rounded-xl transition-all border border-gray-600">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </td>
         </tr>
-    `}).join('');
+    `
+}).join('');
     lucide.createIcons();
 }
 
@@ -113,7 +136,7 @@ function editBook(id) {
     document.getElementById('price').value = price;
     document.getElementById('discountPercent').value = percent;
     document.getElementById('category').value = book.category || '';
-    // document.getElementById('buyLink').value = book.buy_link || book.buyLink || ''; // Removed
+    document.getElementById('buyLink').value = book.buy_link || book.buyLink || '';
     document.getElementById('language').value = book.language || 'English';
     document.getElementById('image').value = book.image;
     document.getElementById('description').value = book.description || '';
@@ -181,7 +204,7 @@ async function handleFormSubmit(e) {
             original_price: price,
             discounted_price: discountedPrice,
             category: document.getElementById('category').value,
-            // buy_link removed
+            buy_link: document.getElementById('buyLink').value,
             language: document.getElementById('language').value,
             image: imageUrl,
             description: document.getElementById('description').value,

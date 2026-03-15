@@ -60,6 +60,99 @@
         .audio-card:hover .audio-thumb img {
             transform: scale(1.05);
         }
+
+        /* Language Selector Styles */
+        .language-selector {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lang-dropdown-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+            padding: 10px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            height: 50px;
+            white-space: nowrap;
+        }
+
+        .lang-dropdown-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+        }
+
+        .lang-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            background: #1a1a1a;
+            min-width: 150px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .lang-dropdown-content.show {
+            display: block;
+        }
+
+        .lang-dropdown-content a {
+            color: #ccc;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .lang-dropdown-content a:hover {
+            background: rgba(212, 175, 55, 0.1);
+            color: #d4af37;
+        }
+
+        .lang-dropdown-content a.active {
+            background: #d4af37;
+            color: #000;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 480px) {
+            .search-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .language-selector, .lang-dropdown-btn {
+                width: 100%;
+                justify-content: center;
+                height: 45px;
+            }
+        }
     </style>
 </head>
 
@@ -98,12 +191,27 @@
 
     <!-- Search & Filter -->
     <div class="search-filter-container">
-        <div class="search-box">
-            <input type="text" class="search-input" placeholder="Search audio stories...">
-            <i class="fas fa-search search-icon"></i>
+        <div class="search-row">
+            <div class="search-box" style="flex: 1; margin-bottom: 0;">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search audio stories...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            
+            <div class="language-selector">
+                <button class="lang-dropdown-btn" id="langDropdownBtn">
+                    <span style="font-size: 1.2rem; font-weight: 500;">अA</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
+                </button>
+                <div class="lang-dropdown-content" id="langDropdownContent">
+                    <a href="javascript:void(0)" data-lang="all" class="active">All Languages</a>
+                    <a href="javascript:void(0)" data-lang="hindi">Hindi</a>
+                    <a href="javascript:void(0)" data-lang="gujarati">Gujarati</a>
+                    <a href="javascript:void(0)" data-lang="english">English</a>
+                </div>
+            </div>
         </div>
-        <div class="filter-buttons">
-            <button class="filter-btn active" data-filter="all">All</button>
+        <div id="category-filters" class="filter-buttons" style="flex-wrap: wrap; justify-content: center; gap: 10px;">
+            <button class="filter-btn active" data-filter="all">All Genres</button>
             <button class="filter-btn" data-filter="mystery">Mystery</button>
             <button class="filter-btn" data-filter="emotional">Emotional</button>
             <button class="filter-btn" data-filter="drama">Drama</button>
@@ -178,60 +286,117 @@
 
         const audioGrid = document.getElementById('audio-grid');
         const API_URL = '/api/audio';
+        let allAudio = [];
+        const searchInput = document.getElementById('searchInput');
 
         fetch(API_URL)
-            .then(res => {
-                if (!res.ok) throw new Error('Network response was not ok');
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
-                if (!data || data.length === 0) {
-                    audioGrid.innerHTML = '<p style="text-align:center; color:#ccc; grid-column:1/-1;">No audio stories found.</p>';
-                    return;
-                }
-                audioGrid.innerHTML = data.map(item => {
-                    // Price Logic
-                    const price = parseFloat(item.price || 0);
-                    const discount = parseFloat(item.discount || 0);
-                    const isFree = price === 0;
-
-                    let badgeHtml = '';
-                    if (isFree) {
-                        badgeHtml = '<span class="card-badge" style="position:absolute; top:10px; right:10px; background: rgba(46, 204, 113, 0.9); color: #fff; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">FREE</span>';
-                    } else {
-                        // Premium Badge
-                        badgeHtml = '<span class="card-badge" style="position:absolute; top:10px; right:10px; background: rgba(212, 175, 55, 0.9); color: #000; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight:bold;"><i class="fas fa-crown"></i> Premium</span>';
-                    }
-
-                    // Button Logic
-                    let btnText = isFree ? 'Listen Now' : `Unlock for ₹${price}`;
-                    let btnAction = `event.stopPropagation(); window.location.href='audio-detail.html?id=${item.id}'`;
-
-                    if (!isFree && discount > 0) {
-                        const discountedPrice = Math.floor(price - (price * discount / 100));
-                        btnText = `Unlock for ₹${discountedPrice} <small style="text-decoration:line-through; color:#aaa; margin-left:5px;">₹${price}</small>`;
-                    }
-
-                    return `
-                    <div class="audio-card filter-item" data-category="${item.category || 'other'}" onclick="window.location.href='audio-detail.html?id=${item.id}'">
-                        <div class="audio-thumb" style="position: relative;">
-                            <img src="${item.image || 'images/audio-default.png'}" onerror="this.src='https://placehold.co/600x400/222/FFF?text=No+Audio+Cover'" alt="${item.title}">
-                            <div class="play-overlay"><i class="fas fa-play"></i></div>
-                            ${badgeHtml}
-                        </div>
-                        <div class="audio-info">
-                            <h3 class="audio-title">${item.title}</h3>
-                            <p class="audio-desc" style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">${item.author || 'Unknown Author'}</p>
-                            <p class="audio-desc">${item.category} • ${item.duration || ''}</p>
-                            <button class="listen-btn" onclick="${btnAction}">${btnText}</button>
-                        </div>
-                    </div>
-                `}).join('');
+                allAudio = data;
+                renderAudio(allAudio);
+                setupFilters();
             })
             .catch(err => {
                 console.error(err);
                 audioGrid.innerHTML = '<div style="text-align:center; color:red; grid-column:1/-1;"><p>Failed to load audio.</p></div>';
             });
+
+        function setupFilters() {
+            const catBtns = document.querySelectorAll('.filter-btn');
+            const dropdownBtn = document.getElementById('langDropdownBtn');
+            const dropdownContent = document.getElementById('langDropdownContent');
+            const langOptions = dropdownContent.querySelectorAll('a');
+
+            // Dropdown Toggle
+            dropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownContent.classList.toggle('show');
+            });
+
+            // Close dropdown on click outside
+            document.addEventListener('click', () => {
+                dropdownContent.classList.remove('show');
+            });
+
+            catBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    catBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    applyFilters();
+                });
+            });
+
+            langOptions.forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    langOptions.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    dropdownContent.classList.remove('show');
+                    applyFilters();
+                });
+            });
+
+            if (searchInput) {
+                searchInput.addEventListener('input', () => applyFilters());
+            }
+        }
+
+        function applyFilters() {
+            const activeCat = document.querySelector('.filter-btn.active').dataset.filter;
+            const activeLang = document.querySelector('#langDropdownContent a.active').dataset.lang;
+            const query = searchInput.value.toLowerCase();
+
+            const filtered = allAudio.filter(item => {
+                const matchesCat = activeCat === 'all' || (item.category && item.category.toLowerCase() === activeCat.toLowerCase());
+                const matchesLang = activeLang === 'all' || (item.language && item.language.toLowerCase() === activeLang.toLowerCase());
+                const matchesSearch = !query || item.title.toLowerCase().includes(query) || (item.author && item.author.toLowerCase().includes(query));
+                return matchesCat && matchesLang && matchesSearch;
+            });
+            renderAudio(filtered);
+        }
+
+        function renderAudio(data) {
+            if (!data || data.length === 0) {
+                audioGrid.innerHTML = '<p style="text-align:center; color:#ccc; grid-column:1/-1;">No audio stories found.</p>';
+                return;
+            }
+            audioGrid.innerHTML = data.map(item => {
+                // Price Logic
+                const price = parseFloat(item.price || 0);
+                const discount = parseFloat(item.discount || 0);
+                const isFree = price === 0;
+
+                let badgeHtml = '';
+                if (isFree) {
+                    badgeHtml = '<span class="card-badge" style="position:absolute; top:10px; right:10px; background: rgba(46, 204, 113, 0.9); color: #fff; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">FREE</span>';
+                } else {
+                    badgeHtml = '<span class="card-badge" style="position:absolute; top:10px; right:10px; background: rgba(212, 175, 55, 0.9); color: #000; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight:bold;"><i class="fas fa-crown"></i> Premium</span>';
+                }
+
+                let btnText = isFree ? 'Listen Now' : `Unlock for ₹${price}`;
+                if (!isFree && discount > 0) {
+                    const discountedPrice = Math.floor(price - (price * discount / 100));
+                    btnText = `Unlock for ₹${discountedPrice} <small style="text-decoration:line-through; color:#aaa; margin-left:5px;">₹${price}</small>`;
+                }
+
+                return `
+                <div class="audio-card filter-item" onclick="window.location.href='audio-detail.html?id=${item.id}'">
+                    <div class="audio-thumb" style="position: relative;">
+                        <img src="${item.image || 'images/audio-default.png'}" onerror="this.src='https://placehold.co/600x400/222/FFF?text=No+Audio+Cover'" alt="${item.title}">
+                        <div class="play-overlay"><i class="fas fa-play"></i></div>
+                        ${badgeHtml}
+                        <span class="card-badge" style="position:absolute; top:10px; left:10px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; border-radius: 20px; font-size: 0.7rem;">${item.language || 'Hindi'}</span>
+                    </div>
+                    <div class="audio-info">
+                        <h3 class="audio-title">${item.title}</h3>
+                        <p class="audio-desc" style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">${item.author || 'Unknown Author'}</p>
+                        <p class="audio-desc">${item.category} • ${item.duration || ''}</p>
+                        <button class="listen-btn" onclick="event.stopPropagation(); window.location.href='audio-detail.html?id=${item.id}'">${btnText}</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
     </script>
 
     <script src="js/global-horror.js"></script>

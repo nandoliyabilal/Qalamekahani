@@ -464,7 +464,7 @@
                     <div class="audio-info">
                         <h3 class="audio-title">${item.title}</h3>
                         <p class="audio-desc" style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">${item.author || 'Unknown Author'}</p>
-                        <p class="audio-desc">${item.category} • ${item.duration || ''}</p>
+                        <p class="audio-desc">${item.category}${item.duration && item.duration !== '0 sec' ? ' • ' + item.duration : ''}</p>
                         <button class="listen-btn" onclick="event.stopPropagation(); window.location.href='audio-detail.html?id=${item.id}'">${btnText}</button>
                     </div>
                 </div>

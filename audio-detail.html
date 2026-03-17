@@ -305,8 +305,8 @@
                 document.getElementById('meta-category').textContent = audio.category || 'General';
                 
                 // Calculate total duration from episodes
-                let totalDurationStr = audio.duration || 'Unknown';
-                if (totalDurationStr === '0:00') totalDurationStr = 'Unknown';
+                let totalDurationStr = audio.duration || '0 sec';
+                if (totalDurationStr === '0:00' || totalDurationStr === 'Unknown') totalDurationStr = '0 sec';
                 
                 if (audio.episodes && audio.episodes.length > 0) {
                     let totalSecs = 0;

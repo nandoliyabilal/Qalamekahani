@@ -23,10 +23,42 @@ const getAudioStories = asyncHandler(async (req, res) => {
         });
     }
 
-    const storiesWithRating = data.map(s => ({
-        ...s,
-        rating: ratingsMap[s.id] ? (ratingsMap[s.id].total / ratingsMap[s.id].count).toFixed(1) : 5.0
-    }));
+    // Fetch all episodes to calculate durations
+    const { data: allEpisodes } = await supabase.from('audio_episodes').select('audio_story_id, duration');
+    const durationsMap = {};
+    if (allEpisodes) {
+        allEpisodes.forEach(ep => {
+            if (!durationsMap[ep.audio_story_id]) durationsMap[ep.audio_story_id] = 0;
+            if (ep.duration && ep.duration !== '0:00' && ep.duration !== '--:--') {
+                const parts = ep.duration.split(':');
+                if (parts.length === 2) {
+                    durationsMap[ep.audio_story_id] += parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                } else if (parts.length === 3) {
+                    durationsMap[ep.audio_story_id] += parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+                }
+            }
+        });
+    }
+
+    const storiesWithRating = data.map(s => {
+        let finalDuration = s.duration || '';
+        if (durationsMap[s.id] > 0) {
+            const totalSecs = durationsMap[s.id];
+            const h = Math.floor(totalSecs / 3600);
+            const m = Math.floor((totalSecs % 3600) / 60);
+            const sec = totalSecs % 60;
+            if (h > 0) finalDuration = `${h} hr ${m} min`;
+            else finalDuration = `${m} min ${sec} sec`;
+        } else if (finalDuration === '0:00' || finalDuration === 'Unknown' || finalDuration === '') {
+            finalDuration = '0 sec'; // Fixed: no unknown or empty box
+        }
+
+        return {
+            ...s,
+            duration: finalDuration,
+            rating: ratingsMap[s.id] ? (ratingsMap[s.id].total / ratingsMap[s.id].count).toFixed(1) : 5.0
+        };
+    });
 
     res.status(200).json(storiesWithRating);
 });

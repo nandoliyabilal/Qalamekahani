@@ -398,9 +398,90 @@ async function openEpisodesModal(id) {
         }
 
         renderEpisodeCards(story.episodes);
+        
+        // Auto-fix any missing/0:00 durations in background
+        autoFixDurations(story);
 
     } catch (e) {
         container.innerHTML = '<p class="text-center text-red-400 py-10">Error loading parts.</p>';
+    }
+}
+
+async function autoFixDurations(story) {
+    if (!story.episodes || story.episodes.length === 0) return;
+    let needsUpdate = false;
+    
+    const episodesFixed = [...story.episodes];
+
+    const fetchDuration = (url) => new Promise((resolve) => {
+        const audio = document.createElement('audio');
+        audio.preload = 'metadata';
+        
+        const finish = (durationSecs) => {
+            if (!durationSecs || isNaN(durationSecs) || durationSecs === Infinity) {
+                return resolve('0:00');
+            }
+            const hc = Math.floor(durationSecs / 3600);
+            const rc = durationSecs % 3600;
+            const minutes = Math.floor(rc / 60);
+            const seconds = Math.floor(rc % 60);
+            
+            if (hc > 0) resolve(`${hc}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+            else resolve(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+        };
+
+        audio.onloadedmetadata = function () {
+            if (audio.duration === Infinity) {
+                audio.currentTime = Number.MAX_SAFE_INTEGER;
+                audio.ontimeupdate = function () {
+                    audio.ontimeupdate = null;
+                    finish(audio.duration);
+                    audio.currentTime = 0;
+                };
+            } else {
+                finish(audio.duration);
+            }
+        };
+        audio.onerror = () => resolve('0:00');
+        audio.src = url.startsWith('http') ? url : '/' + url;
+    });
+
+    for (let i = 0; i < episodesFixed.length; i++) {
+        const ep = episodesFixed[i];
+        if (!ep.duration || ep.duration === '0:00' || ep.duration === 'Unknown' || ep.duration === '0 sec') {
+            const realDuration = await fetchDuration(ep.file_url);
+            if (realDuration && realDuration !== '0:00') {
+                episodesFixed[i].duration = realDuration;
+                needsUpdate = true;
+            }
+        }
+    }
+
+    if (needsUpdate) {
+        // Build payload matching update request
+        const updatePayload = {
+            title: story.title,
+            author: story.author || '',
+            category: story.category || '',
+            language: story.language || 'Hindi',
+            image: story.image,
+            description: story.description || '',
+            price: parseFloat(story.price) || 0,
+            discount: parseFloat(story.discount) || 0,
+            episodes: episodesFixed
+        };
+        
+        try {
+            const res = await fetchWithAuth(`/audio/${story.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updatePayload)
+            });
+            if (res.ok) {
+                // Re-render internally without closing modal
+                renderEpisodeCards(episodesFixed);
+                fetchAudio(); // Background refresh of parent table
+            }
+        } catch (e) { console.error('Auto fix db update failed', e); }
     }
 }
 

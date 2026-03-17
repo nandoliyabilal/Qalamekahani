@@ -8,6 +8,7 @@ const getSettings = asyncHandler(async (req, res) => {
     let { data: settingsArray, error } = await supabase
         .from('settings')
         .select('*')
+        .order('id', { ascending: true })
         .limit(1);
 
     let settings = settingsArray && settingsArray.length > 0 ? settingsArray[0] : null;
@@ -62,6 +63,7 @@ const updateSettings = asyncHandler(async (req, res) => {
     let { data: settingsArray, error: fetchError } = await supabase
         .from('settings')
         .select('*')
+        .order('id', { ascending: true })
         .limit(1);
 
     if (fetchError) {

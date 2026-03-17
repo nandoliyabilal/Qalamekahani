@@ -36,6 +36,14 @@ window.showToast = function (message, type = 'success') {
   });
 };
 
+// Override native alert to use our toast system globally
+window.alert = function (message) {
+  // Infer type based on message content
+  const msgLower = String(message).toLowerCase();
+  const type = (msgLower.includes('error') || msgLower.includes('fail')) ? 'error' : 'success';
+  window.showToast(message, type);
+};
+
 // Header Scroll Effect
 window.addEventListener('scroll', function () {
   const header = document.querySelector('.header');

@@ -548,7 +548,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
         }).eq('id', user.id);
         console.error('[AUTH] Forgot Password Email Error:', err);
         res.status(500);
-        throw new Error(`Email could not be sent: ${err.message}. Note: Resend free tier only allows sending to your own verified email.`);
+        throw new Error('Failed to send email. If you are using Resend Free Tier, you must verify your domain settings on resend.com to send to addresses other than your own.');
     }
 });
 

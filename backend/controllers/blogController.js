@@ -48,8 +48,9 @@ const { sendEmailNotification } = require('../utils/notificationHelper');
 const createBlog = asyncHandler(async (req, res) => {
     const { title, author, category, readTime, excerpt, content, image, language } = req.body;
 
-    // Generate slug from title
-    const slug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    // Generate unique slug from title by appending timestamp
+    const baseSlug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    const slug = `${baseSlug}-${Date.now()}`;
 
     const blogData = {
         title,

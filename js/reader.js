@@ -1,5 +1,35 @@
 // reader.js - Logic for Immersive Reading Mode
 
+// Override native alert to use our toast system globally
+window.showToast = function (message, type = 'success') {
+  let container = document.querySelector('.toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+    // basic css for toast if main css is missing
+    const css = document.createElement('style');
+    css.innerHTML = `.toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px}.toast{background:#333;color:#fff;padding:12px 24px;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);font-family:sans-serif;opacity:1;transition:all .3s ease}.toast.error{background:#ef4444}.toast.success{background:#10b981}`;
+    document.head.appendChild(css);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span class="toast-message">${message}</span>`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+};
+
+window.alert = function (message) {
+  const msgLower = String(message).toLowerCase();
+  const type = (msgLower.includes('error') || msgLower.includes('fail')) ? 'error' : 'success';
+  window.showToast(message, type);
+};
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Get Story ID/Slug from URL
@@ -201,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
             <div class="rev-box" style="max-width:600px; margin:0 auto;">
-                <textarea id="rev-input" style="width:100%; height:120px; padding:20px; background:rgba(255,255,255,0.03); border:1px solid #333; border-radius:15px; color:#fff; font-family:inherit; outline:none; transition:border 0.3s;" placeholder="Write your thoughts here..."></textarea>
+                <textarea id="rev-input" style="width:100%; height:120px; padding:20px; background:transparent; border:1px solid #ccc; border-radius:15px; color:var(--text-ink, #000); font-family:inherit; outline:none; transition:border 0.3s;" placeholder="Write your thoughts here..."></textarea>
                 <button id="rev-submit" style="background:#d4af37; color:#000; border:none; padding:15px 40px; border-radius:30px; margin-top:20px; cursor:pointer; font-weight:900; font-size:1.1rem; transition:all 0.3s; width:100%; text-transform:uppercase; letter-spacing:1px; box-shadow:0 8px 25px rgba(212,175,55,0.2);">Post My Review</button>
             </div>
             <div id="rev-status" style="text-align:center; margin-top:15px; font-size:0.9rem;"></div>

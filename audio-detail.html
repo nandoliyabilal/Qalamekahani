@@ -303,7 +303,41 @@
 
                 document.getElementById('audio-cat-badge').textContent = audio.category || 'Audio';
                 document.getElementById('meta-category').textContent = audio.category || 'General';
-                document.getElementById('meta-duration').textContent = audio.duration || 'Unknown';
+                
+                // Calculate total duration from episodes
+                let totalDurationStr = audio.duration || 'Unknown';
+                if (totalDurationStr === '0:00') totalDurationStr = 'Unknown';
+                
+                if (audio.episodes && audio.episodes.length > 0) {
+                    let totalSecs = 0;
+                    let validParts = 0;
+                    audio.episodes.forEach(ep => {
+                        if (ep.duration && ep.duration !== '0:00' && ep.duration !== '--:--') {
+                            const parts = ep.duration.split(':');
+                            if (parts.length === 2) {
+                                totalSecs += parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                                validParts++;
+                            } else if (parts.length === 3) {
+                                totalSecs += parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+                                validParts++;
+                            }
+                        }
+                    });
+
+                    if (totalSecs > 0) {
+                        const h = Math.floor(totalSecs / 3600);
+                        const m = Math.floor((totalSecs % 3600) / 60);
+                        const s = totalSecs % 60;
+                        if (h > 0) {
+                            totalDurationStr = `${h} hr ${m} min`;
+                        } else {
+                            totalDurationStr = `${m} min ${s} sec`;
+                        }
+                    }
+                }
+                
+                document.getElementById('meta-duration').textContent = totalDurationStr;
+
                 document.getElementById('audio-description').textContent = audio.description || 'No description available for this audio story.';
 
                 // Access Logic

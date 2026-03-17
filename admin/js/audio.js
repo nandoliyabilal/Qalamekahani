@@ -178,12 +178,41 @@ function getAudioDuration(file) {
     return new Promise((resolve) => {
         const audio = document.createElement('audio');
         audio.preload = 'metadata';
-        audio.onloadedmetadata = function () {
+        
+        const finish = (durationSecs) => {
             window.URL.revokeObjectURL(audio.src);
-            const minutes = Math.floor(audio.duration / 60);
-            const seconds = Math.floor(audio.duration % 60);
-            resolve(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+            if (!durationSecs || isNaN(durationSecs) || durationSecs === Infinity) {
+                return resolve('');
+            }
+            const hc = Math.floor(durationSecs / 3600);
+            const rc = durationSecs % 3600;
+            const minutes = Math.floor(rc / 60);
+            const seconds = Math.floor(rc % 60);
+            
+            if (hc > 0) {
+                resolve(`${hc}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+            } else {
+                resolve(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+            }
         };
+
+        audio.onloadedmetadata = function () {
+            if (audio.duration === Infinity) {
+                audio.currentTime = Number.MAX_SAFE_INTEGER;
+                audio.ontimeupdate = function () {
+                    audio.ontimeupdate = null;
+                    finish(audio.duration);
+                    audio.currentTime = 0;
+                };
+            } else {
+                finish(audio.duration);
+            }
+        };
+        
+        audio.onerror = function() {
+            resolve('');
+        };
+        
         audio.src = URL.createObjectURL(file);
     });
 }

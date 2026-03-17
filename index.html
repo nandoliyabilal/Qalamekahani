@@ -327,7 +327,7 @@
                         updateContainer(booksContainerId, '<p style="grid-column: 1/-1; text-align:center; color:#ccc; padding:20px;">No books available.</p>');
                         return;
                     }
-                    const featuredBooks = data.slice(0, 4);
+                    const featuredBooks = data.slice(0, 3);
                     updateContainer(booksContainerId, featuredBooks.map(book => `
                         <div class="book-card" onclick="window.location.href='book-detail.html?id=${book.id}'">
                             <div class="book-cover-wrapper">

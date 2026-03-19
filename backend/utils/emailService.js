@@ -2,8 +2,8 @@ const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // use SSL
+    port: 587,
+    secure: false, // use STARTTLS
     auth: {
         user: process.env.EMAIL_USERNAME,
         pass: process.env.EMAIL_PASSWORD,
@@ -234,9 +234,9 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
 
         console.log(`[EMAIL DEBUG] Transporter attempting to sendMail to ${email}...`);
         
-        // Timeout protection (5 seconds)
+        // Timeout protection (Increased for slow cloud connections)
         const sendPromise = transporter.sendMail(mailOptions);
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP_TIMEOUT')), 10000));
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP_TIMEOUT')), 25000));
         
         const info = await Promise.race([sendPromise, timeoutPromise]);
         

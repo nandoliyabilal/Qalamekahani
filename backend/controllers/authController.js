@@ -89,7 +89,7 @@ const registerUser = asyncHandler(async (req, res) => {
         // Delete user if email fails to allow retry
         await supabase.from('users').delete().eq('id', user.id);
         res.status(500);
-        throw new Error(`Verification email failed: ${emailError.message}. Note: Resend free tier only allows sending to your own verified email.`);
+        throw new Error(`Verification email failed: ${emailError.message}. Please try again later or check if your email is valid.`);
     }
 });
 

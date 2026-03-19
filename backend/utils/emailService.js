@@ -222,6 +222,8 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
     }
 
     try {
+        console.log(`[EMAIL DEBUG] Preparing to send ${type} email to: ${email}`);
+        
         const mailOptions = {
             from: `"Qalamekahani" <${process.env.EMAIL_USERNAME}>`,
             to: email,
@@ -230,11 +232,22 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
             text: message // Fallback plain text
         };
 
-        const info = await transporter.sendMail(mailOptions);
+        console.log(`[EMAIL DEBUG] Transporter attempting to sendMail to ${email}...`);
+        
+        // Timeout protection (5 seconds)
+        const sendPromise = transporter.sendMail(mailOptions);
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP_TIMEOUT')), 10000));
+        
+        const info = await Promise.race([sendPromise, timeoutPromise]);
+        
         console.log('[EMAIL] Sent successfully via Nodemailer:', info.messageId);
         return info;
     } catch (err) {
-        console.error('[EMAIL ERROR] Error in sendEmail:', err);
+        if (err.message === 'SMTP_TIMEOUT') {
+            console.error('[EMAIL ERROR] SMTP Timeout - Connection might be hanging');
+        } else {
+            console.error('[EMAIL ERROR] Error in sendEmail:', err);
+        }
         throw err;
     }
 };

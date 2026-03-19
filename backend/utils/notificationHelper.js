@@ -47,7 +47,10 @@ const sendEmailNotification = async (item, type) => {
             itemImage = `${baseUrl}/${cleanPath}`;
         }
 
-        const itemLink = `${baseUrl}/${type === 'story' ? 'story-detail.html' : type === 'book' ? 'book-detail.html' : type === 'audio' ? 'audio-detail.html' : 'blog-detail.html'}?id=${item.slug || item.id}`;
+        const paramName = type === 'blog' ? 'slug' : 'id';
+        const paramValue = item.slug || item.id;
+        const pageName = type === 'story' ? 'story-detail.html' : type === 'book' ? 'book-detail.html' : type === 'audio' ? 'audio-detail.html' : 'blog-detail.html';
+        const itemLink = `${baseUrl}/${pageName}?${paramName}=${paramValue}`;
         const typeLabel = type === 'audio' ? 'Audio' : type.charAt(0).toUpperCase() + type.slice(1);
 
         console.log(`[NOTIFICATION] Starting notifications for ${recipientList.length} recipients...`);

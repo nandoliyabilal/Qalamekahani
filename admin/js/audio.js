@@ -60,7 +60,7 @@ function renderTable() {
                 <div class="flex flex-col gap-1.5">
                     <div class="flex items-center gap-2 text-xs font-black text-gray-400">
                          <i data-lucide="layers" class="w-3.5 h-3.5 text-gray-500"></i>
-                         ${story.episodes ? story.episodes.length : 0} CHAPTERS
+                         ${story.episodes_count || 0} CHAPTERS
                     </div>
                     <button onclick="openEpisodesModal('${story.id}')" class="text-[10px] font-black tracking-widest text-indigo-400 hover:text-white transition-all text-left uppercase flex items-center gap-1 group/btn">
                         <span>MANAGE PARTS</span>

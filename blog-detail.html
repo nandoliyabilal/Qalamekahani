@@ -386,12 +386,18 @@
     <section class="story-hero">
         <div class="story-hero-container">
             <!-- Left: Image -->
-            <div class="story-visual">
+            <div class="story-visual" style="position: relative;">
                 <a href="blog.html" class="img-back-btn">
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
                 <img id="blog-image" src="" alt="Blog Cover" class="story-cover"
                     onerror="this.src='https://via.placeholder.com/400x600'">
+                <!-- Download Button -->
+                <button onclick="downloadImage('blog-image')" class="download-overlay-btn" 
+                    style="position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;"
+                    title="Download Image">
+                    <i class="fas fa-download"></i>
+                </button>
             </div>
 
             <!-- Right: Details -->
@@ -411,6 +417,10 @@
                     <div class="meta-item">
                         <span class="meta-label">Read Time</span>
                         <span id="blog-time" class="meta-value">-</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Views</span>
+                        <span id="blog-views" class="meta-value">0</span>
                     </div>
                 </div>
 
@@ -638,6 +648,7 @@
             if (post.image) {
                 document.getElementById('blog-image').src = post.image;
             }
+            document.getElementById('blog-views').textContent = post.views || 0;
 
             // Excerpt
             let excerpt = post.excerpt;
@@ -662,6 +673,23 @@
             // Initialize Modules
             initStars();
             loadReviews(post.id);
+        }
+
+        async function downloadImage(imgId) {
+            const img = document.getElementById(imgId);
+            if (!img || !img.src) return;
+            try {
+                const response = await fetch(img.src);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `qalamverce-blog-${Date.now()}.png`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } catch (error) { window.open(img.src, '_blank'); }
         }
 
         function openReader() {

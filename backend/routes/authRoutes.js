@@ -16,6 +16,7 @@ const {
     saveImage,
     forgotPassword,
     resetPassword,
+    verifyResetOtp,
     getAllUsers,
     getUserById,
     toggleNotifications,
@@ -34,7 +35,8 @@ router.post('/admin-login-verify', verifyAdminLogin);
 router.get('/me', protect, getMe);
 router.put('/update-profile', protect, updateProfile);
 router.post('/forgotpassword', forgotPassword);
-router.put('/resetpassword/:token', resetPassword);
+router.post('/verify-reset-otp', verifyResetOtp);
+router.put('/resetpassword', resetPassword);
 
 // Activity Routes
 router.post('/like-story', protect, likeStory);

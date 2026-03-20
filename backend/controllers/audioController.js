@@ -40,8 +40,18 @@ const getAudioStories = asyncHandler(async (req, res) => {
         });
     }
 
+    // Fetch all episode counts
+    const { data: epCounts } = await supabase.from('audio_episodes').select('audio_story_id');
+    const countsMap = {};
+    if (epCounts) {
+        epCounts.forEach(ep => {
+            countsMap[ep.audio_story_id] = (countsMap[ep.audio_story_id] || 0) + 1;
+        });
+    }
+
     const storiesWithRating = data.map(s => {
         let finalDuration = s.duration || '';
+        // ... duration calculation logic ...
         if (durationsMap[s.id] > 0) {
             const totalSecs = durationsMap[s.id];
             const h = Math.floor(totalSecs / 3600);
@@ -50,13 +60,14 @@ const getAudioStories = asyncHandler(async (req, res) => {
             if (h > 0) finalDuration = `${h} hr ${m} min`;
             else finalDuration = `${m} min ${sec} sec`;
         } else if (finalDuration === '0:00' || finalDuration === 'Unknown' || finalDuration === '') {
-            finalDuration = '0 sec'; // Fixed: no unknown or empty box
+            finalDuration = '0 sec';
         }
 
         return {
             ...s,
             duration: finalDuration,
-            rating: ratingsMap[s.id] ? (ratingsMap[s.id].total / ratingsMap[s.id].count).toFixed(1) : 5.0
+            episodes_count: countsMap[s.id] || 0, // NEW field for episodes count
+            rating: ratingsMap[s.id] ? (ratingsMap[s.id].total / ratingsMap[s.id].count).toFixed(1) : 0.0 // Default to 0.0 if no rating
         };
     });
 
@@ -144,7 +155,7 @@ const getAudioStoryById = asyncHandler(async (req, res) => {
         const total = reviews.reduce((acc, r) => acc + parseFloat(r.rating), 0);
         story.rating = (total / reviews.length).toFixed(1);
     } else {
-        story.rating = 5.0;
+        story.rating = 0.0;
     }
 
     res.status(200).json(story);

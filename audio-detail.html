@@ -111,11 +111,17 @@
                 </div>
 
                 <div class="story-visual">
-                    <div class="story-cover-wrapper">
+                    <div class="story-cover-wrapper" style="position: relative;">
                         <img id="audio-image" src="" alt="Audio Cover" class="story-cover">
                         <div class="story-badges">
                             <span id="audio-cat-badge" class="badge badge-cat"></span>
                         </div>
+                        <!-- Download Button -->
+                        <button onclick="downloadImage('audio-image')" class="download-overlay-btn" 
+                            style="position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;"
+                            title="Download Image">
+                            <i class="fas fa-download"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -131,6 +137,10 @@
                         <div class="meta-item">
                             <span class="meta-label" style="display: block; color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px;">Total Duration</span>
                             <span id="meta-duration" class="meta-value" style="color: #fff; font-weight: 500;"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label" style="display: block; color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px;">Total Hits</span>
+                            <span id="meta-views" class="meta-value" style="color: #fff; font-weight: 500;">0</span>
                         </div>
                     </div>
 
@@ -339,6 +349,7 @@
                 document.getElementById('meta-duration').textContent = totalDurationStr;
 
                 document.getElementById('audio-description').textContent = audio.description || 'No description available for this audio story.';
+                document.getElementById('meta-views').textContent = audio.views || 0;
 
                 // Access Logic
                 const price = parseFloat(audio.price || 0);
@@ -384,7 +395,10 @@
                             </div>
                             <div style="flex: 1; min-width: 0;">
                                 <h4 style="color: #fff; font-size: 0.95rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ep.title}</h4>
-                                <p style="color: #888; font-size: 0.75rem;"><i class="far fa-clock"></i> ${ep.duration || '--:--'}</p>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <p style="color: #888; font-size: 0.75rem;"><i class="far fa-clock"></i> ${ep.duration || '--:--'}</p>
+                                    <p style="color: #666; font-size: 0.75rem; font-weight:700;"><i class="fas fa-eye"></i> ${ep.views || 0} HITS</p>
+                                </div>
                             </div>
                             <i class="fas fa-play-circle" style="color: #d4af37; font-size: 1.2rem;"></i>
                         </div>
@@ -627,6 +641,26 @@
                 alert('This is premium content. Please unlock the series to listen to all parts.');
                 // Scroll to top
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        async function downloadImage(imgId) {
+            const img = document.getElementById(imgId);
+            if (!img || !img.src) return;
+            try {
+                const response = await fetch(img.src);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `qalamverce-audio-${Date.now()}.png`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Download failed:', error);
+                window.open(img.src, '_blank');
             }
         }
 

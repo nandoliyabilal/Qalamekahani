@@ -510,68 +510,88 @@ const trackAudio = asyncHandler(async (req, res) => {
     res.json({ success: true, listenedAudios });
 });
 
-// @desc    Forgot Password
+// @desc    Forgot Password (OTP Version)
 // @route   POST /api/auth/forgotpassword
 // @access  Public
 const forgotPassword = asyncHandler(async (req, res) => {
-    const { data: user } = await supabase.from('users').select('*').eq('email', req.body.email).single();
+    const { email } = req.body;
+    const { data: user } = await supabase.from('users').select('*').eq('email', email).single();
 
     if (!user) {
         res.status(404);
         throw new Error('User not found');
     }
 
-    const resetToken = crypto.randomBytes(20).toString('hex');
-    const resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    const resetPasswordExpire = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpire = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
     await supabase.from('users').update({
-        reset_password_token: resetPasswordToken,
-        reset_password_expire: resetPasswordExpire
+        reset_password_token: otp, // Storing raw OTP for simplicity in this flow
+        reset_password_expire: otpExpire
     }).eq('id', user.id);
-
-    const resetUrl = `${req.protocol}://${req.get('host')}/reset-password.html?token=${resetToken}`;
-    const message = `You requested a password reset. Please go to: \n\n ${resetUrl}`;
 
     try {
         await sendEmail({
             email: user.email,
-            subject: 'Password Reset - Qalamekahani',
-            type: 'password_reset',
-            itemData: { resetUrl }
+            subject: 'Password Reset OTP - Qalamekahani',
+            message: otp,
+            type: 'password_reset_otp'
         });
-        res.status(200).json({ success: true, data: 'Email sent' });
+        res.status(200).json({ success: true, message: 'OTP sent to email' });
     } catch (err) {
-        await supabase.from('users').update({
-            reset_password_token: null,
-            reset_password_expire: null
-        }).eq('id', user.id);
-        console.error('[AUTH] Forgot Password Email Error:', err);
+        console.error('[AUTH] Forgot Password OTP Error:', err);
         res.status(500);
-        throw new Error('Failed to send email. If you are using Resend Free Tier, you must verify your domain settings on resend.com to send to addresses other than your own.');
+        throw new Error('Failed to send reset email');
+    }
+});
+
+// @desc    Verify Reset OTP
+// @route   POST /api/auth/verify-reset-otp
+// @access  Public
+const verifyResetOtp = asyncHandler(async (req, res) => {
+    const { email, otp } = req.body;
+    const { data: user } = await supabase.from('users').select('*').eq('email', email).single();
+
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    const isOtpValid = user.reset_password_token === otp;
+    const isNotExpired = new Date(user.reset_password_expire) > new Date();
+
+    if (isOtpValid && isNotExpired) {
+        res.status(200).json({ success: true, message: 'OTP verified' });
+    } else {
+        res.status(400);
+        throw new Error('Invalid or expired OTP');
     }
 });
 
 // @desc    Reset Password
-// @route   PUT /api/auth/resetpassword/:token
+// @route   PUT /api/auth/resetpassword
 // @access  Public
 const resetPassword = asyncHandler(async (req, res) => {
-    const resetToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
-
-    const { data: user } = await supabase
-        .from('users')
-        .select('*')
-        .eq('reset_password_token', resetToken)
-        .gt('reset_password_expire', new Date().toISOString())
-        .single();
+    const { email, otp, password } = req.body;
+    const { data: user } = await supabase.from('users').select('*').eq('email', email).single();
 
     if (!user) {
-        res.status(400);
-        throw new Error('Invalid token');
+        res.status(404);
+        throw new Error('User not found');
     }
 
+    const isOtpValid = user.reset_password_token === otp;
+    const isNotExpired = new Date(user.reset_password_expire) > new Date();
+
+    if (!isOtpValid || !isNotExpired) {
+        res.status(400);
+        throw new Error('Invalid or expired reset session');
+    }
+
+    // Hash new password
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     await supabase.from('users').update({
         password: hashedPassword,
@@ -579,10 +599,18 @@ const resetPassword = asyncHandler(async (req, res) => {
         reset_password_expire: null
     }).eq('id', user.id);
 
-    res.status(201).json({
-        success: true,
-        token: generateToken(user.id),
-    });
+    // Send Security Alert
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: 'Security Alert: Password Changed - Qalamekahani',
+            type: 'security_alert'
+        });
+    } catch (e) {
+        console.error('[AUTH] Security alert email failed:', e);
+    }
+
+    res.status(200).json({ success: true, message: 'Password updated successfully' });
 });
 
 // @desc    Update user profile
@@ -832,6 +860,7 @@ module.exports = {
     trackAudio,
     forgotPassword,
     resetPassword,
+    verifyResetOtp,
     getAllUsers,
     getUserById,
     saveAudio,

@@ -133,6 +133,27 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
             <div style="margin-top: 40px; color: #777; font-size: 13px;">This code is valid for 15 minutes.</div>
         `;
         finalHtml = getPremiumTemplate(content);
+    } else if (type === 'password_reset_otp') {
+        const content = `
+            <div style="text-transform: uppercase; color: #d4af37; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Account Security</div>
+            <div class="title">Password Reset Code</div>
+            <div class="message" style="color: #ccc; margin-bottom: 30px;">Use the following OTP to reset your password. This code will expire in 10 minutes.</div>
+            <div class="otp-box">${message}</div>
+            <div style="margin-top: 40px; color: #777; font-size: 13px;">If you didn't request this, please ignore this email.</div>
+        `;
+        finalHtml = getPremiumTemplate(content);
+    } else if (type === 'security_alert') {
+        const content = `
+            <div style="text-transform: uppercase; color: #ff6b6b; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Security Alert</div>
+            <div class="title">Password Changed</div>
+            <div class="message" style="color: #ccc; margin-bottom: 30px;">This is to confirm that the password for your Qalamekahani account has been successfully updated.</div>
+            <div style="background: #111; padding: 20px; border-radius: 8px; border: 1px solid #333; margin: 20px 0;">
+                <p style="color: #fff; margin: 0;"><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
+                <p style="color: #888; font-size: 12px; margin-top: 10px;">If you did not make this change, please contact us immediately to secure your account.</p>
+            </div>
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/profile.html" class="btn">View Account</a>
+        `;
+        finalHtml = getPremiumTemplate(content);
     } else if (type === 'welcome') {
         const content = `
             <div class="title">Welcome to Qalamekahani!</div>

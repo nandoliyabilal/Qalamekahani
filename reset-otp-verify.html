@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - Qalamekahani</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            background: #0a0a0a;
+        }
+
+        .auth-card {
+            background: #111;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid #d4af3733;
+            text-align: center;
+        }
+
+        .auth-title {
+            color: #d4af37;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .otp-input-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 2rem 0;
+        }
+
+        .otp-digit {
+            width: 50px;
+            height: 60px;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 12px;
+            color: #d4af37;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .otp-digit:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            background: #222;
+        }
+
+        .btn-auth {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #d4af37, #f1c40f);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.2s;
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-auth:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #error-msg {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: none;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .resend-text {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+        }
+
+        .resend-link {
+            color: #d4af37;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2 class="auth-title">Verify OTP</h2>
+            <p style="color: #888; margin-bottom: 0.5rem;" id="email-hint">We've sent a 6-digit code to</p>
+            <p style="color: #fff; font-weight: 500; margin-bottom: 2rem;" id="user-email"></p>
+            
+            <div id="error-msg"></div>
+
+            <form id="otp-form">
+                <div class="otp-input-container">
+                    <input type="text" maxlength="1" class="otp-digit" required>
+                    <input type="text" maxlength="1" class="otp-digit" required>
+                    <input type="text" maxlength="1" class="otp-digit" required>
+                    <input type="text" maxlength="1" class="otp-digit" required>
+                    <input type="text" maxlength="1" class="otp-digit" required>
+                    <input type="text" maxlength="1" class="otp-digit" required>
+                </div>
+                <button type="submit" class="btn-auth">Verify OTP</button>
+            </form>
+
+            <div class="resend-text">
+                Didn't receive the code? <span id="resend-btn" class="resend-link">Resend Code</span>
+            </div>
+            
+            <div style="margin-top: 1rem;">
+                <a href="forgot-password.html" style="color: #555; font-size: 0.8rem; text-decoration: none;">Change Email</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const email = localStorage.getItem('emailForReset') || '';
+        document.getElementById('user-email').textContent = email;
+
+        if (!email) {
+            window.location.href = 'forgot-password.html';
+        }
+
+        const digits = document.querySelectorAll('.otp-digit');
+        const errorMsg = document.getElementById('error-msg');
+        const form = document.getElementById('otp-form');
+
+        // Handle OTP Input Auto-focus
+        digits.forEach((digit, index) => {
+            digit.addEventListener('keyup', (e) => {
+                if (e.key >= 0 && e.key <= 9) {
+                    if (index < digits.length - 1) digits[index + 1].focus();
+                } else if (e.key === 'Backspace') {
+                    if (index > 0) digits[index - 1].focus();
+                }
+            });
+            
+            // Allow pasting full code
+            digit.addEventListener('paste', (e) => {
+                const data = e.clipboardData.getData('text');
+                if (data.length === 6) {
+                    data.split('').forEach((char, i) => {
+                        if (digits[i]) digits[i].value = char;
+                    });
+                    digits[5].focus();
+                }
+            });
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMsg.style.display = 'none';
+            const otp = Array.from(digits).map(d => d.value).join('');
+            
+            const btn = document.querySelector('.btn-auth');
+            btn.innerText = 'Verifying...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/auth/verify-reset-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('resetOtp', otp);
+                    window.location.href = `update-password.html?email=${encodeURIComponent(email)}&otp=${otp}`;
+                } else {
+                    errorMsg.innerText = data.message || 'Verification failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.innerText = 'Network error. Try again.';
+                errorMsg.style.display = 'block';
+            } finally {
+                btn.innerText = 'Verify OTP';
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('resend-btn').addEventListener('click', async () => {
+             const res = await fetch('/api/auth/forgotpassword', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            if (res.ok) alert('New code sent!');
+        });
+    </script>
+</body>
+</html>

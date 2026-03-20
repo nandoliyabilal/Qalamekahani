@@ -62,12 +62,18 @@
 
                 <!-- Left: Visual -->
                 <div class="story-visual">
-                    <div class="story-cover-wrapper">
+                    <div class="story-cover-wrapper" style="position: relative;">
                         <img id="story-image" src="" alt="Story Cover" class="story-cover">
                         <div class="story-badges">
                             <span id="story-cat-badge" class="badge badge-cat"></span>
                             <span id="story-lang-badge" class="badge badge-lang"></span>
                         </div>
+                        <!-- Download Button -->
+                        <button onclick="downloadImage('story-image')" class="download-overlay-btn" 
+                            style="position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;"
+                            title="Download Image">
+                            <i class="fas fa-download"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -100,6 +106,10 @@
                         <div class="meta-item">
                             <span class="meta-label">Mood</span>
                             <span id="meta-mood" class="meta-value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Total Views</span>
+                            <span id="meta-views" class="meta-value">0</span>
                         </div>
                     </div>
 
@@ -298,6 +308,14 @@
                 document.getElementById('meta-mood').textContent = story.mood || 'Intense';
 
                 document.getElementById('story-synopsis').textContent = story.summary || story.synopsis || story.description || '';
+                document.getElementById('meta-views').textContent = story.views || 0;
+
+                // Load Chapter Stats (Views)
+                let chapterStats = { views: {} };
+                try {
+                    const statsRes = await fetch(`/api/stories/${story.id}/chapters/stats`);
+                    if (statsRes.ok) chapterStats = await statsRes.json();
+                } catch (e) { console.warn("Stats fetch failed"); }
 
                 // YouTube Button
                 const youtubeBtn = document.getElementById('youtube-btn');
@@ -348,7 +366,18 @@
                         li.onmouseover = () => li.style.color = '#d4af37';
                         li.onmouseout = () => li.style.color = '#ccc';
 
-                        li.innerHTML = `<span style="font-weight:600; color:#d4af37; margin-right:8px;">${index + 1}.</span> <span style="font-family:'Poppins';">${h2.textContent}</span>`;
+                        const views = chapterStats.views[`ch_${index}`] || 0;
+                        li.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <span style="font-weight:600; color:#d4af37; margin-right:8px;">${index + 1}.</span> 
+                                    <span style="font-family:'Poppins';">${h2.textContent}</span>
+                                </div>
+                                <div style="font-size:0.7rem; color:#666; font-weight:bold;">
+                                    <i class="fas fa-eye" style="margin-right:4px;"></i>${views} VIEWS
+                                </div>
+                            </div>
+                        `;
                         // On click, go to reader at that chapter
                         li.onclick = () => {
                             const token = localStorage.getItem('token');
@@ -786,6 +815,27 @@
             } catch (err) {
                 console.error(err);
                 window.showToast('Error submitting review. Please try again.', 'error');
+            }
+        }
+
+        async function downloadImage(imgId) {
+            const img = document.getElementById(imgId);
+            if (!img || !img.src) return;
+            try {
+                const response = await fetch(img.src);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `qalamverce-${imgId.split('-')[0]}-${Date.now()}.png`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Download failed:', error);
+                // Fallback direct link
+                window.open(img.src, '_blank');
             }
         }
 

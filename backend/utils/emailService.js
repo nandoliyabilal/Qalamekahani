@@ -1,14 +1,6 @@
-const nodemailer = require('nodemailer');
+// Using Brevo REST API instead of SMTP to avoid Port-blocking on Cloud Hosting (Render/Hostinger)
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
-const transporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure: false, // STARTTLS
-    auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.BREVO_API_KEY,
-    }
-});
 /**
  * Premium Email Template Wrapper
  */
@@ -219,32 +211,41 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
     }
 
     try {
-        console.log(`[EMAIL DEBUG] Preparing to send ${type} email to: ${email}`);
+        console.log(`[EMAIL DEBUG] Preparing to send ${type} email via Brevo API to: ${email}`);
         
-        const mailOptions = {
-            from: `"Qalamekahani" <${process.env.EMAIL_USERNAME}>`,
-            to: email,
+        const apiKey = process.env.BREVO_API_KEY;
+        if (!apiKey) throw new Error('BREVO_API_KEY is missing');
+
+        const senderEmail = process.env.EMAIL_USERNAME || 'sabirkhanp646@gmail.com';
+
+        const body = {
+            sender: { name: "Qalamekahani", email: senderEmail },
+            to: [{ email: email }],
             subject: subject,
-            html: finalHtml,
-            text: message // Fallback plain text
+            htmlContent: finalHtml
         };
 
-        console.log(`[EMAIL DEBUG] Transporter attempting to sendMail to ${email}...`);
-        
-        // Timeout protection (Increased for slow cloud connections)
-        const sendPromise = transporter.sendMail(mailOptions);
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP_TIMEOUT')), 25000));
-        
-        const info = await Promise.race([sendPromise, timeoutPromise]);
-        
-        console.log('[EMAIL] Sent successfully via Nodemailer:', info.messageId);
-        return info;
-    } catch (err) {
-        if (err.message === 'SMTP_TIMEOUT') {
-            console.error('[EMAIL ERROR] SMTP Timeout - Connection might be hanging');
+        const response = await fetch(BREVO_API_URL, {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'api-key': apiKey,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log('[EMAIL] Sent successfully via Brevo API:', data.messageId);
+            return data;
         } else {
-            console.error('[EMAIL ERROR] Error in sendEmail:', err);
+            console.error('[EMAIL ERROR] Brevo API Refused:', data);
+            throw new Error(data.message || 'Brevo API Error');
         }
+    } catch (err) {
+        console.error('[EMAIL ERROR] Fatal Error in sendEmail:', err.message);
         throw err;
     }
 };

@@ -15,6 +15,7 @@ let audioStories = [];
 // Fetch All Audio Stories
 async function fetchAudio() {
     const tableBody = document.getElementById('audioTableBody');
+    const mobileBody = document.getElementById('audioMobileBody');
     try {
         const res = await fetchWithAuth('/audio');
         if (!res.ok) throw new Error('Fetch failed');
@@ -22,76 +23,118 @@ async function fetchAudio() {
         renderTable();
     } catch (error) {
         console.error(error);
-        if (tableBody) tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-400 font-bold">Error loading audio stories.</td></tr>`;
+        if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500 font-bold">Error loading.</td></tr>`;
+        if (mobileBody) mobileBody.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Error loading.</div>`;
     }
 }
 
 // Render Table
 function renderTable() {
     const tableBody = document.getElementById('audioTableBody');
-    if (!tableBody) return;
+    const mobileBody = document.getElementById('audioMobileBody');
+
+    if (!tableBody && !mobileBody) return;
 
     if (audioStories.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500 font-medium">No audio stories found.</td></tr>`;
+        const noData = `<div class="p-12 text-center text-gray-500 font-medium">No audio stories found.</div>`;
+        if (tableBody) tableBody.innerHTML = `<tr><td colspan="5">${noData}</td></tr>`;
+        if (mobileBody) mobileBody.innerHTML = noData;
         return;
     }
 
-    tableBody.innerHTML = audioStories.map(story => {
-        let imgUrl = story.image || 'https://placehold.co/100';
-        if (imgUrl && !imgUrl.startsWith('http')) imgUrl = `../${imgUrl}`;
+    // DESKTOP TABLE
+    if (tableBody) {
+        tableBody.innerHTML = audioStories.map(story => {
+            let imgUrl = story.image || 'https://placehold.co/100';
+            if (imgUrl && !imgUrl.startsWith('http')) imgUrl = `../${imgUrl}`;
+            const isPremium = parseFloat(story.price) > 0;
 
-        return `
-        <tr class="hover:bg-gray-700/30 transition-colors group">
-            <td class="px-6 py-4">
-                <div class="flex items-center gap-4">
-                    <img src="${imgUrl}" class="w-14 h-14 rounded-2xl object-cover border-2 border-gray-700/50 shadow-xl group-hover:border-indigo-500/50 transition-all">
-                    <div class="min-w-0">
-                        <div class="font-bold text-white group-hover:text-indigo-400 transition-colors truncate text-base">${story.title}</div>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[9px] text-indigo-400 font-extrabold uppercase tracking-tighter bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">${story.language || 'Hindi'}</span>
-                            <span class="text-[9px] ${parseFloat(story.price) > 0 ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'} font-extrabold uppercase tracking-tighter px-1.5 py-0.5 rounded border">
-                                ${parseFloat(story.price) > 0 ? 'PREMIUM' : 'FREE'}
+            return `
+            <tr class="hover:bg-gray-700/30 transition-colors group">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-4">
+                        <img src="${imgUrl}" class="w-14 h-14 rounded-2xl object-cover border-2 border-gray-700/50 shadow-xl group-hover:border-indigo-500/50 transition-all">
+                        <div class="min-w-0">
+                            <div class="font-bold text-white group-hover:text-indigo-400 transition-colors truncate text-base">${story.title}</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="bg-indigo-500/10 text-indigo-400 text-[9px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider border border-indigo-500/20">${story.category || 'Mystery'}</span>
+                                <span class="bg-gray-700/50 text-gray-400 text-[9px] px-2 py-0.5 rounded-md font-medium tracking-tight font-mono">${story.language || 'Hindi'}</span>
+                                <span class="text-[9px] ${isPremium ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'} font-extrabold uppercase tracking-tighter px-1.5 py-0.5 rounded border">
+                                    ${isPremium ? 'PREMIUM' : 'FREE'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex flex-col items-center">
+                        <span class="text-white font-bold text-lg">${story.episodes_count || (story.episodes ? story.episodes.length : 0)}</span>
+                        <span class="text-[10px] text-gray-500 uppercase font-black">Chapters</span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-center">
+                    <div class="text-yellow-500 font-bold flex items-center justify-center gap-1 bg-yellow-500/10 px-3 py-1.5 rounded-xl border border-yellow-500/20">
+                        <i data-lucide="star" class="w-4 h-4 fill-yellow-500"></i>
+                        ${parseFloat(story.rating || 0).toFixed(1)}
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-center">
+                    <div class="flex items-center justify-center gap-1.5 text-xs text-gray-200 bg-gray-900/50 py-2 px-4 rounded-xl border border-gray-700/30 font-bold shadow-inner">
+                        <i data-lucide="activity" class="w-4 h-4 text-emerald-500"></i>
+                        <span>${story.views || 0} <span class="text-[10px] text-gray-500 ml-0.5 font-black uppercase">Hits</span></span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                        <button onclick="openEpisodesModal('${story.id}')" class="bg-indigo-600/10 text-indigo-400 hover:bg-indigo-600 hover:text-white px-4 py-2 rounded-xl border border-indigo-500/20 transition-all text-xs font-bold shadow-lg shadow-indigo-900/10">Manage Parts</button>
+                        <button onclick="editAudio('${story.id}')" title="Edit Story" class="p-2.5 bg-gray-800 hover:bg-indigo-600 text-gray-400 hover:text-white rounded-xl transition-all border border-gray-700 hover:border-indigo-400 shadow-lg">
+                            <i data-lucide="edit-3" class="w-4.5 h-4.5"></i>
+                        </button>
+                        <button onclick="deleteAudio('${story.id}')" title="Delete Story" class="p-2.5 bg-gray-800 hover:bg-red-600 text-gray-400 hover:text-white rounded-xl transition-all border border-gray-700 hover:border-red-400 shadow-lg">
+                            <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    // MOBILE CARDS
+    if (mobileBody) {
+        mobileBody.innerHTML = audioStories.map(story => {
+            let imgUrl = story.image || 'https://placehold.co/100';
+            if (imgUrl && !imgUrl.startsWith('http')) imgUrl = `../${imgUrl}`;
+            const isPremium = parseFloat(story.price) > 0;
+            return `
+            <div class="bg-gray-800/40 border border-gray-700/50 rounded-2xl p-4 mb-4 hover:border-indigo-500/30 transition-all group">
+                <div class="flex gap-4 mb-4">
+                    <div class="relative">
+                        <img src="${imgUrl}" class="w-20 h-20 rounded-xl object-cover border border-gray-700 shadow-xl group-hover:border-indigo-500/50 transition-all">
+                        ${isPremium ? `<span class="absolute -top-2 -left-2 bg-amber-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded shadow-lg ring-1 ring-amber-400">PRO</span>` : ''}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-white font-bold text-lg mb-1 truncate">${story.title}</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-indigo-500/10 text-indigo-400 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">${story.category || 'Mystery'}</span>
+                            <span class="text-yellow-500 text-xs font-bold flex items-center gap-1">
+                                <i data-lucide="star" class="w-3 h-3 fill-yellow-500"></i>
+                                ${parseFloat(story.rating || 0).toFixed(1)}
                             </span>
                         </div>
                     </div>
                 </div>
-            </td>
-            <td class="px-6 py-4">
-                <div class="flex flex-col gap-1.5">
-                    <div class="flex items-center gap-2 text-xs font-black text-gray-400">
-                         <i data-lucide="layers" class="w-3.5 h-3.5 text-gray-500"></i>
-                         ${story.episodes_count || 0} CHAPTERS
+                <div class="flex items-center justify-between pt-3 border-t border-gray-700/50">
+                    <div class="text-gray-400 text-[10px] font-bold font-mono tracking-tighter uppercase whitespace-nowrap">
+                        ${story.episodes_count || (story.episodes ? story.episodes.length : 0)} Parts | ${story.views || 0} Views
                     </div>
-                    <button onclick="openEpisodesModal('${story.id}')" class="text-[10px] font-black tracking-widest text-indigo-400 hover:text-white transition-all text-left uppercase flex items-center gap-1 group/btn">
-                        <span>MANAGE PARTS</span>
-                        <i data-lucide="chevron-right" class="w-3 h-3 group-hover/btn:translate-x-1 transition-transform"></i>
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="editAudio('${story.id}')" class="p-2 text-gray-400 hover:text-indigo-400 transition-colors"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                        <button onclick="openEpisodesModal('${story.id}')" class="bg-indigo-600 text-white px-4 py-1.5 rounded-xl text-[11px] font-black tracking-widest shadow-lg shadow-indigo-600/20 uppercase transition-transform active:scale-95">Manage</button>
+                    </div>
                 </div>
-            </td>
-            <td class="px-6 py-4 text-center">
-                <div class="inline-flex items-center gap-1 text-sm font-black text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20">
-                    <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
-                    ${parseFloat(story.rating || 0).toFixed(1)}
-                </div>
-            </td>
-            <td class="px-6 py-4 text-center">
-                <div class="flex items-center justify-center gap-1.5 text-xs text-gray-200 bg-gray-900/50 py-2 px-4 rounded-xl border border-gray-700/30 font-bold shadow-inner">
-                    <i data-lucide="activity" class="w-4 h-4 text-emerald-500"></i>
-                    <span>${story.views || 0} <span class="text-[10px] text-gray-500 ml-0.5 font-black uppercase">Hits</span></span>
-                </div>
-            </td>
-            <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                    <button onclick="editAudio('${story.id}')" title="Edit Story" class="p-2.5 bg-gray-800 hover:bg-indigo-600 text-gray-400 hover:text-white rounded-xl transition-all border border-gray-700 hover:border-indigo-400 shadow-lg">
-                        <i data-lucide="edit-3" class="w-4.5 h-4.5"></i>
-                    </button>
-                    <button onclick="deleteAudio('${story.id}')" title="Delete Story" class="p-2.5 bg-gray-800 hover:bg-red-600 text-gray-400 hover:text-white rounded-xl transition-all border border-gray-700 hover:border-red-400 shadow-lg">
-                        <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>`;
-    }).join('');
+            </div>`;
+        }).join('');
+    }
 
     if (window.lucide) lucide.createIcons();
 }
@@ -119,7 +162,7 @@ function addEpisodeField(titleValue = '', duration = '', url = '') {
 
     const div = document.createElement('div');
     div.className = 'p-4 bg-gray-900 border border-gray-700 rounded-2xl relative group';
-    
+
     // Check if it's existing or new
     const isExisting = !!url;
 
@@ -163,7 +206,7 @@ async function handlePartFileChange(input) {
         btn.textContent = input.files[0].name;
         btn.classList.remove('border-dashed');
         btn.classList.add('border-indigo-500/50', 'text-indigo-400');
-        
+
         // Get duration
         try {
             const duration = await getAudioDuration(input.files[0]);
@@ -178,7 +221,7 @@ function getAudioDuration(file) {
     return new Promise((resolve) => {
         const audio = document.createElement('audio');
         audio.preload = 'metadata';
-        
+
         const finish = (durationSecs) => {
             window.URL.revokeObjectURL(audio.src);
             if (!durationSecs || isNaN(durationSecs) || durationSecs === Infinity) {
@@ -188,7 +231,7 @@ function getAudioDuration(file) {
             const rc = durationSecs % 3600;
             const minutes = Math.floor(rc / 60);
             const seconds = Math.floor(rc % 60);
-            
+
             if (hc > 0) {
                 resolve(`${hc}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
             } else {
@@ -208,11 +251,11 @@ function getAudioDuration(file) {
                 finish(audio.duration);
             }
         };
-        
-        audio.onerror = function() {
+
+        audio.onerror = function () {
             resolve('');
         };
-        
+
         audio.src = URL.createObjectURL(file);
     });
 }
@@ -232,6 +275,7 @@ async function editAudio(id) {
         document.getElementById('description').value = story.description || '';
         document.getElementById('price').value = story.price || 0;
         document.getElementById('discount').value = story.discount || 0;
+        document.getElementById('buyLink').value = story.buy_link || '';
 
         const preview = document.getElementById('imagePreview');
         const placeholder = document.getElementById('imagePlaceholder');
@@ -273,7 +317,7 @@ async function handleFormSubmit(e) {
     try {
         const id = document.getElementById('audioId').value;
         const isEdit = !!id;
-        
+
         let coverUrl = document.getElementById('imageUrl').value;
         const coverFile = document.getElementById('imageFile').files[0];
 
@@ -325,6 +369,7 @@ async function handleFormSubmit(e) {
             description: document.getElementById('description').value,
             price: parseFloat(document.getElementById('price').value) || 0,
             discount: parseFloat(document.getElementById('discount').value) || 0,
+            buy_link: document.getElementById('buyLink').value || '',
             file_url: firstEp.file_url, // Legacy link
             duration: firstEp.duration,   // Legacy link
             episodes: episodes // NEW: List of all parts
@@ -391,14 +436,14 @@ async function openEpisodesModal(id) {
         const res = await fetchWithAuth(`/audio/${id}`);
         const story = await res.json();
         document.getElementById('episodesModalTitle').textContent = `Manage Parts: ${story.title}`;
-        
+
         if (!story.episodes || story.episodes.length === 0) {
             container.innerHTML = `<div class="text-center py-12 text-gray-500 font-bold">No parts added yet. Use the button above to add the first part.</div>`;
             return;
         }
 
         renderEpisodeCards(story.episodes);
-        
+
         // Auto-fix any missing/0:00 durations in background
         autoFixDurations(story);
 
@@ -410,13 +455,13 @@ async function openEpisodesModal(id) {
 async function autoFixDurations(story) {
     if (!story.episodes || story.episodes.length === 0) return;
     let needsUpdate = false;
-    
+
     const episodesFixed = [...story.episodes];
 
     const fetchDuration = (url) => new Promise((resolve) => {
         const audio = document.createElement('audio');
         audio.preload = 'metadata';
-        
+
         const finish = (durationSecs) => {
             if (!durationSecs || isNaN(durationSecs) || durationSecs === Infinity) {
                 return resolve('0:00');
@@ -425,7 +470,7 @@ async function autoFixDurations(story) {
             const rc = durationSecs % 3600;
             const minutes = Math.floor(rc / 60);
             const seconds = Math.floor(rc % 60);
-            
+
             if (hc > 0) resolve(`${hc}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
             else resolve(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
         };
@@ -470,7 +515,7 @@ async function autoFixDurations(story) {
             discount: parseFloat(story.discount) || 0,
             episodes: episodesFixed
         };
-        
+
         try {
             const res = await fetchWithAuth(`/audio/${story.id}`, {
                 method: 'PUT',
@@ -551,7 +596,7 @@ function playPreview(url) {
 async function addNewEpisodeModal() {
     const title = prompt('Enter Episode Title:');
     if (!title) return;
-    
+
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'audio/*';
@@ -559,26 +604,26 @@ async function addNewEpisodeModal() {
         if (fileInput.files[0]) {
             const file = fileInput.files[0];
             const duration = await getAudioDuration(file);
-            
+
             const formData = new FormData();
             formData.append('file', file);
-            
+
             try {
                 const upRes = await fetchWithAuth('/upload', { method: 'POST', body: formData });
                 const upData = await upRes.json();
-                
+
                 const epData = {
                     audio_story_id: activeAudioId,
                     title,
                     file_url: upData.url,
                     duration
                 };
-                
+
                 const saveRes = await fetchWithAuth('/audio/episodes', {
                     method: 'POST',
                     body: JSON.stringify(epData)
                 });
-                
+
                 if (saveRes.ok) openEpisodesModal(activeAudioId);
                 else alert('Failed to save episode.');
             } catch (e) { alert('Upload error.'); }
@@ -609,7 +654,7 @@ function toggleSidebar() {
 }
 
 function logout() {
-    localStorage.removeItem('token');
+    localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     window.location.href = 'login.html';
 }

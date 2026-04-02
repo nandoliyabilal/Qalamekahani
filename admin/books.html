@@ -25,32 +25,56 @@
         </div>
         <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
             <a href="dashboard.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="layout-dashboard"></i>Dashboard</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="layout-dashboard"></i>
+                Dashboard
+            </a>
             <a href="stories.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="book-open"></i>Stories</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="book-open"></i>
+                Stories
+            </a>
             <a href="books.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"><i
-                    data-lucide="library"></i>Books</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="library"></i>
+                Books
+            </a>
             <a href="audio.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="headphones"></i>Audio Stories</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="headphones"></i>
+                Audio Stories
+            </a>
             <a href="blogs.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="file-text"></i>Blogs</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="file-text"></i>
+                Blogs
+            </a>
+            <a href="users.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="users"></i>
+                Users
+            </a>
             <a href="images.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
                 <i data-lucide="image"></i>
                 Images
             </a>
             <a href="reviews.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="star"></i>Reviews</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="star"></i>
+                Reviews
+            </a>
+            <a href="orders.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="shopping-cart"></i>
+                Orders
+            </a>
             <a href="settings.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="settings"></i>Settings</a>
-        </nav>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="settings"></i>
+                Settings
+            </a>
+</nav>
     </aside>
 
     <main class="lg:pl-64 min-h-screen flex flex-col">
@@ -85,7 +109,8 @@
             </div>
 
             <!-- Table Container -->
-            <div class="bg-gray-800/40 backdrop-blur-xl rounded-3xl border border-gray-700/50 shadow-2xl overflow-hidden">
+            <!-- Desktop Table View -->
+            <div class="hidden md:block bg-gray-800/40 backdrop-blur-xl rounded-3xl border border-gray-700/50 shadow-2xl overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-400">
                         <thead class="bg-gray-900/40 text-gray-400 font-semibold uppercase text-[10px] tracking-wider border-b border-gray-700/50">
@@ -99,7 +124,6 @@
                             </tr>
                         </thead>
                         <tbody id="bookTableBody" class="divide-y divide-gray-700/30 text-gray-300">
-                            <!-- JS populated rows -->
                             <tr>
                                 <td colspan="6" class="px-6 py-20 text-center">
                                     <div class="flex flex-col items-center gap-3">
@@ -111,6 +135,11 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Mobile View -->
+            <div id="bookMobileBody" class="md:hidden flex flex-col gap-4">
+                <div class="py-12 text-center text-gray-500">Syncing with library...</div>
             </div>
         </div>
     </main>
@@ -124,7 +153,7 @@
 
             <form id="bookForm" class="space-y-5">
                 <input type="hidden" id="bookId">
-                
+
                 <!-- Title & Author -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
@@ -179,18 +208,22 @@
                 <!-- Book Cover -->
                 <div>
                     <label class="block text-sm font-medium text-gray-400 mb-2">Book Cover Image</label>
-                    <div class="flex items-center gap-6 p-4 bg-gray-900/50 border border-dashed border-gray-600 rounded-2xl">
+                    <div
+                        class="flex items-center gap-6 p-4 bg-gray-900/50 border border-dashed border-gray-600 rounded-2xl">
                         <div id="imagePreview"
                             class="w-20 h-28 bg-gray-700/50 rounded-lg bg-cover bg-center border border-gray-600 hidden flex-shrink-0">
                         </div>
                         <div class="flex-1">
-                            <label class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 rounded-xl cursor-pointer transition-all border border-indigo-500/30">
+                            <label
+                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 rounded-xl cursor-pointer transition-all border border-indigo-500/30">
                                 <i data-lucide="upload-cloud" class="w-5 h-5"></i>
                                 <span class="text-sm font-medium">Upload Cover</span>
-                                <input type="file" id="imageFile" accept="image/*" class="hidden" onchange="previewImage(this)">
+                                <input type="file" id="imageFile" accept="image/*" class="hidden"
+                                    onchange="previewImage(this)">
                             </label>
                             <input type="text" id="image" class="hidden">
-                            <p id="fileName" class="text-xs text-gray-500 mt-2 truncate max-w-[200px]">No file chosen</p>
+                            <p id="fileName" class="text-xs text-gray-500 mt-2 truncate max-w-[200px]">No file chosen
+                            </p>
                         </div>
                     </div>
                 </div>

@@ -2,32 +2,32 @@
 
 // Override native alert to use our toast system globally
 window.showToast = function (message, type = 'success') {
-  let container = document.querySelector('.toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-    // basic css for toast if main css is missing
-    const css = document.createElement('style');
-    css.innerHTML = `.toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px}.toast{background:#333;color:#fff;padding:12px 24px;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);font-family:sans-serif;opacity:1;transition:all .3s ease}.toast.error{background:#ef4444}.toast.success{background:#10b981}`;
-    document.head.appendChild(css);
-  }
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+        // basic css for toast if main css is missing
+        const css = document.createElement('style');
+        css.innerHTML = `.toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px}.toast{background:#333;color:#fff;padding:12px 24px;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);font-family:sans-serif;opacity:1;transition:all .3s ease}.toast.error{background:#ef4444}.toast.success{background:#10b981}`;
+        document.head.appendChild(css);
+    }
 
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<span class="toast-message">${message}</span>`;
-  container.appendChild(toast);
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="toast-message">${message}</span>`;
+    container.appendChild(toast);
 
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 };
 
 window.alert = function (message) {
-  const msgLower = String(message).toLowerCase();
-  const type = (msgLower.includes('error') || msgLower.includes('fail')) ? 'error' : 'success';
-  window.showToast(message, type);
+    const msgLower = String(message).toLowerCase();
+    const type = (msgLower.includes('error') || msgLower.includes('fail')) ? 'error' : 'success';
+    window.showToast(message, type);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -85,8 +85,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- NAVIGATION GENERATION ---
             generateTOC();
 
+            // Handle start chapter from URL
+            const startCh = params.get('ch');
+            const startIndex = (startCh !== null && !isNaN(startCh)) ? parseInt(startCh) : 0;
+            
             // Initial Load
-            renderChapter(0);
+            renderChapter(startIndex);
         })
         .catch(err => {
             console.error(err);

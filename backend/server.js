@@ -40,20 +40,29 @@ app.use(['/backend', '/.env', '/.git'], (req, res) => {
 
 // Basic Route
 const path = require('path');
+const fs = require('fs');
+
+// Calculate the absolute path to the project root (one level up from /backend)
+const projectRoot = path.resolve(__dirname, '..');
 
 // Basic Route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../index.html'));
+    const indexPath = path.join(projectRoot, 'index.html');
+    if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.status(404).send('Home page (index.html) not found in ' + projectRoot);
+    }
 });
 
 // Serve Admin Panel
-app.use('/admin', express.static(path.join(__dirname, '../admin')));
+app.use('/admin', express.static(path.join(projectRoot, 'admin')));
 
 // Serve Main Website Static Files
-app.use(express.static(path.join(__dirname, '../')));
+app.use(express.static(projectRoot));
 
-// Serve Uploads Directory (Important for Local Storage)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Serve Uploads Directory
+app.use('/uploads', express.static(path.join(projectRoot, 'uploads')));
 
 const { errorHandler } = require('./middleware/errorMiddleware');
 

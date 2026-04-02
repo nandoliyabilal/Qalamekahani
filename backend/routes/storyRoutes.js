@@ -23,7 +23,7 @@ router.route('/:id')
     .delete(protect, authorize('admin'), deleteStory);
 
 router.route('/:id/chapters/stats')
-    .get(protect, authorize('admin', 'editor'), getChapterStats);
+    .get(getChapterStats);
 
 router.route('/:id/chapters/:index/view')
     .post(incrementChapterView);

@@ -25,22 +25,56 @@
         </div>
         <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
             <a href="dashboard.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="layout-dashboard"></i>Dashboard</a>
-            <a href="orders.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"><i
-                    data-lucide="shopping-cart"></i>Orders</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="layout-dashboard"></i>
+                Dashboard
+            </a>
             <a href="stories.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="book-open"></i>Stories</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="book-open"></i>
+                Stories
+            </a>
             <a href="books.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="library"></i>Books</a>
-            <!-- ... other links ... -->
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="library"></i>
+                Books
+            </a>
+            <a href="audio.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="headphones"></i>
+                Audio Stories
+            </a>
+            <a href="blogs.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="file-text"></i>
+                Blogs
+            </a>
+            <a href="users.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="users"></i>
+                Users
+            </a>
+            <a href="images.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="image"></i>
+                Images
+            </a>
+            <a href="reviews.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="star"></i>
+                Reviews
+            </a>
+            <a href="orders.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="shopping-cart"></i>
+                Orders
+            </a>
             <a href="settings.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="settings"></i>Settings</a>
-        </nav>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="settings"></i>
+                Settings
+            </a>
+</nav>
     </aside>
 
     <main class="lg:pl-64 min-h-screen flex flex-col">
@@ -78,7 +112,7 @@
                                 <th class="px-6 py-4">Amount</th>
                                 <th class="px-6 py-4">Transaction ID</th>
                                 <th class="px-6 py-4">Date</th>
-                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Status</th><th class="px-6 py-4">Customer</th>
                             </tr>
                         </thead>
                         <tbody id="orderTableBody" class="divide-y divide-gray-700 text-gray-300">

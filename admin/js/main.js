@@ -108,12 +108,30 @@ function toggleSidebar() {
     }
 }
 
+// Highlight active link in sidebar
+function highlightActiveLink() {
+    const path = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    // Default active class styles (Indigo)
+    const activeClasses = ['bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-500/20'];
+    const inactiveClasses = ['text-gray-400', 'hover:bg-gray-700', 'hover:text-white'];
+
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        // Check if the current path contains the link href (e.g. dashboard.html)
+        if (path.includes(href) || (path.endsWith('/admin/') && href === 'dashboard.html')) {
+            link.classList.add(...activeClasses);
+            link.classList.remove(...inactiveClasses);
+        } else {
+            link.classList.remove(...activeClasses);
+            link.classList.add(...inactiveClasses);
+        }
+    });
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
-
-    // Add Sidebar HTML dynamically if it doesn't exist (except login page)
-    if (!window.location.pathname.includes('index.html') && !document.getElementById('sidebar')) {
-        // We might want to inject sidebar here or just rely on hardcoded HTML
-    }
+    highlightActiveLink();
 });

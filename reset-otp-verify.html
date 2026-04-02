@@ -198,7 +198,7 @@
                 const data = await res.json();
                 if (res.ok) {
                     localStorage.setItem('resetOtp', otp);
-                    window.location.href = `update-password.html?email=${encodeURIComponent(email)}&otp=${otp}`;
+                    window.location.href = `reset-password.html?email=${encodeURIComponent(email)}&otp=${otp}`;
                 } else {
                     errorMsg.innerText = data.message || 'Verification failed';
                     errorMsg.style.display = 'block';

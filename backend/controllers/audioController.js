@@ -13,10 +13,11 @@ const getAudioStories = asyncHandler(async (req, res) => {
     }
 
     // Fetch ratings for each story
-    const { data: reviews } = await supabase.from('reviews').select('item_id, rating').eq('status', 'approved');
+    const { data: reviews } = await supabase.from('reviews').select('item_id, item_type, rating').eq('status', 'approved');
     const ratingsMap = {};
     if (reviews) {
         reviews.forEach(r => {
+            // Include both main story reviews and episode reviews (mapped back to story id later if needed)
             if (!ratingsMap[r.item_id]) ratingsMap[r.item_id] = { total: 0, count: 0 };
             ratingsMap[r.item_id].total += parseFloat(r.rating);
             ratingsMap[r.item_id].count += 1;
@@ -49,9 +50,26 @@ const getAudioStories = asyncHandler(async (req, res) => {
         });
     }
 
-    const storiesWithRating = data.map(s => {
+    // Map episode ratings back to their parent stories
+    if (reviews && allEpisodes) {
+        reviews.forEach(r => {
+            if (r.item_type === 'episode') {
+                const ep = allEpisodes.find(e => e.id === r.item_id);
+                if (ep && ep.audio_story_id) {
+                    const sid = ep.audio_story_id;
+                    // We already added it to ratingsMap[r.item_id], but for the story list 
+                    // we want it aggregated under the story ID too.
+                    if (!ratingsMap[sid]) ratingsMap[sid] = { total: 0, count: 0 };
+                    // Note: If a user rated the episode directly, we include it in story average
+                    ratingsMap[sid].total += parseFloat(r.rating);
+                    ratingsMap[sid].count += 1;
+                }
+            }
+        });
+    }
+
+    const storiesWithRating = (data || []).map(s => {
         let finalDuration = s.duration || '';
-        // ... duration calculation logic ...
         if (durationsMap[s.id] > 0) {
             const totalSecs = durationsMap[s.id];
             const h = Math.floor(totalSecs / 3600);
@@ -67,7 +85,7 @@ const getAudioStories = asyncHandler(async (req, res) => {
             ...s,
             duration: finalDuration,
             episodes_count: countsMap[s.id] || 0, // NEW field for episodes count
-            rating: ratingsMap[s.id] ? (ratingsMap[s.id].total / ratingsMap[s.id].count).toFixed(1) : 0.0 // Default to 0.0 if no rating
+            rating: ratingsMap[s.id] && ratingsMap[s.id].count > 0 ? (ratingsMap[s.id].total / ratingsMap[s.id].count).toFixed(1) : 0.0 // Default to 0.0 if no rating
         };
     });
 

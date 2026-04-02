@@ -22,6 +22,16 @@ async function fetchBooks() {
 
 function renderTable() {
     const tableBody = document.getElementById('bookTableBody');
+    const mobileBody = document.getElementById('bookMobileBody');
+    if (!tableBody || !mobileBody || !books) return;
+
+    if (books.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 font-medium tracking-wide">Library is empty. Start adding books!</td></tr>`;
+        mobileBody.innerHTML = `<div class="py-12 text-center text-gray-500 font-medium tracking-wide">Library is empty. Start adding books!</div>`;
+        return;
+    }
+
+    // Render Desktop Table
     tableBody.innerHTML = books.map(book => {
         // Handle DB fields
         const price = book.original_price || book.originalPrice || 0;
@@ -31,11 +41,14 @@ function renderTable() {
             percent = Math.round(((price - discounted) / price) * 100);
         }
 
+        let imgUrl = book.image || 'https://placehold.co/400x600';
+        if (imgUrl && !imgUrl.startsWith('http')) imgUrl = `../${imgUrl}`;
+
         return `
         <tr class="hover:bg-indigo-500/5 transition-all group border-b border-gray-700/30">
             <td class="px-8 py-5">
                 <div class="flex items-center gap-4">
-                    <img src="${book.image.startsWith('http') ? book.image : '../' + book.image}" onerror="this.src='https://placehold.co/40'" class="w-12 h-12 rounded-xl object-cover bg-gray-700 shadow-lg">
+                    <img src="${imgUrl}" onerror="this.src='https://placehold.co/40'" class="w-12 h-12 rounded-xl object-cover bg-gray-700 shadow-lg">
                     <div class="flex flex-col">
                         <span class="font-semibold text-white group-hover:text-indigo-400 transition-colors">${book.title}</span>
                         <span class="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">${book.category || 'Standard'}</span>
@@ -47,7 +60,7 @@ function renderTable() {
             </td>
             <td class="px-6 py-5">
                 <div class="flex flex-col">
-                    <span class="font-mono text-indigo-400 font-medium">₹${price}</span>
+                    <span class="font-mono text-indigo-400 font-medium">₹${discounted}</span>
                     ${percent > 0 ? `<span class="text-[10px] text-gray-500 line-through mt-0.5">₹${price}</span>` : ''}
                 </div>
             </td>
@@ -80,8 +93,98 @@ function renderTable() {
             </td>
         </tr>
     `
-}).join('');
-    lucide.createIcons();
+    }).join('');
+
+    // Render Mobile Cards
+    mobileBody.innerHTML = books.map(book => {
+        let imgUrl = book.image || 'https://placehold.co/100';
+        if (imgUrl && !imgUrl.startsWith('http')) imgUrl = `../${imgUrl}`;
+        
+        const ratingNum = parseFloat(book.rating || 0);
+        let ratingHtml = '';
+        if (ratingNum > 0) {
+            ratingHtml = `
+                <div class="absolute top-0 right-0 bg-[#005f73] text-white text-[10px] font-bold px-1.5 py-1 rounded-tr-lg rounded-bl-lg flex items-center gap-0.5 z-10 shadow">
+                    ${ratingNum.toFixed(1)} <span>★</span>
+                </div>
+            `;
+        } else {
+            ratingHtml = `
+                <div class="absolute top-0 right-0 bg-gray-700/80 backdrop-blur-sm text-gray-300 text-[9px] font-bold px-1.5 py-1 rounded-tr-lg rounded-bl-lg flex items-center z-10 text-center">
+                    NEW
+                </div>
+            `;
+        }
+        
+        const id = book.id || book._id;
+
+        return `
+        <div class="bg-gray-800 rounded-xl p-3 flex gap-4 relative overflow-visible shadow-lg border border-gray-700">
+            <!-- Left: Image Portrait -->
+            <div class="relative w-[85px] h-[120px] flex-shrink-0 rounded-lg overflow-hidden bg-gray-900 border border-gray-700 cursor-pointer" onclick="editBook('${id}')">
+                <img src="${imgUrl}" onerror="this.src='https://placehold.co/100'" class="w-full h-full object-cover">
+                ${ratingHtml}
+            </div>
+            
+            <!-- Right: Details -->
+            <div class="flex-1 flex flex-col justify-start py-0.5">
+                <div class="flex justify-between items-start gap-2 h-7 relative z-20">
+                    <h3 class="text-white font-bold text-base leading-tight line-clamp-2 cursor-pointer pr-5" onclick="editBook('${id}')">
+                        ${book.title || 'Untitled'}
+                    </h3>
+                    
+                    <!-- 3-Dot Menu -->
+                    <div class="absolute -top-1 -right-2 dropdown-container">
+                        <button onclick="toggleMobileMenu(event, '${id}')" class="text-gray-400 hover:text-white p-2">
+                            <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                        </button>
+                        <!-- Dropdown Content -->
+                        <div id="dropdown-${id}" class="hidden absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl py-1 w-36 z-50">
+                            <button onclick="editBook('${id}')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                                <i data-lucide="edit-2" class="w-4 h-4 text-blue-400"></i> Edit
+                            </button>
+                            <button onclick="deleteBook('${id}')" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700 flex items-center gap-2">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Parts Badge -->
+                <div class="mt-4 text-left">
+                    <span class="inline-flex items-center gap-1.5 bg-gray-700 text-gray-200 text-xs font-semibold px-2.5 py-1 rounded">
+                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                        PDF E-Book
+                    </span>
+                </div>
+                
+                <!-- Views -->
+                <div class="mt-auto pt-2 text-gray-400 text-xs font-medium">
+                    ${book.views || 0} hits.
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    if (window.lucide) lucide.createIcons();
+}
+
+// Close all mobile dropdowns
+document.addEventListener('click', () => {
+    document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+});
+
+// Toggle mobile menu visibility
+window.toggleMobileMenu = function(e, id) {
+    e.stopPropagation();
+    const target = document.getElementById(`dropdown-${id}`);
+    const isHidden = target.classList.contains('hidden');
+    
+    document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+    
+    if (isHidden) {
+        target.classList.remove('hidden');
+    }
 }
 
 // Preview Image (unchanged)

@@ -26,32 +26,56 @@
         </div>
         <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
             <a href="dashboard.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="layout-dashboard"></i>Dashboard</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="layout-dashboard"></i>
+                Dashboard
+            </a>
             <a href="stories.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"><i
-                    data-lucide="book-open"></i>Stories</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="book-open"></i>
+                Stories
+            </a>
             <a href="books.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="library"></i>Books</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="library"></i>
+                Books
+            </a>
             <a href="audio.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="headphones"></i>Audio Stories</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="headphones"></i>
+                Audio Stories
+            </a>
             <a href="blogs.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="file-text"></i>Blogs</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="file-text"></i>
+                Blogs
+            </a>
+            <a href="users.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="users"></i>
+                Users
+            </a>
             <a href="images.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
                 <i data-lucide="image"></i>
                 Images
             </a>
             <a href="reviews.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="star"></i>Reviews</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="star"></i>
+                Reviews
+            </a>
+            <a href="orders.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="shopping-cart"></i>
+                Orders
+            </a>
             <a href="settings.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="settings"></i>Settings</a>
-        </nav>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="settings"></i>
+                Settings
+            </a>
+</nav>
     </aside>
 
     <main class="lg:pl-64 min-h-screen flex flex-col">
@@ -85,29 +109,31 @@
                 </button>
             </div>
 
-            <!-- Table Card -->
-            <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-400">
-                        <thead class="bg-gray-700/50 text-gray-200 font-medium uppercase text-xs">
-                            <tr>
-                                <th class="px-6 py-4">Title</th>
-                                <th class="px-6 py-4">Author</th>
-                                <th class="px-6 py-4">Category</th>
-                                <th class="px-6 py-4">Price</th>
-                                <th class="px-6 py-4 text-center">Views</th>
-                                <th class="px-6 py-4">Date</th>
-                                <th class="px-6 py-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="storyTableBody" class="divide-y divide-gray-700 text-gray-300">
-                            <!-- JS will populate rows -->
-                            <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">Loading stories...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Desktop Table View -->
+            <div class="hidden md:block bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="bg-gray-700/50 text-gray-200 font-medium uppercase text-xs">
+                        <tr>
+                            <th class="px-6 py-4">Title</th>
+                            <th class="px-6 py-4">Author</th>
+                            <th class="px-6 py-4">Category</th>
+                            <th class="px-6 py-4">Price</th>
+                            <th class="px-6 py-4 text-center">Views</th>
+                            <th class="px-6 py-4">Date</th>
+                            <th class="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="storyTableBody" class="divide-y divide-gray-700 text-gray-300">
+                        <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">Loading stories...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile View -->
+            <div id="storyMobileBody" class="md:hidden flex flex-col gap-4">
+                <div class="py-12 text-center text-gray-500">Loading stories...</div>
             </div>
         </div>
     </main>
@@ -137,26 +163,10 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Category</label>
-                        <select id="category" required
-                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="Horror">Horror</option>
-                            <option value="Romance">Romance</option>
-                            <option value="Mystery">Mystery</option>
-                            <option value="Fantasy">Fantasy</option>
-                            <option value="Sci-Fi">Sci-Fi</option>
-                            <option value="Thriller">Thriller</option>
-                            <option value="Drama">Drama</option>
-                        </select>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Category</label><input type="text" id="category" name="category" required placeholder="Type category..." class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none" autocomplete="off">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Language</label>
-                        <select id="language" required
-                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="Hindi">Hindi</option>
-                            <option value="Gujarati">Gujarati</option>
-                            <option value="English">English</option>
-                        </select>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Language</label><input type="text" id="language" name="language" required placeholder="Type language..." class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none" autocomplete="off">
                     </div>
                 </div>
 

@@ -42,10 +42,12 @@ async function fetchStories() {
 // Render Table
 function renderTable() {
     const tableBody = document.getElementById('storyTableBody');
-    if (!tableBody || !stories) return;
+    const mobileBody = document.getElementById('storyMobileBody');
+    if (!tableBody || !mobileBody || !stories) return;
 
     if (stories.length === 0) {
         tableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-medium">No stories found.</td></tr>`;
+        mobileBody.innerHTML = `<div class="py-12 text-center text-gray-500">No stories found.</div>`;
         return;
     }
 
@@ -64,7 +66,7 @@ function renderTable() {
                     </div>
                 </div>
             </td>
-            <td class="px-6 py-4 text-gray-400 font-medium">${story.author || 'Sabirkhan'}</td>
+            <td class="px-6 py-4 text-gray-400 font-medium">${story.author || "Draft"} </td>
             <td class="px-6 py-4 text-center">
                 <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                     ${story.category || 'Story'}
@@ -100,8 +102,106 @@ function renderTable() {
         </tr>`;
     }).join('');
 
+    mobileBody.innerHTML = stories.map(story => {
+        let imgUrl = story.image || 'https://placehold.co/100';
+        if (imgUrl && !imgUrl.startsWith('http')) imgUrl = `../${imgUrl}`;
+
+        // If content is not loaded (optimized list), we default to 1 Part.
+        // It will be correctly counted in the "Manage Chapters" view where we fetch full details.
+        let partsCount = 1;
+        if (story.content) {
+            const decodedContent = story.content.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            const m = decodedContent.match(/<h2([^>]*)>/gi);
+            partsCount = m ? m.length : 1;
+        }
+
+        let ratingHtml = '';
+        if (story.rating && story.rating > 0) {
+            ratingHtml = `
+                <div class="absolute top-0 right-0 bg-[#005f73] text-white text-[10px] font-bold px-1.5 py-1 rounded-tr-lg rounded-bl-lg flex items-center gap-0.5 z-10 shadow">
+                    ${story.rating.toFixed(1)} <span>★</span>
+                </div>
+            `;
+        } else {
+            ratingHtml = `
+                <div class="absolute top-0 right-0 bg-gray-700/80 backdrop-blur-sm text-gray-300 text-[9px] font-bold px-1.5 py-1 rounded-tr-lg rounded-bl-lg flex items-center z-10">
+                    NEW
+                </div>
+            `;
+        }
+
+        return `
+        <div class="bg-gray-800 rounded-xl p-3 flex gap-4 relative overflow-visible shadow-lg border border-gray-700">
+            <!-- Left: Image Portrait -->
+            <div class="relative w-[85px] h-[120px] flex-shrink-0 rounded-lg overflow-hidden bg-gray-900 border border-gray-700 cursor-pointer" onclick="openChaptersView('${story.id}')">
+                <img src="${imgUrl}" onerror="this.src='https://placehold.co/100'" class="w-full h-full object-cover">
+                <!-- Top Right Rating Badge -->
+                ${ratingHtml}
+            </div>
+            
+            <!-- Right: Details -->
+            <div class="flex-1 flex flex-col justify-start py-0.5">
+                <div class="flex justify-between items-start gap-2 h-7 relative z-20">
+                    <h3 class="text-white font-bold text-base leading-tight line-clamp-2 cursor-pointer pr-5" onclick="openChaptersView('${story.id}')">
+                        ${story.title || 'Untitled'}
+                    </h3>
+                    
+                    <!-- 3-Dot Menu -->
+                    <div class="absolute -top-1 -right-2 dropdown-container">
+                        <button onclick="toggleMobileMenu(event, '${story.id}')" class="text-gray-400 hover:text-white p-2">
+                            <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                        </button>
+                        <!-- Dropdown Content -->
+                        <div id="dropdown-${story.id}" class="hidden absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl py-1 w-40 z-50">
+                            <button onclick="openChaptersView('${story.id}')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                                <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i> Chapters
+                            </button>
+                            <button onclick="editStory('${story.id}')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                                <i data-lucide="edit-2" class="w-4 h-4 text-blue-400"></i> Edit
+                            </button>
+                            <button onclick="deleteStory('${story.id}')" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700 flex items-center gap-2">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Parts Badge -->
+                <div class="mt-4 text-left">
+                    <span class="inline-flex items-center gap-1.5 bg-gray-700 text-gray-200 text-xs font-semibold px-2.5 py-1 rounded">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                        ${partsCount} Parts
+                    </span>
+                </div>
+                
+                <!-- Views -->
+                <div class="mt-auto pt-2 text-gray-400 text-xs font-medium">
+                    ${story.views || 0} views.
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
     if (window.lucide) lucide.createIcons();
 }
+
+// Close all mobile dropdowns
+document.addEventListener('click', () => {
+    document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+});
+
+// Toggle mobile menu visibility
+window.toggleMobileMenu = function (e, id) {
+    e.stopPropagation();
+    const target = document.getElementById(`dropdown-${id}`);
+    const isHidden = target.classList.contains('hidden');
+
+    document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+
+    if (isHidden) {
+        target.classList.remove('hidden');
+    }
+};
 
 // Parse Chapters
 function parseChaptersFromContent(content) {
@@ -149,6 +249,7 @@ async function editStory(id) {
         document.getElementById('imageUrl').value = story.image || '';
         document.getElementById('price').value = story.price || 0;
         document.getElementById('discount').value = story.discount || 0;
+        document.getElementById('buyLink').value = story.buy_link || '';
         document.getElementById('descriptionInput').value = story.summary || '';
         document.getElementById('youtubeLink').value = story.youtube_link || '';
 
@@ -220,7 +321,7 @@ async function handleFormSubmit(e) {
             fullHtml += `<h2 class="chapter-title">${title}</h2>\n${formattedBody}\n\n`;
         });
 
-        const storyData = { title: e.target.title.value, author: e.target.author.value, category: e.target.category.value, language: e.target.language.value, coverImage: imageUrl, summary: document.getElementById('descriptionInput').value, fullContent: fullHtml, youtubeLink: e.target.youtubeLink.value, price: parseFloat(e.target.price.value) || 0, discount: parseFloat(e.target.discount.value) || 0, status: 'published' };
+        const storyData = { title: e.target.title.value, author: e.target.author.value, category: e.target.category.value, language: e.target.language.value, coverImage: imageUrl, summary: document.getElementById('descriptionInput').value, fullContent: fullHtml, youtubeLink: e.target.youtubeLink.value, price: parseFloat(e.target.price.value) || 0, discount: parseFloat(e.target.discount.value) || 0, buy_link: document.getElementById('buyLink').value || '', status: 'published' };
 
         const res = await fetchWithAuth(isEdit ? `/stories/${id}` : '/stories', { method: isEdit ? 'PUT' : 'POST', body: JSON.stringify(storyData) });
         if (res.ok) { closeModal(); fetchStories(); }
@@ -287,37 +388,51 @@ function renderChapterCards(story) {
         const chDate = story.created_at ? new Date(story.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB');
 
         return `
-        <div class="bg-gray-800 border border-gray-700/50 rounded-2xl p-6 shadow-xl mb-5 relative group">
-            <button onclick="removeChapterLocal('${ch.id}')" class="absolute top-5 right-5 text-gray-500 hover:text-red-400 p-2"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-            <div class="flex items-start gap-4 mb-4">
-                <div class="bg-indigo-500/10 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center font-black border border-indigo-500/20">${idx + 1}</div>
-                <div class="flex-1">
-                    <input type="text" onchange="updateChapterTitle('${ch.id}', this.value)" value="${ch.title}" class="bg-transparent border-none text-white font-black text-xl w-full focus:ring-0 p-0">
-                    <div class="flex flex-wrap items-center gap-4 mt-2">
-                        <div class="flex items-center gap-1.5 text-[10px] text-indigo-400 font-black uppercase tracking-widest bg-indigo-500/5 px-2 py-1 rounded">
-                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                            ${chDate}
-                        </div>
-                        <div class="flex items-center gap-1.5 text-[10px] text-green-400 font-black uppercase tracking-widest bg-green-500/5 px-2 py-1 rounded">
-                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                            ${chViews} VIEWS
-                        </div>
-                        <div class="flex items-center gap-1.5 text-[10px] text-red-400 font-black uppercase tracking-widest bg-red-500/5 px-2 py-1 rounded">
-                            <i data-lucide="star" class="w-3.5 h-3.5"></i>
-                            ${chRating} (${chRateCount})
-                        </div>
-                        <div class="flex items-center gap-1.5 text-[10px] text-amber-400 font-black uppercase tracking-widest bg-amber-500/5 px-2 py-1 rounded">
-                            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-                            ${rt} MIN READ
-                        </div>
-                    </div>
+        <div class="relative bg-[#1a1a1a] border-b border-gray-800 p-6 group hover:bg-gray-800/20 transition-all duration-300">
+            <!-- Line 1: Title & Menu -->
+            <div class="flex items-center justify-between mb-2">
+                <input type="text" onchange="updateChapterTitle('${ch.id}', this.value)" value="${ch.title}" 
+                    class="bg-transparent border-none text-white font-bold text-xl w-full focus:ring-0 p-0 leading-tight">
+                <div class="relative flex items-center gap-2">
+                    <button onclick="toggleChapterEditor('${ch.id}')" class="p-2 text-gray-400 hover:text-indigo-600 transition-colors">
+                        <i data-lucide="edit-3" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="removeChapterLocal('${ch.id}')" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
                 </div>
             </div>
-            <div class="flex justify-between items-center bg-gray-900 border border-gray-700 p-2.5 rounded-xl mt-4">
-                <button onclick="toggleChapterEditor('${ch.id}')" class="px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-[10px] font-black tracking-widest transition-all">EDIT CONTENT</button>
+
+            <!-- Line 2: Stats (Views & Rating) -->
+            <div class="flex items-center gap-5 text-gray-500 text-sm mb-2">
+                <div class="flex items-center gap-1.5 font-medium">
+                    <i data-lucide="eye" class="w-5 h-5 text-gray-400"></i>
+                    <span>${chViews}</span>
+                </div>
+                <div class="flex items-center gap-1.5 font-medium">
+                    <i data-lucide="star" class="w-5 h-5 text-amber-500 fill-amber-500"></i>
+                    <span>${chRating}</span>
+                </div>
+                <div class="ml-auto text-[10px] uppercase font-black tracking-widest text-indigo-400 opacity-60">
+                    ${wc} Words / ${rt} min
+                </div>
             </div>
-            <div id="editor-${ch.id}" class="hidden mt-4 pt-4 border-t border-gray-700/50">
-                <textarea onchange="updateChapterBody('${ch.id}', this.value)" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-5 text-sm text-gray-300 h-64 outline-none">${ch.body.replace(/<p>/g, '').replace(/<\/p>/g, '\n').trim()}</textarea>
+
+            <!-- Line 3: Last Update -->
+            <div class="text-gray-400 text-xs font-medium">
+                છેલ્લો સુધારો - ${chDate}
+            </div>
+
+            <!-- Modern Inner Editor (Hidden by default) -->
+            <div id="editor-${ch.id}" class="hidden mt-4 pt-4 border-t border-gray-100">
+                <div class="bg-black/20 rounded-2xl p-4 border border-gray-200">
+                    <textarea onchange="updateChapterBody('${ch.id}', this.value)" 
+                        placeholder="Chapter content..."
+                        class="w-full bg-transparent border-none text-gray-700 h-[400px] outline-none text-lg font-serif leading-relaxed placeholder:text-gray-300">${ch.body.replace(/<p>/g, '').replace(/<\/p>/g, '\n').trim()}</textarea>
+                </div>
+                <div class="flex justify-end mt-3">
+                     <button onclick="toggleChapterEditor('${ch.id}')" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-md uppercase tracking-widest">Finish Editing</button>
+                </div>
             </div>
         </div>`;
     }).join('');

@@ -1384,7 +1384,8 @@
                 document.getElementById('premium-overlay').classList.add('visible');
                 document.getElementById('premium-msg').innerHTML = `Unlock series for <span style="color:var(--accent-gold); font-weight:bold;">₹${displayPrice}</span>`;
                 document.getElementById('unlock-btn').onclick = () => {
-                    window.location.href = `checkout.html?audioId=${currentId}`;
+                    if (track.buy_link) { window.open(track.buy_link, '_blank'); }
+                    else { window.location.href = `checkout.html?audioId=${currentId}`; }
                 };
                 audioPlayer.src = "";
                 resetTimer();

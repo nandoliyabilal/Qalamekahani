@@ -25,32 +25,56 @@
         </div>
         <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
             <a href="dashboard.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="layout-dashboard"></i>Dashboard</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="layout-dashboard"></i>
+                Dashboard
+            </a>
             <a href="stories.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="book-open"></i>Stories</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="book-open"></i>
+                Stories
+            </a>
             <a href="books.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="library"></i>Books</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="library"></i>
+                Books
+            </a>
             <a href="audio.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="headphones"></i>Audio Stories</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="headphones"></i>
+                Audio Stories
+            </a>
             <a href="blogs.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="file-text"></i>Blogs</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="file-text"></i>
+                Blogs
+            </a>
+            <a href="users.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="users"></i>
+                Users
+            </a>
             <a href="images.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
                 <i data-lucide="image"></i>
                 Images
             </a>
             <a href="reviews.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"><i
-                    data-lucide="star"></i>Reviews</a>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="star"></i>
+                Reviews
+            </a>
+            <a href="orders.html"
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="shopping-cart"></i>
+                Orders
+            </a>
             <a href="settings.html"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"><i
-                    data-lucide="settings"></i>Settings</a>
-        </nav>
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                <i data-lucide="settings"></i>
+                Settings
+            </a>
+</nav>
     </aside>
 
     <main class="lg:pl-64 min-h-screen flex flex-col">
@@ -78,7 +102,8 @@
                 </div>
             </div>
 
-            <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+            <!-- Desktop View -->
+            <div class="hidden md:block bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-400">
                         <thead class="bg-gray-700/50 text-gray-200 font-medium uppercase text-xs">
@@ -92,11 +117,16 @@
                         </thead>
                         <tbody id="reviewTableBody" class="divide-y divide-gray-700 text-gray-300">
                             <tr>
-                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">Loading reviews...</td>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">Loading reviews...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Mobile View -->
+            <div id="reviewMobileBody" class="md:hidden flex flex-col gap-4">
+                <div class="py-12 text-center text-gray-500">Loading reviews...</div>
             </div>
         </div>
     </main>

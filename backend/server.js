@@ -1,84 +1,85 @@
 console.log('>>> APPLICATION STARTING UP - ATTEMPTING TO START SERVER <<<');
-const express = require('express'); // Server Refreshed: 12:45
+const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
+
+console.log('>>> [1] CORE MODULES LOADED <<<');
 
 // Load env vars
 dotenv.config();
+console.log('>>> [2] ENV VARS LOADED <<<');
 
-// Supabase is loaded automatically via require in controllers/middleware
+// Create App
 const app = express();
 
 // Security Middleware
-app.use((req, res, next) => {
-    console.log(`[REQUEST] ${req.method} ${req.url} - ${new Date().toLocaleTimeString()}`);
-    next();
-});
-app.use(helmet({
-    contentSecurityPolicy: false,
-})); // Set security headers with CSP disabled
-app.use(express.json({ limit: '50mb' })); // Body parser with higher limit
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
-// app.use(mongoSanitize()); // Prevent NoSQL injection (Not needed)
-app.use(xss()); // Prevent XSS attacks
+app.use(xss());
+
+console.log('>>> [3] BASIC MIDDLEWARE SET <<<');
 
 // Rate Limiting
 const limiter = rateLimit({
-    windowMs: 10 * 60 * 1000, // 10 minutes
-    max: 1000 // limit each IP to 1000 requests per windowMs
+    windowMs: 10 * 60 * 1000, 
+    max: 1000 
 });
 app.use(limiter);
-
 app.use(cors());
 
-// Security: Prevent access to backend source and env files
+// Security: Prevent access to backend source
 app.use(['/backend', '/.env', '/.git'], (req, res) => {
     res.status(403).send('Forbidden');
 });
 
-// Basic Route
-const path = require('path');
+console.log('>>> [4] SECURITY & CORS SET <<<');
 
-// Basic Route
+// Static Routes - ADJUSTED FOR ROOT DEPLOYMENT
+// Since app starts at root, we serve files from current directory
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../index.html'));
+    res.sendFile(path.join(process.cwd(), 'index.html'));
 });
 
-// Serve Admin Panel
-app.use('/admin', express.static(path.join(__dirname, '../admin')));
+app.use('/admin', express.static(path.join(process.cwd(), 'admin')));
+app.use(express.static(path.join(process.cwd())));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-// Serve Main Website Static Files
-app.use(express.static(path.join(__dirname, '../')));
+console.log('>>> [5] STATIC ROUTES SET <<<');
 
-// Serve Uploads Directory (Important for Local Storage)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+const { errorHandler } = require('./backend/middleware/errorMiddleware');
 
-const { errorHandler } = require('./middleware/errorMiddleware');
+console.log('>>> [6] ERROR HANDLER LOADED <<<');
 
-// Routes
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/admin', require('./routes/adminRoutes')); // Admin Stats
-app.use('/api/stories', require('./routes/storyRoutes'));
-app.use('/api/blogs', require('./routes/blogRoutes'));
-app.use('/api/audio', require('./routes/audioRoutes'));
-app.use('/api/upload', require('./routes/uploadRoutes'));
-app.use('/api/books', require('./routes/bookRoutes'));
-app.use('/api/categories', require('./routes/categoryRoutes'));
-app.use('/api/reviews', require('./routes/reviewRoutes'));
-app.use('/api/settings', require('./routes/settingsRoutes'));
-app.use('/api/analytics', require('./routes/analyticsRoutes'));
-app.use('/api/orders', require('./routes/orderRoutes'));
-app.use('/api/contact', require('./routes/contactRoutes'));
-app.use('/api/gallery', require('./routes/galleryRoutes'));
-app.use('/api/notifications', require('./routes/notificationRoutes'));
+// Routes - All prefixed with ./backend/
+console.log('>>> [7] ATTEMPTING TO LOAD ROUTES <<<');
+app.use('/api/auth', require('./backend/routes/authRoutes'));
+app.use('/api/admin', require('./backend/routes/adminRoutes'));
+app.use('/api/stories', require('./backend/routes/storyRoutes'));
+app.use('/api/blogs', require('./backend/routes/blogRoutes'));
+app.use('/api/audio', require('./backend/routes/audioRoutes'));
+app.use('/api/upload', require('./backend/routes/uploadRoutes'));
+app.use('/api/books', require('./backend/routes/bookRoutes'));
+app.use('/api/categories', require('./backend/routes/categoryRoutes'));
+app.use('/api/reviews', require('./backend/routes/reviewRoutes'));
+app.use('/api/settings', require('./backend/routes/settingsRoutes'));
+app.use('/api/analytics', require('./backend/routes/analyticsRoutes'));
+app.use('/api/orders', require('./backend/routes/orderRoutes'));
+app.use('/api/contact', require('./backend/routes/contactRoutes'));
+app.use('/api/gallery', require('./backend/routes/galleryRoutes'));
+app.use('/api/notifications', require('./backend/routes/notificationRoutes'));
+
+console.log('>>> [8] ALL ROUTES LOADED SUCCESSFULLY <<<');
 
 const PORT = process.env.PORT || 5000;
 
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`>>> [9] SERVER SUCCESSFULLY RUNNING ON PORT ${PORT} <<<`);
 });
+

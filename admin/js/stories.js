@@ -108,12 +108,9 @@ function renderTable() {
 
         // If content is not loaded (optimized list), we default to 1 Part.
         // It will be correctly counted in the "Manage Chapters" view where we fetch full details.
-        let partsCount = 1;
-        if (story.content) {
-            const decodedContent = story.content.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            const m = decodedContent.match(/<h2([^>]*)>/gi);
-            partsCount = m ? m.length : 1;
-        }
+        // Use parts_count from backend if available, else fall back to basic calculation
+        const partsCount = story.parts_count !== undefined ? story.parts_count : 1;
+        const partsLabel = partsCount === 1 ? 'Part' : 'Parts';
 
         let ratingHtml = '';
         if (story.rating && story.rating > 0) {
@@ -170,7 +167,7 @@ function renderTable() {
                 <div class="mt-4 text-left">
                     <span class="inline-flex items-center gap-1.5 bg-gray-700 text-gray-200 text-xs font-semibold px-2.5 py-1 rounded">
                         <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                        ${partsCount} Parts
+                        ${partsCount} ${partsLabel}
                     </span>
                 </div>
                 

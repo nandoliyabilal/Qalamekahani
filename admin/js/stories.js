@@ -249,7 +249,6 @@ async function editStory(id) {
         document.getElementById('imageUrl').value = story.image || '';
         document.getElementById('price').value = story.price || 0;
         document.getElementById('discount').value = story.discount || 0;
-        document.getElementById('buyLink').value = story.buy_link || '';
         document.getElementById('descriptionInput').value = story.summary || '';
         document.getElementById('youtubeLink').value = story.youtube_link || '';
 
@@ -321,7 +320,7 @@ async function handleFormSubmit(e) {
             fullHtml += `<h2 class="chapter-title">${title}</h2>\n${formattedBody}\n\n`;
         });
 
-        const storyData = { title: e.target.title.value, author: e.target.author.value, category: e.target.category.value, language: e.target.language.value, coverImage: imageUrl, summary: document.getElementById('descriptionInput').value, fullContent: fullHtml, youtubeLink: e.target.youtubeLink.value, price: parseFloat(e.target.price.value) || 0, discount: parseFloat(e.target.discount.value) || 0, buy_link: document.getElementById('buyLink').value || '', status: 'published' };
+        const storyData = { title: e.target.title.value, author: e.target.author.value, category: e.target.category.value, language: e.target.language.value, coverImage: imageUrl, summary: document.getElementById('descriptionInput').value, fullContent: fullHtml, youtubeLink: e.target.youtubeLink.value, price: parseFloat(e.target.price.value) || 0, discount: parseFloat(e.target.discount.value) || 0, status: 'published' };
 
         const res = await fetchWithAuth(isEdit ? `/stories/${id}` : '/stories', { method: isEdit ? 'PUT' : 'POST', body: JSON.stringify(storyData) });
         if (res.ok) { closeModal(); fetchStories(); }

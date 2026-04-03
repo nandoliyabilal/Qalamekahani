@@ -19,12 +19,7 @@
             }
         }
     </style>
-    <style>
-        .download-overlay-btn {
-            display: none !important;
-        }
-    </style>
-</head>
+<style>.download-overlay-btn { display: none !important; }</style></head>
 
 <body>
     <header class="header">
@@ -74,7 +69,7 @@
                             <span id="story-lang-badge" class="badge badge-lang"></span>
                         </div>
                         <!-- Download Button -->
-                        <button onclick="downloadImage('story-image')" class="download-overlay-btn"
+                        <button onclick="downloadImage('story-image')" class="download-overlay-btn" 
                             style="position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;"
                             title="Download Image">
                             <i class="fas fa-download"></i>
@@ -462,7 +457,7 @@
                             });
                             if (ordersRes.ok) {
                                 const myOrders = await ordersRes.json();
-                                const bought = myOrders.some(o => o.story_id === story.id);
+                                const bought = myOrders.some(o => (o.story_id === story.id) && o.status === 'paid');
                                 if (bought) hasAccess = true; // Should match backend, but good for UI sync
                             }
                         } catch (e) { console.error(e); }
@@ -475,15 +470,15 @@
                 if (hasAccess) {
                     readBtn.innerHTML = '<i class="fas fa-book-open"></i> Read Full Story';
                     readBtn.onclick = () => {
-                        window.location.href = `read.html?id=${story.id}`;
+                        window.location.href = `read.html?id=${storyId}`;
                     };
                 } else if (buyLink) {
                     readBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
-                    btn.classList.remove('btn-primary');
-                    btn.style.background = '#d4af37';
-                    btn.style.color = '#000';
-                    btn.onclick = () => {
-                        window.open(buyLink, '_blank');
+                    readBtn.classList.remove('btn-primary');
+                    readBtn.style.background = '#d4af37';
+                    readBtn.style.color = '#000';
+                    readBtn.onclick = () => {
+                       window.open(buyLink, '_blank');
                     };
                 } else {
                     let priceDisplay = `₹${price}`;

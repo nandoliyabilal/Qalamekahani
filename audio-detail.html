@@ -356,36 +356,35 @@
                 let hasAccess = !isPremium;
                 const token = localStorage.getItem('token');
 
-                if (isPremium) {
-                    const user = JSON.parse(localStorage.getItem('user') || localStorage.getItem('adminUser') || '{}');
-                    if (user && (user.role === 'admin' || user.isAdmin)) {
-                        hasAccess = true;
-                    } else if (token) {
-                        try {
-                            const ordersRes = await fetch('/api/orders/mine', {
-                                headers: { 'Authorization': `Bearer ${token}` }
-                            });
-                            if (ordersRes.ok) {
-                                const myOrders = await ordersRes.json();
-                                const bought = myOrders.some(o => String(o.audio_id) === String(canonicalId));
-                                if (bought) hasAccess = true;
-                            }
-                        } catch (e) { console.error("Error checking orders:", e); }
-                    }
+                if (isPremium && token) {
+                    try {
+                        const ordersRes = await fetch('/api/orders/mine', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (ordersRes.ok) {
+                            const myOrders = await ordersRes.json();
+                            const bought = myOrders.some(o => String(o.audio_id) === String(canonicalId) && o.status === 'paid');
+                            if (bought) hasAccess = true;
+                        }
+                    } catch (e) { console.error("Error checking orders:", e); }
                 }
 
-                // Check for access and update button
+                // UI: Update Action Button
                 updateActionButton(audio, hasAccess);
+
+                // Admin bypass for episode list
+                const userData = JSON.parse(localStorage.getItem('user') || localStorage.getItem('adminUser') || '{}');
+                const canListen = hasAccess || (userData && (userData.role === 'admin' || userData.isAdmin));
 
                 // Populate Episodes
                 if (audio.episodes && audio.episodes.length > 0) {
-                    const epSection = document.getElementById('episodes-section');
+                    const epSection = document.getElementById('parts-tab');
                     const epList = document.getElementById('episodes-list');
                     epSection.style.display = 'block';
                     
                     epList.innerHTML = audio.episodes.map((ep, idx) => `
                         <div class="ep-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; transition: all 0.3s; cursor: pointer;" 
-                             onclick="handleEpisodeClick('${canonicalId}', ${hasAccess})">
+                             onclick="handleEpisodeClick('${canonicalId}', ${canListen})">
                             <div style="width: 40px; height: 40px; border-radius: 50%; background: #d4af37; color: #000; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
                                 ${idx + 1}
                             </div>
@@ -596,21 +595,25 @@
             `;
         }
 
-        function updateActionButton(audio, hasAccess) { const btn = document.getElementById("action-btn"); const btn = document.getElementById("action-btn");
+        function updateActionButton(audio, hasAccess) { 
+            const btn = document.getElementById("action-btn");
             const buyLink = audio.buy_link || "";
             const canonicalId = audio.id || audio._id;
             const token = localStorage.getItem('token');
             const price = parseFloat(audio.price || 0);
             const discount = parseFloat(audio.discount || 0);
 
-            if (hasAccess) {
+            if (hasAccess && !buyLink) { 
                 btn.innerHTML = '<i class="fas fa-play"></i> Listen Now';
                 btn.onclick = () => {
                     window.location.href = `listen.html?id=${canonicalId}`;
                 };
+                btn.className = 'btn btn-primary btn-read';
+                btn.style.background = '';
+                btn.style.color = '';
             } else if (buyLink) {
                 btn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
-                btn.classList.remove('btn-primary');
+                btn.className = 'btn btn-primary btn-read';
                 btn.style.background = '#d4af37';
                 btn.style.color = '#000';
                 btn.onclick = () => {
@@ -623,8 +626,8 @@
                     displayPrice = `₹${discounted} <span style="text-decoration:line-through; font-size:0.8em; opacity:0.7">₹${price}</span>`;
                 }
 
-                btn.innerHTML = `<i class="fas fa-lock"></i> Unlock for ${displayPrice}`;
-                btn.classList.remove('btn-primary');
+                btn.innerHTML = `<i class="fas fa-lock"></i> Unlock Audio Story (${displayPrice})`;
+                btn.className = 'btn btn-primary btn-read';
                 btn.style.background = '#d4af37';
                 btn.style.color = '#000';
                 btn.onclick = () => {
@@ -639,7 +642,7 @@
         }
 
         function handleEpisodeClick(canonicalId, hasAccess) {
-            if (hasAccess) {
+            if (hasAccess) { // Clean restoration
                 window.location.href = `listen.html?id=${canonicalId}`;
             } else {
                 alert('This is premium content. Please unlock the series to listen to all parts.');

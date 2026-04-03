@@ -16,12 +16,17 @@ const razorpay = new Razorpay({
 const createRazorpayOrder = asyncHandler(async (req, res) => {
     const { amount, bookId, bookTitle, storyId, storyTitle, audioId, audioTitle, customerDetails } = req.body;
 
-    console.log("createRazorpayOrder Request Body:", req.body);
-    console.log(`Processing Order - Amount: ${amount}, StoryId: ${storyId}, BookId: ${bookId}, AudioId: ${audioId}`);
+    console.log("[ORDER] createRazorpayOrder Request Body:", JSON.stringify(req.body, null, 2));
+    console.log(`[ORDER] Processing Order - Amount: ${amount}, StoryId: ${storyId}, BookId: ${bookId}, AudioId: ${audioId}`);
 
     if (!amount || (!bookId && !storyId && !audioId)) {
         res.status(400);
-        throw new Error('Please provide all required fields');
+        throw new Error('Please provide all required fields (amount and item ID)');
+    }
+
+    if (!customerDetails || !customerDetails.email) {
+        res.status(400);
+        throw new Error('Customer information (name and email) is required');
     }
 
     const options = {
@@ -31,8 +36,9 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
     };
 
     try {
+        console.log("[ORDER] Creating Razorpay order with options:", options);
         const order = await razorpay.orders.create(options);
-        console.log("Razorpay Order Created. ID:", order.id);
+        console.log("[ORDER] Razorpay Order Created Success. ID:", order.id);
 
         // Save order to Supabase with 'created' status
         const insertData = {
@@ -40,40 +46,39 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
             currency: 'INR',
             razorpay_order_id: order.id,
             status: 'created',
-            customer_name: customerDetails.name,
+            customer_name: customerDetails.name || 'Anonymous',
             customer_email: customerDetails.email,
-            customer_phone: customerDetails.phone,
-            book_title: bookTitle || storyTitle || audioTitle // Store title in existing column
+            customer_phone: customerDetails.phone || '',
+            book_title: bookTitle || storyTitle || audioTitle || 'Purchased Item'
         };
 
-        if (bookId) {
-            insertData.book_id = bookId;
-        }
-        if (storyId) {
-            insertData.story_id = storyId;
-        }
-        if (audioId) {
-            insertData.audio_id = audioId;
-        }
+        if (bookId) insertData.book_id = bookId;
+        if (storyId) insertData.story_id = storyId;
+        if (audioId) insertData.audio_id = audioId;
 
-        console.log("Supabase Insert Payload:", insertData);
+        console.log("[ORDER] Supabase Insert Payload:", JSON.stringify(insertData, null, 2));
 
-        const { data, error } = await supabase
+        const { data, error: insertError } = await supabase
             .from('orders')
-            .insert([insertData]);
+            .insert([insertData])
+            .select();
 
-        if (error) {
-            console.error('Supabase Insert Error:', error);
-            throw new Error(error.message);
+        if (insertError) {
+            console.error('[ORDER] Supabase Insert Fatal Error:', insertError);
+            res.status(500);
+            throw new Error(`Database Error: ${insertError.message}. Make sure the orders table has all required columns like audio_id.`);
         }
+
+        console.log("[ORDER] Order saved successfully in DB");
 
         res.status(200).json({
             ...order,
             key: process.env.RAZORPAY_KEY_ID // Send Key ID to frontend
         });
     } catch (error) {
+        console.error('[ORDER] Create Order Fatal Error:', error);
         res.status(500);
-        throw new Error(error.message);
+        throw new Error(`Payment Initialization Failed: ${error.message}`);
     }
 });
 

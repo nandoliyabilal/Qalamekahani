@@ -35,10 +35,6 @@ function renderTable(orders) {
             <td class="px-6 py-4">
                 <span class="px-2 py-1 text-xs rounded-full bg-green-500/10 text-green-400 uppercase font-bold">${order.status}</span>
             </td>
-            <td class="px-6 py-4">
-                <div class="text-xs text-white">${order.customer_name || 'N/A'}</div>
-                <div class="text-[10px] text-gray-500">${order.customer_email || ''}</div>
-            </td>
         </tr>
     `).join('');
 

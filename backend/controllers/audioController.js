@@ -2,98 +2,100 @@ const asyncHandler = require('express-async-handler');
 const supabase = require('../config/supabase');
 
 const getAudioStories = asyncHandler(async (req, res) => {
-    const { data, error } = await supabase
+    // 1. Fetch main audio stories
+    const { data: stories, error } = await supabase
         .from('audio_stories')
         .select('*')
         .order('created_at', { ascending: false });
 
     if (error) {
+        console.error('[GET AUDIO STORIES ERROR]', error);
         res.status(500);
-        throw new Error(error.message);
+        throw new Error(`Failed to fetch audio stories: ${error.message}`);
     }
 
-    // Fetch ratings for each story
-    const { data: reviews } = await supabase.from('reviews').select('item_id, item_type, rating').eq('status', 'approved');
-    const ratingsMap = {};
-    if (reviews) {
-        reviews.forEach(r => {
-            // Include both main story reviews and episode reviews (mapped back to story id later if needed)
-            if (!ratingsMap[r.item_id]) ratingsMap[r.item_id] = { total: 0, count: 0 };
-            ratingsMap[r.item_id].total += parseFloat(r.rating);
-            ratingsMap[r.item_id].count += 1;
-        });
+    if (!stories || stories.length === 0) {
+        return res.json([]);
     }
 
-    // Fetch all episodes to calculate durations
-    const { data: allEpisodes } = await supabase.from('audio_episodes').select('audio_story_id, duration');
-    const durationsMap = {};
-    if (allEpisodes) {
-        allEpisodes.forEach(ep => {
-            if (!durationsMap[ep.audio_story_id]) durationsMap[ep.audio_story_id] = 0;
-            if (ep.duration && ep.duration !== '0:00' && ep.duration !== '--:--') {
-                const parts = ep.duration.split(':');
-                if (parts.length === 2) {
-                    durationsMap[ep.audio_story_id] += parseInt(parts[0]) * 60 + parseInt(parts[1]);
-                } else if (parts.length === 3) {
-                    durationsMap[ep.audio_story_id] += parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
-                }
-            }
-        });
-    }
+    // 2. Fetch all extra metadata in parallel
+    const [reviewsRes, episodesRes] = await Promise.all([
+        supabase.from('reviews').select('item_id, item_type, rating').eq('status', 'approved'),
+        supabase.from('audio_episodes').select('id, audio_story_id, duration')
+    ]);
 
-    // Fetch all episode counts
-    const { data: epCounts } = await supabase.from('audio_episodes').select('audio_story_id');
-    const countsMap = {};
-    if (epCounts) {
-        epCounts.forEach(ep => {
-            countsMap[ep.audio_story_id] = (countsMap[ep.audio_story_id] || 0) + 1;
-        });
-    }
+    const reviews = reviewsRes.data || [];
+    const allEpisodes = episodesRes.data || [];
 
-    // Map episode ratings back to their parent stories
-    if (reviews && allEpisodes) {
-        reviews.forEach(r => {
-            if (r.item_type === 'episode') {
-                const ep = allEpisodes.find(e => e.id === r.item_id);
-                if (ep && ep.audio_story_id) {
-                    const sid = ep.audio_story_id;
-                    // We already added it to ratingsMap[r.item_id], but for the story list 
-                    // we want it aggregated under the story ID too.
-                    if (!ratingsMap[sid]) ratingsMap[sid] = { total: 0, count: 0 };
-                    // Note: If a user rated the episode directly, we include it in story average
-                    ratingsMap[sid].total += parseFloat(r.rating);
-                    ratingsMap[sid].count += 1;
-                }
-            }
-        });
-    }
+    // 3. Prepare Lookup Maps
+    const durationsMap = {}; // story_id -> total seconds
+    const countsMap = {};    // story_id -> episode count
+    const ratingsMap = {};   // story_id -> { totalRating, reviewCount }
+    const epToStoryMap = {}; // ep_id -> story_id
 
-    const storiesWithRating = (data || []).map(s => {
-        let finalDuration = s.duration || '';
+    // Map episodes for counts, durations, and review mapping
+    allEpisodes.forEach(ep => {
+        const sid = ep.audio_story_id;
+        epToStoryMap[ep.id] = sid;
+        countsMap[sid] = (countsMap[sid] || 0) + 1;
+
+        if (ep.duration && ep.duration.includes(':')) {
+            const parts = ep.duration.split(':').map(p => parseInt(p) || 0);
+            let secs = 0;
+            if (parts.length === 2) secs = (parts[0] * 60) + parts[1];
+            else if (parts.length === 3) secs = (parts[0] * 3600) + (parts[1] * 60) + parts[2];
+            durationsMap[sid] = (durationsMap[sid] || 0) + secs;
+        }
+    });
+
+    // Process reviews (aggregate both story-level and episode-level reviews)
+    reviews.forEach(r => {
+        let sid = null;
+        if (r.item_type === 'audio_story') {
+            sid = r.item_id;
+        } else if (r.item_type === 'episode' || r.item_type === 'audio') {
+            sid = epToStoryMap[r.item_id] || r.item_id; // Fallback if ID is already story_id
+        }
+
+        if (sid) {
+            if (!ratingsMap[sid]) ratingsMap[sid] = { total: 0, count: 0 };
+            ratingsMap[sid].total += parseFloat(r.rating) || 0;
+            ratingsMap[sid].count += 1;
+        }
+    });
+
+    // 4. Merge Data into Final Response
+    const result = stories.map(s => {
+        const ratingData = ratingsMap[s.id];
+        const avgRating = ratingData ? (ratingData.total / ratingData.count) : 0;
+        
+        let displayDuration = s.duration || '0:00';
         if (durationsMap[s.id] > 0) {
-            const totalSecs = durationsMap[s.id];
-            const h = Math.floor(totalSecs / 3600);
-            const m = Math.floor((totalSecs % 3600) / 60);
-            const sec = totalSecs % 60;
-            if (h > 0) finalDuration = `${h} hr ${m} min`;
-            else finalDuration = `${m} min ${sec} sec`;
-        } else if (finalDuration === '0:00' || finalDuration === 'Unknown' || finalDuration === '') {
-            finalDuration = '0 sec';
+            const ts = durationsMap[s.id];
+            const h = Math.floor(ts / 3600);
+            const m = Math.floor((ts % 3600) / 60);
+            const s_rem = ts % 60;
+            displayDuration = h > 0 ? `${h}h ${m}m` : `${m}m ${s_rem}s`;
         }
 
         return {
             ...s,
-            duration: finalDuration,
-            episodes_count: countsMap[s.id] || 0, // NEW field for episodes count
-            rating: ratingsMap[s.id] && ratingsMap[s.id].count > 0 ? (ratingsMap[s.id].total / ratingsMap[s.id].count).toFixed(1) : 0.0 // Default to 0.0 if no rating
+            episodes_count: countsMap[s.id] || 0,
+            rating: parseFloat(avgRating.toFixed(1)),
+            review_count: ratingData ? ratingData.count : 0,
+            calculated_duration: displayDuration
         };
     });
 
-    res.status(200).json(storiesWithRating);
+    res.status(200).json(result);
 });
 
 const getAudioStoryById = asyncHandler(async (req, res) => {
-    const id = req.params.id.trim();
+    const id = (req.params.id || "").trim();
+    if (!id || id === "undefined") {
+        res.status(400);
+        throw new Error('Invalid Audio ID');
+    }
     console.log(`[DEBUG] Fetching Audio ID: '${id}'`);
 
     let story = null;
@@ -184,15 +186,20 @@ const { sendEmailNotification } = require('../utils/notificationHelper');
 const createAudioStory = asyncHandler(async (req, res) => {
     const { episodes, ...storyData } = req.body;
     
+    // Ensure no unexpected fields are sent to Supabase
+    const cleanData = { ...storyData };
+    delete cleanData.id;
+
     const { data, error } = await supabase
         .from('audio_stories')
-        .insert([storyData])
+        .insert([cleanData])
         .select()
         .single();
 
     if (error) {
+        console.error('[AUDIO CREATE ERROR]', error);
         res.status(400);
-        throw new Error(error.message);
+        throw new Error(`Failed to create audio story: ${error.message}`);
     }
 
     // Insert episodes if provided
@@ -204,7 +211,8 @@ const createAudioStory = asyncHandler(async (req, res) => {
             duration: ep.duration,
             order_index: idx
         }));
-        await supabase.from('audio_episodes').insert(episodesToInsert);
+        const { error: epError } = await supabase.from('audio_episodes').insert(episodesToInsert);
+        if (epError) console.error('[AUDIO EPISODE INSERT ERROR]', epError);
     }
 
     await sendEmailNotification(data, 'audio');
@@ -214,16 +222,22 @@ const createAudioStory = asyncHandler(async (req, res) => {
 const updateAudioStory = asyncHandler(async (req, res) => {
     const { episodes, ...storyData } = req.body;
     
+    // Remove ID and episodes from the update object
+    const updates = { ...storyData };
+    delete updates.id;
+    delete updates.episodes;
+
     const { data, error } = await supabase
         .from('audio_stories')
-        .update(storyData)
+        .update(updates)
         .eq('id', req.params.id)
         .select()
         .single();
 
     if (error) {
+        console.error('[AUDIO UPDATE ERROR]', error);
         res.status(400);
-        throw new Error(error.message);
+        throw new Error(`Failed to update audio story: ${error.message}`);
     }
 
     // Sync episodes if provided
@@ -242,7 +256,8 @@ const updateAudioStory = asyncHandler(async (req, res) => {
                 duration: ep.duration,
                 order_index: idx
             }));
-            await supabase.from('audio_episodes').insert(episodesToInsert);
+            const { error: epError } = await supabase.from('audio_episodes').insert(episodesToInsert);
+            if (epError) console.error('[AUDIO EPISODE SYNC ERROR]', epError);
         }
     }
 

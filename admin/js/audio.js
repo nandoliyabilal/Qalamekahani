@@ -23,8 +23,7 @@ async function fetchAudio() {
         renderTable();
     } catch (error) {
         console.error(error);
-        if (tableBody) tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500 font-bold">Error loading.</td></tr>`;
-        if (mobileBody) mobileBody.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Error loading.</div>`;
+        if (tableBody) tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-400 font-bold">Error loading audio stories.</td></tr>`;
     }
 }
 
@@ -47,6 +46,7 @@ function renderTable() {
         tableBody.innerHTML = audioStories.map(story => {
             let imgUrl = story.image || 'https://placehold.co/100';
             if (imgUrl && !imgUrl.startsWith('http')) imgUrl = `../${imgUrl}`;
+
             const isPremium = parseFloat(story.price) > 0;
 
             return `
@@ -57,8 +57,7 @@ function renderTable() {
                         <div class="min-w-0">
                             <div class="font-bold text-white group-hover:text-indigo-400 transition-colors truncate text-base">${story.title}</div>
                             <div class="flex items-center gap-2 mt-1">
-                                <span class="bg-indigo-500/10 text-indigo-400 text-[9px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider border border-indigo-500/20">${story.category || 'Mystery'}</span>
-                                <span class="bg-gray-700/50 text-gray-400 text-[9px] px-2 py-0.5 rounded-md font-medium tracking-tight font-mono">${story.language || 'Hindi'}</span>
+                                <span class="bg-indigo-500/10 text-indigo-400 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider border border-indigo-500/20">${story.language || 'Hindi'}</span>
                                 <span class="text-[9px] ${isPremium ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'} font-extrabold uppercase tracking-tighter px-1.5 py-0.5 rounded border">
                                     ${isPremium ? 'PREMIUM' : 'FREE'}
                                 </span>
@@ -67,26 +66,34 @@ function renderTable() {
                     </div>
                 </td>
                 <td class="px-6 py-4">
-                    <div class="flex flex-col items-center">
-                        <span class="text-white font-bold text-lg">${story.episodes_count || (story.episodes ? story.episodes.length : 0)}</span>
-                        <span class="text-[10px] text-gray-500 uppercase font-black">Chapters</span>
+                    <div class="text-sm font-medium text-gray-300 font-sans">${story.author || 'Sabirkhan Pathan'}</div>
+                    ${story.is_featured ? '<span class="text-[9px] text-pink-500 font-black uppercase tracking-tighter bg-pink-500/10 px-1.5 py-0.5 rounded border border-pink-500/20 mt-1 inline-block">HOT ★</span>' : ''}
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex flex-col gap-1.5">
+                        <div class="flex items-center gap-2">
+                             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${story.status === 'published' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}">
+                                ${story.status || 'published'}
+                             </span>
+                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">${story.episodes_count || 0} Ch.</span>
+                        </div>
+                        <button onclick="openEpisodesModal('${story.id}')" class="text-[10px] font-black tracking-widest text-indigo-400 hover:text-white transition-all text-left uppercase flex items-center gap-1 group/btn">
+                            <span>MANAGE PARTS</span>
+                            <i data-lucide="chevron-right" class="w-3 h-3 group-hover/btn:translate-x-1 transition-transform"></i>
+                        </button>
                     </div>
                 </td>
                 <td class="px-6 py-4 text-center">
-                    <div class="text-yellow-500 font-bold flex items-center justify-center gap-1 bg-yellow-500/10 px-3 py-1.5 rounded-xl border border-yellow-500/20">
-                        <i data-lucide="star" class="w-4 h-4 fill-yellow-500"></i>
-                        ${parseFloat(story.rating || 0).toFixed(1)}
-                    </div>
-                </td>
-                <td class="px-6 py-4 text-center">
-                    <div class="flex items-center justify-center gap-1.5 text-xs text-gray-200 bg-gray-900/50 py-2 px-4 rounded-xl border border-gray-700/30 font-bold shadow-inner">
-                        <i data-lucide="activity" class="w-4 h-4 text-emerald-500"></i>
-                        <span>${story.views || 0} <span class="text-[10px] text-gray-500 ml-0.5 font-black uppercase">Hits</span></span>
+                    <div class="inline-flex flex-col items-center gap-1">
+                        <div class="flex items-center gap-1 text-sm font-black text-amber-400 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20">
+                            <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i>
+                            ${parseFloat(story.rating || 0).toFixed(1)}
+                        </div>
+                        <div class="text-[10px] text-gray-500 font-bold uppercase font-mono tracking-tighter">${story.views || 0} hits</div>
                     </div>
                 </td>
                 <td class="px-6 py-4 text-right">
                     <div class="flex items-center justify-end gap-2">
-                        <button onclick="openEpisodesModal('${story.id}')" class="bg-indigo-600/10 text-indigo-400 hover:bg-indigo-600 hover:text-white px-4 py-2 rounded-xl border border-indigo-500/20 transition-all text-xs font-bold shadow-lg shadow-indigo-900/10">Manage Parts</button>
                         <button onclick="editAudio('${story.id}')" title="Edit Story" class="p-2.5 bg-gray-800 hover:bg-indigo-600 text-gray-400 hover:text-white rounded-xl transition-all border border-gray-700 hover:border-indigo-400 shadow-lg">
                             <i data-lucide="edit-3" class="w-4.5 h-4.5"></i>
                         </button>
@@ -99,37 +106,84 @@ function renderTable() {
         }).join('');
     }
 
-    // MOBILE CARDS
+    // MOBILE CARDS (Matched with Stories Style)
     if (mobileBody) {
         mobileBody.innerHTML = audioStories.map(story => {
             let imgUrl = story.image || 'https://placehold.co/100';
             if (imgUrl && !imgUrl.startsWith('http')) imgUrl = `../${imgUrl}`;
+
+            const rating = parseFloat(story.rating || 0).toFixed(1);
             const isPremium = parseFloat(story.price) > 0;
-            return `
-            <div class="bg-gray-800/40 border border-gray-700/50 rounded-2xl p-4 mb-4 hover:border-indigo-500/30 transition-all group">
-                <div class="flex gap-4 mb-4">
-                    <div class="relative">
-                        <img src="${imgUrl}" class="w-20 h-20 rounded-xl object-cover border border-gray-700 shadow-xl group-hover:border-indigo-500/50 transition-all">
-                        ${isPremium ? `<span class="absolute -top-2 -left-2 bg-amber-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded shadow-lg ring-1 ring-amber-400">PRO</span>` : ''}
+
+            let ratingHtml = '';
+            if (rating > 0) {
+                ratingHtml = `
+                    <div class="absolute top-0 right-0 bg-[#005f73] text-white text-[10px] font-bold px-1.5 py-1 rounded-tr-lg rounded-bl-lg flex items-center gap-0.5 z-10 shadow">
+                        ${rating} <span>★</span>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-bold text-lg mb-1 truncate">${story.title}</h4>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="bg-indigo-500/10 text-indigo-400 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">${story.category || 'Mystery'}</span>
-                            <span class="text-yellow-500 text-xs font-bold flex items-center gap-1">
-                                <i data-lucide="star" class="w-3 h-3 fill-yellow-500"></i>
-                                ${parseFloat(story.rating || 0).toFixed(1)}
-                            </span>
+                `;
+            } else {
+                ratingHtml = `
+                    <div class="absolute top-0 right-0 bg-gray-700/80 backdrop-blur-sm text-gray-300 text-[9px] font-bold px-1.5 py-1 rounded-tr-lg rounded-bl-lg flex items-center z-10">
+                        NEW
+                    </div>
+                `;
+            }
+
+            return `
+            <div class="bg-gray-800 rounded-xl p-3 flex gap-4 relative overflow-visible shadow-lg border border-gray-700 mb-4">
+                <!-- Left: Image Portrait -->
+                <div class="relative w-[85px] h-[120px] flex-shrink-0 rounded-lg overflow-hidden bg-gray-900 border border-gray-700 cursor-pointer" onclick="openEpisodesModal('${story.id}')">
+                    <img src="${imgUrl}" onerror="this.src='https://placehold.co/100'" class="w-full h-full object-cover">
+                    <!-- Top Right Rating Badge -->
+                    ${ratingHtml}
+                </div>
+                
+                <!-- Right: Details -->
+                <div class="flex-1 flex flex-col justify-start py-0.5">
+                    <div class="flex justify-between items-start gap-2 h-7 relative z-20">
+                        <h3 class="text-white font-bold text-base leading-tight line-clamp-2 cursor-pointer pr-5" onclick="openEpisodesModal('${story.id}')">
+                            ${story.title || 'Untitled'}
+                        </h3>
+                        
+                        <!-- 3-Dot Menu -->
+                        <div class="absolute -top-1 -right-2 dropdown-container">
+                            <button onclick="toggleMobileMenu(event, '${story.id}')" class="text-gray-400 hover:text-white p-2">
+                                <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                            </button>
+                            <!-- Dropdown Content -->
+                            <div id="dropdown-${story.id}" class="hidden absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl py-1 w-40 z-50">
+                                <button onclick="openEpisodesModal('${story.id}')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                                    <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i> Manage Parts
+                                </button>
+                                <button onclick="editAudio('${story.id}')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2">
+                                    <i data-lucide="edit-2" class="w-4 h-4 text-blue-400"></i> Edit
+                                </button>
+                                <button onclick="deleteAudio('${story.id}')" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700 flex items-center gap-2">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="flex items-center justify-between pt-3 border-t border-gray-700/50">
-                    <div class="text-gray-400 text-[10px] font-bold font-mono tracking-tighter uppercase whitespace-nowrap">
-                        ${story.episodes_count || (story.episodes ? story.episodes.length : 0)} Parts | ${story.views || 0} Views
+
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <span class="text-[9px] font-black bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded border border-gray-600">${story.language || 'Hindi'}</span>
+                        <span class="text-[9px] ${isPremium ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'} font-extrabold uppercase tracking-tighter px-1.5 py-0.5 rounded border">
+                            ${isPremium ? 'PREMIUM' : 'FREE'}
+                        </span>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="editAudio('${story.id}')" class="p-2 text-gray-400 hover:text-indigo-400 transition-colors"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                        <button onclick="openEpisodesModal('${story.id}')" class="bg-indigo-600 text-white px-4 py-1.5 rounded-xl text-[11px] font-black tracking-widest shadow-lg shadow-indigo-600/20 uppercase transition-transform active:scale-95">Manage</button>
+                    
+                    <!-- Parts Badge -->
+                    <div class="mt-4 text-left">
+                        <span class="inline-flex items-center gap-1.5 bg-gray-700 text-gray-200 text-xs font-semibold px-2.5 py-1 rounded">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            ${story.episodes_count || 0} Parts
+                        </span>
+                    </div>
+                    
+                    <!-- Views -->
+                    <div class="mt-auto pt-2 text-gray-400 text-[10px] font-bold uppercase tracking-tight">
+                        ${story.views || 0} views.
                     </div>
                 </div>
             </div>`;
@@ -138,6 +192,23 @@ function renderTable() {
 
     if (window.lucide) lucide.createIcons();
 }
+
+// Mobile Menu Helpers
+document.addEventListener('click', () => {
+    document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+});
+
+window.toggleMobileMenu = function (e, id) {
+    e.stopPropagation();
+    const target = document.getElementById(`dropdown-${id}`);
+    const isHidden = target.classList.contains('hidden');
+
+    document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+
+    if (isHidden) {
+        target.classList.remove('hidden');
+    }
+};
 
 // Preview Image helper
 function previewImage(input) {
@@ -162,7 +233,7 @@ function addEpisodeField(titleValue = '', duration = '', url = '') {
 
     const div = document.createElement('div');
     div.className = 'p-4 bg-gray-900 border border-gray-700 rounded-2xl relative group';
-
+    
     // Check if it's existing or new
     const isExisting = !!url;
 
@@ -206,7 +277,7 @@ async function handlePartFileChange(input) {
         btn.textContent = input.files[0].name;
         btn.classList.remove('border-dashed');
         btn.classList.add('border-indigo-500/50', 'text-indigo-400');
-
+        
         // Get duration
         try {
             const duration = await getAudioDuration(input.files[0]);
@@ -221,7 +292,7 @@ function getAudioDuration(file) {
     return new Promise((resolve) => {
         const audio = document.createElement('audio');
         audio.preload = 'metadata';
-
+        
         const finish = (durationSecs) => {
             window.URL.revokeObjectURL(audio.src);
             if (!durationSecs || isNaN(durationSecs) || durationSecs === Infinity) {
@@ -231,7 +302,7 @@ function getAudioDuration(file) {
             const rc = durationSecs % 3600;
             const minutes = Math.floor(rc / 60);
             const seconds = Math.floor(rc % 60);
-
+            
             if (hc > 0) {
                 resolve(`${hc}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
             } else {
@@ -251,11 +322,11 @@ function getAudioDuration(file) {
                 finish(audio.duration);
             }
         };
-
-        audio.onerror = function () {
+        
+        audio.onerror = function() {
             resolve('');
         };
-
+        
         audio.src = URL.createObjectURL(file);
     });
 }
@@ -276,6 +347,9 @@ async function editAudio(id) {
         document.getElementById('price').value = story.price || 0;
         document.getElementById('discount').value = story.discount || 0;
         document.getElementById('buyLink').value = story.buy_link || '';
+        document.getElementById('youtubeLink').value = story.youtube_link || '';
+        document.getElementById('status').value = story.status || 'published';
+        document.getElementById('isFeatured').checked = !!story.is_featured;
 
         const preview = document.getElementById('imagePreview');
         const placeholder = document.getElementById('imagePlaceholder');
@@ -317,7 +391,7 @@ async function handleFormSubmit(e) {
     try {
         const id = document.getElementById('audioId').value;
         const isEdit = !!id;
-
+        
         let coverUrl = document.getElementById('imageUrl').value;
         const coverFile = document.getElementById('imageFile').files[0];
 
@@ -370,6 +444,9 @@ async function handleFormSubmit(e) {
             price: parseFloat(document.getElementById('price').value) || 0,
             discount: parseFloat(document.getElementById('discount').value) || 0,
             buy_link: document.getElementById('buyLink').value || '',
+            youtube_link: document.getElementById('youtubeLink').value || '',
+            status: document.getElementById('status').value,
+            is_featured: document.getElementById('isFeatured').checked,
             file_url: firstEp.file_url, // Legacy link
             duration: firstEp.duration,   // Legacy link
             episodes: episodes // NEW: List of all parts
@@ -436,14 +513,14 @@ async function openEpisodesModal(id) {
         const res = await fetchWithAuth(`/audio/${id}`);
         const story = await res.json();
         document.getElementById('episodesModalTitle').textContent = `Manage Parts: ${story.title}`;
-
+        
         if (!story.episodes || story.episodes.length === 0) {
             container.innerHTML = `<div class="text-center py-12 text-gray-500 font-bold">No parts added yet. Use the button above to add the first part.</div>`;
             return;
         }
 
         renderEpisodeCards(story.episodes);
-
+        
         // Auto-fix any missing/0:00 durations in background
         autoFixDurations(story);
 
@@ -455,13 +532,13 @@ async function openEpisodesModal(id) {
 async function autoFixDurations(story) {
     if (!story.episodes || story.episodes.length === 0) return;
     let needsUpdate = false;
-
+    
     const episodesFixed = [...story.episodes];
 
     const fetchDuration = (url) => new Promise((resolve) => {
         const audio = document.createElement('audio');
         audio.preload = 'metadata';
-
+        
         const finish = (durationSecs) => {
             if (!durationSecs || isNaN(durationSecs) || durationSecs === Infinity) {
                 return resolve('0:00');
@@ -470,7 +547,7 @@ async function autoFixDurations(story) {
             const rc = durationSecs % 3600;
             const minutes = Math.floor(rc / 60);
             const seconds = Math.floor(rc % 60);
-
+            
             if (hc > 0) resolve(`${hc}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
             else resolve(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
         };
@@ -515,7 +592,7 @@ async function autoFixDurations(story) {
             discount: parseFloat(story.discount) || 0,
             episodes: episodesFixed
         };
-
+        
         try {
             const res = await fetchWithAuth(`/audio/${story.id}`, {
                 method: 'PUT',
@@ -596,7 +673,7 @@ function playPreview(url) {
 async function addNewEpisodeModal() {
     const title = prompt('Enter Episode Title:');
     if (!title) return;
-
+    
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'audio/*';
@@ -604,26 +681,26 @@ async function addNewEpisodeModal() {
         if (fileInput.files[0]) {
             const file = fileInput.files[0];
             const duration = await getAudioDuration(file);
-
+            
             const formData = new FormData();
             formData.append('file', file);
-
+            
             try {
                 const upRes = await fetchWithAuth('/upload', { method: 'POST', body: formData });
                 const upData = await upRes.json();
-
+                
                 const epData = {
                     audio_story_id: activeAudioId,
                     title,
                     file_url: upData.url,
                     duration
                 };
-
+                
                 const saveRes = await fetchWithAuth('/audio/episodes', {
                     method: 'POST',
                     body: JSON.stringify(epData)
                 });
-
+                
                 if (saveRes.ok) openEpisodesModal(activeAudioId);
                 else alert('Failed to save episode.');
             } catch (e) { alert('Upload error.'); }
@@ -658,3 +735,4 @@ function logout() {
     localStorage.removeItem('adminUser');
     window.location.href = 'login.html';
 }
+

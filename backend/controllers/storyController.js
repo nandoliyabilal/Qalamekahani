@@ -30,39 +30,39 @@ const getStory = asyncHandler(async (req, res) => {
     // Check if input is a valid UUID
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input);
 
-    let query = supabase.from('stories').select('*');
+    let storyData = null;
+    console.log(`[DEBUG] getStory searching for: '${input}'`);
 
-    if (isUUID) {
-        query = query.eq('id', input);
-    } else {
-        query = query.eq('slug', input);
+    const { data: result, error } = await supabase.from('stories').select('*')
+        .or(`id.eq."${isUUID ? input : '00000000-0000-0000-0000-000000000000'}",slug.eq."${input}"`)
+        .maybeSingle();
+
+    if (error) {
+        console.log(`[DEBUG] Database query error:`, error);
+        res.status(500);
+        throw new Error('Database error during story lookup');
     }
 
-    const { data, error } = await query.single();
-
-    if (error || !data) {
-        // Double check: If slug failed but maybe it was passed as ID format in URL by mistake?
-        // Actually, let's keep it simple. If not found, 404.
+    if (!result) {
+        console.log(`[DEBUG] Story NOT FOUND for: '${input}'`);
         res.status(404);
         throw new Error('Story not found');
     }
 
+    storyData = { ...result };
+
     // Increment views (Safe approach)
-    // We ignore errors here so it doesn't block the response
     if (req.query.increment !== 'false') {
-        supabase.rpc('increment_story_views', { row_id: data.id }).then(({ error }) => {
-            if (error) {
-                // Fallback if RPC doesn't exist
+        supabase.rpc('increment_story_views', { row_id: storyData.id }).then(({ error: rpcErr }) => {
+            if (rpcErr) {
                 supabase.from('stories')
-                    .update({ views: (data.views || 0) + 1 })
-                    .eq('id', data.id)
+                    .update({ views: (storyData.views || 0) + 1 })
+                    .eq('id', storyData.id)
                     .then(() => { });
             }
         });
     }
 
-    // Clone data to ensure mutability
-    let storyData = { ...data };
 
     // Determine valid identifiers for reviews
     const identifiers = [storyData.id];
@@ -105,7 +105,8 @@ const getStory = asyncHandler(async (req, res) => {
                 const { data: userData } = await supabase.from('users').select('email, role').eq('id', decoded.id).single();
 
                 if (userData) {
-                    if (userData.role === 'admin') {
+                    // For testing, restrict admin bypass so the payment button shows
+                    if (userData.role === 'admin_testing_disabled') {
                         hasAccess = true;
                     } else if (userData.email) {
                         const { data: orderData } = await supabase
@@ -125,15 +126,19 @@ const getStory = asyncHandler(async (req, res) => {
         }
 
         // 3. Obfuscate if no access
+        console.log(`[DEBUG] Final access decision for '${storyData.title}': ${hasAccess}`);
         if (!hasAccess) {
             // Keep only H2 tags for chapter listing
             const content = storyData.content || '';
             const matches = content.match(/<h2.*?>.*?<\/h2>/gi);
-            storyData.content = matches ? matches.join('\n') : '';
+            storyData.content = (matches && Array.isArray(matches)) ? matches.join('\n') : '';
             storyData.isLocked = true;
         } else {
             storyData.isLocked = false;
         }
+    } else {
+        storyData.isLocked = false;
+        console.log(`[DEBUG] Story is FREE: '${storyData.title}'`);
     }
 
     res.status(200).json(storyData);
@@ -152,12 +157,15 @@ const createStory = asyncHandler(async (req, res) => {
         throw new Error('Please include all required fields');
     }
 
-    // Slug generation (improved for Hindi/Unicode)
+    // Robust Slug Generation
     let slug = title.toLowerCase()
         .trim()
-        .replace(/[^\u0900-\u097F\w\s-]/g, '') // Keep Hindi range + \w + space + dash
+        .replace(/[^\u0900-\u097F\w\s-]/g, '') // Keep Hindi + alphanumeric + space + dash
         .replace(/\s+/g, '-')                  // Spaces to dashes
         .replace(/-+/g, '-');                  // Multiple dashes to single
+
+    // Append short hash for uniqueness if title is common
+    slug = `${slug}-${Math.random().toString(36).substring(2, 7)}`;
 
     // Fallback if slug is empty or just dashes
     if (!slug || slug === '-' || slug === '--') {
@@ -174,7 +182,7 @@ const createStory = asyncHandler(async (req, res) => {
             category,
             status,
             language: language || 'Hindi', // Default
-            hashtags: tags,
+            hashtags: Array.isArray(tags) ? tags : (tags ? [tags] : []),
             image: coverImage,
             youtube_link: youtubeLink,
             price: price || 0,
@@ -185,8 +193,9 @@ const createStory = asyncHandler(async (req, res) => {
         .single();
 
     if (error) {
+        console.error('[STORY CREATE ERROR]', error);
         res.status(400);
-        throw new Error(error.message);
+        throw new Error(`Failed to create story: ${error.message}`);
     }
 
     // Trigger Notification (Wait for it to send)
@@ -207,7 +216,7 @@ const updateStory = asyncHandler(async (req, res) => {
     if (fullContent) updates.content = fullContent;
     if (category) updates.category = category;
     if (language) updates.language = language;
-    if (tags) updates.hashtags = tags;
+    if (tags) updates.hashtags = Array.isArray(tags) ? tags : [tags]; // Ensure array
     if (coverImage) updates.image = coverImage;
     if (status) updates.status = status;
     if (youtubeLink !== undefined) updates.youtube_link = youtubeLink;
@@ -222,8 +231,9 @@ const updateStory = asyncHandler(async (req, res) => {
         .single();
 
     if (error) {
+        console.error('[STORY UPDATE ERROR]', error);
         res.status(400);
-        throw new Error(error.message);
+        throw new Error(`Failed to update story: ${error.message}`);
     }
 
     res.status(200).json(data);

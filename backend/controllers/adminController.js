@@ -36,7 +36,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         storiesViews,
         audioViews,
         booksViews,
-        blogsViews
+        blogsViews,
+        galleryData
     ] = await Promise.all([
         fetchCount('users'),
         fetchCount('users', { last_login_gte: yesterday.toISOString() }),
@@ -49,7 +50,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         supabase.from('stories').select('views'),
         supabase.from('audio_stories').select('views'),
         supabase.from('books').select('views'),
-        supabase.from('blogs').select('*') // Changed from 'views' to '*' to avoid potential error if views column is missing
+        supabase.from('blogs').select('*'),
+        supabase.from('galleries').select('downloads')
     ]);
 
     // Sum views
@@ -59,6 +61,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         ...(booksViews.data || []),
         ...(blogsViews.data || [])
     ].reduce((sum, item) => sum + (parseInt(item.views) || 0), 0);
+
+    const totalDownloads = (galleryData.data || []).reduce((sum, item) => sum + (parseInt(item.downloads) || 0), 0);
 
     res.json({
         users: {
@@ -71,7 +75,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
             books: booksTotal,
             blogs: blogsTotal,
             reviews: reviewsTotal,
-            totalViews: totalViews
+            totalViews: totalViews,
+            totalDownloads: totalDownloads
         },
         recentUsers: recentUsersData.data || []
     });

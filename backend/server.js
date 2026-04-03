@@ -1,3 +1,4 @@
+console.log('>>> APPLICATION STARTING UP - ATTEMPTING TO START SERVER <<<');
 const express = require('express'); // Server Refreshed: 12:45
 const dotenv = require('dotenv');
 const cors = require('cors');

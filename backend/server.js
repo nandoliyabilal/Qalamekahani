@@ -51,27 +51,27 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 console.log('>>> [5] STATIC ROUTES SET <<<');
 
-const { errorHandler } = require('./backend/middleware/errorMiddleware');
+const { errorHandler } = require('./middleware/errorMiddleware');
 
 console.log('>>> [6] ERROR HANDLER LOADED <<<');
 
-// Routes - All prefixed with ./backend/
+// Routes - All back to relative to server.js
 console.log('>>> [7] ATTEMPTING TO LOAD ROUTES <<<');
-app.use('/api/auth', require('./backend/routes/authRoutes'));
-app.use('/api/admin', require('./backend/routes/adminRoutes'));
-app.use('/api/stories', require('./backend/routes/storyRoutes'));
-app.use('/api/blogs', require('./backend/routes/blogRoutes'));
-app.use('/api/audio', require('./backend/routes/audioRoutes'));
-app.use('/api/upload', require('./backend/routes/uploadRoutes'));
-app.use('/api/books', require('./backend/routes/bookRoutes'));
-app.use('/api/categories', require('./backend/routes/categoryRoutes'));
-app.use('/api/reviews', require('./backend/routes/reviewRoutes'));
-app.use('/api/settings', require('./backend/routes/settingsRoutes'));
-app.use('/api/analytics', require('./backend/routes/analyticsRoutes'));
-app.use('/api/orders', require('./backend/routes/orderRoutes'));
-app.use('/api/contact', require('./backend/routes/contactRoutes'));
-app.use('/api/gallery', require('./backend/routes/galleryRoutes'));
-app.use('/api/notifications', require('./backend/routes/notificationRoutes'));
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/stories', require('./routes/storyRoutes'));
+app.use('/api/blogs', require('./routes/blogRoutes'));
+app.use('/api/audio', require('./routes/audioRoutes'));
+app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api/books', require('./routes/bookRoutes'));
+app.use('/api/categories', require('./routes/categoryRoutes'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/settings', require('./routes/settingsRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
+app.use('/api/contact', require('./routes/contactRoutes'));
+app.use('/api/gallery', require('./routes/galleryRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 console.log('>>> [8] ALL ROUTES LOADED SUCCESSFULLY <<<');
 
@@ -82,4 +82,5 @@ app.use(errorHandler);
 app.listen(PORT, () => {
     console.log(`>>> [9] SERVER SUCCESSFULLY RUNNING ON PORT ${PORT} <<<`);
 });
+
 

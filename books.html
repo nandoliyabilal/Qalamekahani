@@ -12,27 +12,24 @@
     <link rel="stylesheet" href="css/style.css?v=2.2">
     <style>
         .page-header {
-            padding: 180px 5% 60px;
+            padding: 160px 5% 60px;
             text-align: center;
-            background: #0b0b0b;
+            background: #080808;
         }
 
         .page-title {
             font-family: 'Playfair Display', serif;
             font-size: 3.5rem;
             color: #d4af37;
-            margin-bottom: 15px;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+            margin-bottom: 10px;
         }
 
-        /* Book Grid Updates */
         .books-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            /* Reduced gap for compact cards */
-            padding: 40px 5%;
-            max-width: 1400px;
+            gap: 40px;
+            padding: 40px 5% 100px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -43,210 +40,132 @@
         }
 
         @media (max-width: 768px) {
-            .page-header {
-                padding: 100px 5% 40px;
-            }
-
-            .page-title {
-                font-size: 2.2rem;
-            }
-
-            /* Responsive Grid Fix - Ensure it takes full space */
             .books-grid {
                 grid-template-columns: 1fr;
                 padding: 20px;
-                gap: 25px;
-                max-width: 100%;
-                /* Allow full width */
-                width: 100%;
-                margin: 0;
             }
 
-            /* Center the cards if needed but allow growth */
-            .book-card {
-                max-width: 400px;
-                margin: 0 auto;
-                width: 100%;
-            }
-
-            .book-search-container {
-                padding: 0 15px;
-            }
-
-            .book-filters {
-                justify-content: center;
-                /* Center filters */
-            }
-
-            .book-filter-btn {
-                font-size: 0.85rem;
-                padding: 8px 15px;
+            .page-title {
+                font-size: 2.5rem;
             }
         }
 
-        /* STORY STYLE COMPACT CARD DESIGN */
-        .book-card {
-            background: #151515;
-            /* Matching Story Card BG */
-            border-radius: 15px;
-            /* Matching Story Card Radius */
-            overflow: hidden;
-            position: relative;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        /* --- IMAGE 1 STYLE CARD (NO BORDER) --- */
+        .book-card-alt {
             display: flex;
             flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            transition: transform 0.3s ease;
             cursor: pointer;
+            text-align: center;
         }
 
-        .book-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 175, 55, 0.1);
-            border-color: rgba(212, 175, 55, 0.3);
+        .book-card-alt:hover {
+            transform: translateY(-5px);
         }
 
-        .image-wrapper {
-            width: 100%;
-            height: 220px;
-            /* Compact height matching Story Cards */
+        .cover-container {
             position: relative;
-            overflow: hidden;
+            width: 100%;
+            max-width: 200px;
+            /* Reference Image Size */
+            aspect-ratio: 2 / 3;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            overflow: visible;
         }
 
-        .book-cover {
+        .cover-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-
-        .book-card:hover .book-cover {
-            transform: scale(1.1);
-        }
-
-        /* Overlay like Stories */
-        .image-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.9) 100%);
-            pointer-events: none;
-        }
-
-        .discount-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: #d4af37;
-            /* Gold Badge */
-            color: #000;
-            padding: 4px 10px;
-            font-weight: 700;
-            font-size: 0.75rem;
             border-radius: 4px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            z-index: 10;
         }
 
-        .book-info {
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
-
-        .meta-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            color: #666;
-            margin-bottom: 8px;
-        }
-
-        .book-category {
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stars {
-            color: #d4af37;
-        }
-
-        .book-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.35rem;
-            /* Matched Story Title Size */
+        .new-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #0084ff;
             color: #fff;
-            margin-bottom: 5px;
-            line-height: 1.3;
-            transition: color 0.3s ease;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-radius: 4px;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0, 132, 255, 0.3);
         }
 
-        .book-card:hover .book-title {
-            color: #d4af37;
+        .stars-row {
+            color: #ffc107;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 3px;
         }
 
-        .book-author {
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.85rem;
-            color: #aaa;
+        .book-ident {
             margin-bottom: 15px;
         }
 
-        /* Pricing UI */
-        .price-row {
-            margin-top: auto;
-            display: flex;
-            align-items: baseline;
-            gap: 10px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .current-price {
+        .title-text {
             color: #fff;
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .original-price {
-            color: #666;
-            text-decoration: line-through;
-            font-size: 0.85rem;
-        }
-
-        /* Compact Button */
-        .action-btn {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 4px;
             display: block;
-            width: 100%;
-            text-decoration: none;
-            text-align: center;
-            padding: 10px 0;
-            border: 1px solid rgba(212, 175, 55, 0.5);
-            color: #d4af37;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
+            text-transform: lowercase;
+            /* Matching "super" and "rishte" in image */
+        }
+
+        .author-text {
+            color: #888;
             font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            font-style: italic;
+        }
+
+        .price-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .cat-tag {
+            color: #888;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 15px;
-            background: transparent;
-            cursor: pointer;
+            font-weight: 500;
         }
 
-        .action-btn:hover {
+        .price-val {
+            color: #ffc107;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .buy-btn-rect {
             background: #d4af37;
             color: #000;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            border: none;
+            padding: 10px 30px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: capitalize;
         }
 
+        .buy-btn-rect:hover {
+            background: #e5c050;
+            transform: scale(1.05);
+        }
 
         /* Cart Sidebar & Icon (Kept same) */
         .cart-float-icon {
@@ -436,9 +355,11 @@
             width: 50px;
             white-space: nowrap;
         }
+
         .lang-dropdown-btn i {
             display: none;
         }
+
         .lang-dropdown-btn span {
             font-size: 1.1rem !important;
         }
@@ -455,7 +376,7 @@
             top: calc(100% + 10px);
             background: #1a1a1a;
             min-width: 150px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             z-index: 1000;
             border-radius: 12px;
             border: 1px solid rgba(212, 175, 55, 0.2);
@@ -489,8 +410,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .search-row {
@@ -507,17 +435,21 @@
                 flex-direction: row;
                 gap: 10px;
             }
+
             .book-search-container {
                 flex: 1;
                 width: auto;
             }
+
             .search-box {
                 width: auto;
                 height: 45px;
             }
+
             .language-selector {
                 width: auto;
             }
+
             .lang-dropdown-btn {
                 width: 45px;
                 height: 45px;
@@ -645,7 +577,7 @@
                 <input type="text" class="book-search-input" placeholder="Search books..." id="searchInput">
                 <i class="fas fa-search book-search-icon"></i>
             </div>
-            
+
             <div class="language-selector">
                 <button class="lang-dropdown-btn" id="langDropdownBtn">
                     <span style="font-size: 1.2rem; font-weight: 500;">अA</span>
@@ -695,12 +627,12 @@
                 <ul class="footer-links">
                     <li><a href="index.html">Home</a></li>
                     <li class="dropdown">
-                    <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="stories.html">Reading Stories</a></li>
-                        <li><a href="gallery.html">Images & Wallpapers</a></li>
-                    </ul>
-                </li>
+                        <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="stories.html">Reading Stories</a></li>
+                            <li><a href="gallery.html">Images & Wallpapers</a></li>
+                        </ul>
+                    </li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="books.html">Books</a></li>
                     <li><a href="contact.html">Contact</a></li>
@@ -778,13 +710,13 @@
             const filtered = booksData.filter(book => {
                 const matchesSearch = book.title.toLowerCase().includes(searchQuery) ||
                     book.author.toLowerCase().includes(searchQuery);
-                
-                const matchesCategory = currentFilter === 'all' || 
+
+                const matchesCategory = currentFilter === 'all' ||
                     (book.category && book.category.toLowerCase() === currentFilter.toLowerCase());
-                
-                const matchesLang = currentLang === 'all' || 
+
+                const matchesLang = currentLang === 'all' ||
                     (book.language && book.language.toLowerCase() === currentLang.toLowerCase());
-                
+
                 return matchesSearch && matchesCategory && matchesLang;
             });
             renderBooks(filtered);
@@ -802,39 +734,34 @@
                 const discPercent = book.discount_percent || book.discountPercent || 0;
                 const currentPrice = book.discounted_price || book.discountedPrice || (ogPrice - (ogPrice * discPercent / 100));
                 const rating = book.rating || 5;
-                
+
                 let starsHtml = '';
-                for(let i=1; i<=5; i++) {
+                for (let i = 1; i <= 5; i++) {
                     starsHtml += `<i class="${i <= rating ? 'fas' : 'far'} fa-star"></i>`;
                 }
 
                 return `
-                <article class="book-card" onclick="goToDetail('${book.id || book._id}')">
-                    <div class="image-wrapper">
-                        <img src="${book.image || 'images/story-default.png'}" alt="${book.title}" class="book-cover" onerror="this.src='https://placehold.co/600x800/222/FFF?text=No+Cover'">
-                        <div class="image-overlay"></div>
-                        ${discPercent > 0 ? `<div class="discount-badge">${discPercent}% OFF</div>` : ''}
+                <article class="book-card-alt" onclick="goToDetail('${book.id || book._id}')">
+                    <div class="cover-container">
+                        <img src="${book.image || 'images/book-default.png'}" alt="${book.title}" class="cover-img" onerror="this.src='https://placehold.co/400x600/222/FFF?text=Book'">
+                        <div class="new-badge">NEW</div>
                     </div>
-                    <div class="book-info">
-                        <div class="meta-row">
-                            <span class="book-category">${book.category || 'Paperback'}</span>
-                            <div class="stars">${starsHtml}</div>
-                        </div>
-                        <h3 class="book-title">${book.title}</h3>
-                        <p class="book-author">By ${book.author || 'Sabirkhan Pathan'}</p>
-                        <div class="price-row">
-                            <span class="current-price">₹${Math.round(currentPrice)}</span>
-                            ${discPercent > 0 ? `<span class="original-price">₹${ogPrice}</span>` : ''}
-                        </div>
-                        <div class="button-group" style="display: flex; gap: 8px; margin-top: 10px;">
-                            <button class="action-btn" style="flex: 1; padding: 8px;" onclick="event.stopPropagation(); goToDetail('${book.id || book._id}')">Details</button>
-                            ${book.buy_link ? `
-                            <button class="action-btn" style="flex: 1; background: #d4af37; color: #000; border-color: #d4af37; padding: 8px;" 
-                                onclick="event.stopPropagation(); window.open('${book.buy_link}', '_blank')">
-                                Buy Now
-                            </button>` : ''}
-                        </div>
+                    
+                    <div class="stars-row">${starsHtml}</div>
+                    
+                    <div class="book-ident">
+                        <span class="title-text">${book.title}</span>
+                        <span class="author-text">by ${book.author || 'Sabirkhan'}</span>
                     </div>
+
+                    <div class="price-meta">
+                        <span class="cat-tag">${book.category || 'Paperback'}</span>
+                        <span class="price-val">₹${Math.round(currentPrice)}</span>
+                    </div>
+
+                    <button class="buy-btn-rect" onclick="event.stopPropagation(); goToDetail('${book.id || book._id}')">
+                        Buy Now
+                    </button>
                 </article>
                 `;
             }).join('');

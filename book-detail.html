@@ -60,16 +60,35 @@
         .back-btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            color: var(--text-muted);
+            gap: 12px;
+            color: #d4af37;
             text-decoration: none;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            transition: color 0.3s;
+            margin-bottom: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 24px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 50px;
+            background: rgba(212, 175, 55, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .back-btn:hover {
+            background: rgba(212, 175, 55, 0.12);
+            border-color: #d4af37;
             color: #fff;
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .back-btn:hover i {
+            transform: translateX(-3px);
         }
 
         .product-detail-card {
@@ -441,7 +460,7 @@
     <header class="header">
         <div class="nav-container">
             <a href="index.html" class="logo">Qalamekahani</a>
-                                    <ul class="nav-links">
+            <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
                 <li class="dropdown">
                     <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
@@ -466,7 +485,7 @@
     </header>
 
     <div class="product-wrapper">
-        <a href="books.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Bookstore</a>
+        <a href="books.html" class="back-btn"><i class="fas fa-long-arrow-alt-left"></i> Back to Bookstore</a>
 
         <div class="product-detail-card" id="product-area">
             <!-- Content Loaded via JS -->
@@ -521,14 +540,15 @@
                     <ul class="footer-links">
                         <li><a href="index.html">Home</a></li>
                         <li class="dropdown desktop-only">
-                    <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="stories.html">Reading Stories</a></li>
-                        <li><a href="gallery.html">Images & Wallpapers</a></li>
-                    </ul>
-                </li>
-                <li class="mobile-only-nav"><a href="stories.html">Stories</a></li>
-                <li class="mobile-only-nav"><a href="gallery.html">Image & Wallpaper</a></li>
+                            <a href="stories.html">Stories <i class="fas fa-chevron-down"
+                                    style="font-size: 0.8em;"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="stories.html">Reading Stories</a></li>
+                                <li><a href="gallery.html">Images & Wallpapers</a></li>
+                            </ul>
+                        </li>
+                        <li class="mobile-only-nav"><a href="stories.html">Stories</a></li>
+                        <li class="mobile-only-nav"><a href="gallery.html">Image & Wallpaper</a></li>
                         <li><a href="about.html">About</a></li>
                         <li><a href="books.html">Books</a></li>
                         <li><a href="contact.html">Contact</a></li>
@@ -774,7 +794,7 @@
                     rArea.innerHTML = approved.map(r => `
                     <div class="review-card">
                         <div class="review-header">
-                            <span class="reviewer-name">${r.user || r.name || 'Reader'}</span>
+                            <span class="reviewer-name">${r.user_name || r.name || 'Reader'}</span>
                             <span class="review-date">${new Date(r.created_at || Date.now()).toLocaleDateString()}</span>
                         </div>
                         <div class="stars" style="font-size:0.8rem; margin-bottom:5px;">${getStars(r.rating || 5)}</div>
@@ -831,7 +851,3 @@
 </body>
 
 </html>
-
-
-
-

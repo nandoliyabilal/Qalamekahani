@@ -176,7 +176,10 @@ async function uploadCoverImage(e) {
             body: formData
         });
 
-        if (!res.ok) throw new Error('Upload failed');
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.message || 'Upload failed');
+        }
 
         const data = await res.json();
         const fileUrl = data.url;

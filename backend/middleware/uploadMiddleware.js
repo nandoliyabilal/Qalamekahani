@@ -13,7 +13,7 @@ cloudinary.config({
 // Configure Storage
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
-    params: async (req, file) => {
+    params: (req, file) => {
         const fileType = file.mimetype.split('/')[0];
         const folder = fileType === 'audio' ? 'qalamekahani/audio' : 'qalamekahani/images';
 

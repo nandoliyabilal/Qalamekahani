@@ -51,8 +51,10 @@ const createBook = asyncHandler(async (req, res) => {
         throw new Error(error.message);
     }
 
-    // Trigger Notification
-    await sendEmailNotification(data, 'book');
+    // Trigger Notification in background (fire and forget)
+    sendEmailNotification(data, 'book').catch(err => {
+        console.error('[BOOK NOTIFICATION ERROR]', err.message);
+    });
 
     res.status(201).json(data);
 });

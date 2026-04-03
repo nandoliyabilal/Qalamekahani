@@ -7,7 +7,7 @@ const supabase = require('../config/supabase');
 const getStories = asyncHandler(async (req, res) => {
     const { data, error } = await supabase
         .from('stories')
-        .select('*') // Fetch all to calculate count, we'll strip content later
+        .select('*') // Necessary to calculate parts_count
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -15,15 +15,13 @@ const getStories = asyncHandler(async (req, res) => {
         throw new Error(error.message);
     }
 
-    // Optimization: Calculate parts_count and remove heavy content field for list view
+    // Optimization: Calculate parts_count and remove heavy content field
     const storiesWithCount = data.map(story => {
-        if (story.content) {
-            const matches = story.content.match(/<h2([^>]*)>/gi);
-            story.parts_count = matches ? matches.length : 1;
-        } else {
-            story.parts_count = 0;
-        }
-        delete story.content; // Keep it light
+        const content = story.content || '';
+        // Handle both encoded &lt;h2 and decoded <h2
+        const matches = content.match(/<h2|&lt;h2/gi);
+        story.parts_count = matches ? matches.length : (content.trim() ? 1 : 0);
+        delete story.content; // Keep payload small
         return story;
     });
 

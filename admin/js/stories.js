@@ -108,7 +108,6 @@ function renderTable() {
 
         // If content is not loaded (optimized list), we default to 1 Part.
         // It will be correctly counted in the "Manage Chapters" view where we fetch full details.
-        // Use parts_count from backend if available, else fall back to basic calculation
         const partsCount = story.parts_count !== undefined ? story.parts_count : 1;
         const partsLabel = partsCount === 1 ? 'Part' : 'Parts';
 

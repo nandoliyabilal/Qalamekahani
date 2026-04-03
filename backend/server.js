@@ -55,40 +55,45 @@ const { errorHandler } = require('./middleware/errorMiddleware');
 
 console.log('>>> [6] ERROR HANDLER LOADED <<<');
 
-// Routes - All back to relative to server.js
+// Routes - Wrapped in try-catch to catch requirement errors on hostinger
 console.log('>>> [7] ATTEMPTING TO LOAD ROUTES <<<');
-console.log('>>> [7.1] Loading Auth Routes...');
-app.use('/api/auth', require('./routes/authRoutes'));
-console.log('>>> [7.2] Loading Admin Routes...');
-app.use('/api/admin', require('./routes/adminRoutes'));
-console.log('>>> [7.3] Loading Story Routes...');
-app.use('/api/stories', require('./routes/storyRoutes'));
-console.log('>>> [7.4] Loading Blog Routes...');
-app.use('/api/blogs', require('./routes/blogRoutes'));
-console.log('>>> [7.5] Loading Audio Routes...');
-app.use('/api/audio', require('./routes/audioRoutes'));
-console.log('>>> [7.6] Loading Upload Routes...');
-app.use('/api/upload', require('./routes/uploadRoutes'));
-console.log('>>> [7.7] Loading Book Routes...');
-app.use('/api/books', require('./routes/bookRoutes'));
-console.log('>>> [7.8] Loading Category Routes...');
-app.use('/api/categories', require('./routes/categoryRoutes'));
-console.log('>>> [7.9] Loading Review Routes...');
-app.use('/api/reviews', require('./routes/reviewRoutes'));
-console.log('>>> [7.10] Loading Settings Routes...');
-app.use('/api/settings', require('./routes/settingsRoutes'));
-console.log('>>> [7.11] Loading Analytics Routes...');
-app.use('/api/analytics', require('./routes/analyticsRoutes'));
-console.log('>>> [7.12] Loading Order Routes...');
-app.use('/api/orders', require('./routes/orderRoutes'));
-console.log('>>> [7.13] Loading Contact Routes...');
-app.use('/api/contact', require('./routes/contactRoutes'));
-console.log('>>> [7.14] Loading Gallery Routes...');
-app.use('/api/gallery', require('./routes/galleryRoutes'));
-console.log('>>> [7.15] Loading Notification Routes...');
-app.use('/api/notifications', require('./routes/notificationRoutes'));
+try {
+    console.log('>>> [7.1] Loading Auth Routes...');
+    app.use('/api/auth', require('./routes/authRoutes'));
+    console.log('>>> [7.2] Loading Admin Routes...');
+    app.use('/api/admin', require('./routes/adminRoutes'));
+    console.log('>>> [7.3] Loading Story Routes...');
+    app.use('/api/stories', require('./routes/storyRoutes'));
+    console.log('>>> [7.4] Loading Blog Routes...');
+    app.use('/api/blogs', require('./routes/blogRoutes'));
+    console.log('>>> [7.5] Loading Audio Routes...');
+    app.use('/api/audio', require('./routes/audioRoutes'));
+    console.log('>>> [7.6] Loading Upload Routes...');
+    app.use('/api/upload', require('./routes/uploadRoutes'));
+    console.log('>>> [7.7] Loading Book Routes...');
+    app.use('/api/books', require('./routes/bookRoutes'));
+    console.log('>>> [7.8] Loading Category Routes...');
+    app.use('/api/categories', require('./routes/categoryRoutes'));
+    console.log('>>> [7.9] Loading Review Routes...');
+    app.use('/api/reviews', require('./routes/reviewRoutes'));
+    console.log('>>> [7.10] Loading Settings Routes...');
+    app.use('/api/settings', require('./routes/settingsRoutes'));
+    console.log('>>> [7.11] Loading Analytics Routes...');
+    app.use('/api/analytics', require('./routes/analyticsRoutes'));
+    console.log('>>> [7.12] Loading Order Routes...');
+    app.use('/api/orders', require('./routes/orderRoutes'));
+    console.log('>>> [7.13] Loading Contact Routes...');
+    app.use('/api/contact', require('./routes/contactRoutes'));
+    console.log('>>> [7.14] Loading Gallery Routes...');
+    app.use('/api/gallery', require('./routes/galleryRoutes'));
+    console.log('>>> [7.15] Loading Notification Routes...');
+    app.use('/api/notifications', require('./routes/notificationRoutes'));
 
-console.log('>>> [8] ALL ROUTES LOADED SUCCESSFULLY <<<');
+    console.log('>>> [8] ALL ROUTES LOADED SUCCESSFULLY <<<');
+} catch (routeError) {
+    console.error('>>> [CRITICAL] ROUTE LOADING FAILED <<<');
+    console.error(routeError);
+}
 
 
 const PORT = process.env.PORT || 5000;

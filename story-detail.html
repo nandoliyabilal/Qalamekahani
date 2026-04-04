@@ -257,8 +257,12 @@
             }
 
             try {
+                const effectiveToken = localStorage.getItem('token') || localStorage.getItem('adminToken');
+                const authHeaders = {};
+                if (effectiveToken) authHeaders['Authorization'] = `Bearer ${effectiveToken}`;
+
                 // Fetch from your API with cache busting
-                const res = await fetch(`/api/stories/${storyId}?t=${Date.now()}`);
+                const res = await fetch(`/api/stories/${encodeURIComponent(storyId.trim())}?t=${Date.now()}`, { headers: authHeaders });
                 if (!res.ok) throw new Error('Story not found');
 
                 const story = await res.json();
@@ -511,8 +515,8 @@
                 window.storyHasAccess = hasAccess; // Store for other functions if needed
 
                 // Initial Liked Status Check
-                const token = localStorage.getItem('token');
-                if (token) checkLikedStatus(story.id);
+                const userToken = localStorage.getItem('token');
+                if (userToken) checkLikedStatus(story.id);
 
                 // Load Reviews using resolved ID (fixes issue when URL param is invalid/slug)
                 loadReviews(story.id);

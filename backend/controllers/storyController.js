@@ -41,11 +41,17 @@ const getStory = asyncHandler(async (req, res) => {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input);
 
     let storyData = null;
-    console.log(`[DEBUG] getStory searching for: '${input}'`);
+    console.log(`[DEBUG] getStory searching for: '${input}' (isUUID: ${isUUID})`);
 
-    const { data: result, error } = await supabase.from('stories').select('*')
-        .or(`id.eq."${isUUID ? input : '00000000-0000-0000-0000-000000000000'}",slug.eq."${input}"`)
-        .maybeSingle();
+    // Use a more robust query for slug/ID matching
+    let query = supabase.from('stories').select('*');
+    if (isUUID) {
+        query = query.eq('id', input);
+    } else {
+        query = query.eq('slug', input);
+    }
+
+    const { data: result, error } = await query.maybeSingle();
 
     if (error) {
         console.log(`[DEBUG] Database query error:`, error);
@@ -54,6 +60,8 @@ const getStory = asyncHandler(async (req, res) => {
     }
 
     if (!result) {
+        // Fallback: If not found by slug, try searching by title or partial slug if needed, 
+        // but for now let's just log and fail properly.
         console.log(`[DEBUG] Story NOT FOUND for: '${input}'`);
         res.status(404);
         throw new Error('Story not found');
@@ -73,11 +81,12 @@ const getStory = asyncHandler(async (req, res) => {
         });
     }
 
-
     // Determine valid identifiers for reviews
     const identifiers = [storyData.id];
     if (storyData.slug) identifiers.push(storyData.slug);
-    if (!isUUID) identifiers.push(input); // Add the URL param if it's a slug
+    
+    // Use the actual parameters if they differ
+    if (input && !identifiers.includes(input)) identifiers.push(input);
 
     // Fetch reviews from Supabase
     const { data: reviews, error: reviewError } = await supabase
@@ -105,18 +114,20 @@ const getStory = asyncHandler(async (req, res) => {
         let hasAccess = false;
 
         // 1. Check Authorization Header
-        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer')) {
             try {
-                const token = req.headers.authorization.split(' ')[1];
-                const jwt = require('jsonwebtoken'); // Require here or top level
+                const token = authHeader.split(' ')[1];
+                const jwt = require('jsonwebtoken');
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-                // 2. Check Orders
+                // 2. Check User Role & Orders
                 const { data: userData } = await supabase.from('users').select('email, role').eq('id', decoded.id).single();
 
                 if (userData) {
-                    // For testing, restrict admin bypass so the payment button shows
-                    if (userData.role === 'admin_testing_disabled') {
+                    // ADMINS ALWAYS HAVE ACCESS
+                    if (userData.role === 'admin' || userData.role === 'admin_testing_disabled') {
+                        console.log(`[DEBUG] User is ADMIN/TESTER, granting full access.`);
                         hasAccess = true;
                     } else if (userData.email) {
                         const { data: orderData } = await supabase
@@ -125,13 +136,13 @@ const getStory = asyncHandler(async (req, res) => {
                             .eq('customer_email', userData.email)
                             .eq('story_id', storyData.id)
                             .eq('status', 'paid')
-                            .maybeSingle(); // Use maybeSingle to avoid error if no rows
+                            .maybeSingle();
 
                         if (orderData) hasAccess = true;
                     }
                 }
             } catch (error) {
-                console.error("Token verification failed", error.message);
+                console.error("Token verification failed:", error.message);
             }
         }
 
@@ -140,7 +151,9 @@ const getStory = asyncHandler(async (req, res) => {
         if (!hasAccess) {
             // Keep only H2 tags for chapter listing
             const content = storyData.content || '';
-            const matches = content.match(/<h2.*?>.*?<\/h2>/gi);
+            // Improved regex: matches <h2> tags including those with newlines or attributes
+            // Using [^]* for a newline-friendly dot match replacement
+            const matches = content.match(/<h2[^>]*>[\s\S]*?<\/h2>/gi);
             storyData.content = (matches && Array.isArray(matches)) ? matches.join('\n') : '';
             storyData.isLocked = true;
         } else {

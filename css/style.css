@@ -1,5 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap');
 
+/* --- Utilities for Navigation --- */
+.mobile-only-nav { display: none !important; }
+.desktop-only-nav { display: list-item !important; }
+
+@media (max-width: 960px) {
+    .mobile-only-nav { display: list-item !important; }
+    .desktop-only-nav { display: none !important; }
+}
+
 * {
   margin: 0;
   padding: 0;

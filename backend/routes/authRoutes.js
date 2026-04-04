@@ -17,7 +17,11 @@ const {
     forgotPassword,
     resetPassword,
     googleLogin,
-    toggleBlockUser
+    toggleBlockUser,
+    getAllUsers,
+    getUserById,
+    verifyResetOtp,
+    toggleNotifications
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 

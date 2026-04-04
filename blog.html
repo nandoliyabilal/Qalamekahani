@@ -481,24 +481,10 @@
     </div>
 
     <div class="search-filter-container">
-        <div class="search-row">
-            <div class="search-box" style="flex: 1; margin-bottom: 0;">
+            <div class="search-box" style="flex: 1; margin-bottom: 0; max-width: 800px; margin: 0 auto; position: relative;">
                 <input type="text" class="search-input" id="search-input" placeholder="Search blog posts..."
                     onkeyup="applyAllFilters()">
                 <i class="fas fa-search search-icon"></i>
-            </div>
-
-            <div class="language-selector">
-                <button class="lang-dropdown-btn" id="langDropdownBtn">
-                    <span style="font-size: 1.2rem; font-weight: 500;">अA</span>
-                    <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
-                </button>
-                <div class="lang-dropdown-content" id="langDropdownContent">
-                    <a href="javascript:void(0)" data-lang="all" class="active">All Languages</a>
-                    <a href="javascript:void(0)" data-lang="Hindi">Hindi</a>
-                    <a href="javascript:void(0)" data-lang="Gujarati">Gujarati</a>
-                    <a href="javascript:void(0)" data-lang="English">English</a>
-                </div>
             </div>
         </div>
         <div class="filter-buttons">
@@ -604,7 +590,15 @@
                 const res = await fetch('/api/blogs');
                 if (!res.ok) throw new Error('Failed to fetch');
                 blogData = await res.json();
-                renderBlog(blogData);
+
+                // Initial Language Filtering (English = ALL, others = Strict)
+                const userLang = localStorage.getItem('user_lang') || 'English';
+                let initialFiltered = blogData;
+                if (userLang !== 'English') {
+                    initialFiltered = blogData.filter(b => (b.language || '').toLowerCase() === userLang.toLowerCase());
+                }
+
+                renderBlog(initialFiltered);
             } catch (err) {
                 console.error(err);
                 grid.innerHTML = "<h3 style='grid-column:1/-1; text-align:center;'>Unable to load blogs.</h3>";
@@ -613,31 +607,7 @@
 
         initBlogs();
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const dropdownBtn = document.getElementById('langDropdownBtn');
-            const dropdownContent = document.getElementById('langDropdownContent');
-            const langOptions = dropdownContent.querySelectorAll('a');
-
-            dropdownBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdownContent.classList.toggle('show');
-            });
-
-            document.addEventListener('click', () => {
-                dropdownContent.classList.remove('show');
-            });
-
-            langOptions.forEach(opt => {
-                opt.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    langOptions.forEach(o => o.classList.remove('active'));
-                    opt.classList.add('active');
-                    dropdownContent.classList.remove('show');
-                    currentLang = opt.dataset.lang;
-                    applyAllFilters();
-                });
-            });
-        });
+        initBlogs();
 
         function setCat(cat, btn) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -647,16 +617,20 @@
         }
 
         function applyAllFilters() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const activeLangBtn = document.querySelector('#langDropdownContent a.active');
-            const lang = activeLangBtn ? activeLangBtn.dataset.lang : 'all';
+            const query = (document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : '');
+            const userLang = (localStorage.getItem('user_lang') || 'English').toLowerCase();
 
             const filtered = blogData.filter(p => {
                 const matchesSearch = p.title.toLowerCase().includes(query) ||
                     (p.excerpt && p.excerpt.toLowerCase().includes(query));
 
                 const matchesCat = currentCat === 'All' || (p.category && p.category === currentCat);
-                const matchesLang = lang === 'all' || (p.language && p.language === lang);
+                
+                // Language Filtering (English = All)
+                let matchesLang = true;
+                if (userLang !== 'english') {
+                    matchesLang = (p.language && p.language.toLowerCase() === userLang);
+                }
 
                 return matchesSearch && matchesCat && matchesLang;
             });

@@ -95,7 +95,7 @@
             top: calc(100% + 10px);
             background: #1a1a1a;
             min-width: 150px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             z-index: 1000;
             border-radius: 12px;
             border: 1px solid rgba(212, 175, 55, 0.2);
@@ -129,8 +129,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .search-row {
@@ -196,9 +203,11 @@
             width: 50px;
             white-space: nowrap;
         }
+
         .lang-dropdown-btn i {
             display: none;
         }
+
         .lang-dropdown-btn span {
             font-size: 1.1rem !important;
         }
@@ -214,14 +223,17 @@
                 gap: 10px;
                 padding: 0 10px;
             }
+
             .search-box {
                 flex: 1;
                 width: auto;
                 height: 45px;
             }
+
             .language-selector {
                 width: auto;
             }
+
             .lang-dropdown-btn {
                 width: 45px;
                 height: 45px;
@@ -270,7 +282,7 @@
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="searchInput" class="search-input" placeholder="Search audio stories...">
             </div>
-            
+
             <div class="language-selector">
                 <button class="lang-dropdown-btn" id="langDropdownBtn">
                     <span style="font-size: 1.2rem; font-weight: 500;">अA</span>
@@ -327,12 +339,12 @@
                 <ul class="footer-links">
                     <li><a href="index.html">Home</a></li>
                     <li class="dropdown">
-                    <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="stories.html">Reading Stories</a></li>
-                        <li><a href="gallery.html">Images & Wallpapers</a></li>
-                    </ul>
-                </li>
+                        <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="stories.html">Reading Stories</a></li>
+                            <li><a href="gallery.html">Images & Wallpapers</a></li>
+                        </ul>
+                    </li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="books.html">Books</a></li>
                     <li><a href="contact.html">Contact</a></li>
@@ -367,7 +379,15 @@
             .then(res => res.json())
             .then(data => {
                 allAudio = data;
-                renderAudio(allAudio);
+
+                // Initial Language Filtering (English = ALL, others = Strict)
+                const userLang = localStorage.getItem('user_lang') || 'English';
+                let initialFiltered = data;
+                if (userLang !== 'English') {
+                    initialFiltered = data.filter(item => (item.language || '').toLowerCase() === userLang.toLowerCase());
+                }
+
+                renderAudio(initialFiltered);
                 setupFilters();
             })
             .catch(err => {

@@ -213,10 +213,23 @@
                         updateContainer(storiesContainerId, '<p style="grid-column: 1/-1; text-align:center; color:#ccc; padding:20px;">No stories available at the moment.</p>');
                         return;
                     }
-                    // Sort by date desc
-                    data.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+                    // Filter & Sort by User Language
+                    const userLang = localStorage.getItem('user_lang');
+                    let filteredData = data;
+                    
+                    // If not English, filter strictly. If English, show EVERYTHING (Universal access)
+                    if (userLang && userLang !== 'English') {
+                        filteredData = data.filter(s => (s.language || '').toLowerCase() === userLang.toLowerCase());
+                    }
 
-                    const featuredData = data.slice(0, 3);
+                    if (filteredData.length === 0 && data.length > 0) {
+                        updateContainer(storiesContainerId, `<p style="grid-column: 1/-1; text-align:center; color:#ccc; padding:20px;">No ${userLang || ''} stories available yet.</p>`);
+                        return;
+                    }
+
+                    filteredData.sort((a, b) => new Date(b.date || b.createdAt || b.created_at) - new Date(a.date || a.createdAt || a.created_at));
+
+                    const featuredData = filteredData.slice(0, 3);
                     updateContainer(storiesContainerId, featuredData.map(story => {
                         const imgUrl = story.image && story.image.startsWith('http') ? story.image : (story.image || 'images/story-default.png');
 
@@ -276,7 +289,20 @@
                         updateContainer(audioContainerId, '<p style="grid-column: 1/-1; text-align:center; color:#ccc; padding:20px;">No audio available.</p>');
                         return;
                     }
-                    const featuredAudio = data.slice(0, 3);
+
+                    // Filter by User Language
+                    const userLang = localStorage.getItem('user_lang');
+                    let filteredAudio = data;
+                    if (userLang && userLang !== 'English') {
+                        filteredAudio = data.filter(a => (a.language || '').toLowerCase() === userLang.toLowerCase());
+                    }
+
+                    if (filteredAudio.length === 0) {
+                        updateContainer(audioContainerId, `<p style="grid-column: 1/-1; text-align:center; color:#ccc; padding:20px;">No ${userLang || ''} audio series found.</p>`);
+                        return;
+                    }
+
+                    const featuredAudio = filteredAudio.slice(0, 3);
                     updateContainer(audioContainerId, featuredAudio.map(audio => {
                         // Price Logic
                         const price = parseFloat(audio.price || 0);
@@ -327,7 +353,20 @@
                         updateContainer(booksContainerId, '<p style="grid-column: 1/-1; text-align:center; color:#ccc; padding:20px;">No books available.</p>');
                         return;
                     }
-                    const featuredBooks = data.slice(0, 3);
+
+                    // Filter by User Language
+                    const userLang = localStorage.getItem('user_lang');
+                    let filteredBooks = data;
+                    if (userLang && userLang !== 'English') {
+                        filteredBooks = data.filter(b => (b.language || '').toLowerCase() === userLang.toLowerCase());
+                    }
+
+                    if (filteredBooks.length === 0) {
+                        updateContainer(booksContainerId, `<p style="grid-column: 1/-1; text-align:center; color:#ccc; padding:20px;">No ${userLang || ''} books found.</p>`);
+                        return;
+                    }
+
+                    const featuredBooks = filteredBooks.slice(0, 3);
                     updateContainer(booksContainerId, featuredBooks.map(book => `
                         <div class="book-card" onclick="window.location.href='book-detail.html?id=${book.id}'">
                             <div class="book-cover-wrapper">

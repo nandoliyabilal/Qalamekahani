@@ -16,11 +16,8 @@ const {
     saveImage,
     forgotPassword,
     resetPassword,
-    verifyResetOtp,
-    getAllUsers,
-    getUserById,
-    toggleNotifications,
-    googleLogin
+    googleLogin,
+    toggleBlockUser
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -50,5 +47,9 @@ router.post('/toggle-notifications', protect, toggleNotifications);
 // Admin Routes
 router.get('/users', protect, authorize('admin'), getAllUsers);
 router.get('/users/:id', protect, authorize('admin'), getUserById);
+router.put('/users/:id/block', protect, authorize('admin'), toggleBlockUser);
+
+module.exports = router;
+router.put('/users/:id/block', protect, authorize('admin'), toggleBlockUser);
 
 module.exports = router;

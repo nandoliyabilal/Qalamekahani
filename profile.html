@@ -391,6 +391,15 @@
             <span class="status-text" id="notif-status">OFF</span>
         </div>
 
+        <div class="lang-settings-profile" style="margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <span style="color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Website Language</span>
+            <div class="lang-round-group" style="display: flex; gap: 15px;">
+                <div class="lang-round-btn" onclick="setLang('English')" id="lang-btn-English" title="English" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: all 0.3s; font-weight: 600; font-size: 0.9rem;">EN</div>
+                <div class="lang-round-btn" onclick="setLang('Hindi')" id="lang-btn-Hindi" title="Hindi" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: all 0.3s; font-weight: 600; font-size: 0.9rem;">HI</div>
+                <div class="lang-round-btn" onclick="setLang('Gujarati')" id="lang-btn-Gujarati" title="Gujarati" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: all 0.3s; font-weight: 600; font-size: 0.9rem;">GU</div>
+            </div>
+        </div>
+
         <div class="profile-stats">
             <div class="stat-item" onclick="switchTab('liked')" style="cursor:pointer">
                 <span class="stat-value" id="count-stories">0</span>
@@ -514,8 +523,11 @@
             const token = localStorage.getItem('token');
             if (!token) return;
             const status = checkbox.checked;
-            document.getElementById('notif-status').innerText = status ? 'ON' : 'OFF';
-            document.getElementById('notif-icon').style.color = status ? '#d4af37' : '#666';
+            const statusEl = document.getElementById('notif-status');
+            const iconEl = document.getElementById('notif-icon');
+            
+            if (statusEl) statusEl.innerText = status ? 'ON' : 'OFF';
+            if (iconEl) iconEl.style.color = status ? '#d4af37' : '#666';
 
             try {
                 await fetch('/api/auth/toggle-notifications', {
@@ -523,8 +535,36 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ status })
                 });
-            } catch (err) { console.error('Toggle Fail:', err); }
+            } catch (err) { 
+                console.error('Toggle Fail:', err); 
+            }
         };
+
+        window.setLang = function(lang) {
+            localStorage.setItem('user_lang', lang);
+            if (window.showToast) window.showToast(`Language changed to ${lang}`);
+            updateLangButtons();
+            // Refresh to apply translations everywhere
+            setTimeout(() => window.location.reload(), 800);
+        };
+
+        function updateLangButtons() {
+            const current = localStorage.getItem('user_lang') || 'English';
+            document.querySelectorAll('.lang-round-btn').forEach(btn => {
+                btn.style.borderColor = '#333';
+                btn.style.background = 'transparent';
+                btn.style.color = '#fff';
+            });
+            const activeBtn = document.getElementById(`lang-btn-${current}`);
+            if (activeBtn) {
+                activeBtn.style.borderColor = '#d4af37';
+                activeBtn.style.background = 'rgba(212, 175, 55, 0.1)';
+                activeBtn.style.color = '#d4af37';
+            }
+        }
+        
+        // Initial call
+        setTimeout(updateLangButtons, 500);
 
         window.renderContent = function(containerId, items, linkPrefix, emptyMsg) {
             const container = document.getElementById(containerId);

@@ -58,7 +58,7 @@ const registerUser = asyncHandler(async (req, res) => {
         }])
         .select()
         .single();
-    
+
     // LOG OTP FOR DEVELOPMENT (In case email service fails)
     console.log(`\n--- [AUTH DEBUG] ---`);
     console.log(`User: ${name} (${email})`);
@@ -225,6 +225,11 @@ const loginUser = asyncHandler(async (req, res) => {
         .eq('email', email)
         .single();
 
+    if (user && user.is_blocked) {
+        res.status(403);
+        throw new Error('This account has been blocked by the Administrator.');
+    }
+
     if (user && (await bcrypt.compare(password, user.password))) {
         if (!user.is_verified) {
             // Automatically generate and send a NEW OTP for login attempt of unverified accounts
@@ -384,7 +389,7 @@ const verifyAdminLogin = asyncHandler(async (req, res) => {
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
     console.log(`[ME] Fetching profile for user ID: ${req.user.id}`);
-    
+
     // 1. Get User from Supabase
     const { data: user, error } = await supabase
         .from('users')
@@ -410,7 +415,7 @@ const getMe = asyncHandler(async (req, res) => {
         try {
             // Attempt 1: Fetch by ID
             let { data, error } = await supabase.from(table).select(fields).in('id', uniqueIds);
-            
+
             // Attempt 2: If many missing (likely old slugs/IDs), try slug
             const hasSlug = table === 'stories' || table === 'blogs';
             if (hasSlug && (!data || data.length < uniqueIds.length)) {
@@ -658,10 +663,32 @@ const updateProfile = asyncHandler(async (req, res) => {
 const getAllUsers = asyncHandler(async (req, res) => {
     const { data: users } = await supabase
         .from('users')
-        .select('id, name, email, role, created_at')
+        .select('id, name, email, role, created_at, is_blocked, last_login, is_verified')
         .eq('role', 'user')
         .order('created_at', { ascending: false });
     res.json(users);
+});
+
+// @desc    Toggle Block User (Admin)
+// @route   PUT /api/auth/users/:id/block
+// @access  Private/Admin
+const toggleBlockUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { block } = req.body;
+
+    const { data, error } = await supabase
+        .from('users')
+        .update({ is_blocked: block })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        res.status(400);
+        throw new Error('Failed to update block status');
+    }
+
+    res.json({ success: true, user: data });
 });
 
 // @desc    Get User By ID (Admin)
@@ -670,7 +697,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 const getUserById = asyncHandler(async (req, res) => {
     const { data: user } = await supabase
         .from('users')
-        .select('id, name, email, role, created_at')
+        .select('id, name, email, role, created_at, is_blocked, last_login, is_verified')
         .eq('id', req.params.id)
         .single();
     if (user) {
@@ -792,6 +819,11 @@ const googleLogin = asyncHandler(async (req, res) => {
         .eq('email', email)
         .maybeSingle();
 
+    if (user && user.is_blocked) {
+        res.status(403);
+        throw new Error('This account has been blocked by the Administrator.');
+    }
+
     if (!user) {
         // 3. Create new user if doesn't exist
         const { data: newUser, error: createError } = await supabase
@@ -866,5 +898,6 @@ module.exports = {
     saveAudio,
     saveImage,
     toggleNotifications,
-    googleLogin
+    googleLogin,
+    toggleBlockUser
 };

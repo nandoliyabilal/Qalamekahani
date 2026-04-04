@@ -28,14 +28,15 @@ async function fetchStats() {
         const blogs = data.content?.blogs || 0;
         const reviews = data.content?.reviews || 0;
         const totalViews = data.content?.totalViews || 0;
+        const totalEarnings = data.content?.totalEarnings || 0;
         const totalDownloads = data.content?.totalDownloads || 0;
 
         // Render detailed stats
         statsGrid.innerHTML = `
+                ${createStatCard('Total Earnings', `₹${totalEarnings.toLocaleString()}`, 'dollar-sign', 'green')}
                 ${createStatCard('Total Users', users, 'users', 'blue')}
-                ${createStatCard('Total Views', totalViews, 'eye', 'green')}
+                ${createStatCard('Total Views', totalViews, 'eye', 'indigo')}
                 ${createStatCard('Published Stories', stories, 'book-open', 'purple')}
-                ${createStatCard('Published Books', books, 'library', 'indigo')}
                 ${createStatCard('Audio Stories', audio, 'headphones', 'amber')}
                 ${createStatCard('Blogs', blogs, 'file-text', 'pink')}
                 ${createStatCard('Reviews', reviews, 'star', 'yellow')}

@@ -37,7 +37,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         audioViews,
         booksViews,
         blogsViews,
-        galleryData
+        galleryData,
+        ordersData
     ] = await Promise.all([
         fetchCount('users'),
         fetchCount('users', { last_login_gte: yesterday.toISOString() }),
@@ -51,7 +52,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         supabase.from('audio_stories').select('views'),
         supabase.from('books').select('views'),
         supabase.from('blogs').select('*'),
-        supabase.from('galleries').select('downloads')
+        supabase.from('galleries').select('downloads'),
+        supabase.from('orders').select('amount').eq('status', 'paid')
     ]);
 
     // Sum views
@@ -63,6 +65,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     ].reduce((sum, item) => sum + (parseInt(item.views) || 0), 0);
 
     const totalDownloads = (galleryData.data || []).reduce((sum, item) => sum + (parseInt(item.downloads) || 0), 0);
+    const totalEarnings = (ordersData.data || []).reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
 
     res.json({
         users: {
@@ -76,12 +79,60 @@ const getDashboardStats = asyncHandler(async (req, res) => {
             blogs: blogsTotal,
             reviews: reviewsTotal,
             totalViews: totalViews,
-            totalDownloads: totalDownloads
+            totalDownloads: totalDownloads,
+            totalEarnings: totalEarnings
         },
         recentUsers: recentUsersData.data || []
     });
 });
 
+// @desc    Get detailed earnings by item
+// @route   GET /api/admin/earnings
+// @access  Private/Admin
+const getEarningsDetails = asyncHandler(async (req, res) => {
+    const { data: orders, error } = await supabase
+        .from('orders')
+        .select(`
+            amount,
+            status,
+            story_id,
+            book_id,
+            audio_id,
+            book_title,
+            created_at
+        `)
+        .eq('status', 'paid');
+
+    if (error) {
+        res.status(500);
+        throw new Error(error.message);
+    }
+
+    // Group by item
+    const earningsByItem = {};
+
+    orders.forEach(order => {
+        const itemId = order.story_id || order.book_id || order.audio_id || 'unknown';
+        const type = order.story_id ? 'Story' : (order.book_id ? 'Book' : (order.audio_id ? 'Audio' : 'Other'));
+        
+        if (!earningsByItem[itemId]) {
+            earningsByItem[itemId] = {
+                id: itemId,
+                title: order.book_title || 'Unknown Title',
+                type: type,
+                totalEarned: 0,
+                salesCount: 0
+            };
+        }
+        
+        earningsByItem[itemId].totalEarned += parseFloat(order.amount) || 0;
+        earningsByItem[itemId].salesCount += 1;
+    });
+
+    res.json(Object.values(earningsByItem).sort((a, b) => b.totalEarned - a.totalEarned));
+});
+
 module.exports = {
-    getDashboardStats
+    getDashboardStats,
+    getEarningsDetails
 };

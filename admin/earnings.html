@@ -4,16 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Qalamekahani Admin</title>
+    <title>Earnings - Qalamekahani Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/admin/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="bg-gray-900 text-gray-100 font-sans antialiased">
-
     <!-- Mobile Sidebar Overlay -->
     <div id="sidebar-overlay" onclick="toggleSidebar()"
         class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
@@ -56,7 +54,7 @@
                 Blogs
             </a>
             <a href="earnings.html"
-                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg bg-gray-700 text-white transition-colors">
                 <i data-lucide="dollar-sign"></i>
                 Earnings
             </a>
@@ -85,7 +83,7 @@
                 <i data-lucide="settings"></i>
                 Settings
             </a>
-</nav>
+        </nav>
     </aside>
 
     <!-- Main Content -->
@@ -112,54 +110,45 @@
 
         <!-- Content -->
         <div class="p-4 lg:p-8 flex-1 overflow-y-auto">
-            <div class="mb-8">
-                <h1 class="text-2xl font-bold text-white">Dashboard Overview</h1>
-                <p class="text-gray-400">Welcome back! Here's what's happening today.</p>
-            </div>
-
-            <!-- Stats Grid -->
-            <div id="statsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Loading Skeletons -->
-                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 animate-pulse h-32"></div>
-                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 animate-pulse h-32"></div>
-                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 animate-pulse h-32"></div>
-                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 animate-pulse h-32"></div>
-            </div>
-
-            <!-- Analytics Chart -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-                    <h2 class="text-xl font-bold text-white mb-6">Content Overview</h2>
-                    <div class="relative h-80 w-full">
-                        <canvas id="contentChart"></canvas>
-                    </div>
-                </div>
-                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-                    <h2 class="text-xl font-bold text-white mb-6">User Activity</h2>
-                    <div class="relative h-80 w-full">
-                        <canvas id="userChart"></canvas>
-                    </div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Item Earnings</h1>
+                    <p class="text-gray-400">Detailed revenue breakdown by premium story and audio story.</p>
                 </div>
             </div>
 
-            <!-- Recent Activity (Placeholder) -->
+            <!-- Total Earnings Summary Card -->
+            <div id="totalEarningsSum" class="mb-8"></div>
+
             <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-                <div class="p-6 border-b border-gray-700">
-                    <h2 class="text-lg font-semibold text-white">System Status</h2>
-                </div>
-                <div class="p-6">
-                    <div
-                        class="flex items-center gap-3 text-green-400 bg-green-400/10 p-4 rounded-lg border border-green-400/20">
-                        <i data-lucide="check-circle"></i>
-                        <span>System is running normally. Backend connection established.</span>
-                    </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-400">
+                        <thead class="bg-gray-700/50 text-gray-200 font-medium uppercase text-xs">
+                            <tr>
+                                <th class="px-6 py-4">Item Title</th>
+                                <th class="px-6 py-4">Type</th>
+                                <th class="px-6 py-4">Sales Count</th>
+                                <th class="px-6 py-4">Total Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="earningsTableBody" class="divide-y divide-gray-700 text-gray-300">
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <i data-lucide="loader" class="w-4 h-4 animate-spin"></i>
+                                        Loading earnings...
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </main>
 
     <script src="/admin/js/main.js"></script>
-    <script src="/admin/js/dashboard.js"></script>
+    <script src="/admin/js/earnings.js"></script>
     <script>
         lucide.createIcons();
     </script>

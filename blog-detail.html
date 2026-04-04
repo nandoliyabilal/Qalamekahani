@@ -707,26 +707,21 @@
         }
 
         async function shareBlog() {
+            if (!currentPost) return;
+
             const title = document.getElementById('blog-title').textContent;
             const description = document.getElementById('blog-excerpt').textContent;
             const imageUrl = document.getElementById('blog-image').src;
-            const url = window.location.href;
+            // Use ID instead of slug for a professional, clean short link
+            const url = `${window.location.origin}/blog-detail.html?id=${currentPost.id}`;
 
-            const shareData = {
-                title: title,
-                text: `📰 ${title}\n\n${description.substring(0, 150)}${description.length > 150 ? '...' : ''}\n\nCover Image: ${imageUrl}\n\nRead more aquí:`,
-                url: url
-            };
-
-            try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else {
-                    const fullText = `📰 ${title}\n\n${description.substring(0, 150)}...\n\nCover Image: ${imageUrl}\n\nLink: ${url}`;
-                    await navigator.clipboard.writeText(fullText);
-                    alert('Blog details and link copied to clipboard!');
-                }
-            } catch (err) { console.error('Error sharing:', err); }
+            window.shareContent({
+                title,
+                description,
+                url,
+                imageUrl,
+                type: 'blog'
+            });
         }
 
         // --- REVIEWS & RATING LOGIC ---

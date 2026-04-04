@@ -375,29 +375,55 @@
         const audioGrid = document.getElementById('audio-grid');
         const API_URL = '/api/audio';
         let allAudio = [];
+        let paidAudioIds = [];
         const searchInput = document.getElementById('searchInput');
 
-        fetch(API_URL)
-            .then(res => res.json())
-            .then(data => {
-                allAudio = data;
-
-                // Initial Language Filtering (English = ALL, others = Strict)
-                const userLang = localStorage.getItem('user_lang') || 'English';
-                let initialFiltered = data;
-                if (userLang !== 'English') {
-                    initialFiltered = data.filter(item => (item.language || '').toLowerCase() === userLang.toLowerCase());
+        // Fetch User Orders first to check for purchases
+        async function fetchUserOrders() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch('/api/orders/mine', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const orders = await res.json();
+                    paidAudioIds = orders
+                        .filter(o => o.status === 'paid' && o.audio_id)
+                        .map(o => o.audio_id);
                 }
+            } catch (err) {
+                console.error('Error fetching orders:', err);
+            }
+        }
 
-                renderAudio(initialFiltered);
-                setupFilters();
-            })
-            .catch(err => {
-                console.error(err);
-                audioGrid.innerHTML = '<div style="text-align:center; color:red; grid-column:1/-1;"><p>Failed to load audio.</p></div>';
-            });
+        async function init() {
+            await fetchUserOrders();
+            fetch(API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    allAudio = data;
+
+                    // Initial Language Filtering (English = ALL, others = Strict)
+                    const userLang = localStorage.getItem('user_lang') || 'English';
+                    let initialFiltered = data;
+                    if (userLang !== 'English') {
+                        initialFiltered = data.filter(item => (item.language || '').toLowerCase() === userLang.toLowerCase());
+                    }
+
+                    renderAudio(initialFiltered);
+                    setupFilters();
+                })
+                .catch(err => {
+                    console.error(err);
+                    audioGrid.innerHTML = '<div style="text-align:center; color:red; grid-column:1/-1;"><p>Failed to load audio.</p></div>';
+                });
+        }
+
+        init();
 
         function setupFilters() {
+            // ... (keep existing code)
             const catBtns = document.querySelectorAll('.filter-btn');
             const dropdownBtn = document.getElementById('langDropdownBtn');
             const dropdownContent = document.getElementById('langDropdownContent');
@@ -461,16 +487,19 @@
                 const price = parseFloat(item.price || 0);
                 const discount = parseFloat(item.discount || 0);
                 const isFree = price === 0;
+                const isPaid = paidAudioIds.includes(item.id);
 
                 let badgeHtml = '';
                 if (isFree) {
                     badgeHtml = '<span class="card-badge" style="position:absolute; top:10px; right:10px; background: rgba(46, 204, 113, 0.9); color: #fff; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">FREE</span>';
+                } else if (isPaid) {
+                    badgeHtml = '<span class="card-badge" style="position:absolute; top:10px; right:10px; background: rgba(52, 152, 219, 0.9); color: #fff; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight:bold;"><i class="fas fa-check-circle"></i> Purchased</span>';
                 } else {
                     badgeHtml = '<span class="card-badge" style="position:absolute; top:10px; right:10px; background: rgba(212, 175, 55, 0.9); color: #000; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight:bold;"><i class="fas fa-crown"></i> Premium</span>';
                 }
 
-                let btnText = isFree ? 'Listen Now' : `Unlock for ₹${price}`;
-                if (!isFree && discount > 0) {
+                let btnText = isFree || isPaid ? 'Listen Now' : `Unlock for ₹${price}`;
+                if (!isFree && !isPaid && discount > 0) {
                     const discountedPrice = Math.floor(price - (price * discount / 100));
                     btnText = `Unlock for ₹${discountedPrice} <small style="text-decoration:line-through; color:#aaa; margin-left:5px;">₹${price}</small>`;
                 }

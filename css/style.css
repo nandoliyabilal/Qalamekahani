@@ -1391,9 +1391,9 @@ body {
 }
 
 .ls-container {
-  width: 100%;
-  /* Full Width */
-  margin: 0;
+  max-width: 1300px;
+  width: 92%;
+  margin: 0 auto;
   text-align: center;
 }
 

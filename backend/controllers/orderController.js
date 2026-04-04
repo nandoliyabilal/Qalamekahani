@@ -36,6 +36,7 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
     };
 
     try {
+        console.log(`[ORDER] Initializing Order with Key ID: ${process.env.RAZORPAY_KEY_ID ? process.env.RAZORPAY_KEY_ID.substring(0, 8) + '...' : 'MISSING'}`);
         console.log("[ORDER] Creating Razorpay order with options:", options);
         const order = await razorpay.orders.create(options);
         console.log("[ORDER] Razorpay Order Created Success. ID:", order.id);
@@ -66,7 +67,7 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
         if (insertError) {
             console.error('[ORDER] Supabase Insert Fatal Error:', insertError);
             res.status(500);
-            throw new Error(`Database Error: ${insertError.message}. Make sure the orders table has all required columns like audio_id.`);
+            throw new Error(`Database Error: ${insertError.message}`);
         }
 
         console.log("[ORDER] Order saved successfully in DB");
@@ -76,9 +77,11 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
             key: process.env.RAZORPAY_KEY_ID // Send Key ID to frontend
         });
     } catch (error) {
-        console.error('[ORDER] Create Order Fatal Error:', error);
+        console.error('[ORDER] Create Order Fatal Error Details:', error);
         res.status(500);
-        throw new Error(`Payment Initialization Failed: ${error.message}`);
+        // Handle cases where Razorpay might return error.description or a plain object
+        const finalMsg = error.message || error.description || (typeof error === 'string' ? error : JSON.stringify(error));
+        throw new Error(`Payment Initialization Failed: ${finalMsg}`);
     }
 });
 

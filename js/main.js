@@ -585,44 +585,45 @@ window.shareContent = async function({ title, description, url, imageUrl, type =
     const typeEmojis = { story: '📖', audio: '🎧', book: '📚', blog: '📰' };
     const emoji = typeEmojis[type] || '✨';
     
-    // 1. Prepare professional message
-    const cleanDescription = (description || '').replace(/<[^>]*>?/gm, '').substring(0, 150).trim();
-    const professionalText = `${emoji} *${title}*\n\n"${cleanDescription}..."\n\n🔗 *Read full ${type} on Qalamverce:*`;
+    // 1. Standardize message content (fixed character length for consistency)
+    const cleanDescription = (description || '').replace(/<[^>]*>?/gm, '').trim();
+    const shortDescription = cleanDescription.substring(0, 100).padEnd(103, '.'); 
+    
+    // Structure: Emoji + Title -> Consistent Synopsis -> Brand -> Link
+    const professionalText = `${emoji} *${title}*\n\n"${shortDescription}"\n\n✨ *Qalamekahani - Best Stories* ✨\n\n🔗 *Full ${type} Link:* ${url}`;
 
     const shareData = {
         title: title,
-        text: professionalText,
-        url: url
+        text: professionalText
     };
 
     try {
-        // 2. Try to share as a FILE (for WhatsApp image preview)
+        // 2. Try to share as a FILE (for platform file preview)
         if (navigator.canShare && imageUrl) {
             try {
                 const response = await fetch(imageUrl);
                 const blob = await response.blob();
-                const file = new File([blob], `${type}-preview.jpg`, { type: 'image/jpeg' });
+                const file = new File([blob], `kalamekahani-${type}.jpg`, { type: 'image/jpeg' });
                 
                 if (navigator.canShare({ files: [file] })) {
+                    // With a file, we put EVERYTHING in the text to ensure recipient sees it
                     shareData.files = [file];
                 }
             } catch (fileErr) {
-                console.warn("[Share] Could not process image file, falling back to text only.", fileErr);
+                console.warn("[Share] File processing failed.", fileErr);
             }
         }
 
         if (navigator.share) {
             await navigator.share(shareData);
         } else {
-            // 3. Desktop Fallback (Clipboard)
-            const clipboardText = `${emoji} *${title}*\n\n"${cleanDescription}..."\n\n🖼️ *Cover:* ${imageUrl}\n\n🔗 *Link:* ${url}`;
-            await navigator.clipboard.writeText(clipboardText);
-            window.showToast('Professional details & link copied to clipboard!');
+            // 3. Desktop/Fallback (Clipboard)
+            await navigator.clipboard.writeText(professionalText);
+            window.showToast('Details copied to clipboard! You can now share it.');
         }
     } catch (err) {
         if (err.name !== 'AbortError') {
             console.error('[Share] Error:', err);
-            // Final fallback: just copy the link
             navigator.clipboard.writeText(url);
             window.showToast('Link copied to clipboard!');
         }

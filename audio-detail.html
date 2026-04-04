@@ -672,18 +672,26 @@
         }
 
         async function shareAudio() {
+            const title = document.getElementById('audio-title').textContent;
+            const description = document.getElementById('audio-description').textContent;
+            const imageUrl = document.getElementById('audio-image').src;
+            const url = window.location.href;
+
             const shareData = {
-                title: document.title,
-                text: `Listen to "${document.getElementById('audio-title').textContent}" on Qalamekahani!`,
-                url: window.location.href
+                title: title,
+                text: `🎧 ${title}\n\n${description.substring(0, 150)}${description.length > 150 ? '...' : ''}\n\nCover Image: ${imageUrl}\n\nListen here:`,
+                url: url
             };
+
             try {
-                if (navigator.share) await navigator.share(shareData);
-                else {
-                    await navigator.clipboard.writeText(window.location.href);
-                    alert('Link copied to clipboard!');
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    const fullText = `🎧 ${title}\n\n${description.substring(0, 150)}...\n\nCover Image: ${imageUrl}\n\nListen: ${url}`;
+                    await navigator.clipboard.writeText(fullText);
+                    alert('Audio series details copied to clipboard!');
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error('Error sharing:', err); }
         }
         // Check if saved
         async function checkSavedStatus(canonicalId) {

@@ -771,7 +771,7 @@
 
                     <div class="extra-links">
                         <a href="#" class="extra-link"><i class="far fa-heart"></i> Add to Wishlist</a>
-                        <a href="#" class="extra-link"><i class="fas fa-exchange-alt"></i> Compare</a>
+                        <a href="javascript:void(0)" class="extra-link" onclick="shareBook()"><i class="fas fa-share-alt"></i> Share This Book</a>
                     </div>
                 </div>
             `;
@@ -846,6 +846,31 @@
                 return s;
             }
 
+            async function shareBook() {
+                const book = currentBook;
+                if (!book) return;
+
+                const title = book.title;
+                const description = book.description || 'Check out this amazing book!';
+                const imageUrl = book.image;
+                const url = window.location.href;
+
+                const shareData = {
+                    title: title,
+                    text: `📚 ${title}\n\n${description.substring(0, 150)}${description.length > 150 ? '...' : ''}\n\nCover Image: ${imageUrl}\n\nRead more aquí:`,
+                    url: url
+                };
+
+                try {
+                    if (navigator.share) {
+                        await navigator.share(shareData);
+                    } else {
+                        const fullText = `📚 ${title}\n\n${description.substring(0, 150)}...\n\nCover Image: ${imageUrl}\n\nLink: ${url}`;
+                        await navigator.clipboard.writeText(fullText);
+                        alert('Book details and link copied to clipboard!');
+                    }
+                } catch (err) { console.error('Error sharing:', err); }
+            }
         </script>
         <script src="js/main.js"></script>
 </body>

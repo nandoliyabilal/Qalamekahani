@@ -430,7 +430,7 @@
                         <i id="save-icon" class="far fa-bookmark"></i>
                     </button>
                     <!-- Share Button -->
-                    <button class="btn-read-full" style="background:#222; color:#fff;" onclick="alert('Link Copied!')">
+                    <button class="btn-read-full" style="background:#222; color:#fff;" onclick="shareBlog()">
                         <i class="fas fa-share-alt"></i>
                     </button>
                 </div>
@@ -704,6 +704,29 @@
             const overlay = document.getElementById('reader-view');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
+        }
+
+        async function shareBlog() {
+            const title = document.getElementById('blog-title').textContent;
+            const description = document.getElementById('blog-excerpt').textContent;
+            const imageUrl = document.getElementById('blog-image').src;
+            const url = window.location.href;
+
+            const shareData = {
+                title: title,
+                text: `📰 ${title}\n\n${description.substring(0, 150)}${description.length > 150 ? '...' : ''}\n\nCover Image: ${imageUrl}\n\nRead more aquí:`,
+                url: url
+            };
+
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    const fullText = `📰 ${title}\n\n${description.substring(0, 150)}...\n\nCover Image: ${imageUrl}\n\nLink: ${url}`;
+                    await navigator.clipboard.writeText(fullText);
+                    alert('Blog details and link copied to clipboard!');
+                }
+            } catch (err) { console.error('Error sharing:', err); }
         }
 
         // --- REVIEWS & RATING LOGIC ---

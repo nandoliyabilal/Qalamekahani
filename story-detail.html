@@ -284,9 +284,14 @@
 
                 document.getElementById('story-cat-badge').textContent = story.category || 'Story';
 
-                // Colors for badges (Optional)
-                const catClass = `badge-${(story.category || '').toLowerCase()}`;
-                document.getElementById('story-cat-badge').classList.add(catClass);
+                // Colors for badges (Sanitized for CSS)
+                const catRaw = (story.category || '').toLowerCase().trim().replace(/[\s,]+/g, '-');
+                if (catRaw) {
+                    const catClass = `badge-${catRaw}`;
+                    try {
+                        document.getElementById('story-cat-badge').classList.add(catClass);
+                    } catch (e) { console.warn("Invalid dynamic class:", catClass); }
+                }
 
                 document.getElementById('story-lang-badge').textContent = story.language || 'English';
                 document.getElementById('story-lang-badge').textContent = story.language || 'English';

@@ -3362,3 +3362,58 @@ body {
     padding-bottom: 60px;
   }
 }
+
+/* ================= CARD VIEW COUNT ================= */
+.card-views {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    animation: fadeInViews 1s cubic-bezier(0.2, 0.8, 0.2, 1.1) forwards;
+    pointer-events: none;
+    letter-spacing: 0.5px;
+}
+
+.card-views i {
+    color: #d4af37;
+    font-size: 0.85rem;
+    animation: pulseIcon 2.5s infinite ease-in-out;
+}
+
+@keyframes fadeInViews {
+    from { 
+        opacity: 0; 
+        transform: translateY(15px) scale(0.9); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+}
+
+@keyframes pulseIcon {
+    0%, 100% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.3); opacity: 1; text-shadow: 0 0 8px #d4af37; }
+}
+
+/* Hover refinement */
+.story-card:hover .card-views,
+.audio-card:hover .card-views {
+    border-color: #d4af37;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+    transform: translateY(-2px);
+    transition: all 0.4s ease;
+}

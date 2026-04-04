@@ -558,6 +558,10 @@
                                     <span class="card-badge badge-lang" style="background: rgba(0,0,0,0.7); color: #fff; margin-left: 5px;">${story.language || 'Hindi'}</span>
                                     ${badgeHtml} 
                                 </div>
+                                <div class="card-views">
+                                    <i class="fas fa-eye"></i>
+                                    <span>${(story.views || 0).toLocaleString()} Views</span>
+                                </div>
                                 <div class="image-overlay"></div>
                             </div>
                             <div class="card-content">

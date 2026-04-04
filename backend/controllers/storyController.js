@@ -112,8 +112,9 @@ const getStory = asyncHandler(async (req, res) => {
     // Verify Access for Paid Stories
     if (storyData.price && storyData.price > 0) {
         let hasAccess = false;
+        let isPowerUser = false;
 
-        // 1. Check Authorization Header
+        // 1. Check Authorization
         const authHeader = req.headers.authorization;
         if (authHeader && authHeader.startsWith('Bearer')) {
             try {
@@ -121,15 +122,16 @@ const getStory = asyncHandler(async (req, res) => {
                 const jwt = require('jsonwebtoken');
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-                // 2. Check User Role & Orders
                 const { data: userData } = await supabase.from('users').select('email, role').eq('id', decoded.id).single();
 
                 if (userData) {
-                    // ADMINS ALWAYS HAVE ACCESS
-                    if (userData.role === 'admin' || userData.role === 'admin_testing_disabled') {
-                        console.log(`[DEBUG] User is ADMIN/TESTER, granting full access.`);
+                    isPowerUser = (userData.role === 'admin' || userData.role === 'admin_testing_disabled');
+                    
+                    // Automatically grant access ONLY for testing_disabled role
+                    if (userData.role === 'admin_testing_disabled') {
                         hasAccess = true;
                     } else if (userData.email) {
+                        // Check for paid order
                         const { data: orderData } = await supabase
                             .from('orders')
                             .select('id')
@@ -142,22 +144,22 @@ const getStory = asyncHandler(async (req, res) => {
                     }
                 }
             } catch (error) {
-                console.error("Token verification failed:", error.message);
+                console.error("[DEBUG] Token verification failed:", error.message);
             }
         }
 
-        // 3. Obfuscate if no access
-        console.log(`[DEBUG] Final access decision for '${storyData.title}': ${hasAccess}`);
-        if (!hasAccess) {
-            // Keep only H2 tags for chapter listing
+        // 3. Access Decision
+        if (!hasAccess && !isPowerUser) {
+            // Strip content for non-paying regular users
             const content = storyData.content || '';
-            // Improved regex: matches <h2> tags including those with newlines or attributes
-            // Using [^]* for a newline-friendly dot match replacement
             const matches = content.match(/<h2[^>]*>[\s\S]*?<\/h2>/gi);
             storyData.content = (matches && Array.isArray(matches)) ? matches.join('\n') : '';
             storyData.isLocked = true;
         } else {
-            storyData.isLocked = false;
+            // Unlocked or Admin
+            // If it's an admin who hasn't "bought" it, we keep isLocked=true so they see the button,
+            // but we DON'T strip the content so they can still read.
+            storyData.isLocked = !hasAccess; 
         }
     } else {
         storyData.isLocked = false;

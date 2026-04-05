@@ -227,6 +227,43 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
             </div>
         `;
         finalHtml = getPremiumTemplate(content);
+    } else if (type === 'payment_success') {
+        const content = `
+            <div style="text-transform: uppercase; color: #2ecc71; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Order Confirmed</div>
+            <div class="title">Payment Successful</div>
+            <div class="message" style="color: #ccc; margin-bottom: 30px;">Thank you for your purchase. We've received your payment and the content has been unlocked in your account.</div>
+            
+            <div style="background: #111; padding: 25px; border-radius: 10px; border: 1px solid #333; text-align: left; margin: 20px 0;">
+                <p style="margin: 0 0 10px 0; color: #fff;"><strong>Item:</strong> ${itemData.itemTitle}</p>
+                <p style="margin: 0 0 10px 0; color: #fff;"><strong>Order ID:</strong> #${itemData.orderId}</p>
+                <p style="margin: 0; color: #d4af37;"><strong>Total Paid:</strong> ₹${itemData.amount}</p>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <a href="${itemData.itemUrl}" class="btn">Access Content</a>
+            </div>
+            
+            <p style="font-size: 11px; color: #666; margin-top: 30px;">If the button above doesn't work, you can always find your purchases in your profile section.</p>
+        `;
+        finalHtml = getPremiumTemplate(content);
+    } else if (type === 'payment_pending') {
+        const content = `
+            <div style="text-transform: uppercase; color: #d4af37; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Notice</div>
+            <div class="title">Payment Pending</div>
+            <div class="message" style="color: #ccc; margin-bottom: 30px;">We noticed that your transaction for <strong>${itemData.itemTitle}</strong> was not completed.</div>
+            
+            <div style="background: #111; padding: 20px; border-radius: 8px; border: 1px solid #333; margin: 20px 0; text-align: left;">
+                <p style="color: #fff; margin: 0 0 5px 0;"><strong>Order ID:</strong> #${itemData.orderId}</p>
+                <p style="color: #666; font-size: 12px; margin: 0;">Status: Initiated</p>
+            </div>
+            
+            <div class="message" style="color: #888;">If you were trying to pay and encountered an issue, feel free to try again from the catalog.</div>
+            
+            <div style="margin-top: 30px;">
+                <a href="${process.env.FRONTEND_URL || 'https://qalamekahani.com'}" class="btn">View Catalog</a>
+            </div>
+        `;
+        finalHtml = getPremiumTemplate(content);
     } else {
         finalHtml = getPremiumTemplate(`<div class="message">${message}</div>`);
     }

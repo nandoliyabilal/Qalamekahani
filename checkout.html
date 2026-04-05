@@ -427,11 +427,11 @@
                 window.showToast(`Error loading item details: ${error.message}`, 'error');
             }
 
-            // Prefill user info if logged in
-            const user = JSON.parse(localStorage.getItem('user'));
+            // Prefill user info if logged in (Check both 'user' and 'userInfo' for compatibility)
+            const user = JSON.parse(localStorage.getItem('userInfo') || localStorage.getItem('user'));
             if (user) {
                 document.getElementById('name').value = user.name || '';
-                document.getElementById('email').value = user.email || '';
+                document.getElementById('email').value = user.email || (user.user ? user.user.email : '');
             }
         });
 
@@ -615,7 +615,18 @@
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ razorpay_order_id: order.id })
-                            }).catch(err => console.error('Tracking Error:', err));
+                            })
+                            .then(() => {
+                                // Redirect with pending status so main.js shows the toast
+                                if (itemType === 'audio') {
+                                    window.location.href = `listen.html?id=${selectedItem.id}&payment=pending`;
+                                } else if (itemType === 'story') {
+                                    window.location.href = `story-detail.html?id=${selectedItem.id}&payment=pending`;
+                                } else {
+                                    window.location.href = `books.html?payment=pending`;
+                                }
+                            })
+                            .catch(err => console.error('Tracking Error:', err));
                         }
                     }
                 };

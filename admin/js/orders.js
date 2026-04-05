@@ -33,7 +33,7 @@ function renderTable(orders) {
             <td class="px-6 py-4 font-mono text-xs">${order.transaction_id || '-'}</td>
             <td class="px-6 py-4 text-xs">${new Date(order.created_at).toLocaleDateString()}</td>
             <td class="px-6 py-4">
-                <span class="px-2 py-1 text-xs rounded-full bg-green-500/10 text-green-400 uppercase font-bold">${order.status}</span>
+                <span class="px-2 py-1 text-xs rounded-full ${order.status === 'paid' ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-500'} uppercase font-bold">${order.status || 'CREATED'}</span>
             </td>
         </tr>
     `).join('');

@@ -193,6 +193,18 @@ document.addEventListener('DOMContentLoaded', () => {
       authLinksHelper.replaceWith(li);
     }
   }
+
+  // == GLOBAL PAYMENT STATUS HANDLER ==
+  const urlParams = new URLSearchParams(window.location.search);
+  const paymentStatus = urlParams.get('payment');
+  if (paymentStatus === 'success') {
+    window.showToast('Payment Successful! The content has been unlocked in your account.', 'success');
+    // Remove param from URL without reload
+    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + (window.location.search.replace(/[?&]payment=success/, '').replace(/^&/, '?'));
+    window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+  } else if (paymentStatus === 'pending') {
+    window.showToast('Payment is pending. Please complete your transaction if not already done.', 'error');
+  }
 });
 
 

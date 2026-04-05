@@ -601,8 +601,8 @@ window.shareContent = async function({ title, description, url, imageUrl, type =
     const cleanDescription = (description || '').replace(/<[^>]*>?/gm, '').trim();
     const shortDescription = cleanDescription.substring(0, 100).padEnd(103, '.'); 
     
-    // Structure: Emoji + Title -> Consistent Synopsis -> Brand -> Link
-    const professionalText = `${emoji} *${title}*\n\n"${shortDescription}"\n\n✨ *Qalamekahani - Best Stories* ✨\n\n🔗 *Full ${type} Link:* ${url}`;
+    // Structure: Welcome -> Emoji + Title -> Consistent Synopsis -> Brand -> Link -> Footer
+    const professionalText = `🌟 *Welcome to Qalamekahani!* 🌟\n\n${emoji} *${title}*\n\n"${shortDescription}"\n\n✨ Immerse yourself in the soul-touching world of stories, audio & literature by *Sabirkhan Pathan*. ✨\n\n🔗 *Full ${type === 'audio' ? 'Audio' : type.charAt(0).toUpperCase() + type.slice(1)} Link:* ${url}\n\n🚀 *Qalamekahani - Weaving stories that touch your soul.*`;
 
     const shareData = {
         title: title,

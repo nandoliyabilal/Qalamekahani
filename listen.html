@@ -1681,43 +1681,13 @@
         async function shareAudio() {
             if (audioList.length > 0) {
                 const track = audioList[currentIndex];
-                const shareData = {
+                window.shareContent({
                     title: track.title,
-                    text: 'Listen to ' + track.title + ' on Qalamekahani!',
-                    url: window.location.href
-                };
-
-                try {
-                    // Try Native Share
-                    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-                        await navigator.share(shareData);
-                    } else {
-                        throw new Error('Web Share API not supported');
-                    }
-                } catch (err) {
-                    console.log('Share API failed, falling back to clipboard', err);
-
-                    // Try Modern Clipboard
-                    try {
-                        await navigator.clipboard.writeText(window.location.href);
-                        showToast('Link copied to clipboard!');
-                    } catch (clipErr) {
-                        // Fallback: Legacy Input Hack (Works everywhere)
-                        const tempInput = document.createElement("input");
-                        tempInput.style.position = "absolute";
-                        tempInput.style.left = "-9999px";
-                        tempInput.value = window.location.href;
-                        document.body.appendChild(tempInput);
-                        tempInput.select();
-                        try {
-                            document.execCommand("copy");
-                            showToast('Link copied to clipboard!');
-                        } catch (execErr) {
-                            showToast('Could not share or copy link');
-                        }
-                        document.body.removeChild(tempInput);
-                    }
-                }
+                    description: track.description || 'Listen to this amazing audio story on Qalamekahani!',
+                    url: window.location.href,
+                    imageUrl: track.image || '',
+                    type: 'audio'
+                });
             }
         }
 

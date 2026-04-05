@@ -544,9 +544,9 @@
 
                     // Button Logic
                     let btnText = isFree || isPaid ? 'Read Story' : `Unlock for ₹${price}`;
-                    if (!isFree && !isPaid && discount > 0) {
-                        const discountedPrice = Math.round(price - (price * discount / 100));
-                        btnText = `Unlock for ₹${discountedPrice} <small style="text-decoration:line-through; color:#aaa; margin-left:5px;">₹${price}</small>`;
+                    if (story.discount && story.discount > 0) {
+                        const discountedPrice = (price - (price * story.discount / 100)).toFixed(1).replace(/\.0$/, '');
+                        btnText = `Unlock for ₹${discountedPrice} <span style="text-decoration: line-through; color: #888; font-size: 0.8em; margin-left: 5px;">₹${price}</span>`;
                     }
 
                     return `

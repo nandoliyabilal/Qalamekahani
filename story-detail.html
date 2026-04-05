@@ -510,7 +510,7 @@
                     let finalPrice = price;
 
                     if (story.discount && story.discount > 0) {
-                        const discountedPrice = Math.round(price - (price * story.discount / 100));
+                        const discountedPrice = (price - (price * story.discount / 100)).toFixed(1).replace(/\.0$/, '');
                         finalPrice = discountedPrice;
                         priceDisplay = `₹${discountedPrice} <span style="text-decoration: line-through; color: #888; font-size: 0.8em; margin-left: 5px;">₹${price}</span>`;
                     }

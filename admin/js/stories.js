@@ -77,8 +77,13 @@ function renderTable() {
             </td>
             <td class="px-6 py-4">
                 <div class="text-[12px] font-black ${parseFloat(story.price) > 0 ? 'text-green-400' : 'text-blue-300'} uppercase">
-                    ${parseFloat(story.price) > 0 ? '₹' + story.price : 'Free'}
+                    ${parseFloat(story.price) > 0 ? 
+                        (parseFloat(story.discount) > 0 ? 
+                            `₹${(story.price - (story.price * story.discount / 100)).toFixed(1)} <span class="text-gray-500 line-through ml-1">₹${story.price}</span>` : 
+                            '₹' + story.price
+                        ) : 'Free'}
                 </div>
+                ${parseFloat(story.discount) > 0 ? `<div class="text-[9px] text-orange-400 font-bold">-${story.discount}% OFF</div>` : ''}
             </td>
             <td class="px-6 py-4 text-center">
                 <div class="flex items-center justify-center gap-1.5 text-xs text-gray-300 bg-gray-800/50 py-1 rounded-lg border border-gray-700/30">

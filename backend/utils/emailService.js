@@ -43,11 +43,12 @@ const getPremiumTemplate = (content, previewText = '') => {
             }
             .logo {
                 font-family: 'Playfair Display', serif;
-                font-size: 32px;
+                font-size: 28px;
                 color: #d4af37;
                 text-transform: uppercase;
-                letter-spacing: 4px;
+                letter-spacing: 2px;
                 margin: 0;
+                white-space: nowrap;
             }
             .tagline {
                 color: #888;

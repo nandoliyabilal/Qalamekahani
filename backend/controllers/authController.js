@@ -826,11 +826,17 @@ const googleLogin = asyncHandler(async (req, res) => {
 
     if (!user) {
         // 3. Create new user if doesn't exist
+        // Generate a random placeholder password to satisfy NOT NULL constraint
+        const randomPassword = crypto.randomBytes(32).toString('hex');
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
         const { data: newUser, error: createError } = await supabase
             .from('users')
             .insert([{
                 name: name,
                 email: email,
+                password: hashedPassword, // satisfy NOT NULL constraint
                 is_verified: true, // Google accounts are verified
                 notifications_on: true,
                 role: 'user',

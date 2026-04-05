@@ -175,7 +175,7 @@ const { sendEmailNotification } = require('../utils/notificationHelper');
 // @route   POST /api/stories
 // @access  Private (Admin)
 const createStory = asyncHandler(async (req, res) => {
-    const { title, summary, fullContent, category, tags, coverImage, status, language, youtubeLink, price, discount } = req.body;
+    const { title, summary, fullContent, category, tags, coverImage, status, language, youtubeLink, price, discount, author } = req.body;
 
     if (!title || !fullContent || !category) {
         res.status(400);
@@ -212,7 +212,7 @@ const createStory = asyncHandler(async (req, res) => {
             youtube_link: youtubeLink,
             price: price || 0,
             discount: discount || 0,
-            author: 'Sabirkhan Pathan'
+            author: author || 'Sabirkhan Pathan'
         }])
         .select()
         .single();
@@ -233,7 +233,7 @@ const createStory = asyncHandler(async (req, res) => {
 // @route   PUT /api/stories/:id
 // @access  Private (Admin)
 const updateStory = asyncHandler(async (req, res) => {
-    const { title, summary, fullContent, category, tags, coverImage, status, language, youtubeLink, price, discount } = req.body;
+    const { title, summary, fullContent, category, tags, coverImage, status, language, youtubeLink, price, discount, author } = req.body;
 
     const updates = {};
     if (title) updates.title = title;
@@ -247,6 +247,7 @@ const updateStory = asyncHandler(async (req, res) => {
     if (youtubeLink !== undefined) updates.youtube_link = youtubeLink;
     if (price !== undefined && price !== '') updates.price = Number(price);
     if (discount !== undefined && discount !== '') updates.discount = Number(discount);
+    if (author) updates.author = author;
 
     const { data, error } = await supabase
         .from('stories')

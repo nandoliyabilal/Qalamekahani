@@ -767,7 +767,7 @@
             font-size: 1.1rem;
             font-weight: 700;
             border: 2px solid #d4af37;
-            cursor: pointer;
+            cursor: pointer !important;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -781,6 +781,11 @@
             flex: 1; /* Aamne samne equal width */
             max-width: 50%;
             -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Make children pass-through so the entire button captures the click immediately */
+        .entik-nav-btn * {
+            pointer-events: none;
         }
 
         /* Continuous Shine Animation over the whole button */

@@ -389,30 +389,60 @@
             });
         }
 
-        function isSmartMatch(img, category, query) {
+        function getSearchScore(img, category, query) {
+            let score = 0;
             const matchesCategory = category === 'all' || (img.category && img.category.toLowerCase() === category);
             
-            if (!query) return matchesCategory;
+            // If it doesn't match the hard category filter, drop it completely.
+            if (!matchesCategory) return 0;
+            if (!query) return 1; // Default score if no search query
             
             const q = query.toLowerCase().trim();
-            // Create a smart searchable string from all possible image metadata
-            const searchableText = [
-                img.title || '',
-                img.category || '',
-                img.description || '',
-                img.tags || ''
-            ].join(' ').toLowerCase();
+            const title = (img.title || '').toLowerCase();
+            const cat = (img.category || '').toLowerCase();
+            const desc = (img.description || '').toLowerCase();
+            const tags = (img.tags || '').toLowerCase();
 
-            // Support simple smart match: split words and ensure all typed words are found somewhere in the metadata
-            const searchWords = q.split(/\s+/);
-            const matchesSearch = searchWords.every(word => searchableText.includes(word));
-            
-            return matchesCategory && matchesSearch;
+            // 1. Direct exact matches (Highest Weight)
+            if (title === q || cat === q) score += 100;
+            if (title.includes(q)) score += 50;
+            if (tags.includes(q) || cat.includes(q)) score += 40;
+            if (desc.includes(q)) score += 20;
+
+            // 2. Pinterest/Freepik Style: Match ANY partial word (Fuzzy Weight)
+            // Splitting search query to individual keywords
+            const searchWords = q.split(/\s+/).filter(w => w.length > 2); // skip short words like 'is', 'to'
+            // If they typed short words, add the whole phrase back
+            if (searchWords.length === 0) searchWords.push(q);
+
+            for (const word of searchWords) {
+                if (title.includes(word)) score += 15;
+                if (cat.includes(word)) score += 10;
+                if (tags.includes(word)) score += 10;
+                if (desc.includes(word)) score += 5;
+            }
+
+            return score;
         }
 
+        // We will store the latest filtered array globally so lightbox stays perfectly synced
+        let currentFilteredImages = []; 
+
         function filterImages(category, query) {
-            const filtered = allImages.filter(img => isSmartMatch(img, category, query));
-            renderImages(filtered);
+            // Apply scoring
+            let scoredData = allImages.map(img => ({
+                img, 
+                score: getSearchScore(img, category, query)
+            }));
+            
+            // Filter out items with 0 score
+            scoredData = scoredData.filter(item => item.score > 0);
+            
+            // Sort by relevance score (highest first)
+            scoredData.sort((a, b) => b.score - a.score);
+            
+            currentFilteredImages = scoredData.map(item => item.img);
+            renderImages(currentFilteredImages);
         }
 
         function renderImages(data) {
@@ -446,12 +476,7 @@
         }
 
         function openLightbox(index) {
-            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-            const query = document.getElementById('searchInput').value;
-            
-            const filtered = allImages.filter(img => isSmartMatch(img, activeFilter, query));
-
-            currentImage = filtered[index];
+            currentImage = currentFilteredImages[index];
             if (!currentImage) return;
 
             let imgUrl = currentImage.image;
@@ -467,8 +492,6 @@
             const saveBtn = document.getElementById('lb-save-btn');
             const token = localStorage.getItem('token');
             if (token) {
-                // Determine save state visually if me API was used. We will verify server side.
-                // Just keep generic for now
                 saveBtn.innerHTML = '<i class="far fa-heart"></i> Save to Profile';
             }
         }

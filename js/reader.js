@@ -172,13 +172,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Nav Buttons
             const nav = document.createElement('div');
-            nav.className = 'chapter-nav';
-            nav.style.cssText = 'display:flex; justify-content:space-between; margin-top:60px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05); gap:20px; flex-wrap:wrap;';
+            nav.className = 'chapter-nav-wrapper';
 
             if (index > 0) {
                 const b = document.createElement('button');
                 b.className = 'entik-nav-btn prev-btn';
-                b.style.cssText = 'padding: 12px 25px; font-size: 1rem; border-color: #555; background: #333; color: #fff; min-width: auto;';
                 b.innerHTML = '<i class="fas fa-arrow-left"></i> Previous';
                 b.onclick = (e) => { 
                     e.preventDefault();
@@ -339,6 +337,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- INTERACTIVE LISTENERS ---
+
+    // Swipe Gestures
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        const threshold = 70; // Minimum distance
+        // Left Swipe -> Next
+        if (touchEndX < touchStartX - threshold) {
+            if (currentChapterIndex < chapters.length - 1) {
+                renderChapter(currentChapterIndex + 1);
+            }
+        }
+        // Right Swipe -> Previous
+        if (touchEndX > touchStartX + threshold) {
+            if (currentChapterIndex > 0) {
+                renderChapter(currentChapterIndex - 1);
+            }
+        }
+    }
 
     // Toggle Chapter Menu
     document.addEventListener('click', (e) => {

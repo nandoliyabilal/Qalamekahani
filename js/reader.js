@@ -227,20 +227,20 @@ document.addEventListener('DOMContentLoaded', () => {
         box.innerHTML = `
             <div style="text-align:center; padding:40px 0;">
                 <h3 style="font-family:'Playfair Display'; font-size:2.5rem; margin-bottom:10px; color:#d4af37;">The End.</h3>
-                <p style="color:#888; font-size:1.1rem;">We hope you enjoyed "${document.getElementById('hero-title').textContent}".</p>
+                <p style="color:var(--text-ink, #888); font-size:1.1rem;">We hope you enjoyed "${document.getElementById('hero-title').textContent}".</p>
             </div>
             <div class="rating-box" style="text-align:center; margin-bottom:40px;">
-                <p style="margin-bottom:15px; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; color:#666;">Rate this story</p>
+                <p style="margin-bottom:15px; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; color:var(--muted-ink, #666);">Rate this story</p>
                 <div id="star-box" style="font-size:3.5rem; cursor:pointer; display:flex; justify-content:center; gap:10px;">
-                    <i class="fas fa-star ch-star" data-v="1" style="color:#222; transition:all 0.3s;"></i>
-                    <i class="fas fa-star ch-star" data-v="2" style="color:#222; transition:all 0.3s;"></i>
-                    <i class="fas fa-star ch-star" data-v="3" style="color:#222; transition:all 0.3s;"></i>
-                    <i class="fas fa-star ch-star" data-v="4" style="color:#222; transition:all 0.3s;"></i>
-                    <i class="fas fa-star ch-star" data-v="5" style="color:#222; transition:all 0.3s;"></i>
+                    <i class="fas fa-star ch-star" data-v="1" style="color:var(--muted-ink, #ccc); transition:all 0.3s;"></i>
+                    <i class="fas fa-star ch-star" data-v="2" style="color:var(--muted-ink, #ccc); transition:all 0.3s;"></i>
+                    <i class="fas fa-star ch-star" data-v="3" style="color:var(--muted-ink, #ccc); transition:all 0.3s;"></i>
+                    <i class="fas fa-star ch-star" data-v="4" style="color:var(--muted-ink, #ccc); transition:all 0.3s;"></i>
+                    <i class="fas fa-star ch-star" data-v="5" style="color:var(--muted-ink, #ccc); transition:all 0.3s;"></i>
                 </div>
             </div>
             <div class="rev-box" style="max-width:600px; margin:0 auto;">
-                <textarea id="rev-input" style="width:100%; height:120px; padding:20px; background:transparent; border:1px solid #ccc; border-radius:15px; color:var(--text-ink, #000); font-family:inherit; outline:none; transition:border 0.3s;" placeholder="Write your thoughts here..."></textarea>
+                <textarea id="rev-input" style="width:100%; height:120px; padding:20px; background:transparent; border:1px solid var(--muted-ink, #ccc); border-radius:15px; color:var(--text-ink, #000); font-family:inherit; outline:none; transition:border 0.3s;" placeholder="Write your thoughts here..."></textarea>
                 <button id="rev-submit" style="background:#d4af37; color:#000; border:none; padding:15px 40px; border-radius:30px; margin-top:20px; cursor:pointer; font-weight:900; font-size:1.1rem; transition:all 0.3s; width:100%; text-transform:uppercase; letter-spacing:1px; box-shadow:0 8px 25px rgba(212,175,55,0.2);">Post My Review</button>
             </div>
             <div id="rev-status" style="text-align:center; margin-top:15px; font-size:0.9rem;"></div>
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         stars.forEach(s => {
             s.onclick = () => {
                 const val = s.getAttribute('data-v');
-                stars.forEach(st => st.style.color = st.getAttribute('data-v') <= val ? '#ff3333' : '#222');
+                stars.forEach(st => st.style.color = st.getAttribute('data-v') <= val ? '#ff3333' : 'var(--muted-ink, #ccc)');
                 box.setAttribute('data-rating', val);
             };
         });
@@ -304,17 +304,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const list = container.querySelector('#rev-list');
             const approved = data.filter(r => r.status === 'approved');
             if (approved.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#555;">No reviews yet. Be the first to write one!</p>';
+                list.innerHTML = '<p style="text-align:center; color:var(--muted-ink, #888);">No reviews yet. Be the first to write one!</p>';
                 return;
             }
             list.innerHTML = approved.map(r => `
-                <li style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 30px 0;">
+                <li style="border-bottom: 1px solid var(--muted-ink, rgba(255,255,255,0.05)); padding: 30px 0;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                         <strong style="color:#d4af37; font-size:1.2rem;">${r.user_name}</strong>
-                        <small style="color:#555;">${new Date(r.created_at).toLocaleDateString()}</small>
+                        <small style="color:var(--muted-ink, #888);">${new Date(r.created_at).toLocaleDateString()}</small>
                     </div>
                     <div style="color:#ff3333; margin-bottom:15px; font-size:1.3rem;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
-                    <p style="opacity:0.85; font-style:italic; line-height:1.7; font-size:1.1rem; color:#ccc;">"${r.comment}"</p>
+                    <p style="opacity:0.9; font-style:italic; line-height:1.7; font-size:1.1rem; color:var(--text-ink, #e0e0e0);">"${r.comment}"</p>
                     ${r.reply ? `
                         <div style="margin-top:25px; padding:20px; border-left:4px solid #d4af37; background:rgba(212,175,55,0.04); border-radius:0 12px 12px 0; border:1px solid rgba(212,175,55,0.1); border-left:4px solid #d4af37;">
                             <small style="color:#d4af37; font-weight:900; letter-spacing:2px; text-transform:uppercase; font-size:0.7rem; display:block; margin-bottom:8px;">Author Reponse</small>

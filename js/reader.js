@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
             <div class="rev-box" style="max-width:600px; margin:0 auto;">
-                <textarea id="rev-input" style="width:100%; height:120px; padding:20px; background:transparent; border:1px solid var(--muted-ink, #ccc); border-radius:15px; color:var(--text-ink, #000); font-family:inherit; outline:none; transition:border 0.3s;" placeholder="Write your thoughts here..."></textarea>
+                <textarea id="rev-input" style="width:100%; height:120px; padding:20px; background:rgba(255,255,255,0.95); border:2px solid #d4af37; border-radius:15px; color:#000; font-weight:500; font-family:inherit; outline:none; transition:all 0.3s; box-shadow:inset 0 4px 10px rgba(0,0,0,0.05);" placeholder="Write your thoughts here..."></textarea>
                 <button id="rev-submit" style="background:#d4af37; color:#000; border:none; padding:15px 40px; border-radius:30px; margin-top:20px; cursor:pointer; font-weight:900; font-size:1.1rem; transition:all 0.3s; width:100%; text-transform:uppercase; letter-spacing:1px; box-shadow:0 8px 25px rgba(212,175,55,0.2);">Post My Review</button>
             </div>
             <div id="rev-status" style="text-align:center; margin-top:15px; font-size:0.9rem;"></div>

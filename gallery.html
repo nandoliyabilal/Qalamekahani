@@ -389,20 +389,36 @@
             });
         }
 
+        function isSmartMatch(img, category, query) {
+            const matchesCategory = category === 'all' || (img.category && img.category.toLowerCase() === category);
+            
+            if (!query) return matchesCategory;
+            
+            const q = query.toLowerCase().trim();
+            // Create a smart searchable string from all possible image metadata
+            const searchableText = [
+                img.title || '',
+                img.category || '',
+                img.description || '',
+                img.tags || ''
+            ].join(' ').toLowerCase();
+
+            // Support simple smart match: split words and ensure all typed words are found somewhere in the metadata
+            const searchWords = q.split(/\s+/);
+            const matchesSearch = searchWords.every(word => searchableText.includes(word));
+            
+            return matchesCategory && matchesSearch;
+        }
+
         function filterImages(category, query) {
-            const q = query.toLowerCase();
-            const filtered = allImages.filter(img => {
-                const matchesCategory = category === 'all' || (img.category && img.category.toLowerCase() === category);
-                const matchesSearch = !q || (img.title && img.title.toLowerCase().includes(q));
-                return matchesCategory && matchesSearch;
-            });
+            const filtered = allImages.filter(img => isSmartMatch(img, category, query));
             renderImages(filtered);
         }
 
         function renderImages(data) {
             const grid = document.getElementById('gallery-grid');
             if (!data || data.length === 0) {
-                grid.innerHTML = '<p style="text-align:center; color:#ccc; width:100%; column-span:all;">No images found.</p>';
+                grid.innerHTML = '<p style="text-align:center; color:#ccc; width:100%; column-span:all;">No matching images found for your search.</p>';
                 return;
             }
 
@@ -431,13 +447,9 @@
 
         function openLightbox(index) {
             const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-            const query = document.getElementById('searchInput').value.toLowerCase();
+            const query = document.getElementById('searchInput').value;
             
-            const filtered = allImages.filter(img => {
-                const matchesCategory = activeFilter === 'all' || (img.category && img.category.toLowerCase() === activeFilter);
-                const matchesSearch = !query || (img.title && img.title.toLowerCase().includes(query));
-                return matchesCategory && matchesSearch;
-            });
+            const filtered = allImages.filter(img => isSmartMatch(img, activeFilter, query));
 
             currentImage = filtered[index];
             if (!currentImage) return;

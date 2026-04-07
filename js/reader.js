@@ -173,14 +173,18 @@ document.addEventListener('DOMContentLoaded', () => {
             // Nav Buttons
             const nav = document.createElement('div');
             nav.className = 'chapter-nav';
-            nav.style.cssText = 'display:flex; justify-content:space-between; margin-top:60px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);';
+            nav.style.cssText = 'display:flex; justify-content:space-between; margin-top:60px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05); gap:20px; flex-wrap:wrap;';
 
             if (index > 0) {
                 const b = document.createElement('button');
-                b.className = 'reader-btn';
+                b.className = 'entik-nav-btn prev-btn';
+                b.style.cssText = 'padding: 12px 25px; font-size: 1rem; border-color: #555; background: #333; color: #fff; min-width: auto;';
                 b.innerHTML = '<i class="fas fa-arrow-left"></i> Previous';
-                b.style.cssText = 'background:rgba(255,255,255,0.05); color:#fff; border:1px solid #333; padding:10px 25px; border-radius:30px; cursor:pointer;';
-                b.onclick = () => { renderChapter(index - 1); scrollToTop(); };
+                b.onclick = (e) => { 
+                    e.preventDefault();
+                    e.stopPropagation();
+                    renderChapter(index - 1); 
+                };
                 nav.appendChild(b);
             } else {
                 nav.appendChild(document.createElement('div'));
@@ -188,10 +192,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (index < chapters.length - 1) {
                 const b = document.createElement('button');
-                b.className = 'reader-btn next-ch-btn';
-                b.style.cssText = 'background:#d4af37; color:#000; padding:12px 30px; border-radius:30px; font-weight:800; border:none; cursor:pointer; display:flex; align-items:center; gap:10px; box-shadow:0 4px 15px rgba(212,175,55,0.3);';
+                b.className = 'entik-nav-btn next-btn';
                 b.innerHTML = 'Next Chapter <i class="fas fa-arrow-right"></i>';
-                b.onclick = () => { renderChapter(index + 1); scrollToTop(); };
+                b.onclick = (e) => { 
+                    e.preventDefault();
+                    e.stopPropagation();
+                    renderChapter(index + 1); 
+                };
                 nav.appendChild(b);
             }
             container.appendChild(nav);

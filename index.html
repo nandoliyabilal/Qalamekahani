@@ -453,8 +453,21 @@
                     `;
                     document.head.appendChild(style);
 
-                    // Reorder random or take latest 10
-                    carousel.innerHTML = data.slice(0, 10).map(img => {
+                    // Remove duplicates to prevent same image from repeating
+                    const uniqueImages = [];
+                    const seenUrls = new Set();
+                    for(const img of data) {
+                        const url = img.image || img.title || '';
+                        if(url && !seenUrls.has(url)) {
+                            seenUrls.add(url);
+                            uniqueImages.push(img);
+                        }
+                    }
+
+                    // Reverse so latest unique images come first
+                    uniqueImages.reverse();
+                    
+                    carousel.innerHTML = uniqueImages.slice(0, 10).map(img => {
                         let imgUrl = img.image || '';
                         if (imgUrl && !imgUrl.startsWith('http')) {
                             imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\/?/, '');

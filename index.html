@@ -144,13 +144,15 @@
     </section>
 
     <!-- Image Gallery Section -->
-    <section class="gallery-section" id="gallery-home">
+    <section class="gallery-section" id="gallery-home" style="border-top: 1px solid rgba(212,175,55,0.2); border-bottom: 1px solid rgba(212,175,55,0.2); background: rgba(0,0,0,0.15); margin: 40px 0;">
         <div class="gallery-container" style="max-width:1200px; margin:0 auto; padding:60px 20px;">
-            <h2 class="section-title">Images & Wallpapers</h2>
-            <p class="section-subtitle">Exclusive copyright-free character concepts.</p>
+            <div style="text-align:center; margin-bottom:40px;">
+                <h2 class="section-title" style="margin-bottom:10px;">Images & Wallpapers</h2>
+                <p class="section-subtitle">Exclusive copyright-free character concepts.</p>
+            </div>
             
-            <div class="gallery-carousel-wrapper" style="position:relative; margin-top:30px;">
-                <div id="home-gallery-carousel" style="display:flex; gap:20px; overflow-x:auto; padding-bottom:20px; scroll-behavior:smooth;">
+            <div class="gallery-carousel-wrapper" style="position:relative;">
+                <div id="home-gallery-carousel" style="display:flex; gap:30px; overflow-x:auto; padding-bottom:20px; scroll-behavior:smooth;">
                     <div style="width:100%; text-align:center; color:white;">Loading Images...</div>
                 </div>
             </div>
@@ -458,11 +460,11 @@
                             imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\/?/, '');
                         }
                         return `
-                        <div class="carousel-item" onclick="window.location.href='gallery.html'" style="min-width:280px; height:350px; flex-shrink:0; position:relative; border-radius:15px; overflow:hidden; cursor:pointer; box-shadow:0 10px 20px rgba(0,0,0,0.5); transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="carousel-item" onclick="window.location.href='gallery.html'" style="flex: 0 0 auto; width: 400px; max-width: 85vw; height: 240px; position:relative; border-radius:15px; overflow:hidden; cursor:pointer; box-shadow:0 10px 20px rgba(0,0,0,0.5); transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
                             <img src="${imgUrl}" alt="${img.title}" style="width:100%; height:100%; object-fit:cover;">
                             <div style="position:absolute; bottom:0; padding:20px; width:100%; background:linear-gradient(transparent, rgba(0,0,0,0.9));">
-                                <h4 style="color:#fff; font-family:'Playfair Display'; font-size:1.2rem; margin:0; margin-bottom:5px;">${img.title}</h4>
-                                <span style="color:#d4af37; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:1px;">${img.category || 'Artwork'}</span>
+                                <h4 style="color:#fff; font-family:'Playfair Display'; font-size:1.2rem; margin:0; margin-bottom:5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${img.title}</h4>
+                                <span style="color:#d4af37; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${img.category || 'Artwork'}</span>
                             </div>
                         </div>
                         `;
@@ -474,7 +476,8 @@
                         if(!carousel) return;
                         if(carousel.matches(':hover')) return; // pause if user is hovering
                         
-                        const itemWidth = 300; // 280 width + 20 gap
+                        const firstItem = carousel.querySelector('.carousel-item');
+                        const itemWidth = firstItem ? firstItem.offsetWidth + 30 : 430; // 30 is gap
                         scrollAmount += itemWidth;
                         
                         // Using a small buffer (5px) for browser floating point width issues

@@ -327,7 +327,6 @@
                 document.getElementById('meta-genre').textContent = story.category;
                 document.getElementById('meta-date').textContent = new Date(story.created_at || story.date).toLocaleDateString();
                 document.getElementById('meta-time').textContent = calculateReadTime(story.content || '');
-                document.getElementById('meta-mood').textContent = story.mood || 'Intense';
 
                 document.getElementById('story-synopsis').textContent = story.summary || story.synopsis || story.description || '';
                 document.getElementById('meta-views').textContent = story.views || 0;

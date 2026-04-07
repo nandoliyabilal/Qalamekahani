@@ -143,6 +143,24 @@
         </div>
     </section>
 
+    <!-- Image Gallery Section -->
+    <section class="gallery-section" id="gallery-home">
+        <div class="gallery-container" style="max-width:1200px; margin:0 auto; padding:60px 20px;">
+            <h2 class="section-title">Images & Wallpapers</h2>
+            <p class="section-subtitle">Exclusive copyright-free character concepts.</p>
+            
+            <div class="gallery-carousel-wrapper" style="position:relative; margin-top:30px;">
+                <div id="home-gallery-carousel" style="display:flex; gap:20px; overflow-x:auto; padding-bottom:20px; scroll-behavior:smooth;">
+                    <div style="width:100%; text-align:center; color:white;">Loading Images...</div>
+                </div>
+            </div>
+            
+            <div class="section-footer" style="text-align:center; margin-top:20px;">
+                <a href="gallery.html" class="view-all-btn">View All Images <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
     <!-- Books Section -->
     <section class="books-section">
         <div class="books-container">
@@ -403,6 +421,76 @@
                 })
                 .catch(err => {
                     updateContainer(booksContainerId, '<p style="grid-column: 1/-1; text-align:center; color:red; padding:20px;">Failed to load books.</p>');
+                });
+
+            // Fetch Images for Carousel
+            const galleryCarouselId = 'home-gallery-carousel';
+            fetch('/api/gallery')
+                .then(res => res.json())
+                .then(data => {
+                    const carousel = document.getElementById(galleryCarouselId);
+                    if (!data || data.length === 0) {
+                        carousel.innerHTML = '<p style="text-align:center; color:#ccc; width:100%;">No images available.</p>';
+                        return;
+                    }
+
+                    // Style for the scrollbar to make it look premium
+                    const style = document.createElement('style');
+                    style.innerHTML = `
+                        #home-gallery-carousel::-webkit-scrollbar {
+                            height: 8px;
+                        }
+                        #home-gallery-carousel::-webkit-scrollbar-track {
+                            background: rgba(255,255,255,0.05);
+                            border-radius: 10px;
+                        }
+                        #home-gallery-carousel::-webkit-scrollbar-thumb {
+                            background: #d4af37;
+                            border-radius: 10px;
+                        }
+                    `;
+                    document.head.appendChild(style);
+
+                    // Reorder random or take latest 10
+                    carousel.innerHTML = data.slice(0, 10).map(img => {
+                        let imgUrl = img.image || '';
+                        if (imgUrl && !imgUrl.startsWith('http')) {
+                            imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\/?/, '');
+                        }
+                        return `
+                        <div class="carousel-item" onclick="window.location.href='gallery.html'" style="min-width:280px; height:350px; flex-shrink:0; position:relative; border-radius:15px; overflow:hidden; cursor:pointer; box-shadow:0 10px 20px rgba(0,0,0,0.5); transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                            <img src="${imgUrl}" alt="${img.title}" style="width:100%; height:100%; object-fit:cover;">
+                            <div style="position:absolute; bottom:0; padding:20px; width:100%; background:linear-gradient(transparent, rgba(0,0,0,0.9));">
+                                <h4 style="color:#fff; font-family:'Playfair Display'; font-size:1.2rem; margin:0; margin-bottom:5px;">${img.title}</h4>
+                                <span style="color:#d4af37; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:1px;">${img.category || 'Artwork'}</span>
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+
+                    // Auto-scroll logic (every 3 seconds)
+                    let scrollAmount = 0;
+                    setInterval(() => {
+                        if(!carousel) return;
+                        if(carousel.matches(':hover')) return; // pause if user is hovering
+                        
+                        const itemWidth = 300; // 280 width + 20 gap
+                        scrollAmount += itemWidth;
+                        
+                        // Using a small buffer (5px) for browser floating point width issues
+                        if (scrollAmount >= carousel.scrollWidth - carousel.clientWidth - 5) {
+                            scrollAmount = 0; // reset
+                        }
+                        
+                        carousel.scrollTo({
+                            left: scrollAmount,
+                            behavior: 'smooth'
+                        });
+                    }, 3000);
+                })
+                .catch(err => {
+                    const carousel = document.getElementById(galleryCarouselId);
+                    if(carousel) carousel.innerHTML = '<p style="color:red; width:100%; text-align:center;">Failed to load images.</p>';
                 });
         });
     </script>

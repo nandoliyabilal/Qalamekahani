@@ -340,29 +340,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Swipe Gestures
     let touchStartX = 0;
+    let touchStartY = 0;
     let touchEndX = 0;
+    let touchEndY = 0;
 
     document.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
     }, { passive: true });
 
     document.addEventListener('touchend', e => {
         touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
         handleSwipe();
     }, { passive: true });
 
     function handleSwipe() {
-        const threshold = 70; // Minimum distance
-        // Left Swipe -> Next
-        if (touchEndX < touchStartX - threshold) {
-            if (currentChapterIndex < chapters.length - 1) {
-                renderChapter(currentChapterIndex + 1);
+        const threshold = 70; // Minimum distance for a swipe
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+
+        // Only trigger if horizontal swipe is significantly stronger than vertical movement 
+        // (Ensures normal up/down scrolling doesn't accidental turn the page)
+        if (Math.abs(diffX) > Math.abs(diffY) + 30) {
+            
+            // Left Swipe -> Next
+            if (diffX < -threshold) {
+                if (currentChapterIndex < chapters.length - 1) {
+                    renderChapter(currentChapterIndex + 1);
+                }
             }
-        }
-        // Right Swipe -> Previous
-        if (touchEndX > touchStartX + threshold) {
-            if (currentChapterIndex > 0) {
-                renderChapter(currentChapterIndex - 1);
+            // Right Swipe -> Previous
+            else if (diffX > threshold) {
+                if (currentChapterIndex > 0) {
+                    renderChapter(currentChapterIndex - 1);
+                }
             }
         }
     }

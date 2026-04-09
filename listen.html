@@ -1675,7 +1675,7 @@
         };
 
         // NEW FUNCTIONS: Download & Share
-        async function downloadAudio() {
+        window.downloadAudio = async function() {
             if (audioList.length > 0) {
                 const track = audioList[currentIndex];
                 const url = track.audio_url || track.audio || track.url || track.file_url;
@@ -1712,7 +1712,7 @@
             }
         }
 
-        async function shareAudio() {
+        window.shareAudio = async function() {
             const track = audioList[currentIndex];
             if (!track) return;
             

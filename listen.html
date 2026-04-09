@@ -1168,17 +1168,18 @@
                 const sVal = star.getAttribute('data-val');
                 if (sVal <= val) {
                     star.className = 'fas fa-star active';
-                    star.style.color = '#d4af37';
+                    star.style.color = '#ff3b3b';
                 } else {
                     star.className = 'far fa-star';
                     star.style.color = '#444';
+                    star.classList.remove('active');
                 }
             });
         }
 
         // Consolidated Rating Logic
         function initRatingStars() {
-            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars'];
+            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars', '#rating-stars'];
 
             allStarContainers.forEach(containerSelector => {
                 const container = document.querySelector(containerSelector);
@@ -1715,9 +1716,12 @@
             const track = audioList[currentIndex];
             if (!track) return;
             
+            // Generate a good description for sharing
+            const shareDesc = track.summary || track.description || 'Listen to this amazing audio story on Qalamekahani!';
+            
             window.shareContent({
                 title: track.title,
-                description: track.summary || track.description || 'Listen to this amazing audio story on Qalamekahani!',
+                description: shareDesc.substring(0, 150) + (shareDesc.length > 150 ? '...' : ''),
                 url: window.location.href,
                 imageUrl: track.image || '',
                 type: 'audio'

@@ -39,14 +39,16 @@
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .rating-stars-sidebar i.active {
+        .rating-stars-sidebar i.active,
+        .rating-stars i.active {
             color: #ff3b3b !important;
             /* RED as requested */
             animation: star-pulse 0.4s ease-out;
             text-shadow: 0 0 10px rgba(255, 59, 59, 0.4);
         }
 
-        .rating-stars-sidebar i:hover {
+        .rating-stars-sidebar i:hover,
+        .rating-stars i:hover {
             transform: scale(1.2);
             color: #ff3b3b !important;
         }
@@ -777,6 +779,11 @@
             .action-btn.active i {
                 color: var(--accent-gold);
             }
+
+            /* Hide download button as requested */
+            .mobile-actions button[onclick="downloadAudio()"] {
+                display: none !important;
+            }
         }
 
         /* Default (Desktop) overrides to hide mobile elements */
@@ -1195,13 +1202,17 @@
                                     const sVal = parseInt(s.getAttribute('data-val'));
                                     if (sVal <= val) {
                                         s.className = 'fas fa-star active';
+                                        s.style.color = '#ff3b3b';
                                     } else {
                                         s.className = 'far fa-star';
+                                        s.style.color = '#444';
                                         s.classList.remove('active');
                                     }
                                 });
                             }
                         });
+                        
+                        selectedRating = val; // Sync globally for final submission
 
                         // Submit rating instantly
                         const currentTrack = audioList[currentIndex];
@@ -1701,16 +1712,16 @@
         }
 
         async function shareAudio() {
-            if (audioList.length > 0) {
-                const track = audioList[currentIndex];
-                window.shareContent({
-                    title: track.title,
-                    description: track.description || 'Listen to this amazing audio story on Qalamekahani!',
-                    url: window.location.href,
-                    imageUrl: track.image || '',
-                    type: 'audio'
-                });
-            }
+            const track = audioList[currentIndex];
+            if (!track) return;
+            
+            window.shareContent({
+                title: track.title,
+                description: track.summary || track.description || 'Listen to this amazing audio story on Qalamekahani!',
+                url: window.location.href,
+                imageUrl: track.image || '',
+                type: 'audio'
+            });
         }
 
         // Initialize

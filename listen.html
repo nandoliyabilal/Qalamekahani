@@ -22,24 +22,31 @@
 
         /* Rating Animations */
         @keyframes star-pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.4); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.4);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         .rating-stars-sidebar i {
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .rating-stars-sidebar i.active,
-        .rating-stars i.active {
-            color: #ff3b3b !important; /* RED as requested */
+        .rating-stars-sidebar i.active {
+            color: #ff3b3b !important;
+            /* RED as requested */
             animation: star-pulse 0.4s ease-out;
             text-shadow: 0 0 10px rgba(255, 59, 59, 0.4);
         }
 
-        .rating-stars-sidebar i:hover,
-        .rating-stars i:hover {
+        .rating-stars-sidebar i:hover {
             transform: scale(1.2);
             color: #ff3b3b !important;
         }
@@ -56,8 +63,15 @@
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         * {
@@ -763,11 +777,6 @@
             .action-btn.active i {
                 color: var(--accent-gold);
             }
-
-            /* Hide download button on mobile as requested */
-            .mobile-actions button[onclick="downloadAudio()"] {
-                display: none !important;
-            }
         }
 
         /* Default (Desktop) overrides to hide mobile elements */
@@ -831,9 +840,13 @@
         <!-- Reviews Container -->
         <div id="reviews-container" style="display:none; color: #ccc; padding-top:10px;">
             <!-- Instant Rating Row -->
-            <div id="sidebar-rating-card" style="background: rgba(255,59,59,0.05); padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid rgba(255,59,59,0.15); text-align: center;">
-                <p style="font-size: 0.85rem; color: #fff; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Rate this Part</p>
-                <div class="rating-stars-sidebar" id="rating-stars-sidebar" style="display: flex; gap: 10px; font-size: 1.8rem; cursor: pointer; color: #333; justify-content: center; margin-bottom: 10px;">
+            <div id="sidebar-rating-card"
+                style="background: rgba(255,59,59,0.05); padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid rgba(255,59,59,0.15); text-align: center;">
+                <p
+                    style="font-size: 0.85rem; color: #fff; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                    Rate this Part</p>
+                <div class="rating-stars-sidebar" id="rating-stars-sidebar"
+                    style="display: flex; gap: 10px; font-size: 1.8rem; cursor: pointer; color: #333; justify-content: center; margin-bottom: 10px;">
                     <i class="far fa-star" data-val="1"></i>
                     <i class="far fa-star" data-val="2"></i>
                     <i class="far fa-star" data-val="3"></i>
@@ -841,11 +854,12 @@
                     <i class="far fa-star" data-val="5"></i>
                 </div>
                 <div id="rating-response-msg"></div>
-                <p id="rating-status-text" style="font-size: 0.7rem; color: #666; margin-top: 5px; font-weight: 500;">Your rating will count per part</p>
+                <p id="rating-status-text" style="font-size: 0.7rem; color: #666; margin-top: 5px; font-weight: 500;">
+                    Your rating will count per part</p>
             </div>
 
             <div id="reviews-list"></div>
-            
+
             <button onclick="document.getElementById('end-overlay').classList.add('visible')"
                 style="width:100%; padding:15px; margin-top:20px; background:transparent; border:1px solid #333; border-radius:12px; font-weight:700; cursor:pointer; color:#fff; text-transform:uppercase; letter-spacing:1px; font-size:0.75rem; transition: all 0.3s;">
                 Write Detailed Review
@@ -871,7 +885,8 @@
             <h1 class="track-title" id="main-title">Loading...</h1>
             <p class="track-artist" id="main-artist">Loading...</p>
             <!-- Instant Rating Stars (Red) -->
-            <div id="main-rating-stars" class="rating-stars-sidebar" style="display:flex; gap:8px; margin-top:10px; color:#333; font-size:1.4rem; cursor:pointer;">
+            <div id="main-rating-stars" class="rating-stars-sidebar"
+                style="display:flex; gap:8px; margin-top:10px; color:#333; font-size:1.4rem; cursor:pointer;">
                 <i class="far fa-star" data-val="1"></i>
                 <i class="far fa-star" data-val="2"></i>
                 <i class="far fa-star" data-val="3"></i>
@@ -1146,7 +1161,7 @@
                 const sVal = star.getAttribute('data-val');
                 if (sVal <= val) {
                     star.className = 'fas fa-star active';
-                    star.style.color = '#ff3b3b';
+                    star.style.color = '#d4af37';
                 } else {
                     star.className = 'far fa-star';
                     star.style.color = '#444';
@@ -1156,8 +1171,8 @@
 
         // Consolidated Rating Logic
         function initRatingStars() {
-            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars', '#rating-stars'];
-            
+            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars'];
+
             allStarContainers.forEach(containerSelector => {
                 const container = document.querySelector(containerSelector);
                 if (!container) return;
@@ -1166,34 +1181,35 @@
                     star.addEventListener('click', async function () {
                         const val = parseInt(this.getAttribute('data-val'));
                         const token = localStorage.getItem('token');
-                        
+
                         if (!token) {
                             showToast('Please login to rate');
                             return;
                         }
 
                         // Update ALL rating star views in sync
+                        allStarContainers.forEach(sel => {
+                            const c = document.querySelector(sel);
+                            if (c) {
+                                c.querySelectorAll('i').forEach(s => {
+                                    const sVal = parseInt(s.getAttribute('data-val'));
                                     if (sVal <= val) {
                                         s.className = 'fas fa-star active';
-                                        s.style.color = '#ff3b3b';
                                     } else {
                                         s.className = 'far fa-star';
-                                        s.style.color = '#444';
                                         s.classList.remove('active');
                                     }
                                 });
                             }
                         });
-                        
-                        selectedRating = val; // Store globally for submitReview
 
                         // Submit rating instantly
                         const currentTrack = audioList[currentIndex];
                         if (!currentTrack) return;
-                        
+
                         const targetId = currentTrack.id || currentTrack._id;
                         const targetType = currentTrack.audio_story_id ? 'episode' : 'audio';
-                        
+
                         try {
                             const res = await fetch('/api/reviews', {
                                 method: 'POST',
@@ -1219,9 +1235,9 @@
                             } else {
                                 const data = await res.json();
                                 if (data.message && data.message.includes('already reviewed')) {
-                                     showToast('You already rated this part');
+                                    showToast('You already rated this part');
                                 } else {
-                                     showToast(data.message || 'Error saving rating');
+                                    showToast(data.message || 'Error saving rating');
                                 }
                             }
                         } catch (e) {
@@ -1237,7 +1253,7 @@
 
         // Reset stars on track change
         function resetRatingStars() {
-            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars', '#rating-stars'];
+            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars'];
             allStarContainers.forEach(sel => {
                 const c = document.querySelector(sel);
                 if (c) {
@@ -1272,11 +1288,11 @@
                 if (story) {
                     const price = parseFloat(story.price || 0);
                     const isPremium = price > 0;
-                    
+
                     // Access Logic
                     let hasAccess = !isPremium;
                     const token = localStorage.getItem('token');
-                    
+
                     // Admin always has access (Check both common keys)
                     const user = JSON.parse(localStorage.getItem('user') || localStorage.getItem('adminUser'));
                     if (user && (user.role === 'admin' || user.isAdmin)) hasAccess = true;
@@ -1305,7 +1321,7 @@
                             category: story.category,
                             price: price,
                             discount: parseFloat(story.discount || 0),
-                            hasAccess: hasAccess 
+                            hasAccess: hasAccess
                         }));
                     } else {
                         audioList = [{ ...story, hasAccess: hasAccess, price: price, discount: parseFloat(story.discount || 0) }];
@@ -1313,7 +1329,7 @@
 
                     renderPlaylist();
                     loadTrack(0);
-                    
+
                     // Payment success check
                     const urlParams = new URLSearchParams(window.location.search);
                     if (urlParams.get('payment') === 'success') {
@@ -1402,12 +1418,12 @@
 
             // Set Audio Source
             audioPlayer.src = track.file_url.startsWith('http') ? track.file_url : '/' + track.file_url;
-            
+
             // Increment Views for Episode if applicable
             if (track.audio_story_id) {
                 const sessionKey = `viewed_${trackId}`;
                 if (!sessionStorage.getItem(sessionKey)) {
-                    fetch(`/api/audio/episodes/${trackId}/view`, { method: 'POST' }).catch(() => {});
+                    fetch(`/api/audio/episodes/${trackId}/view`, { method: 'POST' }).catch(() => { });
                     sessionStorage.setItem(sessionKey, 'true');
                 }
             }
@@ -1685,16 +1701,16 @@
         }
 
         async function shareAudio() {
-            const track = audioList[currentIndex];
-            if (!track) return;
-
-            window.shareContent({
-                title: track.title,
-                description: track.summary || 'Listen to this amazing audio story on Qalamekahani!',
-                url: window.location.href,
-                imageUrl: track.image || '',
-                type: 'audio'
-            });
+            if (audioList.length > 0) {
+                const track = audioList[currentIndex];
+                window.shareContent({
+                    title: track.title,
+                    description: track.description || 'Listen to this amazing audio story on Qalamekahani!',
+                    url: window.location.href,
+                    imageUrl: track.image || '',
+                    type: 'audio'
+                });
+            }
         }
 
         // Initialize

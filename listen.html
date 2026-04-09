@@ -31,13 +31,15 @@
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .rating-stars-sidebar i.active {
+        .rating-stars-sidebar i.active,
+        .rating-stars i.active {
             color: #ff3b3b !important; /* RED as requested */
             animation: star-pulse 0.4s ease-out;
             text-shadow: 0 0 10px rgba(255, 59, 59, 0.4);
         }
 
-        .rating-stars-sidebar i:hover {
+        .rating-stars-sidebar i:hover,
+        .rating-stars i:hover {
             transform: scale(1.2);
             color: #ff3b3b !important;
         }
@@ -1154,7 +1156,7 @@
 
         // Consolidated Rating Logic
         function initRatingStars() {
-            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars'];
+            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars', '#rating-stars'];
             
             allStarContainers.forEach(containerSelector => {
                 const container = document.querySelector(containerSelector);
@@ -1171,20 +1173,19 @@
                         }
 
                         // Update ALL rating star views in sync
-                        allStarContainers.forEach(sel => {
-                            const c = document.querySelector(sel);
-                            if (c) {
-                                c.querySelectorAll('i').forEach(s => {
-                                    const sVal = parseInt(s.getAttribute('data-val'));
                                     if (sVal <= val) {
                                         s.className = 'fas fa-star active';
+                                        s.style.color = '#ff3b3b';
                                     } else {
                                         s.className = 'far fa-star';
+                                        s.style.color = '#444';
                                         s.classList.remove('active');
                                     }
                                 });
                             }
                         });
+                        
+                        selectedRating = val; // Store globally for submitReview
 
                         // Submit rating instantly
                         const currentTrack = audioList[currentIndex];
@@ -1236,7 +1237,7 @@
 
         // Reset stars on track change
         function resetRatingStars() {
-            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars'];
+            const allStarContainers = ['#rating-stars-sidebar', '#main-rating-stars', '#rating-stars'];
             allStarContainers.forEach(sel => {
                 const c = document.querySelector(sel);
                 if (c) {

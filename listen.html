@@ -970,16 +970,16 @@
             </div>
         </div>
 
-        <!-- NEW: Mobile Action Bar (Speed, Like, Share) -->
+        <!-- NEW: Mobile Action Bar (Speed, Like, Review) -->
         <div class="mobile-actions">
-            <button class="action-btn" onclick="toggleSpeed()">
+            <button class="action-btn" onclick="toggleSpeed()" title="Speed">
                 <span id="speed-label">1x</span>
             </button>
-            <button class="action-btn" onclick="toggleHeart()">
+            <button class="action-btn" onclick="toggleHeart()" title="Like">
                 <i class="far fa-heart"></i>
             </button>
-            <button class="action-btn" onclick="window.shareAudio()">
-                <i class="fas fa-share-alt"></i>
+            <button class="action-btn" onclick="openReviews()" title="Reviews">
+                <i class="fas fa-comment-alt"></i>
             </button>
         </div>
     </footer>
@@ -1619,14 +1619,23 @@
         // Legacy code removed. API-based submitReview is defined in the previous script block.
 
 
-        window.toggleSidebar = () => {
+        window.toggleSidebar = (forceState) => {
             const body = document.body;
             const sidebar = document.getElementById('sidebar');
             if (window.innerWidth > 800) {
-                body.classList.toggle('sidebar-closed');
+                if (forceState === 'open') body.classList.remove('sidebar-closed');
+                else if (forceState === 'close') body.classList.add('sidebar-closed');
+                else body.classList.toggle('sidebar-closed');
             } else {
-                sidebar.style.display = (getComputedStyle(sidebar).display === 'none') ? 'block' : 'none';
+                if (forceState === 'open') sidebar.style.display = 'block';
+                else if (forceState === 'close') sidebar.style.display = 'none';
+                else sidebar.style.display = (getComputedStyle(sidebar).display === 'none') ? 'block' : 'none';
             }
+        };
+
+        window.openReviews = () => {
+            toggleSidebar('open');
+            switchTab('reviews');
         };
 
         window.toggleHeart = (btn) => {

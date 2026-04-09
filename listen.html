@@ -761,6 +761,11 @@
             .action-btn.active i {
                 color: var(--accent-gold);
             }
+
+            /* Hide download button on mobile as requested */
+            .mobile-actions button[onclick="downloadAudio()"] {
+                display: none !important;
+            }
         }
 
         /* Default (Desktop) overrides to hide mobile elements */
@@ -1139,7 +1144,7 @@
                 const sVal = star.getAttribute('data-val');
                 if (sVal <= val) {
                     star.className = 'fas fa-star active';
-                    star.style.color = '#d4af37';
+                    star.style.color = '#ff3b3b';
                 } else {
                     star.className = 'far fa-star';
                     star.style.color = '#444';
@@ -1679,16 +1684,16 @@
         }
 
         async function shareAudio() {
-            if (audioList.length > 0) {
-                const track = audioList[currentIndex];
-                window.shareContent({
-                    title: track.title,
-                    description: track.description || 'Listen to this amazing audio story on Qalamekahani!',
-                    url: window.location.href,
-                    imageUrl: track.image || '',
-                    type: 'audio'
-                });
-            }
+            const track = audioList[currentIndex];
+            if (!track) return;
+
+            window.shareContent({
+                title: track.title,
+                description: track.summary || 'Listen to this amazing audio story on Qalamekahani!',
+                url: window.location.href,
+                imageUrl: track.image || '',
+                type: 'audio'
+            });
         }
 
         // Initialize

@@ -353,6 +353,7 @@
                 const res = await fetch(API_URL);
                 if (res.ok) {
                     allImages = await res.json();
+                    currentFilteredImages = [...allImages]; // Initialize this so clicking works before filtering
                     extractCategories(allImages);
                     renderImages(allImages);
                 } else {

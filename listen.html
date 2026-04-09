@@ -970,7 +970,7 @@
             </div>
         </div>
 
-        <!-- NEW: Mobile Action Bar (Speed, Like, Download, Share) -->
+        <!-- NEW: Mobile Action Bar (Speed, Like, Share) -->
         <div class="mobile-actions">
             <button class="action-btn" onclick="toggleSpeed()">
                 <span id="speed-label">1x</span>
@@ -978,10 +978,7 @@
             <button class="action-btn" onclick="toggleHeart()">
                 <i class="far fa-heart"></i>
             </button>
-            <button class="action-btn" onclick="downloadAudio()">
-                <i class="fas fa-download"></i>
-            </button>
-            <button class="action-btn" onclick="shareAudio()">
+            <button class="action-btn" onclick="window.shareAudio()">
                 <i class="fas fa-share-alt"></i>
             </button>
         </div>
@@ -1398,6 +1395,9 @@
             // Reset Stars for new track
             resetRatingStars();
 
+            window.currentTrackData = track; // For shareContent
+            window.currentId = trackId; // For global ID sync
+
             // Update UI
             els.mainTitle.textContent = track.title;
             els.mainArtist.textContent = track.author || 'Sabirkhan Pathan';
@@ -1713,17 +1713,20 @@
         }
 
         window.shareAudio = async function() {
-            const track = audioList[currentIndex];
+            const track = window.currentTrackData;
             if (!track) return;
             
-            // Generate a good description for sharing
-            const shareDesc = track.summary || track.description || 'Listen to this amazing audio story on Qalamekahani!';
-            
+            // Generate professional template similar to audio-detail
+            const title = track.title;
+            const description = track.summary || track.description || 'Listen to this amazing audio story on Qalamekahani!';
+            const imageUrl = track.image || '';
+            const url = `${window.location.origin}/audio-detail.html?id=${window.currentId}`;
+
             window.shareContent({
-                title: track.title,
-                description: shareDesc.substring(0, 150) + (shareDesc.length > 150 ? '...' : ''),
-                url: window.location.href,
-                imageUrl: track.image || '',
+                title,
+                description,
+                url,
+                imageUrl,
                 type: 'audio'
             });
         }

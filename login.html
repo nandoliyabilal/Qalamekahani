@@ -82,14 +82,12 @@
              window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
         });
 
-        // Load curated horror book images for gallery strip (Reliable high-quality images)
+        // Load 3 high-quality horror book images for gallery strip
         function loadGallery() {
             const horrorImages = [
                 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=120&h=180&fit=crop', // Dark Forest
                 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=120&h=180&fit=crop', // Spooky Castle
-                'https://images.unsplash.com/photo-1505633560063-d8247f636184?w=120&h=180&fit=crop', // Skull Color
-                'https://images.unsplash.com/photo-1514373941175-0a141062967e?w=120&h=180&fit=crop', // Mysterious Door
-                'https://images.unsplash.com/photo-1478479405421-ce83c92fb3ba?w=120&h=180&fit=crop'  // Creepy Eye
+                'https://images.unsplash.com/photo-1505633560063-d8247f636184?w=120&h=180&fit=crop'  // Skull Color
             ];
 
             const gallery = document.getElementById('auth-gallery');

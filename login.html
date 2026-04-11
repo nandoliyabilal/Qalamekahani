@@ -43,12 +43,8 @@
                 <button type="submit" class="btn-primary" id="submit-btn">Log in</button>
             </form>
 
-            <div class="auth-gallery">
-                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=150&fit=crop" class="gallery-item" alt="">
-                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=150&fit=crop" class="gallery-item" alt="">
-                <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=150&fit=crop" class="gallery-item" alt="">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=150&fit=crop" class="gallery-item" alt="">
-                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=150&fit=crop" class="gallery-item" alt="">
+            <div class="auth-gallery" id="auth-gallery">
+                <!-- Horror book images will be loaded here -->
             </div>
 
             <div class="auth-footer-text">
@@ -70,6 +66,24 @@
                 icon.classList.replace('fa-eye', 'fa-eye-slash');
             }
         }
+
+        // Load horror book images for gallery strip
+        async function loadGallery() {
+            try {
+                const res = await fetch('/api/stories');
+                if (res.ok) {
+                    const stories = await res.json();
+                    const horrorStories = stories.filter(s => s.category === 'Horror' || s.category === 'Ghost').slice(0, 5);
+                    const gallery = document.getElementById('auth-gallery');
+                    gallery.innerHTML = horrorStories.map(s => `
+                        <img src="${s.cover_image || 'https://via.placeholder.com/100x150?text=Story'}" class="gallery-item" alt="${s.title}">
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('Failed to load gallery images');
+            }
+        }
+        loadGallery();
 
         const loginForm = document.getElementById('login-form');
         const errorMsg = document.getElementById('error-msg');

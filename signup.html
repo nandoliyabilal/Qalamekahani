@@ -48,10 +48,10 @@
                 <button type="button" class="btn-social google" id="google-login">
                     <i class="fab fa-google"></i>
                 </button>
-                <button type="button" class="btn-social apple">
+                <button type="button" class="btn-social apple" id="apple-login">
                     <i class="fab fa-apple"></i>
                 </button>
-                <button type="button" class="btn-social facebook">
+                <button type="button" class="btn-social facebook" id="facebook-login">
                     <i class="fab fa-facebook-f"></i>
                 </button>
             </div>
@@ -77,9 +77,19 @@
         }
 
         const SUPABASE_URL = 'https://irtsycfpwsjxrodwpthw.supabase.co';
+        const redirectUrl = window.location.origin + '/auth-callback.html';
+
+        // Social Logins
         document.getElementById('google-login').addEventListener('click', () => {
-            const redirectUrl = window.location.origin + '/auth-callback.html';
-            window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
+             window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
+        });
+        
+        document.getElementById('apple-login').addEventListener('click', () => {
+             window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=apple&redirect_to=${encodeURIComponent(redirectUrl)}`;
+        });
+
+        document.getElementById('facebook-login').addEventListener('click', () => {
+             window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=facebook&redirect_to=${encodeURIComponent(redirectUrl)}`;
         });
 
         const signupForm = document.getElementById('signup-form');

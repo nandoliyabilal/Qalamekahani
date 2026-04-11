@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Qalamekahani</title>
-    <meta name="description" content="Sign up for Qalamekahani to access and enjoy a world of premium audio stories, books, and blogs.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
@@ -18,68 +17,67 @@
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <a href="index.html" class="auth-logo">Qalamekahani</a>
-                <h1 class="auth-title">Create Account</h1>
-                <p class="auth-subtitle">Join us to explore a world of stories</p>
+                <h1 class="auth-title">Create an account</h1>
+                <p class="auth-subtitle">Already have an account? <a href="login.html">Login</a></p>
             </div>
 
             <div id="error-msg"></div>
 
-            <form id="signup-form" autocomplete="on">
+            <form id="signup-form" class="auth-form">
                 <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <div class="input-container">
-                        <input type="text" id="name" class="form-control" required placeholder="John Doe" autocomplete="name">
-                        <i class="fas fa-user"></i>
-                    </div>
+                    <input type="text" id="name" class="form-control" required placeholder="Full name">
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <div class="input-container">
-                        <input type="email" id="email" class="form-control" required placeholder="example@mail.com" autocomplete="email">
-                        <i class="fas fa-envelope"></i>
-                    </div>
+                    <input type="email" id="email" class="form-control" required placeholder="Email address">
                 </div>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="input-container">
-                        <input type="password" id="password" class="form-control" required placeholder="Minimum 6 characters" autocomplete="new-password">
-                        <i class="fas fa-lock"></i>
-                    </div>
+                <div class="form-group password-wrapper">
+                    <input type="password" id="password" class="form-control" required placeholder="Password">
+                    <i class="far fa-eye-slash toggle-password" onclick="togglePass()"></i>
                 </div>
 
-                <div class="form-group">
-                    <label for="confirm-password">Confirm Password</label>
-                    <div class="input-container">
-                        <input type="password" id="confirm-password" class="form-control" required placeholder="Verify password" autocomplete="new-password">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-submit" id="submit-btn" style="margin-top: 10px;">Create Account</button>
-
-                <div class="divider">
-                    <span>OR</span>
-                </div>
-
-                <button type="button" id="google-login" class="btn-google">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\"G\"_logo.svg\" alt=\"Google\">
-                    <span>Join with Google</span>
-                </button>
+                <button type="submit" class="btn-primary" id="submit-btn" style="margin-top:20px;">Continue</button>
             </form>
 
-            <div class="auth-footer">
-                Already have an account? <a href="login.html">Login</a>
+            <div class="auth-divider">
+                <span>or sign up with</span>
             </div>
+
+            <div class="social-grid">
+                <button type="button" class="btn-social google" id="google-login">
+                    <i class="fab fa-google"></i>
+                </button>
+                <button type="button" class="btn-social apple">
+                    <i class="fab fa-apple"></i>
+                </button>
+                <button type="button" class="btn-social facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </button>
+            </div>
+
+            <p class="terms-text">
+                By clicking create account you agree to recognotes<br>
+                <a href="#">Terms of use</a> and <a href="#">Privacy policy</a>
+            </p>
         </div>
     </div>
 
     <script>
+        function togglePass() {
+            const passInput = document.getElementById('password');
+            const icon = document.querySelector('.toggle-password');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            } else {
+                passInput.type = 'password';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            }
+        }
+
         const SUPABASE_URL = 'https://irtsycfpwsjxrodwpthw.supabase.co';
-        
-        document.getElementById('google-login').addEventListener('click', async () => {
+        document.getElementById('google-login').addEventListener('click', () => {
             const redirectUrl = window.location.origin + '/auth-callback.html';
             window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
         });
@@ -96,13 +94,6 @@
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-
-            if (password !== confirmPassword) {
-                errorMsg.innerText = 'Passwords do not match';
-                errorMsg.style.display = 'block';
-                return;
-            }
 
             if (password.length < 6) {
                 errorMsg.innerText = 'Password must be at least 6 characters';
@@ -110,8 +101,7 @@
                 return;
             }
 
-            // Loading state
-            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Registering...';
+            submitBtn.innerText = 'Creating account...';
             submitBtn.disabled = true;
 
             try {
@@ -133,7 +123,7 @@
                     submitBtn.disabled = false;
                 }
             } catch (err) {
-                errorMsg.innerText = 'Connection error. Please try again.';
+                errorMsg.innerText = 'Something went wrong. Please try again.';
                 errorMsg.style.display = 'block';
                 submitBtn.innerText = originalBtnText;
                 submitBtn.disabled = false;

@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Qalamekahani</title>
-    <meta name="description" content="Login to Qalamekahani to access and enjoy a world of premium audio stories, books, and blogs.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
@@ -18,64 +17,59 @@
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <a href="index.html" class="auth-logo">Qalamekahani</a>
-                <h1 class="auth-title">Welcome Back</h1>
-                <p class="auth-subtitle">Please sign in to your account</p>
+                <h1 class="auth-title">Welcome Back<br>to Qalamekahani</h1>
             </div>
 
             <div id="error-msg"></div>
 
-            <form id="login-form" autocomplete="on">
+            <form id="login-form" class="auth-form">
                 <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <div class="input-container">
-                        <input type="email" id="email" class="form-control" required placeholder="example@mail.com" autocomplete="email">
-                        <i class="fas fa-envelope"></i>
-                    </div>
+                    <input type="email" id="email" class="form-control" required placeholder="Email address">
                 </div>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="input-container">
-                        <input type="password" id="password" class="form-control" required placeholder="••••••••" autocomplete="current-password">
-                        <i class="fas fa-lock"></i>
-                    </div>
+                <div class="form-group password-wrapper">
+                    <input type="password" id="password" class="form-control" required placeholder="Password">
+                    <i class="far fa-eye-slash toggle-password" onclick="togglePass()"></i>
                 </div>
 
-                <div class="form-extras">
-                    <label class="checkbox-container">
+                <div class="form-options">
+                    <label class="remember-me">
                         <input type="checkbox" checked>
                         <span>Remember me</span>
                     </label>
                     <a href="forgot-password.html" class="forgot-link">Forgot Password?</a>
                 </div>
 
-                <button type="submit" class="btn-submit" id="submit-btn">Continue</button>
-
-                <div class="divider">
-                    <span>OR</span>
-                </div>
-
-                <button type="button" id="google-login" class="btn-google">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\"G\"_logo.svg\" alt=\"Google\">
-                    <span>Continue with Google</span>
-                </button>
+                <button type="submit" class="btn-primary" id="submit-btn">Log in</button>
             </form>
 
-            <div class="auth-footer">
-                Don't have an account? <a href="signup.html">Create Account</a>
-                <a href="index.html" class="guest-link">Continue as Guest</a>
+            <div class="auth-gallery">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=150&fit=crop" class="gallery-item" alt="">
+                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=150&fit=crop" class="gallery-item" alt="">
+                <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=150&fit=crop" class="gallery-item" alt="">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=150&fit=crop" class="gallery-item" alt="">
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=150&fit=crop" class="gallery-item" alt="">
+            </div>
+
+            <div class="auth-footer-text">
+                New to Qalamekahani? <a href="signup.html">Sign up</a>
+                <a href="index.html" style="display:block; margin-top:15px; opacity:0.5; text-decoration:none; color:#fff; font-size:0.8rem;">Continue as guest</a>
             </div>
         </div>
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://irtsycfpwsjxrodwpthw.supabase.co';
-        
-        document.getElementById('google-login').addEventListener('click', async () => {
-            const redirectUrl = window.location.origin + '/auth-callback.html';
-            window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
-        });
+        function togglePass() {
+            const passInput = document.getElementById('password');
+            const icon = document.querySelector('.toggle-password');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            } else {
+                passInput.type = 'password';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            }
+        }
 
         const loginForm = document.getElementById('login-form');
         const errorMsg = document.getElementById('error-msg');
@@ -89,8 +83,7 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            // Loading state
-            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+            submitBtn.innerText = 'Logging in...';
             submitBtn.disabled = true;
 
             try {
@@ -107,18 +100,13 @@
                     localStorage.setItem('userInfo', JSON.stringify(data));
                     window.location.href = 'index.html';
                 } else {
-                    if (data.message && data.message.includes('not verified')) {
-                        localStorage.setItem('emailForVerification', email);
-                        window.location.href = 'otp-verify.html';
-                        return;
-                    }
-                    errorMsg.innerText = data.message || 'Authentication failed';
+                    errorMsg.innerText = data.message || 'Invalid credentials';
                     errorMsg.style.display = 'block';
                     submitBtn.innerText = originalBtnText;
                     submitBtn.disabled = false;
                 }
             } catch (err) {
-                errorMsg.innerText = 'Connection error. Please try again.';
+                errorMsg.innerText = 'Something went wrong. Please try again.';
                 errorMsg.style.display = 'block';
                 submitBtn.innerText = originalBtnText;
                 submitBtn.disabled = false;

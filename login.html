@@ -97,14 +97,12 @@
                     const gallery = document.getElementById('auth-gallery');
                     if (horrorStories.length > 0) {
                         gallery.innerHTML = horrorStories.map(s => {
-                            // Fix image path logic
                             let imgSrc = s.cover_image;
                             if (imgSrc && !imgSrc.startsWith('http')) {
-                                // If it starts with /uploads or uploads, ensure it's a valid relative path
-                                if (imgSrc.startsWith('/')) imgSrc = imgSrc.substring(1);
-                                // For the frontend, these are usually in the same root
+                                // Important: Ensure it starts with / for root-relative paths
+                                if (!imgSrc.startsWith('/')) imgSrc = '/' + imgSrc;
                             }
-                            return `<img src="${imgSrc}" class="gallery-item" alt="${s.title}" onerror="this.src='https://via.placeholder.com/100x150?text=Horror'">`;
+                            return `<img src="${imgSrc}" class="gallery-item" alt="${s.title}" onerror="this.src='https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=100&h=150&fit=crop'">`;
                         }).join('');
                     } else {
                         // Fallback if no horror stories found

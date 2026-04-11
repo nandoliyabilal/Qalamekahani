@@ -18,60 +18,60 @@
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <a href="index.html" class="auth-logo-text">Qalamekahani</a>
-                <h2 class="auth-title">Create Account</h2>
-                <p class="auth-subtitle">Join us and start your journey</p>
+                <a href="index.html" class="auth-logo">Qalamekahani</a>
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join us to explore a world of stories</p>
             </div>
 
             <div id="error-msg"></div>
 
-            <form id="signup-form" class="auth-form">
+            <form id="signup-form" autocomplete="on">
                 <div class="form-group">
                     <label for="name">Full Name</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="name" class="form-control" required placeholder="John Doe">
+                    <div class="input-container">
+                        <input type="text" id="name" class="form-control" required placeholder="John Doe" autocomplete="name">
                         <i class="fas fa-user"></i>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <div class="input-wrapper">
-                        <input type="email" id="email" class="form-control" required placeholder="name@example.com">
+                    <div class="input-container">
+                        <input type="email" id="email" class="form-control" required placeholder="example@mail.com" autocomplete="email">
                         <i class="fas fa-envelope"></i>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="password" class="form-control" required placeholder="min. 6 characters">
+                    <div class="input-container">
+                        <input type="password" id="password" class="form-control" required placeholder="Minimum 6 characters" autocomplete="new-password">
                         <i class="fas fa-lock"></i>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="confirm-password">Confirm Password</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="confirm-password" class="form-control" required placeholder="••••••••">
+                    <div class="input-container">
+                        <input type="password" id="confirm-password" class="form-control" required placeholder="Verify password" autocomplete="new-password">
                         <i class="fas fa-check-circle"></i>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-auth-submit">Sign Up</button>
+                <button type="submit" class="btn-submit" id="submit-btn" style="margin-top: 10px;">Create Account</button>
 
-                <div class="social-divider">
-                    <span>OR SIGN UP WITH</span>
+                <div class="divider">
+                    <span>OR</span>
                 </div>
 
-                <button type="button" id="google-login" class="btn-social-google">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="Google">
-                    Google Account
+                <button type="button" id="google-login" class="btn-google">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\"G\"_logo.svg\" alt=\"Google\">
+                    <span>Join with Google</span>
                 </button>
             </form>
 
             <div class="auth-footer">
-                Already have an account? <a href="login.html" class="auth-switch-link">Login here</a>
+                Already have an account? <a href="login.html">Login</a>
             </div>
         </div>
     </div>
@@ -86,12 +86,12 @@
 
         const signupForm = document.getElementById('signup-form');
         const errorMsg = document.getElementById('error-msg');
+        const submitBtn = document.getElementById('submit-btn');
 
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             errorMsg.style.display = 'none';
-            const btn = document.querySelector('.btn-auth-submit');
-            const originalBtnText = btn.innerText;
+            const originalBtnText = submitBtn.innerText;
 
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
@@ -110,9 +110,9 @@
                 return;
             }
 
-            // Loading State
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Creating Account...';
-            btn.disabled = true;
+            // Loading state
+            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Registering...';
+            submitBtn.disabled = true;
 
             try {
                 const res = await fetch('/api/auth/register', {
@@ -129,14 +129,14 @@
                 } else {
                     errorMsg.innerText = data.message || 'Registration failed';
                     errorMsg.style.display = 'block';
-                    btn.innerText = originalBtnText;
-                    btn.disabled = false;
+                    submitBtn.innerText = originalBtnText;
+                    submitBtn.disabled = false;
                 }
             } catch (err) {
-                errorMsg.innerText = 'Something went wrong. Please try again.';
+                errorMsg.innerText = 'Connection error. Please try again.';
                 errorMsg.style.display = 'block';
-                btn.innerText = originalBtnText;
-                btn.disabled = false;
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
             }
         });
     </script>

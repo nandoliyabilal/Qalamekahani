@@ -217,26 +217,32 @@
     font-size: 1.2rem;
 }
 
-/* Image Gallery Strip (Like in user image) */
+/* Image Gallery Strip (Horizontal Scroll on Mobile) */
 .auth-gallery {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 12px;
     margin: 30px 0;
-    overflow: hidden;
+    overflow-x: auto;
+    padding: 10px 0;
+    -webkit-overflow-scrolling: touch;
+}
+
+.auth-gallery::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for a cleaner look */
 }
 
 .gallery-item {
-    width: 60px;
-    height: 80px;
+    width: 65px;
+    height: 90px;
     border-radius: 12px;
     object-fit: cover;
-    opacity: 0.7;
-    transition: transform 0.3s;
+    flex-shrink: 0; /* Prevents images from squeezing */
+    opacity: 0.8;
 }
 
-.gallery-item:nth-child(odd) { transform: translateY(10px); }
-.gallery-item:nth-child(even) { transform: translateY(-10px); }
+.gallery-item:nth-child(odd) { transform: translateY(8px); }
+.gallery-item:nth-child(even) { transform: translateY(-8px); }
 
 /* Footer */
 .auth-footer-text {

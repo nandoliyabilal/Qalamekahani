@@ -88,14 +88,35 @@
                 const res = await fetch('/api/stories');
                 if (res.ok) {
                     const stories = await res.json();
-                    const horrorStories = stories.filter(s => s.category === 'Horror' || s.category === 'Ghost').slice(0, 5);
+                    
+                    // Filter Horror stories and ensure they have images
+                    const horrorStories = stories.filter(s => 
+                        (s.category === 'Horror' || s.category === 'Ghost') && s.cover_image
+                    ).slice(0, 5);
+
                     const gallery = document.getElementById('auth-gallery');
-                    gallery.innerHTML = horrorStories.map(s => `
-                        <img src="${s.cover_image || 'https://via.placeholder.com/100x150?text=Story'}" class="gallery-item" alt="${s.title}">
-                    `).join('');
+                    if (horrorStories.length > 0) {
+                        gallery.innerHTML = horrorStories.map(s => {
+                            // Fix image path logic
+                            let imgSrc = s.cover_image;
+                            if (imgSrc && !imgSrc.startsWith('http')) {
+                                // If it starts with /uploads or uploads, ensure it's a valid relative path
+                                if (imgSrc.startsWith('/')) imgSrc = imgSrc.substring(1);
+                                // For the frontend, these are usually in the same root
+                            }
+                            return `<img src="${imgSrc}" class="gallery-item" alt="${s.title}" onerror="this.src='https://via.placeholder.com/100x150?text=Horror'">`;
+                        }).join('');
+                    } else {
+                        // Fallback if no horror stories found
+                        gallery.innerHTML = `
+                            <img src="https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=100&h=150&fit=crop" class="gallery-item" alt="Horror">
+                            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=100&h=150&fit=crop" class="gallery-item" alt="Horror">
+                            <img src="https://images.unsplash.com/photo-1505633560063-d8247f636184?w=100&h=150&fit=crop" class="gallery-item" alt="Horror">
+                        `;
+                    }
                 }
             } catch (err) {
-                console.error('Failed to load gallery images');
+                console.error('Failed to load gallery images', err);
             }
         }
         loadGallery();

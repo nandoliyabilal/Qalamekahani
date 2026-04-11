@@ -82,40 +82,20 @@
              window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
         });
 
-        // Load horror book images for gallery strip
-        async function loadGallery() {
-            try {
-                const res = await fetch('/api/stories');
-                if (res.ok) {
-                    const stories = await res.json();
-                    
-                    // Filter Horror stories and ensure they have images
-                    const horrorStories = stories.filter(s => 
-                        (s.category === 'Horror' || s.category === 'Ghost') && s.cover_image
-                    ).slice(0, 5);
+        // Load curated horror book images for gallery strip (Reliable high-quality images)
+        function loadGallery() {
+            const horrorImages = [
+                'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=120&h=180&fit=crop', // Dark Forest
+                'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=120&h=180&fit=crop', // Spooky Castle
+                'https://images.unsplash.com/photo-1505633560063-d8247f636184?w=120&h=180&fit=crop', // Skull Color
+                'https://images.unsplash.com/photo-1514373941175-0a141062967e?w=120&h=180&fit=crop', // Mysterious Door
+                'https://images.unsplash.com/photo-1478479405421-ce83c92fb3ba?w=120&h=180&fit=crop'  // Creepy Eye
+            ];
 
-                    const gallery = document.getElementById('auth-gallery');
-                    if (horrorStories.length > 0) {
-                        gallery.innerHTML = horrorStories.map(s => {
-                            let imgSrc = s.cover_image;
-                            if (imgSrc && !imgSrc.startsWith('http')) {
-                                // Important: Ensure it starts with / for root-relative paths
-                                if (!imgSrc.startsWith('/')) imgSrc = '/' + imgSrc;
-                            }
-                            return `<img src="${imgSrc}" class="gallery-item" alt="${s.title}" onerror="this.src='https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=100&h=150&fit=crop'">`;
-                        }).join('');
-                    } else {
-                        // Fallback if no horror stories found
-                        gallery.innerHTML = `
-                            <img src="https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=100&h=150&fit=crop" class="gallery-item" alt="Horror">
-                            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=100&h=150&fit=crop" class="gallery-item" alt="Horror">
-                            <img src="https://images.unsplash.com/photo-1505633560063-d8247f636184?w=100&h=150&fit=crop" class="gallery-item" alt="Horror">
-                        `;
-                    }
-                }
-            } catch (err) {
-                console.error('Failed to load gallery images', err);
-            }
+            const gallery = document.getElementById('auth-gallery');
+            gallery.innerHTML = horrorImages.map((src, index) => `
+                <img src="${src}" class="gallery-item" alt="Horror Story ${index + 1}">
+            `).join('');
         }
         loadGallery();
 

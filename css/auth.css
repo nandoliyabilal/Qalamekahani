@@ -281,9 +281,33 @@
 /* Mobile Adjustments */
 @media (max-width: 480px) {
     .auth-container {
-        padding: 20px;
+        padding: 15px; /* Minimal container padding */
+    }
+    .auth-card {
+        padding: 0;
+        margin-top: -20px; /* Slight lift to center more vertically */
+    }
+    .auth-header {
+        margin-bottom: 25px; /* Shorter header gap */
     }
     .auth-title {
-        font-size: 1.8rem;
+        font-size: 1.6rem; /* Slightly smaller title */
+    }
+    .auth-form {
+        margin-bottom: 20px;
+    }
+    .form-control {
+        padding: 14px 18px; /* Slightly thinner inputs */
+    }
+    .btn-primary, .btn-social-long {
+        padding: 14px; /* Thinner buttons */
+        height: 50px;
+    }
+    .auth-gallery {
+        margin: 20px 0; /* Reduced gallery gap */
+    }
+    .gallery-item {
+        width: 60px;
+        height: 80px;
     }
 }

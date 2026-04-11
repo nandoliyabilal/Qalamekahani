@@ -41,23 +41,15 @@
             </form>
 
             <div class="auth-divider">
-                <span>or sign up with</span>
+                <span>or continue with</span>
             </div>
 
-            <div class="social-grid">
-                <button type="button" class="btn-social google" id="google-login">
-                    <i class="fab fa-google"></i>
-                </button>
-                <button type="button" class="btn-social apple" id="apple-login">
-                    <i class="fab fa-apple"></i>
-                </button>
-                <button type="button" class="btn-social facebook" id="facebook-login">
-                    <i class="fab fa-facebook-f"></i>
-                </button>
-            </div>
+            <button type="button" class="btn-social-long" id="google-login">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
 
-            <p class="terms-text">
-                By clicking create account you agree to recognotes<br>
+            <p class="terms-text" style="margin-top: 20px;">
+                By clicking create account you agree to Qalamekahani's<br>
                 <a href="#">Terms of use</a> and <a href="#">Privacy policy</a>
             </p>
         </div>
@@ -79,17 +71,9 @@
         const SUPABASE_URL = 'https://irtsycfpwsjxrodwpthw.supabase.co';
         const redirectUrl = window.location.origin + '/auth-callback.html';
 
-        // Social Logins
+        // Social Login
         document.getElementById('google-login').addEventListener('click', () => {
              window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
-        });
-        
-        document.getElementById('apple-login').addEventListener('click', () => {
-             window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=apple&redirect_to=${encodeURIComponent(redirectUrl)}`;
-        });
-
-        document.getElementById('facebook-login').addEventListener('click', () => {
-             window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=facebook&redirect_to=${encodeURIComponent(redirectUrl)}`;
         });
 
         const signupForm = document.getElementById('signup-form');

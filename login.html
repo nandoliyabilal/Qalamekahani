@@ -43,6 +43,14 @@
                 <button type="submit" class="btn-primary" id="submit-btn">Log in</button>
             </form>
 
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
+
+            <button type="button" class="btn-social-long" id="google-login">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
+
             <div class="auth-gallery" id="auth-gallery">
                 <!-- Horror book images will be loaded here -->
             </div>
@@ -66,6 +74,13 @@
                 icon.classList.replace('fa-eye', 'fa-eye-slash');
             }
         }
+
+        const SUPABASE_URL = 'https://irtsycfpwsjxrodwpthw.supabase.co';
+        const redirectUrl = window.location.origin + '/auth-callback.html';
+
+        document.getElementById('google-login').addEventListener('click', () => {
+             window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
+        });
 
         // Load horror book images for gallery strip
         async function loadGallery() {

@@ -187,38 +187,35 @@
     text-transform: lowercase;
 }
 
-/* Social Buttons */
-.social-grid {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 40px;
-}
-
-.btn-social {
-    flex: 1;
+.btn-social-long {
+    width: 100%;
     height: 56px;
-    background: transparent;
-    border: 1px solid #333;
-    border-radius: 12px;
+    background: #ffffff;
+    color: #000;
+    border: none;
+    border-radius: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 12px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: transform 0.2s, background 0.2s;
+    margin-bottom: 20px;
 }
 
-.btn-social:hover {
-    background: #111;
+.btn-social-long:hover {
+    background: #f1f1f1;
 }
 
-.btn-social i {
-    font-size: 1.4rem;
+.btn-social-long:active {
+    transform: scale(0.98);
 }
 
-.btn-social.google i { color: #fff; }
-.btn-social.apple i { color: #fff; }
-.btn-social.facebook i { color: #1877F2; }
+.btn-social-long i {
+    font-size: 1.2rem;
+}
 
 /* Image Gallery Strip (Like in user image) */
 .auth-gallery {

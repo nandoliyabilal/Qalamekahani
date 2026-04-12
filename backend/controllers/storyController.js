@@ -48,16 +48,20 @@ const getStory = asyncHandler(async (req, res) => {
     if (isUUID) {
         query = query.eq('id', input);
     } else {
-        query = query.eq('slug', input);
+        // Decode to handle URL encoded Hindi/Unicode characters
+        const decodedInput = decodeURIComponent(input);
+        query = query.eq('slug', decodedInput);
     }
 
-    const { data: result, error } = await query.maybeSingle();
+    const { data: results, error } = await query;
 
     if (error) {
-        console.log(`[DEBUG] Database query error:`, error);
+        console.error(`[DEBUG] Database query error for '${input}':`, error);
         res.status(500);
         throw new Error('Database error during story lookup');
     }
+
+    const result = results && results.length > 0 ? results[0] : null;
 
     if (!result) {
         // Fallback: If not found by slug, try searching by title or partial slug if needed, 

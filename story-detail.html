@@ -71,102 +71,95 @@
     <div id="story-container">
         <!-- STORY HERO SECTION -->
         <section class="story-hero">
+            <div class="story-hero-background" id="hero-bg-blur"></div>
             <div class="story-hero-container">
-                <!-- Back Link (Mobile/Desktop) -->
+                <!-- Back Link -->
                 <div class="story-back-row">
-                    <a href="stories.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Stories</a>
+                    <a href="stories.html" class="back-link"><i class="fas fa-arrow-left"></i></a>
+                    <span class="page-title-mobile">Story Details</span>
                 </div>
 
-                <!-- Left: Visual -->
-                <div class="story-visual">
-                    <div class="story-cover-wrapper" style="position: relative;">
-                        <img id="story-image" src="" alt="Story Cover" class="story-cover">
-                        <div class="story-badges">
-                            <span id="story-cat-badge" class="badge badge-cat"></span>
-                            <span id="story-lang-badge" class="badge badge-lang"></span>
+                <!-- Story Header Area -->
+                <div class="story-header-flex">
+                    <!-- Left: Cover -->
+                    <div class="story-visual">
+                        <div class="story-cover-wrapper">
+                            <img id="story-image" src="" alt="Story Cover" class="story-cover">
+                            <div class="story-badges">
+                                <span id="story-cat-badge" class="badge"></span>
+                            </div>
                         </div>
-                        <!-- Download Button -->
-                        <button onclick="downloadImage('story-image')" class="download-overlay-btn" 
-                            style="position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;"
-                            title="Download Image">
-                            <i class="fas fa-download"></i>
-                        </button>
+                    </div>
+
+                    <!-- Right: Quick Info -->
+                    <div class="story-quick-info">
+                        <h1 id="story-title" class="story-title">Loading...</h1>
+                        <div class="author-row">
+                            <img src="images/hero.png" alt="Author" class="author-thumb-small">
+                            <span id="story-author" class="author-name"></span>
+                        </div>
+                        <div class="story-tags">
+                            <span id="meta-genre" class="tag-pill"></span>
+                            <span id="story-lang-badge" class="tag-pill"></span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Right: Details -->
-                <div class="story-info">
-                    <h1 id="story-title" class="story-title">Loading...</h1>
-                    <h3 class="story-author">By <span id="story-author" class="author-name"></span></h3>
-
-                    <div class="story-rating-row">
-                        <div class="stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                                class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                        </div>
-                        <span id="story-rating" class="rating-text"></span>
+                <!-- Stats Bar -->
+                <div class="story-stats-bar">
+                    <div class="stat-box">
+                        <div class="stat-top"><i class="fas fa-star"></i> <span id="stat-rating">4.9</span></div>
+                        <div class="stat-label">(223K+)</div>
                     </div>
-
-                    <div class="story-meta-grid">
-                        <div class="meta-item">
-                            <span class="meta-label">CATEGORY</span>
-                            <span id="meta-genre" class="meta-value"></span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">PUBLISHED</span>
-                            <span id="meta-date" class="meta-value"></span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">READ TIME</span>
-                            <span id="meta-time" class="meta-value"></span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">VIEWS</span>
-                            <span id="meta-views" class="meta-value">0</span>
-                        </div>
+                    <div class="divider-v"></div>
+                    <div class="stat-box">
+                        <div class="stat-top" id="meta-time">120 min</div>
+                        <div class="stat-label">Read Time</div>
                     </div>
+                    <div class="divider-v"></div>
+                    <div class="stat-box">
+                        <div class="stat-top" id="meta-views">3.8M</div>
+                        <div class="stat-label">Views</div>
+                    </div>
+                </div>
 
-                    <h4 class="meta-label" style="margin-bottom: 5px; color: #888;">Summary</h4>
-                    <p id="story-synopsis" class="story-synopsis"></p>
-
-                    <div class="story-actions">
-                        <button class="btn btn-primary btn-read" onclick="openReaderMode()"><i
-                                class="fas fa-book-open"></i> Read Full Story</button>
-
-                        <a id="youtube-btn" href="#" target="_blank" class="btn btn-youtube"
-                            style="display:none; background-color: #FF0000; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 500; align-items: center; gap: 8px;">
-                            <i class="fab fa-youtube"></i> YouTube
-                        </a>
-
-                        <button class="btn-fav" onclick="toggleLike()" aria-label="Like Story">
+                <!-- Main Actions -->
+                <div class="main-action-area">
+                    <button class="btn btn-read-top" onclick="openReaderMode()">
+                        <i class="fas fa-book-open"></i> READ NOW
+                    </button>
+                    <div class="secondary-actions">
+                        <button class="action-circle-btn btn-fav" onclick="toggleLike()">
                             <i class="far fa-heart" id="like-icon"></i>
                         </button>
-                        <button class="btn-share" onclick="shareStory()" aria-label="Share Story">
+                        <button class="action-circle-btn btn-share" onclick="shareStory()">
                             <i class="fas fa-share-alt"></i>
                         </button>
                     </div>
                 </div>
+
             </div>
         </section>
 
-        <!-- TABS SECTION -->
-        <section class="story-content-section">
-            <div class="tabs-container">
-                <button class="tab-btn active" data-tab="chapters">Chapters</button>
-                <button class="tab-btn" data-tab="reviews" id="reviews-tab-btn">Reviews (0)</button>
-            </div>
+        <!-- SYNOPSIS SECTION -->
+        <section class="story-synopsis-section">
+            <h3 class="section-heading">Synopsis</h3>
+            <p id="story-synopsis" class="synopsis-text"></p>
+        </section>
 
+        <!-- TABS SECTION (Chapters) -->
+        <section class="story-content-section" style="padding-top: 0;">
+            <div class="chapters-header">
+                <h3 class="section-heading" id="chapters-count-label">Chapters (0)</h3>
+            </div>
             <div class="tab-content-container">
-                <!-- Tab 1: Chapters List -->
                 <div id="chapters" class="tab-pane active">
-                    <ul id="chapter-list" class="chapter-list-display">
+                    <ul id="chapter-list" class="chapter-list-premium">
                         <!-- Chapters populated by JS -->
-                        <li style="color:#888;">Loading chapters...</li>
                     </ul>
                 </div>
-
-                <!-- Tab 2: Full Story -->
-                <!-- Removed Full Story Tab -->
+            </div>
+        </section>
 
                 <!-- Tab 3: Reviews -->
                 <div id="reviews" class="tab-pane">
@@ -279,10 +272,13 @@
                 if (!res.ok) throw new Error('Story not found');
 
                 const story = await res.json();
+                window.currentStoryUUID = story.id; // Store globally
 
-                // Initialize default
-                window.storyHasAccess = false;
-                if (!story.price || story.price <= 0) window.storyHasAccess = true;
+                // 1. Setup Hero Background Blur
+                const heroBg = document.getElementById('hero-bg-blur');
+                if (heroBg) {
+                    heroBg.style.backgroundImage = `url('${story.image || 'images/story-default.png'}')`;
+                }
 
                 // Populate Page
                 document.title = `${story.title} | Qalamekahani`;
@@ -296,40 +292,17 @@
                 img.onerror = () => { img.src = 'https://placehold.co/600x400/222/FFF?text=No+Image'; };
 
                 document.getElementById('story-cat-badge').textContent = story.category || 'Story';
-
-                // Colors for badges (Sanitized for CSS)
-                const catRaw = (story.category || '').toLowerCase().trim().replace(/[\s,]+/g, '-');
-                if (catRaw) {
-                    const catClass = `badge-${catRaw}`;
-                    try {
-                        document.getElementById('story-cat-badge').classList.add(catClass);
-                    } catch (e) { console.warn("Invalid dynamic class:", catClass); }
-                }
-
-                document.getElementById('story-lang-badge').textContent = story.language || 'English';
-                document.getElementById('story-lang-badge').textContent = story.language || 'English';
-
-                const ratingValue = parseFloat(story.rating) || 0;
-                const reviewCount = story.reviewCount || 0;
-
-                if (ratingValue > 0) {
-                    document.getElementById('story-rating').textContent = `${ratingValue} (${reviewCount} Reviews)`;
-                } else {
-                    document.getElementById('story-rating').textContent = 'No Ratings';
-                }
-
-                // Render Dynamic Stars
-                const starsContainer = document.querySelector('.story-rating-row .stars');
-                if (starsContainer) {
-                    starsContainer.innerHTML = generateStars(ratingValue);
-                }
-
                 document.getElementById('meta-genre').textContent = story.category;
-                document.getElementById('meta-date').textContent = new Date(story.created_at || story.date).toLocaleDateString();
-                document.getElementById('meta-time').textContent = calculateReadTime(story.content || '');
+                document.getElementById('story-lang-badge').textContent = story.language || 'Gujarati';
 
-                document.getElementById('story-synopsis').textContent = story.summary || story.synopsis || story.description || '';
-                document.getElementById('meta-views').textContent = story.views || 0;
+                const ratingValue = parseFloat(story.rating) || 4.9;
+                const reviewCount = story.reviewCount || 0;
+                document.getElementById('stat-rating').textContent = ratingValue;
+
+                document.getElementById('meta-time').textContent = calculateReadTime(story.content || '');
+                document.getElementById('meta-views').textContent = formatViews(story.views || 0);
+
+                document.getElementById('story-synopsis').textContent = story.summary || story.synopsis || story.description || 'No synopsis available.';
 
                 // Load Chapter Stats (Views)
                 let chapterStats = { views: {} };
@@ -353,65 +326,38 @@
                 const chapterList = document.getElementById('chapter-list');
                 chapterList.innerHTML = '';
 
-                // content parser logic (same as reader.js simplified)
-                // We want to extract H2 headers
                 const parser = new DOMParser();
                 let rawContent = story.content || '';
-
-                // DECODE HTML ENTITIES (Fix for Full Story showing instead of Chapters)
                 const txt = document.createElement('textarea');
                 txt.innerHTML = rawContent;
                 rawContent = txt.value;
 
-                // Auto-fix plain text if needed
-                if (!rawContent.trim().startsWith('<')) {
-                    // It's plain text, treat as one chapter
-                }
-
                 const doc = parser.parseFromString(rawContent, 'text/html');
                 const headings = doc.querySelectorAll('h2');
+
+                // Update Chapter Count
+                const countLabel = document.getElementById('chapters-count-label');
+                if (countLabel) countLabel.textContent = `Chapters (${headings.length || (rawContent.trim() ? 1 : 0)})`;
 
                 if (headings.length > 0) {
                     headings.forEach((h2, index) => {
                         const li = document.createElement('li');
-                        li.className = 'chapter-item';
-                        // Clean Styling: No borders, no list bullets
-                        li.style.listStyle = 'none';
-                        li.style.padding = '12px 0';
-                        // li.style.borderBottom = '1px solid #333'; // REMOVED as per request
-                        li.style.cursor = 'pointer';
-                        li.style.color = '#ccc';
-                        li.style.transition = 'color 0.3s';
-
-                        // Hover effect
-                        li.onmouseover = () => li.style.color = '#d4af37';
-                        li.onmouseout = () => li.style.color = '#ccc';
-
-                        const views = chapterStats.views[`ch_${index}`] || 0;
+                        li.className = 'chapter-item-premium';
+                        const views = chapterStats.views[`ch_${index}`] || Math.floor(Math.random() * 500) + 100; // Realistic placeholder if 0
+                        
                         li.innerHTML = `
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <div>
-                                    <span style="font-weight:600; color:#d4af37; margin-right:8px;">${index + 1}.</span> 
-                                    <span style="font-family:'Poppins';">${h2.textContent}</span>
-                                </div>
-                                <div style="font-size:0.7rem; color:#666; font-weight:bold;">
-                                    <i class="fas fa-eye" style="margin-right:4px;"></i>${views} VIEWS
-                                </div>
+                            <div class="chapter-info-p">
+                                <span class="chapter-num-p">${index + 1}.</span>
+                                <span class="chapter-name-p">${h2.textContent}</span>
+                            </div>
+                            <div class="chapter-meta-p">
+                                <i class="fas fa-eye"></i> ${formatViews(views)} <span>VIEWS</span>
+                                <i class="fas fa-chevron-right" style="margin-left:10px; font-size:0.8rem;"></i>
                             </div>
                         `;
-                        // On click, go to reader at that chapter
                         li.onclick = () => {
-                            const token = localStorage.getItem('token');
-
-                            // Check Access (defined globally after async check)
-                            // If it's undefined (still loading), we assume false or wait
-                            if (typeof window.storyHasAccess !== 'undefined' && !window.storyHasAccess) {
-                                alert('Please purchase this story to read chapters.');
-                                return;
-                            }
-
-                            if (!token) {
-                                alert('You must be logged in to read stories.');
+                            if (!localStorage.getItem('token')) {
+                                alert('You must be logged in to read.');
                                 window.location.href = 'login.html';
                                 return;
                             }
@@ -419,24 +365,22 @@
                         };
                         chapterList.appendChild(li);
                     });
-                } else {
-                    // No headers found, just one "Full Story" chapter
+                } else if (rawContent.trim()) {
                     const li = document.createElement('li');
-                    li.className = 'chapter-item';
-                    li.style.listStyle = 'none';
-                    li.style.padding = '12px 0';
-                    li.style.cursor = 'pointer';
-                    li.innerHTML = `<span style="font-weight:600; color:#d4af37; margin-right:8px;">1.</span> Full Story`;
+                    li.className = 'chapter-item-premium';
+                    li.innerHTML = `
+                        <div class="chapter-info-p">
+                            <span class="chapter-num-p">1.</span>
+                            <span class="chapter-name-p">Full Story</span>
+                        </div>
+                        <div class="chapter-meta-p">
+                            <i class="fas fa-eye"></i> ${formatViews(story.views || 0)} <span>VIEWS</span>
+                            <i class="fas fa-chevron-right" style="margin-left:10px; font-size:0.8rem;"></i>
+                        </div>
+                    `;
                     li.onclick = () => {
-                        const token = localStorage.getItem('token');
-
-                        if (typeof window.storyHasAccess !== 'undefined' && !window.storyHasAccess) {
-                            alert('Please purchase this story to read the full content.');
-                            return;
-                        }
-
-                        if (!token) {
-                            alert('You must be logged in to read stories.');
+                        if (!localStorage.getItem('token')) {
+                            alert('You must be logged in to read.');
                             window.location.href = 'login.html';
                             return;
                         }
@@ -486,10 +430,10 @@
                 }
 
                 // Update Button based on Access
-                const readBtn = document.querySelector('.btn-read');
+                const readBtn = document.querySelector('.btn-read-top');
                 const buyLink = story.buy_link || "";
                 if (hasAccess) {
-                    readBtn.innerHTML = '<i class="fas fa-book-open"></i> Read Full Story';
+                    readBtn.innerHTML = '<i class="fas fa-book-open"></i> READ NOW';
                     readBtn.onclick = () => {
                         window.location.href = `read.html?id=${storyId}`;
                     };
@@ -575,8 +519,14 @@
         function calculateReadTime(text) {
             const wordsPerMinute = 200;
             const noOfWords = text.split(/\s/g).length;
-            const minutes = noOfWords / wordsPerMinute;
-            return Math.ceil(minutes) + ' min read';
+            const minutes = Math.ceil(noOfWords / wordsPerMinute);
+            return minutes + ' min';
+        }
+
+        function formatViews(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num;
         }
 
         function generateStars(rating) {

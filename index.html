@@ -5,14 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Qalamekahani | Horror Stories, Audio Series & Book Library by Sabirkhan Pathan</title>
-    <meta name="description" content="Explore a world of soul-touching horror stories, audio series, and a premium book library. Discover copyright-free characters and immersive blogs by Sabirkhan Pathan.">
-    <meta name="keywords" content="horror story, audio story, book library, blog, copyright free character, Sabirkhan Pathan, Qalamekahani, storytelling, hindi horror stories">
+    <meta name="description"
+        content="Explore a world of soul-touching horror stories, audio series, and a premium book library. Discover copyright-free characters and immersive blogs by Sabirkhan Pathan.">
+    <meta name="keywords"
+        content="horror story, audio story, book library, blog, copyright free character, Sabirkhan Pathan, Qalamekahani, storytelling, hindi horror stories">
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css?v=2.5">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960"
+        crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -147,19 +150,21 @@
     </section>
 
     <!-- Image Gallery Section -->
-    <section class="gallery-section" id="gallery-home" style="border-top: 1px solid rgba(212,175,55,0.2); border-bottom: 1px solid rgba(212,175,55,0.2); background: rgba(0,0,0,0.15); margin: 40px 0;">
+    <section class="gallery-section" id="gallery-home"
+        style="border-top: 1px solid rgba(212,175,55,0.2); border-bottom: 1px solid rgba(212,175,55,0.2); background: rgba(0,0,0,0.15); margin: 40px 0;">
         <div class="gallery-container" style="max-width:1200px; margin:0 auto; padding:60px 20px;">
             <div style="text-align:center; margin-bottom:40px;">
                 <h2 class="section-title" style="margin-bottom:10px;">Images & Wallpapers</h2>
                 <p class="section-subtitle">Exclusive copyright-free character concepts.</p>
             </div>
-            
+
             <div class="gallery-carousel-wrapper" style="position:relative;">
-                <div id="home-gallery-carousel" style="display:flex; gap:30px; overflow-x:auto; padding-bottom:20px; scroll-behavior:smooth;">
+                <div id="home-gallery-carousel"
+                    style="display:flex; gap:30px; overflow-x:auto; padding-bottom:20px; scroll-behavior:smooth;">
                     <div style="width:100%; text-align:center; color:white;">Loading Images...</div>
                 </div>
             </div>
-            
+
             <div class="section-footer" style="text-align:center; margin-top:20px;">
                 <a href="gallery.html" class="view-all-btn">View All Images <i class="fas fa-arrow-right"></i></a>
             </div>
@@ -245,7 +250,7 @@
                     // Filter & Sort by User Language
                     const userLang = localStorage.getItem('user_lang');
                     let filteredData = data;
-                    
+
                     // If not English, filter strictly. If English, show EVERYTHING (Universal access)
                     if (userLang && userLang !== 'English') {
                         filteredData = data.filter(s => (s.language || '').toLowerCase() === userLang.toLowerCase());
@@ -460,9 +465,9 @@
                     // Remove duplicates to prevent same image from repeating
                     const uniqueImages = [];
                     const seenUrls = new Set();
-                    for(const img of data) {
+                    for (const img of data) {
                         const url = img.image || img.title || '';
-                        if(url && !seenUrls.has(url)) {
+                        if (url && !seenUrls.has(url)) {
                             seenUrls.add(url);
                             uniqueImages.push(img);
                         }
@@ -470,7 +475,7 @@
 
                     // Reverse so latest unique images come first
                     uniqueImages.reverse();
-                    
+
                     carousel.innerHTML = uniqueImages.slice(0, 10).map(img => {
                         let imgUrl = img.image || '';
                         if (imgUrl && !imgUrl.startsWith('http')) {
@@ -490,18 +495,18 @@
                     // Auto-scroll logic (every 3 seconds)
                     let scrollAmount = 0;
                     setInterval(() => {
-                        if(!carousel) return;
-                        if(carousel.matches(':hover')) return; // pause if user is hovering
-                        
+                        if (!carousel) return;
+                        if (carousel.matches(':hover')) return; // pause if user is hovering
+
                         const firstItem = carousel.querySelector('.carousel-item');
                         const itemWidth = firstItem ? firstItem.offsetWidth + 30 : 430; // 30 is gap
                         scrollAmount += itemWidth;
-                        
+
                         // Using a small buffer (5px) for browser floating point width issues
                         if (scrollAmount >= carousel.scrollWidth - carousel.clientWidth - 5) {
                             scrollAmount = 0; // reset
                         }
-                        
+
                         carousel.scrollTo({
                             left: scrollAmount,
                             behavior: 'smooth'
@@ -510,7 +515,7 @@
                 })
                 .catch(err => {
                     const carousel = document.getElementById(galleryCarouselId);
-                    if(carousel) carousel.innerHTML = '<p style="color:red; width:100%; text-align:center;">Failed to load images.</p>';
+                    if (carousel) carousel.innerHTML = '<p style="color:red; width:100%; text-align:center;">Failed to load images.</p>';
                 });
         });
     </script>

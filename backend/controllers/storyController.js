@@ -48,20 +48,16 @@ const getStory = asyncHandler(async (req, res) => {
     if (isUUID) {
         query = query.eq('id', input);
     } else {
-        // Decode to handle URL encoded Hindi/Unicode characters
-        const decodedInput = decodeURIComponent(input);
-        query = query.eq('slug', decodedInput);
+        query = query.eq('slug', input);
     }
 
-    const { data: results, error } = await query;
+    const { data: result, error } = await query.maybeSingle();
 
     if (error) {
-        console.error(`[DEBUG] Database query error for '${input}':`, error);
+        console.log(`[DEBUG] Database query error:`, error);
         res.status(500);
         throw new Error('Database error during story lookup');
     }
-
-    const result = results && results.length > 0 ? results[0] : null;
 
     if (!result) {
         // Fallback: If not found by slug, try searching by title or partial slug if needed, 
@@ -88,7 +84,7 @@ const getStory = asyncHandler(async (req, res) => {
     // Determine valid identifiers for reviews
     const identifiers = [storyData.id];
     if (storyData.slug) identifiers.push(storyData.slug);
-    
+
     // Use the actual parameters if they differ
     if (input && !identifiers.includes(input)) identifiers.push(input);
 
@@ -130,7 +126,7 @@ const getStory = asyncHandler(async (req, res) => {
 
                 if (userData) {
                     isPowerUser = (userData.role === 'admin' || userData.role === 'admin_testing_disabled');
-                    
+
                     // Automatically grant access ONLY for testing_disabled role
                     if (userData.role === 'admin_testing_disabled') {
                         hasAccess = true;
@@ -163,7 +159,7 @@ const getStory = asyncHandler(async (req, res) => {
             // Unlocked or Admin
             // If it's an admin who hasn't "bought" it, we keep isLocked=true so they see the button,
             // but we DON'T strip the content so they can still read.
-            storyData.isLocked = !hasAccess; 
+            storyData.isLocked = !hasAccess;
         }
     } else {
         storyData.isLocked = false;

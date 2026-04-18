@@ -1,27 +1,15 @@
 const asyncHandler = require('express-async-handler');
-const supabase = require('../config/supabase');
+const db = require('../config/mysql_db');
 
 // @desc    Get all stories
-// @route   GET /api/stories
-// @access  Public
 const getStories = asyncHandler(async (req, res) => {
-    const { data, error } = await supabase
-        .from('stories')
-        .select('*') // Necessary to calculate parts_count
-        .order('created_at', { ascending: false });
+    const [data] = await db.execute('SELECT * FROM stories ORDER BY created_at DESC');
 
-    if (error) {
-        res.status(500);
-        throw new Error(error.message);
-    }
-
-    // Optimization: Calculate parts_count and remove heavy content field
     const storiesWithCount = data.map(story => {
         const content = story.content || '';
-        // Handle both encoded &lt;h2 and decoded <h2
         const matches = content.match(/<h2|&lt;h2/gi);
         story.parts_count = matches ? matches.length : (content.trim() ? 1 : 0);
-        delete story.content; // Keep payload small
+        delete story.content;
         return story;
     });
 
@@ -29,141 +17,74 @@ const getStories = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get single story
-// @route   GET /api/stories/:slug
-// @access  Public
-// @desc    Get single story
-// @route   GET /api/stories/:slug
-// @access  Public
 const getStory = asyncHandler(async (req, res) => {
     const input = req.params.slug;
+    
+    const [rows] = await db.execute('SELECT * FROM stories WHERE id = ? OR slug = ?', [input, input]);
+    const storyData = rows[0];
 
-    // Check if input is a valid UUID
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input);
-
-    let storyData = null;
-    console.log(`[DEBUG] getStory searching for: '${input}' (isUUID: ${isUUID})`);
-
-    // Use a more robust query for slug/ID matching
-    let query = supabase.from('stories').select('*');
-    if (isUUID) {
-        query = query.eq('id', input);
-    } else {
-        query = query.eq('slug', input);
-    }
-
-    const { data: result, error } = await query.maybeSingle();
-
-    if (error) {
-        console.log(`[DEBUG] Database query error:`, error);
-        res.status(500);
-        throw new Error('Database error during story lookup');
-    }
-
-    if (!result) {
-        // Fallback: If not found by slug, try searching by title or partial slug if needed, 
-        // but for now let's just log and fail properly.
-        console.log(`[DEBUG] Story NOT FOUND for: '${input}'`);
+    if (!storyData) {
         res.status(404);
         throw new Error('Story not found');
     }
 
-    storyData = { ...result };
-
-    // Increment views (Safe approach)
     if (req.query.increment !== 'false') {
-        supabase.rpc('increment_story_views', { row_id: storyData.id }).then(({ error: rpcErr }) => {
-            if (rpcErr) {
-                supabase.from('stories')
-                    .update({ views: (storyData.views || 0) + 1 })
-                    .eq('id', storyData.id)
-                    .then(() => { });
-            }
-        });
+        db.execute('UPDATE stories SET views = views + 1 WHERE id = ?', [storyData.id]);
     }
 
-    // Determine valid identifiers for reviews
-    const identifiers = [storyData.id];
-    if (storyData.slug) identifiers.push(storyData.slug);
+    const identifiers = [String(storyData.id), storyData.slug];
+    const placeholders = identifiers.map(() => '?').join(',');
 
-    // Use the actual parameters if they differ
-    if (input && !identifiers.includes(input)) identifiers.push(input);
-
-    // Fetch reviews from Supabase
-    const { data: reviews, error: reviewError } = await supabase
-        .from('reviews')
-        .select('*')
-        .in('item_id', identifiers)
-        .eq('item_type', 'story')
-        .eq('status', 'approved');
+    const [reviews] = await db.execute(
+        `SELECT rating FROM reviews WHERE item_id IN (${placeholders}) AND item_type = "story" AND status = "approved"`,
+        identifiers
+    );
 
     let averageRating = 0;
-    let reviewCount = 0;
-
-    if (reviews && reviews.length > 0) {
-        reviewCount = reviews.length;
+    let reviewCount = reviews.length;
+    if (reviewCount > 0) {
         const total = reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
         averageRating = (total / reviewCount).toFixed(1);
     }
-
-    // Assign calculated values to response data
     storyData.rating = averageRating;
     storyData.reviewCount = reviewCount;
 
-    // Verify Access for Paid Stories
-    if (storyData.price && storyData.price > 0) {
+    // Access logic
+    if (storyData.price > 0) {
         let hasAccess = false;
-        let isPowerUser = false;
-
-        // 1. Check Authorization
         const authHeader = req.headers.authorization;
         if (authHeader && authHeader.startsWith('Bearer')) {
             try {
                 const token = authHeader.split(' ')[1];
                 const jwt = require('jsonwebtoken');
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-                const { data: userData } = await supabase.from('users').select('email, role').eq('id', decoded.id).single();
+                const [users] = await db.execute('SELECT email, role FROM users WHERE id = ?', [decoded.id]);
+                const userData = users[0];
 
                 if (userData) {
-                    isPowerUser = (userData.role === 'admin' || userData.role === 'admin_testing_disabled');
-
-                    // Automatically grant access ONLY for testing_disabled role
-                    if (userData.role === 'admin_testing_disabled') {
+                    if (userData.role === 'admin' || userData.role === 'admin_testing_disabled') {
                         hasAccess = true;
-                    } else if (userData.email) {
-                        // Check for paid order
-                        const { data: orderData } = await supabase
-                            .from('orders')
-                            .select('id')
-                            .eq('customer_email', userData.email)
-                            .eq('story_id', storyData.id)
-                            .eq('status', 'paid')
-                            .maybeSingle();
-
-                        if (orderData) hasAccess = true;
+                    } else {
+                        const [orders] = await db.execute(
+                            'SELECT id FROM orders WHERE customer_email = ? AND story_id = ? AND status = "paid"',
+                            [userData.email, storyData.id]
+                        );
+                        if (orders.length > 0) hasAccess = true;
                     }
                 }
-            } catch (error) {
-                console.error("[DEBUG] Token verification failed:", error.message);
-            }
+            } catch (e) {}
         }
 
-        // 3. Access Decision
-        if (!hasAccess && !isPowerUser) {
-            // Strip content for non-paying regular users
+        if (!hasAccess) {
             const content = storyData.content || '';
             const matches = content.match(/<h2[^>]*>[\s\S]*?<\/h2>/gi);
-            storyData.content = (matches && Array.isArray(matches)) ? matches.join('\n') : '';
+            storyData.content = matches ? matches.join('\n') : '';
             storyData.isLocked = true;
         } else {
-            // Unlocked or Admin
-            // If it's an admin who hasn't "bought" it, we keep isLocked=true so they see the button,
-            // but we DON'T strip the content so they can still read.
-            storyData.isLocked = !hasAccess;
+            storyData.isLocked = false;
         }
     } else {
         storyData.isLocked = false;
-        console.log(`[DEBUG] Story is FREE: '${storyData.title}'`);
     }
 
     res.status(200).json(storyData);
@@ -172,240 +93,112 @@ const getStory = asyncHandler(async (req, res) => {
 const { sendEmailNotification } = require('../utils/notificationHelper');
 
 // @desc    Create new story
-// @route   POST /api/stories
-// @access  Private (Admin)
 const createStory = asyncHandler(async (req, res) => {
     const { title, summary, fullContent, category, tags, coverImage, status, language, youtubeLink, price, discount, author } = req.body;
 
-    if (!title || !fullContent || !category) {
-        res.status(400);
-        throw new Error('Please include all required fields');
-    }
-
-    // Robust Slug Generation
-    let slug = title.toLowerCase()
-        .trim()
-        .replace(/[^\u0900-\u097F\w\s-]/g, '') // Keep Hindi + alphanumeric + space + dash
-        .replace(/\s+/g, '-')                  // Spaces to dashes
-        .replace(/-+/g, '-');                  // Multiple dashes to single
-
-    // Append short hash for uniqueness if title is common
+    let slug = title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
     slug = `${slug}-${Math.random().toString(36).substring(2, 7)}`;
 
-    // Fallback if slug is empty or just dashes
-    if (!slug || slug === '-' || slug === '--') {
-        slug = `story-${Date.now()}`;
-    }
+    const storyData = {
+        title, slug, summary, content: fullContent, category, status,
+        language: language || 'Hindi',
+        hashtags: JSON.stringify(Array.isArray(tags) ? tags : (tags ? [tags] : [])),
+        image: coverImage,
+        youtube_link: youtubeLink,
+        price: price || 0,
+        discount: discount || 0,
+        author: author || 'Sabirkhan Pathan'
+    };
 
-    const { data, error } = await supabase
-        .from('stories')
-        .insert([{
-            title,
-            slug,
-            summary,
-            content: fullContent,
-            category,
-            status,
-            language: language || 'Hindi', // Default
-            hashtags: Array.isArray(tags) ? tags : (tags ? [tags] : []),
-            image: coverImage,
-            youtube_link: youtubeLink,
-            price: price || 0,
-            discount: discount || 0,
-            author: author || 'Sabirkhan Pathan'
-        }])
-        .select()
-        .single();
+    const columns = Object.keys(storyData);
+    const placeholders = columns.map(() => '?').join(',');
+    const [result] = await db.execute(`INSERT INTO stories (${columns.join(',')}) VALUES (${placeholders})`, Object.values(storyData));
 
-    if (error) {
-        console.error('[STORY CREATE ERROR]', error);
-        res.status(400);
-        throw new Error(`Failed to create story: ${error.message}`);
-    }
+    const [newRows] = await db.execute('SELECT * FROM stories WHERE id = ?', [result.insertId]);
+    await sendEmailNotification(newRows[0], 'story');
 
-    // Trigger Notification (Wait for it to send)
-    await sendEmailNotification(data, 'story');
-
-    res.status(201).json(data);
+    res.status(201).json(newRows[0]);
 });
 
 // @desc    Update story
-// @route   PUT /api/stories/:id
-// @access  Private (Admin)
 const updateStory = asyncHandler(async (req, res) => {
-    const { title, summary, fullContent, category, tags, coverImage, status, language, youtubeLink, price, discount, author } = req.body;
+    const fields = req.body;
+    const updates = [];
+    const values = [];
 
-    const updates = {};
-    if (title) updates.title = title;
-    if (summary) updates.summary = summary;
-    if (fullContent) updates.content = fullContent;
-    if (category) updates.category = category;
-    if (language) updates.language = language;
-    if (tags) updates.hashtags = Array.isArray(tags) ? tags : [tags]; // Ensure array
-    if (coverImage) updates.image = coverImage;
-    if (status) updates.status = status;
-    if (youtubeLink !== undefined) updates.youtube_link = youtubeLink;
-    if (price !== undefined && price !== '') updates.price = Number(price);
-    if (discount !== undefined && discount !== '') updates.discount = Number(discount);
-    if (author) updates.author = author;
+    // Map frontend names to DB names if needed
+    const mapping = { fullContent: 'content', coverImage: 'image', youtubeLink: 'youtube_link', tags: 'hashtags' };
 
-    const { data, error } = await supabase
-        .from('stories')
-        .update(updates)
-        .eq('id', req.params.id)
-        .select()
-        .single();
+    Object.keys(fields).forEach(key => {
+        const dbKey = mapping[key] || key;
+        updates.push(`${dbKey} = ?`);
+        let val = fields[key];
+        if (dbKey === 'hashtags') val = JSON.stringify(Array.isArray(val) ? val : [val]);
+        values.push(val);
+    });
 
-    if (error) {
-        console.error('[STORY UPDATE ERROR]', error);
-        res.status(400);
-        throw new Error(`Failed to update story: ${error.message}`);
+    if (updates.length > 0) {
+        values.push(req.params.id);
+        await db.execute(`UPDATE stories SET ${updates.join(', ')} WHERE id = ?`, values);
     }
 
-    res.status(200).json(data);
+    const [rows] = await db.execute('SELECT * FROM stories WHERE id = ?', [req.params.id]);
+    res.status(200).json(rows[0]);
 });
 
 // @desc    Delete story
-// @route   DELETE /api/stories/:id
-// @access  Private (Admin)
 const deleteStory = asyncHandler(async (req, res) => {
-    // 1. Nullify references in orders to avoid FK block
-    await supabase.from('orders').update({ story_id: null }).eq('story_id', req.params.id);
-
-    // 2. Clear reviews related to this story
-    await supabase.from('reviews').delete().eq('item_id', req.params.id);
-
-    // 3. Delete the story
-    const { error } = await supabase
-        .from('stories')
-        .delete()
-        .eq('id', req.params.id);
-
-    if (error) {
-        res.status(400);
-        throw new Error(error.message);
-    }
-
+    await db.execute('UPDATE orders SET story_id = NULL WHERE story_id = ?', [req.params.id]);
+    await db.execute('DELETE FROM reviews WHERE item_id = ? AND item_type = "story"', [req.params.id]);
+    await db.execute('DELETE FROM stories WHERE id = ?', [req.params.id]);
     res.status(200).json({ id: req.params.id });
 });
 
-// @desc    Increment chapter view
-// @route   POST /api/stories/:id/chapters/:index/view
-// @access  Public
+// @desc    Chapter view
 const incrementChapterView = asyncHandler(async (req, res) => {
     const { id, index } = req.params;
+    const [rows] = await db.execute('SELECT chapter_stats FROM stories WHERE id = ?', [id]);
+    if (rows.length === 0) throw new Error('Not found');
 
-    // 1. Get current stats
-    const { data: story, error: getError } = await supabase
-        .from('stories')
-        .select('chapter_stats')
-        .eq('id', id)
-        .single();
-
-    if (getError || !story) {
-        res.status(404);
-        throw new Error('Story not found');
-    }
-
-    let stats = story.chapter_stats || {};
+    let stats = rows[0].chapter_stats || {};
     if (typeof stats === 'string') stats = JSON.parse(stats);
-
-    // 2. Increment view for this index
     const key = `ch_${index}`;
     stats[key] = (stats[key] || 0) + 1;
 
-    // 3. Update DB
-    const { error: updateError } = await supabase
-        .from('stories')
-        .update({ chapter_stats: stats })
-        .eq('id', id);
-
-    if (updateError) {
-        res.status(500);
-        throw new Error('Failed to update chapter views');
-    }
-
+    await db.execute('UPDATE stories SET chapter_stats = ? WHERE id = ?', [JSON.stringify(stats), id]);
     res.status(200).json({ success: true, views: stats[key] });
 });
 
-// @desc    Add rating for a specific chapter
-// @route   POST /api/stories/:id/chapters/:index/rating
-// @access  Public
+// @desc    Chapter rating
 const addChapterRating = asyncHandler(async (req, res) => {
     const { id, index } = req.params;
     const { rating } = req.body;
-
-    if (!rating) {
-        res.status(400);
-        throw new Error('Rating is required');
-    }
-
-    const { error } = await supabase.from('chapter_ratings').insert([{
-        story_id: id,
-        chapter_index: parseInt(index),
-        rating: parseInt(rating)
-    }]);
-
-    if (error) {
-        console.error('Chapter Rating Fail:', error);
-        res.status(400);
-        throw new Error('Failed to save chapter rating');
-    }
-
-    res.status(201).json({ message: 'Chapter rated successfully' });
+    await db.execute(
+        'INSERT INTO chapter_ratings (story_id, chapter_index, rating) VALUES (?, ?, ?)',
+        [id, parseInt(index), parseInt(rating)]
+    );
+    res.status(201).json({ message: 'Success' });
 });
 
-// @desc    Get stats for all chapters (Admin)
-// @route   GET /api/stories/:id/chapters/stats
-// @access  Private (Admin)
+// @desc    Chapter stats
 const getChapterStats = asyncHandler(async (req, res) => {
     const { id } = req.params;
-
-    // 1. Get Ratings
-    const { data: ratings, error: rateError } = await supabase
-        .from('chapter_ratings')
-        .select('*')
-        .eq('story_id', id);
-
-    // 2. Get Views from story JSON
-    const { data: story, error: storyError } = await supabase
-        .from('stories')
-        .select('chapter_stats')
-        .eq('id', id)
-        .single();
-
-    if (storyError) {
-        res.status(404);
-        throw new Error('Story stats not found');
-    }
-
-    const views = typeof story.chapter_stats === 'string' ? JSON.parse(story.chapter_stats) : (story.chapter_stats || {});
-
-    // Aggregate Ratings by Chapter Index
+    const [ratings] = await db.execute('SELECT * FROM chapter_ratings WHERE story_id = ?', [id]);
+    const [rows] = await db.execute('SELECT chapter_stats FROM stories WHERE id = ?', [id]);
+    
+    const views = typeof rows[0].chapter_stats === 'string' ? JSON.parse(rows[0].chapter_stats) : (rows[0].chapter_stats || {});
     const aggregated = {};
-    if (ratings) {
-        ratings.forEach(r => {
-            const idx = r.chapter_index;
-            if (!aggregated[idx]) aggregated[idx] = { total: 0, count: 0 };
-            aggregated[idx].total += r.rating;
-            aggregated[idx].count += 1;
-        });
-    }
-
-    // Return structured data
-    res.status(200).json({
-        views: views,
-        ratings: aggregated
+    ratings.forEach(r => {
+        const idx = r.chapter_index;
+        if (!aggregated[idx]) aggregated[idx] = { total: 0, count: 0 };
+        aggregated[idx].total += r.rating;
+        aggregated[idx].count += 1;
     });
+
+    res.status(200).json({ views, ratings: aggregated });
 });
 
 module.exports = {
-    getStories,
-    getStory,
-    createStory,
-    updateStory,
-    deleteStory,
-    incrementChapterView,
-    addChapterRating,
-    getChapterStats
+    getStories, getStory, createStory, updateStory, deleteStory,
+    incrementChapterView, addChapterRating, getChapterStats
 };

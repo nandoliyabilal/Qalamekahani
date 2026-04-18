@@ -1,57 +1,45 @@
 const asyncHandler = require('express-async-handler');
+const db = require('../config/mysql_db');
 const supabase = require('../config/supabase');
 
 const getBooks = asyncHandler(async (req, res) => {
-    const { data, error } = await supabase
-        .from('books')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        res.status(500);
-        throw new Error(error.message);
-    }
+    const [data] = await db.execute('SELECT * FROM book_library ORDER BY created_at DESC');
     res.status(200).json(data);
 });
 
 const getBookById = asyncHandler(async (req, res) => {
-    const { data, error } = await supabase
-        .from('books')
-        .select('*')
-        .eq('id', req.params.id)
-        .single();
+    const [rows] = await db.execute('SELECT * FROM book_library WHERE id = ?', [req.params.id]);
+    const book = rows[0];
 
-    if (error || !data) {
+    if (!book) {
         res.status(404);
         throw new Error('Book not found');
     }
 
     // Increment Views
     if (req.query.increment !== 'false') {
-        supabase.from('books')
-            .update({ views: (data.views || 0) + 1 })
-            .eq('id', data.id)
-            .then(() => { });
+        db.execute('UPDATE book_library SET views = views + 1 WHERE id = ?', [book.id]);
     }
 
-    res.status(200).json(data);
+    res.status(200).json(book);
 });
 
 const { sendEmailNotification } = require('../utils/notificationHelper');
 
 const createBook = asyncHandler(async (req, res) => {
-    const { data, error } = await supabase
-        .from('books')
-        .insert([req.body])
-        .select()
-        .single();
+    const columns = Object.keys(req.body);
+    const values = Object.values(req.body);
+    const placeholders = columns.map(() => '?').join(', ');
 
-    if (error) {
-        res.status(400);
-        throw new Error(error.message);
-    }
+    const [result] = await db.execute(
+        `INSERT INTO book_library (${columns.join(', ')}) VALUES (${placeholders})`,
+        values
+    );
 
-    // Trigger Notification in background (fire and forget)
+    const [newRows] = await db.execute('SELECT * FROM book_library WHERE id = ?', [result.insertId]);
+    const data = newRows[0];
+
+    // Trigger Notification
     sendEmailNotification(data, 'book').catch(err => {
         console.error('[BOOK NOTIFICATION ERROR]', err.message);
     });
@@ -60,36 +48,29 @@ const createBook = asyncHandler(async (req, res) => {
 });
 
 const updateBook = asyncHandler(async (req, res) => {
-    const { data, error } = await supabase
-        .from('books')
-        .update(req.body)
-        .eq('id', req.params.id)
-        .select()
-        .single();
+    const columns = Object.keys(req.body);
+    const values = Object.values(req.body);
+    const updateString = columns.map(col => `${col} = ?`).join(', ');
+    values.push(req.params.id);
 
-    if (error) {
-        res.status(400);
-        throw new Error(error.message);
-    }
-    res.status(200).json(data);
+    await db.execute(
+        `UPDATE book_library SET ${updateString} WHERE id = ?`,
+        values
+    );
+
+    const [rows] = await db.execute('SELECT * FROM book_library WHERE id = ?', [req.params.id]);
+    res.status(200).json(rows[0]);
 });
 
 const deleteBook = asyncHandler(async (req, res) => {
     // 1. Nullify references in orders to avoid FK block
-    await supabase.from('orders').update({ book_id: null }).eq('book_id', req.params.id);
+    await db.execute('UPDATE orders SET book_id = NULL WHERE book_id = ?', [req.params.id]);
 
     // 2. Clear reviews related to this book
-    await supabase.from('reviews').delete().eq('item_id', req.params.id);
+    await db.execute('DELETE FROM reviews WHERE item_id = ? AND item_type = "book"', [req.params.id]);
 
-    const { error } = await supabase
-        .from('books')
-        .delete()
-        .eq('id', req.params.id);
+    await db.execute('DELETE FROM book_library WHERE id = ?', [req.params.id]);
 
-    if (error) {
-        res.status(400);
-        throw new Error(error.message);
-    }
     res.status(200).json({ id: req.params.id });
 });
 

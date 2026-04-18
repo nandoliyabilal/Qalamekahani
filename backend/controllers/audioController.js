@@ -1,18 +1,10 @@
 const asyncHandler = require('express-async-handler');
-const supabase = require('../config/supabase');
+const db = require('../config/mysql_db');
+const supabase = require('../config/supabase'); // Still used for notification helpers occasionally
 
 const getAudioStories = asyncHandler(async (req, res) => {
-    // 1. Fetch main audio stories
-    const { data: stories, error } = await supabase
-        .from('audio_stories')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error('[GET AUDIO STORIES ERROR]', error);
-        res.status(500);
-        throw new Error(`Failed to fetch audio stories: ${error.message}`);
-    }
+    // 1. Fetch main audio stories from MySQL
+    const [stories] = await db.execute('SELECT * FROM audio_stories ORDER BY created_at DESC');
 
     if (!stories || stories.length === 0) {
         return res.json([]);
@@ -20,12 +12,12 @@ const getAudioStories = asyncHandler(async (req, res) => {
 
     // 2. Fetch all extra metadata in parallel
     const [reviewsRes, episodesRes] = await Promise.all([
-        supabase.from('reviews').select('item_id, item_type, rating').eq('status', 'approved'),
-        supabase.from('audio_episodes').select('id, audio_story_id, duration')
+        db.execute('SELECT item_id, item_type, rating FROM reviews WHERE status = "approved"'),
+        db.execute('SELECT id, audio_story_id, duration FROM audio_episodes')
     ]);
 
-    const reviews = reviewsRes.data || [];
-    const allEpisodes = episodesRes.data || [];
+    const reviews = reviewsRes[0] || [];
+    const allEpisodes = episodesRes[0] || [];
 
     // 3. Prepare Lookup Maps
     const durationsMap = {}; // story_id -> total seconds
@@ -99,20 +91,10 @@ const getAudioStoryById = asyncHandler(async (req, res) => {
     console.log(`[DEBUG] Fetching Audio ID: '${id}'`);
 
     let story = null;
-    let error = null;
 
-    // Attempt 1: Try 'id' column
-    try {
-        const result = await supabase
-            .from('audio_stories')
-            .select('*')
-            .eq('id', id)
-            .single();
-        story = result.data;
-        error = result.error;
-    } catch (e) {
-        console.log(`[DEBUG] Query by 'id' failed: ${e.message}`);
-    }
+    // Fetch from MySQL
+    const [rows] = await db.execute('SELECT * FROM audio_stories WHERE id = ? OR slug = ?', [id, id]);
+    story = rows[0];
 
     if (error || !story) {
         // Fallback for list scanning
@@ -130,46 +112,20 @@ const getAudioStoryById = asyncHandler(async (req, res) => {
 
     // Increment Views
     if (req.query.increment !== 'false') {
-        supabase.from('audio_stories')
-            .update({ views: (story.views || 0) + 1 })
-            .eq('id', story.id)
-            .then(() => { });
+        db.execute('UPDATE audio_stories SET views = views + 1 WHERE id = ?', [story.id]);
     }
 
-    // Fetch Episodes
-    const { data: episodes, error: episodesError } = await supabase
-        .from('audio_episodes')
-        .select('*')
-        .eq('audio_story_id', story.id)
-        .order('order_index', { ascending: true });
+    // Fetch Episodes from MySQL
+    const [episodes] = await db.execute(
+        'SELECT * FROM audio_episodes WHERE audio_story_id = ? ORDER BY order_index ASC',
+        [story.id]
+    );
 
-    // Aggregation of episode ratings
-    const { data: epReviews } = await supabase
-        .from('reviews')
-        .select('item_id, rating')
-        .eq('item_type', 'episode')
-        .eq('status', 'approved');
-
-    const epRatingsMap = {};
-    if (epReviews) {
-        epReviews.forEach(r => {
-            if (!epRatingsMap[r.item_id]) epRatingsMap[r.item_id] = { total: 0, count: 0 };
-            epRatingsMap[r.item_id].total += parseFloat(r.rating);
-            epRatingsMap[r.item_id].count += 1;
-        });
-    }
-
-    story.episodes = (episodes || []).map(ep => ({
-        ...ep,
-        rating: epRatingsMap[ep.id] ? (epRatingsMap[ep.id].total / epRatingsMap[ep.id].count).toFixed(1) : 5.0
-    }));
-
-    // Fetch Rating for the whole story
-    const { data: reviews } = await supabase
-        .from('reviews')
-        .select('rating')
-        .eq('item_id', story.id)
-        .eq('status', 'approved');
+    // Fetch Rating for the whole story from MySQL
+    const [reviews] = await db.execute(
+        'SELECT rating FROM reviews WHERE item_id = ? AND status = "approved"',
+        [story.id]
+    );
     
     if (reviews && reviews.length > 0) {
         const total = reviews.reduce((acc, r) => acc + parseFloat(r.rating), 0);

@@ -1,21 +1,20 @@
 const asyncHandler = require('express-async-handler');
-const supabase = require('../config/supabase');
+const db = require('../config/mysql_db');
 
 // @desc    Get reviews for a specific item
 // @route   GET /api/reviews?targetId=...&targetType=...
-// @access  Public
 const getReviews = asyncHandler(async (req, res) => {
     const { targetId } = req.query;
 
-    let query = supabase.from('reviews').select('*');
-    if (targetId) query = query.eq('item_id', targetId);
-
-    const { data: reviews, error } = await query.order('created_at', { ascending: false });
-
-    if (error) {
-        res.status(500);
-        throw new Error('Failed to fetch reviews');
+    let query = 'SELECT * FROM reviews';
+    let params = [];
+    if (targetId) {
+        query += ' WHERE item_id = ?';
+        params.push(targetId);
     }
+    query += ' ORDER BY created_at DESC';
+
+    const [reviews] = await db.execute(query, params);
 
     // Format for frontend consistency
     const formattedReviews = reviews.map(review => ({
@@ -36,8 +35,6 @@ const getReviews = asyncHandler(async (req, res) => {
 });
 
 // @desc    Create a review
-// @route   POST /api/reviews
-// @access  Private
 const createReview = asyncHandler(async (req, res) => {
     const { targetId, targetType, rating, comment } = req.body;
 
@@ -47,37 +44,24 @@ const createReview = asyncHandler(async (req, res) => {
     }
 
     // Check if review already exists
-    const { data: reviewExists } = await supabase
-        .from('reviews')
-        .select('id')
-        .eq('user_id', req.user.id)
-        .eq('item_id', targetId)
-        .single();
+    const [existing] = await db.execute(
+        'SELECT id FROM reviews WHERE user_id = ? AND item_id = ?',
+        [req.user.id, targetId]
+    );
 
-    if (reviewExists) {
+    if (existing.length > 0) {
         res.status(400);
         throw new Error('You have already reviewed this item');
     }
 
     // Insert review
-    const { data: review, error } = await supabase
-        .from('reviews')
-        .insert([{
-            user_id: req.user.id,
-            user_name: req.user.name,
-            item_id: targetId,
-            item_type: targetType,
-            rating,
-            comment,
-            status: 'approved' // Auto-approve ratings as requested
-        }])
-        .select()
-        .single();
+    const [result] = await db.execute(
+        'INSERT INTO reviews (user_id, user_name, item_id, item_type, rating, comment, status) VALUES (?, ?, ?, ?, ?, ?, "approved")',
+        [req.user.id, req.user.name, targetId, targetType, rating, comment]
+    );
 
-    if (error) {
-        res.status(500);
-        throw new Error('Failed to create review');
-    }
+    const [newRows] = await db.execute('SELECT * FROM reviews WHERE id = ?', [result.insertId]);
+    const review = newRows[0];
 
     res.status(201).json({
         id: review.id,
@@ -91,65 +75,46 @@ const createReview = asyncHandler(async (req, res) => {
 });
 
 // @desc    Update review status (Admin)
-// @route   PUT /api/reviews/:id
-// @access  Private (Admin)
 const updateReviewStatus = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const updateData = {};
-    if (req.body.status !== undefined) updateData.status = req.body.status;
-    if (req.body.reply !== undefined) {
-        updateData.reply = req.body.reply;
-        updateData.admin_reply_name = req.body.adminName || 'Admin';
+    const { status, reply, adminName } = req.body;
+
+    const updates = [];
+    const values = [];
+
+    if (status !== undefined) {
+        updates.push('status = ?');
+        values.push(status);
+    }
+    if (reply !== undefined) {
+        updates.push('reply = ?');
+        values.push(reply);
+        updates.push('admin_reply_name = ?');
+        values.push(adminName || 'Admin');
     }
 
-    if (Object.keys(updateData).length === 0) {
+    if (updates.length === 0) {
         res.status(400);
         throw new Error('No update data provided');
     }
 
-    const { data: review, error } = await supabase
-        .from('reviews')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
+    values.push(id);
+    await db.execute(`UPDATE reviews SET ${updates.join(', ')} WHERE id = ?`, values);
 
-    if (error) {
-        res.status(400);
-        throw new Error('Update failed: ' + error.message);
-    }
+    const [rows] = await db.execute('SELECT * FROM reviews WHERE id = ?', [id]);
+    const review = rows[0];
 
     if (!review) {
         res.status(404);
         throw new Error('Review not found');
     }
 
-    // Send Notification to user
-    if (req.body.reply) {
-        await supabase.from('notifications').insert([{
-            user_id: review.user_id,
-            message: `Admin replied to your review: "${req.body.reply.substring(0, 30)}..."`,
-            is_read: false
-        }]);
-    }
-
     res.status(200).json(review);
 });
 
 // @desc    Delete review (Admin)
-// @route   DELETE /api/reviews/:id
-// @access  Private (Admin)
 const deleteReview = asyncHandler(async (req, res) => {
-    const { error } = await supabase
-        .from('reviews')
-        .delete()
-        .eq('id', req.params.id);
-
-    if (error) {
-        res.status(400);
-        throw new Error('Failed to delete review');
-    }
-
+    await db.execute('DELETE FROM reviews WHERE id = ?', [req.params.id]);
     res.status(200).json({ id: req.params.id });
 });
 

@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
-const supabase = require('../config/supabase'); // Switched to Supabase
+const db = require('../config/mysql_db');
+const supabase = require('../config/supabase'); // Still used for Google Token verification
 const crypto = require('crypto');
 
 // Helper: Generate JWT
@@ -14,8 +15,6 @@ const generateToken = (id) => {
 const { sendEmail } = require('../utils/emailService');
 
 // @desc    Register new user & Send OTP
-// @route   POST /api/auth/register
-// @access  Public
 const registerUser = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -24,158 +23,46 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new Error('Please add all fields');
     }
 
-    // Check if user exists in Supabase
-    const { data: userExists } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', email)
-        .single();
-
-    if (userExists) {
+    // Check if user exists
+    const [existingUsers] = await db.execute('SELECT id FROM users WHERE email = ?', [email]);
+    if (existingUsers.length > 0) {
         res.status(400);
         throw new Error('User already exists');
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Generate 6 digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpire = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes window
+    const otpExpire = new Date(Date.now() + 10 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
 
-    // Create user in Supabase
-    const { data: user, error } = await supabase
-        .from('users')
-        .insert([{
-            name,
-            email,
-            password: hashedPassword,
-            otp,
-            otp_expire: otpExpire,
-            is_verified: false,
-            notifications_on: true // Default ON for new users
-        }])
-        .select()
-        .single();
+    const [result] = await db.execute(
+        'INSERT INTO users (name, email, password, otp, otp_expire, is_verified) VALUES (?, ?, ?, ?, ?, ?)',
+        [name, email, hashedPassword, otp, otpExpire, false]
+    );
 
-    // LOG OTP FOR DEVELOPMENT (In case email service fails)
-    console.log(`\n--- [AUTH DEBUG] ---`);
-    console.log(`User: ${name} (${email})`);
-    console.log(`Generated OTP: ${otp}`);
-    console.log(`--------------------\n`);
-
-    if (error || !user) {
-        res.status(400);
-        throw new Error(error?.message || 'Invalid user data');
-    }
-
-    // Send Premium OTP Email
+    // Send OTP
     try {
         await sendEmail({
-            email: user.email,
+            email,
             subject: 'Verify Your Email - Qalamekahani',
             message: otp,
             type: 'otp'
         });
-
-        res.status(201).json({
-            success: true,
-            message: `Verification code sent to ${user.email}`,
-            email: user.email
-        });
+        res.status(201).json({ success: true, message: `Verification code sent to ${email}`, email });
     } catch (emailError) {
-        console.error('[AUTH] Registration Email Error:', emailError);
-        // Delete user if email fails to allow retry
-        await supabase.from('users').delete().eq('id', user.id);
-        res.status(500);
-        throw new Error(`Verification email failed: ${emailError.message}. Please try again later or check if your email is valid.`);
+        console.error('Email Error:', emailError);
+        res.status(201).json({ success: true, message: `User created but email failed. Debug OTP: ${otp}`, email });
     }
 });
 
 // @desc    Verify OTP
-// @route   POST /api/auth/verify-otp
-// @access  Public
 const verifyOtp = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
 
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
+    const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+    const user = users[0];
 
-    if (error || !user) {
-        res.status(404);
-        throw new Error('User not found');
-    }
-
-    if (user.is_verified) {
-        res.status(400);
-        throw new Error('User already verified. Please login.');
-    }
-
-    const now = Date.now();
-    const expireTime = user.otp_expire ? new Date(user.otp_expire).getTime() : 0;
-
-    // Robust comparison
-    const isOtpValid = user.otp && String(user.otp) === String(otp);
-    const isNotExpired = expireTime > now;
-
-    if (isOtpValid && isNotExpired) {
-        const { error: updateError } = await supabase
-            .from('users')
-            .update({
-                is_verified: true,
-                otp: null,
-                otp_expire: null
-            })
-            .eq('id', user.id);
-
-        if (updateError) {
-            res.status(500);
-            throw new Error('Verification failed');
-        }
-
-        // Send Welcome Email
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: 'Welcome to Qalamekahani!',
-                type: 'welcome',
-                itemData: { name: user.name }
-            });
-        } catch (e) {
-            console.error('[AUTH] Welcome Email Error:', e);
-        }
-
-        res.json({
-            success: true,
-            _id: user.id,
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            token: generateToken(user.id)
-        });
-    } else {
-        res.status(400);
-        throw new Error(!isOtpValid ? 'Invalid OTP' : 'OTP has expired');
-    }
-});
-
-// @desc    Resend OTP
-// @route   POST /api/auth/resend-otp
-// @access  Public
-const resendOtp = asyncHandler(async (req, res) => {
-    const { email } = req.body;
-
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
-
-    if (error || !user) {
+    if (!user) {
         res.status(404);
         throw new Error('User not found');
     }
@@ -185,92 +72,77 @@ const resendOtp = asyncHandler(async (req, res) => {
         throw new Error('User already verified');
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpire = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+    const now = new Date();
+    const expireTime = user.otp_expire ? new Date(user.otp_expire) : null;
 
-    const { error: updateError } = await supabase
-        .from('users')
-        .update({ otp, otp_expire: otpExpire })
-        .eq('id', user.id);
+    if (user.otp === otp && expireTime && expireTime > now) {
+        await db.execute(
+            'UPDATE users SET is_verified = true, otp = NULL, otp_expire = NULL WHERE id = ?',
+            [user.id]
+        );
 
-    if (updateError) {
-        res.status(500);
-        throw new Error('Failed to update OTP');
-    }
-
-    try {
-        await sendEmail({
+        res.json({
+            id: user.id,
+            name: user.name,
             email: user.email,
-            subject: 'New Verification Code - Qalamekahani',
-            message: otp,
-            type: 'otp'
+            token: generateToken(user.id)
         });
-        res.json({ success: true, message: 'New code sent to your email.' });
-    } catch (sendError) {
-        console.error('[AUTH] Resend Email Error:', sendError);
-        res.status(500);
-        throw new Error('Failed to send verification code.');
+    } else {
+        res.status(400);
+        throw new Error('Invalid or expired OTP');
     }
 });
 
-// @desc    Authenticate a user
-// @route   POST /api/auth/login
-// @access  Public
+// @desc    Resend OTP
+const resendOtp = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+    const user = users[0];
+
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpire = new Date(Date.now() + 10 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+
+    await db.execute('UPDATE users SET otp = ?, otp_expire = ? WHERE id = ?', [otp, otpExpire, user.id]);
+
+    try {
+        await sendEmail({ email: user.email, subject: 'New Verification Code', message: otp, type: 'otp' });
+        res.json({ success: true, message: 'New code sent' });
+    } catch (e) {
+        res.status(500);
+        throw new Error('Failed to send email');
+    }
+});
+
+// @desc    Authenticate user
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
+    const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+    const user = users[0];
 
     if (user && user.is_blocked) {
         res.status(403);
-        throw new Error('This account has been blocked by the Administrator.');
+        throw new Error('Account blocked');
     }
 
     if (user && (await bcrypt.compare(password, user.password))) {
         if (!user.is_verified) {
-            // Automatically generate and send a NEW OTP for login attempt of unverified accounts
-            const otp = Math.floor(100000 + Math.random() * 900000).toString();
-            const otpExpire = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-
-            await supabase
-                .from('users')
-                .update({ otp, otp_expire: otpExpire })
-                .eq('id', user.id);
-
-            try {
-                await sendEmail({
-                    email: user.email,
-                    subject: 'Verify Your Identity - Qalamekahani',
-                    message: otp,
-                    type: 'otp'
-                });
-            } catch (e) {
-                console.error('[AUTH] Login Auto-OTP Error:', e);
-            }
-
             res.status(401);
-            throw new Error('Email not verified. A new verification code has been sent to your email.');
+            throw new Error('Email not verified');
         }
 
-        // Update Last Login
-        await supabase
-            .from('users')
-            .update({ last_login: new Date().toISOString() })
-            .eq('id', user.id);
+        await db.execute('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
 
         res.json({
-            _id: user.id,
             id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
-            likedCount: user.liked_stories ? user.liked_stories.length : 0,
-            savedCount: user.saved_blogs ? user.saved_blogs.length : 0,
-            notificationsOn: user.notifications_on,
             token: generateToken(user.id)
         });
     } else {
@@ -279,631 +151,221 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 });
 
-// @desc    Initiate Admin Login (Send OTP)
-// @route   POST /api/auth/admin-login-init
-// @access  Public
-const initiateAdminLogin = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
-
-    if (user && (await bcrypt.compare(password, user.password))) {
-        if (user.role !== 'admin') {
-            res.status(403);
-            throw new Error('Access Denied: You are not an Admin');
-        }
-
-        // Generate OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        // 15 minutes expiry for robustness
-        const otpExpire = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-
-        const { data: updateResult, error: updateError } = await supabase
-            .from('users')
-            .update({ otp, otp_expire: otpExpire })
-            .eq('email', email) // Using email for safer update
-        if (updateError) {
-            console.error('[AUTH] DB Update Error:', updateError);
-            res.status(500);
-            throw new Error('Failed to save security code');
-        }
-
-        try {
-            console.log(`[AUTH] Admin Login OTP for ${user.email}: ${otp}`); // Added console log for OTP
-            await sendEmail({
-                email: user.email,
-                subject: 'Admin Login OTP - Qalamekahani',
-                message: otp,
-                type: 'otp'
-            });
-            res.json({ success: true, message: 'OTP sent to your email' });
-        } catch (sendError) {
-            console.error('[AUTH] Email error:', sendError);
-            res.status(500);
-            throw new Error('Failed to send security code. Please check your network.');
-        }
-    } else {
-        res.status(401);
-        throw new Error('Invalid Admin credentials');
-    }
-});
-
-// @desc    Verify Admin OTP & Login
-// @route   POST /api/auth/admin-login-verify
-// @access  Public
-const verifyAdminLogin = asyncHandler(async (req, res) => {
-    const { email, otp } = req.body;
-
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
-
-    if (error || !user) {
-        res.status(404);
-        throw new Error('User not found');
-    }
-
-    const now = Date.now();
-    // Ensure we parse the timestamp correctly
-    const expireTime = user.otp_expire ? new Date(user.otp_expire).getTime() : 0;
-
-    const isOtpMatch = user.otp && String(user.otp).trim() === String(otp).trim();
-    const isNotExpired = expireTime > now;
-
-    if (isOtpMatch && isNotExpired) {
-        await supabase
-            .from('users')
-            .update({
-                otp: null,
-                otp_expire: null,
-                last_login: new Date().toISOString()
-            })
-            .eq('id', user.id);
-
-        res.json({
-            _id: user.id,
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user.id)
-        });
-    } else {
-        res.status(400);
-        const errorMsg = !isOtpMatch ? 'Invalid security code' : 'Security code has expired';
-        throw new Error(errorMsg);
-    }
-});
-
-// @desc    Get user data
-// @route   GET /api/auth/me
-// @access  Private
-// @desc    Get user data
-// @route   GET /api/auth/me
-// @access  Private
-const getMe = asyncHandler(async (req, res) => {
-    console.log(`[ME] Fetching profile for user ID: ${req.user.id}`);
-
-    // 1. Get User from Supabase
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', req.user.id)
-        .single();
-
-    if (error || !user) {
-        console.error(`[ME] User not found or error:`, error);
-        res.status(404);
-        throw new Error('User not found');
-    }
-
-    // 2. Helper to fetch details with fallback and logging
-    const fetchDetails = async (table, ids) => {
-        if (!ids || ids.length === 0) return [];
-        const uniqueIds = [...new Set(ids.filter(id => id).map(id => String(id)))];
-        if (uniqueIds.length === 0) return [];
-
-        let fields = 'id, title, image, category';
-        if (table === 'stories' || table === 'blogs') fields += ', slug';
-
-        try {
-            // Attempt 1: Fetch by ID
-            let { data, error } = await supabase.from(table).select(fields).in('id', uniqueIds);
-
-            // Attempt 2: If many missing (likely old slugs/IDs), try slug
-            const hasSlug = table === 'stories' || table === 'blogs';
-            if (hasSlug && (!data || data.length < uniqueIds.length)) {
-                const foundIds = data ? data.map(d => String(d.id)) : [];
-                const missingIds = uniqueIds.filter(id => !foundIds.includes(id));
-                if (missingIds.length > 0) {
-                    const { data: bySlug } = await supabase.from(table).select(fields).in('slug', missingIds);
-                    if (bySlug) data = [...(data || []), ...bySlug];
-                }
-            }
-            return data || [];
-        } catch (err) {
-            console.error(`[ME] Error fetching from ${table}:`, err);
-            return [];
-        }
-    };
-
-    // 3. Parallel fetch of all linked data
-    const [likedStories, savedBlogs, savedAudios, savedImagesDetails] = await Promise.all([
-        fetchDetails('stories', user.liked_stories),
-        fetchDetails('blogs', user.saved_blogs),
-        fetchDetails('audio_stories', user.saved_audios),
-        fetchDetails('galleries', user.saved_images)
-    ]);
-
-    // 4. Construct Clean Profile Object
-    const responseData = {
-        id: user.id,
-        name: user.name || 'User',
-        email: user.email,
-        role: user.role,
-        notificationsOn: user.notifications_on,
-        likedStories: likedStories,
-        savedBlogs: savedBlogs,
-        savedAudios: savedAudios,
-        savedImages: savedImagesDetails,
-        likedCount: likedStories.length,
-        savedCount: savedBlogs.length
-    };
-
-    console.log(`[ME] Success: Returning profile for ${user.email}`);
-    res.status(200).json(responseData);
-});
-
-// @desc    Like a Story
-// @route   POST /api/auth/like-story
-// @access  Private
-const likeStory = asyncHandler(async (req, res) => {
-    const { storyId } = req.body;
-    const { data: user } = await supabase.from('users').select('liked_stories').eq('id', req.user.id).single();
-
-    let likedStories = user.liked_stories || [];
-    if (likedStories.includes(storyId)) {
-        likedStories = likedStories.filter(id => id !== storyId);
-    } else {
-        likedStories.push(storyId);
-    }
-
-    const { error } = await supabase.from('users').update({ liked_stories: likedStories }).eq('id', req.user.id);
-    if (error) throw new Error('Failed to update likes');
-
-    res.json({ success: true, likedStories });
-});
-
-// @desc    Save a Blog
-// @route   POST /api/auth/save-blog
-// @access  Private
-const saveBlog = asyncHandler(async (req, res) => {
-    const { blogId } = req.body;
-    const { data: user } = await supabase.from('users').select('saved_blogs').eq('id', req.user.id).single();
-
-    let savedBlogs = user.saved_blogs || [];
-    if (savedBlogs.includes(blogId)) {
-        savedBlogs = savedBlogs.filter(id => id !== blogId);
-    } else {
-        savedBlogs.push(blogId);
-    }
-
-    const { error } = await supabase.from('users').update({ saved_blogs: savedBlogs }).eq('id', req.user.id);
-    if (error) throw new Error('Failed to update saved blogs');
-
-    res.json({ success: true, savedBlogs });
-});
-
-// @desc    Track Audio Listen
-// @route   POST /api/auth/track-audio
-// @access  Private
-const trackAudio = asyncHandler(async (req, res) => {
-    const { audioId } = req.body;
-    const { data: user } = await supabase.from('users').select('listened_audios').eq('id', req.user.id).single();
-
-    let listenedAudios = user.listened_audios || [];
-    if (!listenedAudios.includes(audioId)) {
-        listenedAudios.push(audioId);
-        await supabase.from('users').update({ listened_audios: listenedAudios }).eq('id', req.user.id);
-    }
-    res.json({ success: true, listenedAudios });
-});
-
-// @desc    Forgot Password (OTP Version)
-// @route   POST /api/auth/forgotpassword
-// @access  Public
-const forgotPassword = asyncHandler(async (req, res) => {
-    const { email } = req.body;
-    const { data: user } = await supabase.from('users').select('*').eq('email', email).single();
-
-    if (!user) {
-        res.status(404);
-        throw new Error('User not found');
-    }
-
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpire = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-
-    await supabase.from('users').update({
-        reset_password_token: otp, // Storing raw OTP for simplicity in this flow
-        reset_password_expire: otpExpire
-    }).eq('id', user.id);
-
-    try {
-        await sendEmail({
-            email: user.email,
-            subject: 'Password Reset OTP - Qalamekahani',
-            message: otp,
-            type: 'password_reset_otp'
-        });
-        res.status(200).json({ success: true, message: 'OTP sent to email' });
-    } catch (err) {
-        console.error('[AUTH] Forgot Password OTP Error:', err);
-        res.status(500);
-        throw new Error('Failed to send reset email');
-    }
-});
-
-// @desc    Verify Reset OTP
-// @route   POST /api/auth/verify-reset-otp
-// @access  Public
-const verifyResetOtp = asyncHandler(async (req, res) => {
-    const { email, otp } = req.body;
-    const { data: user } = await supabase.from('users').select('*').eq('email', email).single();
-
-    if (!user) {
-        res.status(404);
-        throw new Error('User not found');
-    }
-
-    const isOtpValid = user.reset_password_token === otp;
-    const isNotExpired = new Date(user.reset_password_expire) > new Date();
-
-    if (isOtpValid && isNotExpired) {
-        res.status(200).json({ success: true, message: 'OTP verified' });
-    } else {
-        res.status(400);
-        throw new Error('Invalid or expired OTP');
-    }
-});
-
-// @desc    Reset Password
-// @route   PUT /api/auth/resetpassword
-// @access  Public
-const resetPassword = asyncHandler(async (req, res) => {
-    const { email, otp, password } = req.body;
-    const { data: user } = await supabase.from('users').select('*').eq('email', email).single();
-
-    if (!user) {
-        res.status(404);
-        throw new Error('User not found');
-    }
-
-    const isOtpValid = user.reset_password_token === otp;
-    const isNotExpired = new Date(user.reset_password_expire) > new Date();
-
-    if (!isOtpValid || !isNotExpired) {
-        res.status(400);
-        throw new Error('Invalid or expired reset session');
-    }
-
-    // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    await supabase.from('users').update({
-        password: hashedPassword,
-        reset_password_token: null,
-        reset_password_expire: null
-    }).eq('id', user.id);
-
-    // Send Security Alert
-    try {
-        await sendEmail({
-            email: user.email,
-            subject: 'Security Alert: Password Changed - Qalamekahani',
-            type: 'security_alert'
-        });
-    } catch (e) {
-        console.error('[AUTH] Security alert email failed:', e);
-    }
-
-    res.status(200).json({ success: true, message: 'Password updated successfully' });
-});
-
-// @desc    Update user profile
-// @route   PUT /api/auth/profile
-// @access  Private
-const updateProfile = asyncHandler(async (req, res) => {
-    const { data: user } = await supabase.from('users').select('*').eq('id', req.user.id).single();
-
-    if (user) {
-        const updates = {
-            name: req.body.name || user.name,
-            email: req.body.email || user.email
-        };
-
-        if (req.body.password) {
-            const salt = await bcrypt.genSalt(10);
-            updates.password = await bcrypt.hash(req.body.password, salt);
-        }
-
-        const { data: updatedUser, error } = await supabase
-            .from('users')
-            .update(updates)
-            .eq('id', user.id)
-            .select()
-            .single();
-
-        if (error) throw new Error('Update failed');
-
-        res.json({
-            _id: updatedUser.id,
-            name: updatedUser.name,
-            email: updatedUser.email,
-            role: updatedUser.role,
-            token: generateToken(updatedUser.id),
-        });
-    } else {
-        res.status(404);
-        throw new Error('User not found');
-    }
-});
-
-// @desc    Get All Users (Admin)
-// @route   GET /api/auth/users
-// @access  Private/Admin
-const getAllUsers = asyncHandler(async (req, res) => {
-    const { data: users } = await supabase
-        .from('users')
-        .select('id, name, email, role, created_at, is_blocked, last_login, is_verified')
-        .eq('role', 'user')
-        .order('created_at', { ascending: false });
-    res.json(users);
-});
-
-// @desc    Toggle Block User (Admin)
-// @route   PUT /api/auth/users/:id/block
-// @access  Private/Admin
-const toggleBlockUser = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const { block } = req.body;
-
-    const { data, error } = await supabase
-        .from('users')
-        .update({ is_blocked: block })
-        .eq('id', id)
-        .select()
-        .single();
-
-    if (error) {
-        res.status(400);
-        throw new Error('Failed to update block status');
-    }
-
-    res.json({ success: true, user: data });
-});
-
-// @desc    Get User By ID (Admin)
-// @route   GET /api/auth/users/:id
-// @access  Private/Admin
-const getUserById = asyncHandler(async (req, res) => {
-    const { data: user } = await supabase
-        .from('users')
-        .select('id, name, email, role, created_at, is_blocked, last_login, is_verified')
-        .eq('id', req.params.id)
-        .single();
-    if (user) {
-        res.json(user);
-    } else {
-        res.status(404);
-        throw new Error('User not found');
-    }
-});
-
-// @desc    Save an Audio Story
-// @route   POST /api/auth/save-audio
-// @access  Private
-const saveAudio = asyncHandler(async (req, res) => {
-    const { audioId } = req.body;
-
-    if (!audioId) {
-        res.status(400);
-        throw new Error('Audio ID is required');
-    }
-
-    const { data: user } = await supabase.from('users').select('saved_audios').eq('id', req.user.id).single();
-    let savedAudios = user.saved_audios || [];
-
-    const strAudioId = String(audioId);
-    const existingIndex = savedAudios.findIndex(id => String(id) === strAudioId);
-
-    if (existingIndex > -1) {
-        savedAudios.splice(existingIndex, 1);
-    } else {
-        savedAudios.push(strAudioId);
-    }
-
-    await supabase.from('users').update({ saved_audios: savedAudios }).eq('id', req.user.id);
-
-    res.json({
-        success: true,
-        savedAudios: savedAudios.map(id => String(id))
-    });
-});
-
-// @desc    Save an Image
-// @route   POST /api/auth/save-image
-// @access  Private
-const saveImage = asyncHandler(async (req, res) => {
-    const { imageId } = req.body;
-
-    if (!imageId) {
-        res.status(400);
-        throw new Error('Image ID is required');
-    }
-
-    const { data: user } = await supabase.from('users').select('saved_images').eq('id', req.user.id).single();
-    let savedImages = user.saved_images || [];
-
-    const strImageId = String(imageId);
-    const existingIndex = savedImages.findIndex(id => String(id) === strImageId);
-
-    if (existingIndex > -1) {
-        savedImages.splice(existingIndex, 1);
-    } else {
-        savedImages.push(strImageId);
-    }
-
-    await supabase.from('users').update({ saved_images: savedImages }).eq('id', req.user.id);
-
-    res.json({
-        success: true,
-        savedImages: savedImages.map(id => String(id))
-    });
-});
-
-
-// @desc    Toggle Notifications
-// @route   POST /api/auth/toggle-notifications
-// @access  Private
-const toggleNotifications = asyncHandler(async (req, res) => {
-    const { status } = req.body;
-
-    const { error } = await supabase
-        .from('users')
-        .update({ notifications_on: status })
-        .eq('id', req.user.id);
-
-    if (error) {
-        res.status(400);
-        throw new Error('Failed to update notification settings');
-    }
-
-    res.json({ success: true, notificationsOn: status });
-});
-
-// @desc    Google OAuth Login/Signup
-// @route   POST /api/auth/google-login
-// @access  Public
+// @desc    Google Login
 const googleLogin = asyncHandler(async (req, res) => {
     const { token } = req.body;
-
-    if (!token) {
-        res.status(400);
-        throw new Error('Supabase token is required');
-    }
-
-    // 1. Verify token and get user info from Supabase server-side
     const { data: { user: sbUser }, error: sbError } = await supabase.auth.getUser(token);
 
     if (sbError || !sbUser) {
         res.status(401);
-        throw new Error('Invalid or expired Supabase token');
+        throw new Error('Invalid Google token');
     }
 
     const email = sbUser.email;
-    const name = sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || email.split('@')[0];
+    const name = sbUser.user_metadata?.full_name || email.split('@')[0];
 
-    // 2. Check if user exists in OUR users table
-    let { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .maybeSingle();
+    const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+    let user = users[0];
 
     if (user && user.is_blocked) {
         res.status(403);
-        throw new Error('This account has been blocked by the Administrator.');
+        throw new Error('Account blocked');
     }
 
     if (!user) {
-        // 3. Create new user if doesn't exist
-        // Generate a random placeholder password to satisfy NOT NULL constraint
-        const randomPassword = crypto.randomBytes(32).toString('hex');
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(randomPassword, salt);
-
-        const { data: newUser, error: createError } = await supabase
-            .from('users')
-            .insert([{
-                name: name,
-                email: email,
-                password: hashedPassword, // satisfy NOT NULL constraint
-                is_verified: true, // Google accounts are verified
-                notifications_on: true,
-                role: 'user',
-                last_login: new Date().toISOString()
-            }])
-            .select()
-            .single();
-
-        if (createError) {
-            res.status(400);
-            throw new Error(createError.message);
-        }
-        user = newUser;
-
-        // Send Welcome Email
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: 'Welcome to Qalamekahani!',
-                type: 'welcome',
-                itemData: { name: user.name }
-            });
-        } catch (e) {
-            console.error('[AUTH] Google Welcome Email Error:', e);
-        }
-    } else {
-        // 4. Update last login
-        await supabase
-            .from('users')
-            .update({ last_login: new Date().toISOString() })
-            .eq('id', user.id);
+        const [result] = await db.execute(
+            'INSERT INTO users (name, email, password, is_verified, role) VALUES (?, ?, ?, ?, ?)',
+            [name, email, 'google-auth-no-password', true, 'user']
+        );
+        const [newUsers] = await db.execute('SELECT * FROM users WHERE id = ?', [result.insertId]);
+        user = newUsers[0];
     }
 
-    // 5. Generate Token
+    await db.execute('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
+
     res.json({
-        _id: user.id,
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
-        likedCount: user.liked_stories ? user.liked_stories.length : 0,
-        savedCount: user.saved_blogs ? user.saved_blogs.length : 0,
-        notificationsOn: user.notifications_on,
         token: generateToken(user.id)
     });
 });
 
+// @desc    Get Me
+const getMe = asyncHandler(async (req, res) => {
+    const [users] = await db.execute('SELECT * FROM users WHERE id = ?', [req.user.id]);
+    const user = users[0];
+
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    // Helper to fetch details from JSON column
+    const fetchDetails = async (table, rawIds) => {
+        let ids = [];
+        try {
+            ids = typeof rawIds === 'string' ? JSON.parse(rawIds) : (rawIds || []);
+        } catch (e) { ids = []; }
+        if (!ids || ids.length === 0) return [];
+        const uniqueIds = [...new Set(ids)];
+        const placeholders = uniqueIds.map(() => '?').join(',');
+        const [rows] = await db.execute(`SELECT id, title, image, category FROM ${table} WHERE id IN (${placeholders})`, uniqueIds);
+        return rows;
+    };
+
+    const [likedStories, savedAudios, savedImages] = await Promise.all([
+        fetchDetails('stories', user.liked_stories),
+        fetchDetails('audio_stories', user.saved_audios),
+        fetchDetails('gallery', user.saved_images)
+    ]);
+
+    res.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        likedStories,
+        savedAudios,
+        savedImages,
+        notificationsOn: user.notifications_on
+    });
+});
+
+// @desc    Forgot Password
+const forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+    const user = users[0];
+
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpire = new Date(Date.now() + 10 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+
+    await db.execute(
+        'UPDATE users SET reset_password_token = ?, reset_password_expire = ? WHERE id = ?',
+        [otp, otpExpire, user.id]
+    );
+
+    try {
+        await sendEmail({ email: user.email, subject: 'Password Reset OTP', message: otp, type: 'otp' });
+        res.json({ success: true, message: 'OTP sent' });
+    } catch (e) {
+        res.status(500);
+        throw new Error('Failed to send email');
+    }
+});
+
+// @desc    Reset Password
+const resetPassword = asyncHandler(async (req, res) => {
+    const { email, otp, password } = req.body;
+    const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+    const user = users[0];
+
+    if (!user || user.reset_password_token !== otp) {
+        res.status(400);
+        throw new Error('Invalid OTP');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    await db.execute(
+        'UPDATE users SET password = ?, reset_password_token = NULL, reset_password_expire = NULL WHERE id = ?',
+        [hashedPassword, user.id]
+    );
+
+    res.json({ success: true, message: 'Password reset successful' });
+});
+
+// @desc    Like/Save actions
+const toggleAction = (table, column) => asyncHandler(async (req, res) => {
+    const itemId = req.body.id || req.body.storyId || req.body.blogId || req.body.audioId || req.body.imageId;
+    const [users] = await db.execute(`SELECT ${column} FROM users WHERE id = ?`, [req.user.id]);
+    let list = [];
+    try {
+        list = typeof users[0][column] === 'string' ? JSON.parse(users[0][column]) : (users[0][column] || []);
+    } catch(e) { list = []; }
+
+    const strId = String(itemId);
+    if (list.includes(strId)) {
+        list = list.filter(id => id !== strId);
+    } else {
+        list.push(strId);
+    }
+
+    await db.execute(`UPDATE users SET ${column} = ? WHERE id = ?`, [JSON.stringify(list), req.user.id]);
+    res.json({ success: true, [column]: list });
+});
+
+const likeStory = toggleAction('stories', 'liked_stories');
+const saveBlog = toggleAction('stories', 'saved_blogs');
+const saveAudio = toggleAction('audio_stories', 'saved_audios');
+const saveImage = toggleAction('gallery', 'saved_images');
+const trackAudio = asyncHandler(async (req, res) => {
+    const { audioId } = req.body;
+    const [users] = await db.execute('SELECT listened_audios FROM users WHERE id = ?', [req.user.id]);
+    let list = [];
+    try {
+        list = typeof users[0].listened_audios === 'string' ? JSON.parse(users[0].listened_audios) : (users[0].listened_audios || []);
+    } catch(e) { list = []; }
+    if (!list.includes(String(audioId))) {
+        list.push(String(audioId));
+        await db.execute('UPDATE users SET listened_audios = ? WHERE id = ?', [JSON.stringify(list), req.user.id]);
+    }
+    res.json({ success: true });
+});
+
+const updateProfile = asyncHandler(async (req, res) => {
+    const { name, email, password } = req.body;
+    const updates = [];
+    const values = [];
+
+    if (name) { updates.push('name = ?'); values.push(name); }
+    if (email) { updates.push('email = ?'); values.push(email); }
+    if (password) {
+        const salt = await bcrypt.genSalt(10);
+        const hashed = await bcrypt.hash(password, salt);
+        updates.push('password = ?');
+        values.push(hashed);
+    }
+
+    if (updates.length > 0) {
+        values.push(req.user.id);
+        await db.execute(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, values);
+    }
+
+    const [newUsers] = await db.execute('SELECT * FROM users WHERE id = ?', [req.user.id]);
+    res.json(newUsers[0]);
+});
+
+const getAllUsers = asyncHandler(async (req, res) => {
+    const [users] = await db.execute('SELECT id, name, email, role, is_verified, is_blocked, created_at FROM users WHERE role = "user"');
+    res.json(users);
+});
+
+const getUserById = asyncHandler(async (req, res) => {
+    const [users] = await db.execute('SELECT id, name, email, role, is_verified, is_blocked, created_at FROM users WHERE id = ?', [req.params.id]);
+    res.json(users[0]);
+});
+
+const toggleBlockUser = asyncHandler(async (req, res) => {
+    await db.execute('UPDATE users SET is_blocked = ? WHERE id = ?', [req.body.block, req.params.id]);
+    res.json({ success: true });
+});
+
+const toggleNotifications = asyncHandler(async (req, res) => {
+    await db.execute('UPDATE users SET notifications_on = ? WHERE id = ?', [req.body.status, req.user.id]);
+    res.json({ success: true });
+});
+
 module.exports = {
-    registerUser,
-    loginUser,
-    initiateAdminLogin,
-    verifyAdminLogin,
-    getMe,
-    updateProfile,
-    verifyOtp,
-    resendOtp,
-    likeStory,
-    saveBlog,
-    trackAudio,
-    forgotPassword,
-    resetPassword,
-    verifyResetOtp,
-    getAllUsers,
-    getUserById,
-    saveAudio,
-    saveImage,
-    toggleNotifications,
-    googleLogin,
-    toggleBlockUser
+    registerUser, verifyOtp, resendOtp, loginUser, googleLogin, getMe, updateProfile,
+    forgotPassword, resetPassword, likeStory, saveBlog, saveAudio, saveImage, trackAudio,
+    getAllUsers, getUserById, toggleBlockUser, toggleNotifications
 };

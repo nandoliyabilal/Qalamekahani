@@ -1,112 +1,73 @@
 const asyncHandler = require('express-async-handler');
-const supabase = require('../config/supabase');
+const db = require('../config/mysql_db');
 
 // @desc    Get dashboard statistics
-// @route   GET /api/admin/stats
-// @access  Private/Admin
 const getDashboardStats = asyncHandler(async (req, res) => {
-    // 1. Helper to fetch count
-    const fetchCount = async (table, filter = null) => {
-        let query = supabase.from(table).select('*', { count: 'exact', head: true });
-        if (filter) {
-            Object.keys(filter).forEach(key => {
-                if (key.includes('_gte')) {
-                    query = query.gte(key.replace('_gte', ''), filter[key]);
-                } else {
-                    query = query.eq(key, filter[key]);
-                }
-            });
-        }
-        const { count, error } = await query;
-        return error ? 0 : count;
-    };
-
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0, 19).replace('T', ' ');
 
     const [
-        usersTotal,
-        usersActive,
-        reviewsTotal,
-        storiesTotal,
-        audioTotal,
-        booksTotal,
-        blogsTotal,
-        recentUsersData,
-        storiesViews,
-        audioViews,
-        booksViews,
-        blogsViews,
-        galleryData,
-        ordersData
+        [userCounts],
+        [activeUserCounts],
+        [reviewCounts],
+        [storyCounts],
+        [audioCounts],
+        [bookCounts],
+        [blogCounts],
+        [recentUsers],
+        [storyViews],
+        [audioViews],
+        [bookViews],
+        [blogViews],
+        [galleryStats],
+        [earnings]
     ] = await Promise.all([
-        fetchCount('users'),
-        fetchCount('users', { last_login_gte: yesterday.toISOString() }),
-        fetchCount('reviews'),
-        fetchCount('stories'),
-        fetchCount('audio_stories'),
-        fetchCount('books'),
-        fetchCount('blogs'),
-        supabase.from('users').select('id, name, email, created_at, is_verified, role').order('created_at', { ascending: false }).limit(5),
-        supabase.from('stories').select('views'),
-        supabase.from('audio_stories').select('views'),
-        supabase.from('books').select('views'),
-        supabase.from('blogs').select('*'),
-        supabase.from('galleries').select('downloads'),
-        supabase.from('orders').select('amount').eq('status', 'paid')
+        db.execute('SELECT COUNT(*) as count FROM users'),
+        db.execute('SELECT COUNT(*) as count FROM users WHERE last_login >= ?', [yesterdayStr]),
+        db.execute('SELECT COUNT(*) as count FROM reviews'),
+        db.execute('SELECT COUNT(*) as count FROM stories'),
+        db.execute('SELECT COUNT(*) as count FROM audio_stories'),
+        db.execute('SELECT COUNT(*) as count FROM book_library'),
+        db.execute('SELECT COUNT(*) as count FROM blogs'),
+        db.execute('SELECT id, name, email, created_at, is_verified, role FROM users WHERE role = "user" ORDER BY created_at DESC LIMIT 5'),
+        db.execute('SELECT SUM(views) as total FROM stories'),
+        db.execute('SELECT SUM(views) as total FROM audio_stories'),
+        db.execute('SELECT SUM(views) as total FROM book_library'),
+        db.execute('SELECT SUM(views) as total FROM blogs'),
+        db.execute('SELECT SUM(downloads) as total FROM gallery'),
+        db.execute('SELECT SUM(amount) as total FROM orders WHERE status = "paid"')
     ]);
 
-    // Sum views
-    const totalViews = [
-        ...(storiesViews.data || []),
-        ...(audioViews.data || []),
-        ...(booksViews.data || []),
-        ...(blogsViews.data || [])
-    ].reduce((sum, item) => sum + (parseInt(item.views) || 0), 0);
-
-    const totalDownloads = (galleryData.data || []).reduce((sum, item) => sum + (parseInt(item.downloads) || 0), 0);
-    const totalEarnings = (ordersData.data || []).reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    const totalViews = (Number(storyViews[0].total) || 0) + 
+                       (Number(audioViews[0].total) || 0) + 
+                       (Number(bookViews[0].total) || 0) + 
+                       (Number(blogViews[0].total) || 0);
 
     res.json({
         users: {
-            total: usersTotal,
-            active: usersActive
+            total: userCounts[0].count,
+            active: activeUserCounts[0].count
         },
         content: {
-            stories: storiesTotal,
-            audio: audioTotal,
-            books: booksTotal,
-            blogs: blogsTotal,
-            reviews: reviewsTotal,
+            stories: storyCounts[0].count,
+            audio: audioCounts[0].count,
+            books: bookCounts[0].count,
+            blogs: blogCounts[0].count,
+            reviews: reviewCounts[0].count,
             totalViews: totalViews,
-            totalDownloads: totalDownloads,
-            totalEarnings: totalEarnings
+            totalDownloads: Number(galleryStats[0].total) || 0,
+            totalEarnings: Number(earnings[0].total) || 0
         },
-        recentUsers: recentUsersData.data || []
+        recentUsers: recentUsers
     });
 });
 
 // @desc    Get detailed earnings by item
-// @route   GET /api/admin/earnings
-// @access  Private/Admin
 const getEarningsDetails = asyncHandler(async (req, res) => {
-    const { data: orders, error } = await supabase
-        .from('orders')
-        .select(`
-            amount,
-            status,
-            story_id,
-            book_id,
-            audio_id,
-            book_title,
-            created_at
-        `)
-        .eq('status', 'paid');
-
-    if (error) {
-        res.status(500);
-        throw new Error(error.message);
-    }
+    const [orders] = await db.execute(
+        'SELECT amount, status, story_id, book_id, audio_id, book_title, created_at FROM orders WHERE status = "paid"'
+    );
 
     // Group by item
     const earningsByItem = {};

@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const supabase = require('../config/supabase');
+const db = require('../config/mysql_db');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/emailService');
@@ -11,83 +11,60 @@ const razorpay = new Razorpay({
 });
 
 // @desc    Create Razorpay Order
-// @route   POST /api/orders/create
-// @access  Public
 const createRazorpayOrder = asyncHandler(async (req, res) => {
     const { amount, bookId, bookTitle, storyId, storyTitle, audioId, audioTitle, customerDetails } = req.body;
-
-    console.log("[ORDER] createRazorpayOrder Request Body:", JSON.stringify(req.body, null, 2));
-    console.log(`[ORDER] Processing Order - Amount: ${amount}, StoryId: ${storyId}, BookId: ${bookId}, AudioId: ${audioId}`);
 
     if (!amount || (!bookId && !storyId && !audioId)) {
         res.status(400);
         throw new Error('Please provide all required fields (amount and item ID)');
     }
 
-    if (!customerDetails || !customerDetails.email) {
-        res.status(400);
-        throw new Error('Customer information (name and email) is required');
-    }
-
     const options = {
-        amount: Math.round(amount * 100), // amount in the smallest currency unit (paise)
+        amount: Math.round(amount * 100),
         currency: 'INR',
         receipt: `receipt_${Date.now()}`,
     };
 
     try {
-        console.log(`[ORDER] Initializing Order with Key ID: ${process.env.RAZORPAY_KEY_ID ? process.env.RAZORPAY_KEY_ID.substring(0, 8) + '...' : 'MISSING'}`);
-        console.log("[ORDER] Creating Razorpay order with options:", options);
         const order = await razorpay.orders.create(options);
-        console.log("[ORDER] Razorpay Order Created Success. ID:", order.id);
 
-        // Save order to Supabase with 'created' status
+        // Save order to MySQL
         const insertData = {
             amount: amount,
             currency: 'INR',
             razorpay_order_id: order.id,
             status: 'created',
-            customer_name: customerDetails.name || 'Anonymous',
-            customer_email: customerDetails.email,
-            customer_phone: customerDetails.phone || '',
-            book_title: bookTitle || storyTitle || audioTitle || 'Purchased Item'
+            customer_name: customerDetails?.name || 'Anonymous',
+            customer_email: customerDetails?.email,
+            customer_phone: customerDetails?.phone || '',
+            book_title: bookTitle || storyTitle || audioTitle || 'Purchased Item',
+            book_id: bookId || null,
+            story_id: storyId || null,
+            audio_id: audioId || null,
+            user_id: req.user ? req.user.id : null
         };
 
-        if (bookId) insertData.book_id = bookId;
-        if (storyId) insertData.story_id = storyId;
-        if (audioId) insertData.audio_id = audioId;
+        const columns = Object.keys(insertData);
+        const values = Object.values(insertData);
+        const placeholders = columns.map(() => '?').join(', ');
 
-        console.log("[ORDER] Supabase Insert Payload:", JSON.stringify(insertData, null, 2));
-
-        const { data, error: insertError } = await supabase
-            .from('orders')
-            .insert([insertData])
-            .select();
-
-        if (insertError) {
-            console.error('[ORDER] Supabase Insert Fatal Error:', insertError);
-            res.status(500);
-            throw new Error(`Database Error: ${insertError.message}`);
-        }
-
-        console.log("[ORDER] Order saved successfully in DB");
+        await db.execute(
+            `INSERT INTO orders (${columns.join(', ')}) VALUES (${placeholders})`,
+            values
+        );
 
         res.status(200).json({
             ...order,
-            key: process.env.RAZORPAY_KEY_ID // Send Key ID to frontend
+            key: process.env.RAZORPAY_KEY_ID
         });
     } catch (error) {
-        console.error('[ORDER] Create Order Fatal Error Details:', error);
+        console.error('[ORDER] Create Order Error:', error);
         res.status(500);
-        // Handle cases where Razorpay might return error.description or a plain object
-        const finalMsg = error.message || error.description || (typeof error === 'string' ? error : JSON.stringify(error));
-        throw new Error(`Payment Initialization Failed: ${finalMsg}`);
+        throw new Error(`Payment Initialization Failed: ${error.message}`);
     }
 });
 
 // @desc    Verify Razorpay Payment
-// @route   POST /api/orders/verify
-// @access  Public
 const verifyPayment = asyncHandler(async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
@@ -96,26 +73,14 @@ const verifyPayment = asyncHandler(async (req, res) => {
     const digest = shasum.digest('hex');
 
     if (digest === razorpay_signature) {
-        // Payment verified - Update order status in Supabase
-        const { data, error } = await supabase
-            .from('orders')
-            .update({
-                status: 'paid',
-                razorpay_payment_id: razorpay_payment_id
-            })
-            .eq('razorpay_order_id', razorpay_order_id);
-
-        if (error) {
-            res.status(500);
-            throw new Error(error.message);
-        }
+        await db.execute(
+            'UPDATE orders SET status = "paid", razorpay_payment_id = ? WHERE razorpay_order_id = ?',
+            [razorpay_payment_id, razorpay_order_id]
+        );
 
         // Get order details for email
-        const { data: orderData } = await supabase
-            .from('orders')
-            .select('*')
-            .eq('razorpay_order_id', razorpay_order_id)
-            .single();
+        const [rows] = await db.execute('SELECT * FROM orders WHERE razorpay_order_id = ?', [razorpay_order_id]);
+        const orderData = rows[0];
 
         if (orderData) {
             try {
@@ -143,64 +108,33 @@ const verifyPayment = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get all orders (Admin)
-// @route   GET /api/orders
-// @access  Private/Admin
 const getOrders = asyncHandler(async (req, res) => {
-    const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        res.status(500);
-        throw new Error(error.message);
-    }
-
-    res.status(200).json(data);
+    const [orders] = await db.execute('SELECT * FROM orders ORDER BY created_at DESC');
+    res.status(200).json(orders);
 });
 
 // @desc    Get my orders (User)
-// @route   GET /api/orders/mine
-// @access  Private
 const getMyOrders = asyncHandler(async (req, res) => {
-    // We can use email or user_id (if we had it, but currently we save customer_email)
-    const { data, error } = await supabase
-        .from('orders')
-        .select('*, story:story_id(id, title), book:book_id(id, title), audio:audio_id(id, title)')
-        .eq('customer_email', req.user.email)
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        res.status(500);
-        throw new Error(error.message);
-    }
-
-    res.status(200).json(data);
+    // Attempt to match by user_id first, then email
+    let query = 'SELECT * FROM orders WHERE user_id = ? OR customer_email = ? ORDER BY created_at DESC';
+    const [orders] = await db.execute(query, [req.user.id, req.user.email]);
+    res.status(200).json(orders);
 });
 
 // @desc    Cancel/Fail Payment Tracking
-// @route   POST /api/orders/cancel
-// @access  Public
 const cancelPayment = asyncHandler(async (req, res) => {
     const { razorpay_order_id } = req.body;
 
-    const { data: orderData, error: fetchError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('razorpay_order_id', razorpay_order_id)
-        .single();
+    const [rows] = await db.execute('SELECT * FROM orders WHERE razorpay_order_id = ?', [razorpay_order_id]);
+    const orderData = rows[0];
 
-    if (fetchError || !orderData) {
+    if (!orderData) {
         res.status(404);
         throw new Error('Order not found');
     }
 
-    // Only update if not already paid
     if (orderData.status !== 'paid') {
-        await supabase
-            .from('orders')
-            .update({ status: 'pending' })
-            .eq('razorpay_order_id', razorpay_order_id);
+        await db.execute('UPDATE orders SET status = "pending" WHERE razorpay_order_id = ?', [razorpay_order_id]);
 
         try {
             await sendEmail({

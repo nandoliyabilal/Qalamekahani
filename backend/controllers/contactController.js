@@ -1,9 +1,8 @@
 const asyncHandler = require('express-async-handler');
+const db = require('../config/mysql_db');
 const { sendEmail } = require('../utils/emailService');
 
 // @desc    Submit Contact Form
-// @route   POST /api/contact
-// @access  Public
 const submitContactForm = asyncHandler(async (req, res) => {
     const { name, email, message } = req.body;
 
@@ -15,36 +14,28 @@ const submitContactForm = asyncHandler(async (req, res) => {
     try {
         const adminEmail = process.env.EMAIL_USERNAME || 'sabirkhanp646@gmail.com';
 
-        // 1. Send email to Admin (This should work as it's the verified email)
+        // 1. Send email to Admin
         try {
             await sendEmail({
                 email: adminEmail,
                 subject: `New Message from ${name} - Qalamekahani`,
                 type: 'contact_admin',
-                itemData: {
-                    name,
-                    userEmail: email,
-                    userMessage: message
-                }
+                itemData: { name, userEmail: email, userMessage: message }
             });
         } catch (adminErr) {
             console.error('Admin Notification Error:', adminErr);
-            // We continue even if admin notification fails, but maybe we should throw here if we want to be strict
         }
 
-        // 2. Send confirmation to User (This OFTEN fails in Resend Sandbox if email is not verified)
+        // 2. Send confirmation to User
         try {
             await sendEmail({
                 email: email,
                 subject: 'Thank You for contacting Qalamekahani!',
                 type: 'contact_user',
-                itemData: {
-                    name,
-                    userMessage: message
-                }
+                itemData: { name, userMessage: message }
             });
         } catch (userErr) {
-            console.warn('User Confirmation Email Skipped/Failed (Might be Resend Sandbox limit):', userErr.message);
+            console.warn('User Confirmation Email Skipped/Failed:', userErr.message);
         }
 
         res.status(200).json({ success: true, message: 'Message sent successfully' });
@@ -55,11 +46,7 @@ const submitContactForm = asyncHandler(async (req, res) => {
     }
 });
 
-const supabase = require('../config/supabase'); // Ensure supabase is available
-
 // @desc    Newsletter Subscription
-// @route   POST /api/contact/subscribe
-// @access  Public
 const subscribeNewsletter = asyncHandler(async (req, res) => {
     const { email } = req.body;
 
@@ -69,31 +56,19 @@ const subscribeNewsletter = asyncHandler(async (req, res) => {
     }
 
     try {
-        // 1. Check if already subscribed
-        const { data: existing, error: checkError } = await supabase
-            .from('subscribers')
-            .select('id')
-            .eq('email', email)
-            .maybeSingle();
+        // 1. Check if already subscribed in MySQL
+        const [existing] = await db.execute('SELECT id FROM subscribers WHERE email = ?', [email]);
 
-        if (existing) {
+        if (existing.length > 0) {
             return res.status(200).json({ success: true, message: 'Aapne pehle hi newsletter subscribe kar rakha hai! Dhanyawad.' });
         }
 
-        // 2. Add to database (CRITICAL STEP)
-        const { error: insertError } = await supabase
-            .from('subscribers')
-            .insert([{ email }]);
-
-        if (insertError) {
-            console.error('Subscription Insert Error:', insertError);
-            res.status(400);
-            throw new Error('Already subscribed or invalid email');
-        }
+        // 2. Add to database
+        await db.execute('INSERT INTO subscribers (email) VALUES (?)', [email]);
 
         const adminEmail = process.env.EMAIL_USERNAME || 'sabirkhanp646@gmail.com';
 
-        // 3. Notify Admin (Wrap in try-catch)
+        // 3. Notify Admin
         try {
             await sendEmail({
                 email: adminEmail,
@@ -101,9 +76,11 @@ const subscribeNewsletter = asyncHandler(async (req, res) => {
                 type: 'newsletter_admin',
                 itemData: { email }
             });
-        } catch (e) { console.error('Newsletter Admin Notify Fail:', e.message); }
+        } catch (e) {
+            console.error('Newsletter Admin Notify Fail:', e.message);
+        }
 
-        // 4. Send Confirmation to User (Wrap in try-catch - often fails in sandbox)
+        // 4. Send Confirmation to User
         try {
             await sendEmail({
                 email: email,
@@ -111,18 +88,16 @@ const subscribeNewsletter = asyncHandler(async (req, res) => {
                 type: 'newsletter_user',
                 itemData: { email }
             });
-        } catch (e) { console.warn('Newsletter User Confirm Fail (Sandbox?):', e.message); }
+        } catch (e) {
+            console.warn('Newsletter User Confirm Fail:', e.message);
+        }
 
         res.status(200).json({ success: true, message: 'Successfully subscribed!' });
     } catch (error) {
         console.error('Subscription Fatal Error:', error);
-        if (res.statusCode === 400) throw error;
         res.status(500);
-        throw new Error('Subscription process completed with some alert');
+        throw new Error('Subscription process failed');
     }
 });
 
-module.exports = {
-    submitContactForm,
-    subscribeNewsletter
-};
+module.exports = { submitContactForm, subscribeNewsletter };

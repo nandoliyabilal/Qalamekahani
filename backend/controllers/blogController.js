@@ -1,43 +1,29 @@
 const asyncHandler = require('express-async-handler');
+const db = require('../config/mysql_db');
 const supabase = require('../config/supabase');
 
 // @desc    Get all blogs
 const getBlogs = asyncHandler(async (req, res) => {
-    const { data, error } = await supabase
-        .from('blogs')
-        .select('*') // Changed from specific columns to * to avoid schema mismatch errors
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error('SERVER ERROR: Fetching blogs failed:', error);
-        res.status(500);
-        throw new Error(`Database Error: ${error.message}`);
-    }
+    const [data] = await db.execute('SELECT * FROM blogs ORDER BY created_at DESC');
     res.status(200).json(data);
 });
 
 // @desc    Get single blog
 const getBlog = asyncHandler(async (req, res) => {
-    const { data, error } = await supabase
-        .from('blogs')
-        .select('*')
-        .eq('slug', req.params.slug)
-        .single();
+    const [rows] = await db.execute('SELECT * FROM blogs WHERE slug = ?', [req.params.slug]);
+    const blog = rows[0];
 
-    if (error || !data) {
+    if (!blog) {
         res.status(404);
         throw new Error('Blog not found');
     }
 
     // Increment Views
     if (req.query.increment !== 'false') {
-        supabase.from('blogs')
-            .update({ views: (data.views || 0) + 1 })
-            .eq('id', data.id)
-            .then(() => { });
+        db.execute('UPDATE blogs SET views = views + 1 WHERE id = ?', [blog.id]);
     }
 
-    res.status(200).json(data);
+    res.status(200).json(blog);
 });
 
 const { sendEmailNotification } = require('../utils/notificationHelper');
@@ -46,7 +32,7 @@ const { sendEmailNotification } = require('../utils/notificationHelper');
 const createBlog = asyncHandler(async (req, res) => {
     const { title, author, category, readTime, excerpt, content, image, language } = req.body;
 
-    // Generate unique slug from title by appending timestamp
+    // Generate unique slug from title
     const baseSlug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
     const slug = `${baseSlug}-${Date.now()}`;
 
@@ -62,17 +48,17 @@ const createBlog = asyncHandler(async (req, res) => {
         language: language || 'English'
     };
 
-    const { data, error } = await supabase
-        .from('blogs')
-        .insert([blogData])
-        .select()
-        .single();
+    const columns = Object.keys(blogData);
+    const values = Object.values(blogData);
+    const placeholders = columns.map(() => '?').join(', ');
 
-    if (error) {
-        console.error('Error creating blog:', error);
-        res.status(400);
-        throw new Error(error.message);
-    }
+    const [result] = await db.execute(
+        `INSERT INTO blogs (${columns.join(', ')}) VALUES (${placeholders})`,
+        values
+    );
+
+    const [newRows] = await db.execute('SELECT * FROM blogs WHERE id = ?', [result.insertId]);
+    const data = newRows[0];
 
     // Trigger Notification
     await sendEmailNotification(data, 'blog');
@@ -82,44 +68,27 @@ const createBlog = asyncHandler(async (req, res) => {
 
 // @desc    Update blog
 const updateBlog = asyncHandler(async (req, res) => {
-    const { title, author, category, readTime, excerpt, content, image, language } = req.body;
-
-    const updates = {};
-    if (title) updates.title = title;
-    if (author) updates.author = author;
-    if (category) updates.category = category;
-    if (readTime) updates.read_time = readTime;
-    if (excerpt) updates.excerpt = excerpt;
-    if (content) updates.content = content;
-    if (image) updates.image = image;
-    if (language) updates.language = language;
-
-    const { data, error } = await supabase
-        .from('blogs')
-        .update(updates)
-        .eq('id', req.params.id)
-        .select()
-        .single();
-
-    if (error) {
-        console.error('Error updating blog:', error);
-        res.status(400);
-        throw new Error(error.message);
+    const columns = Object.keys(req.body);
+    const values = Object.values(req.body);
+    if (columns.length === 0) {
+        return res.status(200).json({ message: 'No updates provided' });
     }
-    res.status(200).json(data);
+
+    const updateString = columns.map(col => `${col} = ?`).join(', ');
+    values.push(req.params.id);
+
+    await db.execute(
+        `UPDATE blogs SET ${updateString} WHERE id = ?`,
+        values
+    );
+
+    const [rows] = await db.execute('SELECT * FROM blogs WHERE id = ?', [req.params.id]);
+    res.status(200).json(rows[0]);
 });
 
 // @desc    Delete blog
 const deleteBlog = asyncHandler(async (req, res) => {
-    const { error } = await supabase
-        .from('blogs')
-        .delete()
-        .eq('id', req.params.id);
-
-    if (error) {
-        res.status(400);
-        throw new Error(error.message);
-    }
+    await db.execute('DELETE FROM blogs WHERE id = ?', [req.params.id]);
     res.status(200).json({ id: req.params.id });
 });
 

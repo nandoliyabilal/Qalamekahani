@@ -1,31 +1,16 @@
 const asyncHandler = require('express-async-handler');
-const supabase = require('../config/supabase');
+const db = require('../config/mysql_db');
 
 // @desc    Get site settings
-// @route   GET /api/settings
-// @access  Public
 const getSettings = asyncHandler(async (req, res) => {
-    let { data: settingsArray, error } = await supabase
-        .from('settings')
-        .select('*')
-        .order('id', { ascending: true })
-        .limit(1);
+    let [rows] = await db.execute('SELECT * FROM settings ORDER BY id ASC LIMIT 1');
+    let settings = rows[0];
 
-    let settings = settingsArray && settingsArray.length > 0 ? settingsArray[0] : null;
-
-    if (error || !settings) {
+    if (!settings) {
         // If not found, insert defaults
-        const { data: newSettings, error: insertError } = await supabase
-            .from('settings')
-            .insert([{}])
-            .select()
-            .single();
-
-        if (insertError) {
-            res.status(500);
-            throw new Error('Failed to fetch settings');
-        }
-        settings = newSettings;
+        const [result] = await db.execute('INSERT INTO settings () VALUES ()');
+        const [newRows] = await db.execute('SELECT * FROM settings WHERE id = ?', [result.insertId]);
+        settings = newRows[0];
     }
 
     // Map snake_case to camelCase
@@ -46,46 +31,23 @@ const getSettings = asyncHandler(async (req, res) => {
         aboutShort: settings.about_short,
         aboutLong: settings.about_long,
         aboutImage: settings.about_image,
-        storyCategories: settings.story_categories || [],
-        audioCategories: settings.audio_categories || [],
-        bookCategories: settings.book_categories || [],
-        blogCategories: settings.blog_categories || []
+        storyCategories: typeof settings.story_categories === 'string' ? JSON.parse(settings.story_categories) : (settings.story_categories || []),
+        audioCategories: typeof settings.audio_categories === 'string' ? JSON.parse(settings.audio_categories) : (settings.audio_categories || []),
+        bookCategories: typeof settings.book_categories === 'string' ? JSON.parse(settings.book_categories) : (settings.book_categories || []),
+        blogCategories: typeof settings.blog_categories === 'string' ? JSON.parse(settings.blog_categories) : (settings.blog_categories || [])
     };
 
     res.json(mappedSettings);
 });
 
 // @desc    Update site settings
-// @route   PUT /api/settings
-// @access  Private/Admin
 const updateSettings = asyncHandler(async (req, res) => {
-    // Safely get the settings row - use limit(1) instead of single() to avoid error if multiple rows exist
-    let { data: settingsArray, error: fetchError } = await supabase
-        .from('settings')
-        .select('*')
-        .order('id', { ascending: true })
-        .limit(1);
+    let [rows] = await db.execute('SELECT id FROM settings ORDER BY id ASC LIMIT 1');
+    let settingsId = rows[0]?.id;
 
-    if (fetchError) {
-        res.status(500);
-        throw new Error('Failed to fetch settings');
-    }
-
-    let settings = settingsArray && settingsArray.length > 0 ? settingsArray[0] : null;
-
-    // If no settings exist yet, create one
-    if (!settings) {
-        const { data: newSettings, error: insertError } = await supabase
-            .from('settings')
-            .insert([{}])
-            .select()
-            .single();
-
-        if (insertError) {
-            res.status(500);
-            throw new Error('Failed to create settings');
-        }
-        settings = newSettings;
+    if (!settingsId) {
+        const [result] = await db.execute('INSERT INTO settings () VALUES ()');
+        settingsId = result.insertId;
     }
 
     const updates = {
@@ -110,42 +72,37 @@ const updateSettings = asyncHandler(async (req, res) => {
     Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 
     if (req.body.storyCategories) {
-        updates.story_categories = Array.isArray(req.body.storyCategories)
+        updates.story_categories = JSON.stringify(Array.isArray(req.body.storyCategories)
             ? req.body.storyCategories
-            : req.body.storyCategories.split(',').map(c => c.trim());
+            : req.body.storyCategories.split(',').map(c => c.trim()));
     }
 
     if (req.body.audioCategories) {
-        updates.audio_categories = Array.isArray(req.body.audioCategories)
+        updates.audio_categories = JSON.stringify(Array.isArray(req.body.audioCategories)
             ? req.body.audioCategories
-            : req.body.audioCategories.split(',').map(c => c.trim());
+            : req.body.audioCategories.split(',').map(c => c.trim()));
     }
 
     if (req.body.bookCategories) {
-        updates.book_categories = Array.isArray(req.body.bookCategories)
+        updates.book_categories = JSON.stringify(Array.isArray(req.body.bookCategories)
             ? req.body.bookCategories
-            : req.body.bookCategories.split(',').map(c => c.trim());
+            : req.body.bookCategories.split(',').map(c => c.trim()));
     }
 
     if (req.body.blogCategories) {
-        updates.blog_categories = Array.isArray(req.body.blogCategories)
+        updates.blog_categories = JSON.stringify(Array.isArray(req.body.blogCategories)
             ? req.body.blogCategories
-            : req.body.blogCategories.split(',').map(c => c.trim());
+            : req.body.blogCategories.split(',').map(c => c.trim()));
     }
 
-    const { data: updatedSettings, error } = await supabase
-        .from('settings')
-        .update(updates)
-        .eq('id', settings.id)
-        .select()
-        .single();
+    const colString = Object.keys(updates).map(key => `${key} = ?`).join(', ');
+    const values = Object.values(updates);
+    values.push(settingsId);
 
-    if (error) {
-        res.status(500);
-        throw new Error('Update failed');
-    }
+    await db.execute(`UPDATE settings SET ${colString} WHERE id = ?`, values);
 
-    res.json(updatedSettings);
+    const [updatedRows] = await db.execute('SELECT * FROM settings WHERE id = ?', [settingsId]);
+    res.json(updatedRows[0]);
 });
 
 module.exports = {

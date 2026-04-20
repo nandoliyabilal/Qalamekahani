@@ -1,6 +1,5 @@
 const asyncHandler = require('express-async-handler');
 const db = require('../config/mysql_db');
-const supabase = require('../config/supabase'); // Still used for notification helpers occasionally
 
 const getAudioStories = asyncHandler(async (req, res) => {
     // 1. Fetch main audio stories from MySQL
@@ -11,21 +10,17 @@ const getAudioStories = asyncHandler(async (req, res) => {
     }
 
     // 2. Fetch all extra metadata in parallel
-    const [reviewsRes, episodesRes] = await Promise.all([
-        db.execute('SELECT item_id, item_type, rating FROM reviews WHERE status = "approved"'),
-        db.execute('SELECT id, audio_story_id, duration FROM audio_episodes')
-    ]);
+    const [reviewsRes] = await db.execute('SELECT item_id, item_type, rating FROM reviews WHERE status = "approved"');
+    const [episodesRes] = await db.execute('SELECT id, audio_story_id, duration FROM audio_episodes');
 
-    const reviews = reviewsRes[0] || [];
-    const allEpisodes = episodesRes[0] || [];
+    const reviews = reviewsRes || [];
+    const allEpisodes = episodesRes || [];
 
-    // 3. Prepare Lookup Maps
-    const durationsMap = {}; // story_id -> total seconds
-    const countsMap = {};    // story_id -> episode count
-    const ratingsMap = {};   // story_id -> { totalRating, reviewCount }
-    const epToStoryMap = {}; // ep_id -> story_id
+    const durationsMap = {};
+    const countsMap = {};
+    const ratingsMap = {};
+    const epToStoryMap = {};
 
-    // Map episodes for counts, durations, and review mapping
     allEpisodes.forEach(ep => {
         const sid = ep.audio_story_id;
         epToStoryMap[ep.id] = sid;
@@ -40,14 +35,10 @@ const getAudioStories = asyncHandler(async (req, res) => {
         }
     });
 
-    // Process reviews (aggregate both story-level and episode-level reviews)
     reviews.forEach(r => {
         let sid = null;
-        if (r.item_type === 'audio_story') {
-            sid = r.item_id;
-        } else if (r.item_type === 'episode' || r.item_type === 'audio') {
-            sid = epToStoryMap[r.item_id] || r.item_id; // Fallback if ID is already story_id
-        }
+        if (r.item_type === 'audio_story') sid = r.item_id;
+        else if (r.item_type === 'episode' || r.item_type === 'audio') sid = epToStoryMap[r.item_id] || r.item_id;
 
         if (sid) {
             if (!ratingsMap[sid]) ratingsMap[sid] = { total: 0, count: 0 };
@@ -56,7 +47,6 @@ const getAudioStories = asyncHandler(async (req, res) => {
         }
     });
 
-    // 4. Merge Data into Final Response
     const result = stories.map(s => {
         const ratingData = ratingsMap[s.id];
         const avgRating = ratingData ? (ratingData.total / ratingData.count) : 0;
@@ -83,45 +73,23 @@ const getAudioStories = asyncHandler(async (req, res) => {
 });
 
 const getAudioStoryById = asyncHandler(async (req, res) => {
-    const id = (req.params.id || "").trim();
-    if (!id || id === "undefined") {
-        res.status(400);
-        throw new Error('Invalid Audio ID');
-    }
-    console.log(`[DEBUG] Fetching Audio ID: '${id}'`);
-
-    let story = null;
-
-    // Fetch from MySQL
+    const id = req.params.id;
     const [rows] = await db.execute('SELECT * FROM audio_stories WHERE id = ? OR slug = ?', [id, id]);
-    story = rows[0];
-
-    if (error || !story) {
-        // Fallback for list scanning
-        console.log(`[DEBUG] Attempting scan/fallback...`);
-        const { data: all } = await supabase.from('audio_stories').select('*');
-        if (all) {
-            story = all.find(s => String(s.id) === id);
-        }
-    }
+    const story = rows[0];
 
     if (!story) {
-        res.status(404).json({ message: 'Audio story not found' });
-        return;
+        return res.status(404).json({ message: 'Audio story not found' });
     }
 
-    // Increment Views
     if (req.query.increment !== 'false') {
-        db.execute('UPDATE audio_stories SET views = views + 1 WHERE id = ?', [story.id]);
+        await db.execute('UPDATE audio_stories SET views = views + 1 WHERE id = ?', [story.id]);
     }
 
-    // Fetch Episodes from MySQL
     const [episodes] = await db.execute(
         'SELECT * FROM audio_episodes WHERE audio_story_id = ? ORDER BY order_index ASC',
         [story.id]
     );
 
-    // Fetch Rating for the whole story from MySQL
     const [reviews] = await db.execute(
         'SELECT rating FROM reviews WHERE item_id = ? AND status = "approved"',
         [story.id]
@@ -134,6 +102,7 @@ const getAudioStoryById = asyncHandler(async (req, res) => {
         story.rating = 0.0;
     }
 
+    story.episodes = episodes;
     res.status(200).json(story);
 });
 
@@ -142,184 +111,80 @@ const { sendEmailNotification } = require('../utils/notificationHelper');
 const createAudioStory = asyncHandler(async (req, res) => {
     const { episodes, ...storyData } = req.body;
     
-    // Ensure no unexpected fields are sent to Supabase
-    const cleanData = { ...storyData };
-    delete cleanData.id;
+    const columns = Object.keys(storyData).join(',');
+    const placeholders = Object.keys(storyData).map(() => '?').join(',');
+    const [result] = await db.execute(`INSERT INTO audio_stories (${columns}) VALUES (${placeholders})`, Object.values(storyData));
+    const newId = result.insertId;
 
-    const { data, error } = await supabase
-        .from('audio_stories')
-        .insert([cleanData])
-        .select()
-        .single();
-
-    if (error) {
-        console.error('[AUDIO CREATE ERROR]', error);
-        res.status(400);
-        throw new Error(`Failed to create audio story: ${error.message}`);
-    }
-
-    // Insert episodes if provided
     if (episodes && episodes.length > 0) {
-        const episodesToInsert = episodes.map((ep, idx) => ({
-            audio_story_id: data.id,
-            title: ep.title,
-            file_url: ep.file_url,
-            duration: ep.duration,
-            order_index: idx
-        }));
-        const { error: epError } = await supabase.from('audio_episodes').insert(episodesToInsert);
-        if (epError) console.error('[AUDIO EPISODE INSERT ERROR]', epError);
+        for (const [idx, ep] of episodes.entries()) {
+            await db.execute(
+                'INSERT INTO audio_episodes (audio_story_id, title, file_url, duration, order_index) VALUES (?, ?, ?, ?, ?)',
+                [newId, ep.title, ep.file_url, ep.duration, idx]
+            );
+        }
     }
 
-    await sendEmailNotification(data, 'audio');
-    res.status(201).json(data);
+    const [newRows] = await db.execute('SELECT * FROM audio_stories WHERE id = ?', [newId]);
+    await sendEmailNotification(newRows[0], 'audio');
+    res.status(201).json(newRows[0]);
 });
 
 const updateAudioStory = asyncHandler(async (req, res) => {
     const { episodes, ...storyData } = req.body;
-    
-    // Remove ID and episodes from the update object
-    const updates = { ...storyData };
-    delete updates.id;
-    delete updates.episodes;
+    const id = req.params.id;
 
-    const { data, error } = await supabase
-        .from('audio_stories')
-        .update(updates)
-        .eq('id', req.params.id)
-        .select()
-        .single();
+    const updates = [];
+    const values = [];
+    Object.keys(storyData).forEach(key => {
+        updates.push(`${key} = ?`);
+        values.push(storyData[key]);
+    });
 
-    if (error) {
-        console.error('[AUDIO UPDATE ERROR]', error);
-        res.status(400);
-        throw new Error(`Failed to update audio story: ${error.message}`);
+    if (updates.length > 0) {
+        values.push(id);
+        await db.execute(`UPDATE audio_stories SET ${updates.join(',')} WHERE id = ?`, values);
     }
 
-    // Sync episodes if provided
     if (episodes) {
-        // Simple sync strategy: delete and re-insert
-        await supabase
-            .from('audio_episodes')
-            .delete()
-            .eq('audio_story_id', req.params.id);
-
-        if (episodes.length > 0) {
-            const episodesToInsert = episodes.map((ep, idx) => ({
-                audio_story_id: req.params.id,
-                title: ep.title,
-                file_url: ep.file_url,
-                duration: ep.duration,
-                order_index: idx
-            }));
-            const { error: epError } = await supabase.from('audio_episodes').insert(episodesToInsert);
-            if (epError) console.error('[AUDIO EPISODE SYNC ERROR]', epError);
+        await db.execute('DELETE FROM audio_episodes WHERE audio_story_id = ?', [id]);
+        for (const [idx, ep] of episodes.entries()) {
+            await db.execute(
+                'INSERT INTO audio_episodes (audio_story_id, title, file_url, duration, order_index) VALUES (?, ?, ?, ?, ?)',
+                [id, ep.title, ep.file_url, ep.duration, idx]
+            );
         }
     }
 
-    res.status(200).json(data);
+    const [rows] = await db.execute('SELECT * FROM audio_stories WHERE id = ?', [id]);
+    res.status(200).json(rows[0]);
 });
 
 const deleteAudioStory = asyncHandler(async (req, res) => {
     const id = req.params.id;
-    console.log(`[DEBUG] Deleting Audio ID: '${id}'`);
-
-    if (!id) {
-        res.status(400);
-        throw new Error('ID is required for deletion');
-    }
-
-    // Step 0: Handle Foreign Key Constraints in 'orders' table
-    // If an audio story has orders, the DB will block deletion due to foreign key constraint.
-    // We nullify the reference in orders so we can delete the audio story.
-    try {
-        await supabase
-            .from('orders')
-            .update({ audio_id: null })
-            .eq('audio_id', id);
-
-        // Also try for numeric ID just in case
-        if (!isNaN(id)) {
-            await supabase
-                .from('orders')
-                .update({ audio_id: null })
-                .eq('audio_id', parseInt(id));
-        }
-    } catch (err) {
-        console.warn(`[DEBUG] Orders cleanup warning:`, err.message);
-    }
-
-    // Step 1: Try deleting by id (Standard UUID/String)
-    const { data, error } = await supabase
-        .from('audio_stories')
-        .delete()
-        .eq('id', id)
-        .select();
-
-    if (error) {
-        console.error(`[DEBUG] Delete error:`, error.message);
-        // Fallback for numeric ID
-        if (!isNaN(id)) {
-            const { data: dataInt, error: errorInt } = await supabase
-                .from('audio_stories')
-                .delete()
-                .eq('id', parseInt(id))
-                .select();
-
-            if (dataInt && dataInt.length > 0) {
-                return res.status(200).json({ status: 'success', id });
-            }
-        }
-        res.status(400);
-        throw new Error(error.message);
-    }
-
-    if (data && data.length > 0) {
-        return res.status(200).json({ status: 'success', id });
-    }
-
-    res.status(404);
-    throw new Error('Audio story not found');
+    await db.execute('UPDATE orders SET audio_id = NULL WHERE audio_id = ?', [id]);
+    await db.execute('DELETE FROM audio_episodes WHERE audio_story_id = ?', [id]);
+    await db.execute('DELETE FROM audio_stories WHERE id = ?', [id]);
+    res.status(200).json({ status: 'success', id });
 });
 
 const addAudioEpisode = asyncHandler(async (req, res) => {
-    const { data, error } = await supabase
-        .from('audio_episodes')
-        .insert([req.body])
-        .select()
-        .single();
-    if (error) {
-        res.status(400);
-        throw new Error(error.message);
-    }
-    res.status(201).json(data);
+    const { audio_story_id, title, file_url, duration, order_index } = req.body;
+    const [result] = await db.execute(
+        'INSERT INTO audio_episodes (audio_story_id, title, file_url, duration, order_index) VALUES (?, ?, ?, ?, ?)',
+        [audio_story_id, title, file_url, duration, order_index]
+    );
+    const [rows] = await db.execute('SELECT * FROM audio_episodes WHERE id = ?', [result.insertId]);
+    res.status(201).json(rows[0]);
 });
 
 const deleteAudioEpisode = asyncHandler(async (req, res) => {
-    const { error } = await supabase
-        .from('audio_episodes')
-        .delete()
-        .eq('id', req.params.episodeId);
-    if (error) {
-        res.status(400);
-        throw new Error(error.message);
-    }
+    await db.execute('DELETE FROM audio_episodes WHERE id = ?', [req.params.episodeId]);
     res.status(200).json({ message: 'Episode deleted' });
 });
 
 const incrementEpisodeView = asyncHandler(async (req, res) => {
-    const { data: episode } = await supabase
-        .from('audio_episodes')
-        .select('views')
-        .eq('id', req.params.episodeId)
-        .single();
-    
-    if (episode) {
-        await supabase
-            .from('audio_episodes')
-            .update({ views: (episode.views || 0) + 1 })
-            .eq('id', req.params.episodeId);
-    }
+    await db.execute('UPDATE audio_episodes SET views = views + 1 WHERE id = ?', [req.params.episodeId]);
     res.status(200).json({ status: 'success' });
 });
 

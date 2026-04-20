@@ -1,6 +1,5 @@
 const asyncHandler = require('express-async-handler');
 const db = require('../config/mysql_db');
-const supabase = require('../config/supabase');
 
 // @desc    Get all blogs
 const getBlogs = asyncHandler(async (req, res) => {

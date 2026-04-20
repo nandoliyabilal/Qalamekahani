@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
-// Mongoose model removed as we migrated to Supabase
+const db = require('../config/mysql_db');
 
 const protect = asyncHandler(async (req, res, next) => {
     let token;
@@ -10,39 +10,31 @@ const protect = asyncHandler(async (req, res, next) => {
         req.headers.authorization.startsWith('Bearer')
     ) {
         try {
-            // Get token from header
             token = req.headers.authorization.split(' ')[1];
-
-            // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            // Get user from the token using Supabase
-            const supabase = require('../config/supabase');
-            const { data: user, error: supabaseError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', decoded.id)
-                .single();
+            // Get user from MySQL
+            const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [decoded.id]);
+            const user = rows[0];
 
-            if (supabaseError || !user) {
+            if (!user) {
                 res.status(401);
                 throw new Error('Not authorized, user not found');
             }
 
-            // Map Supabase fields to what the app expects
+            // Map MySQL fields (snake_case) to Frontend expected fields (camelCase)
             req.user = {
                 ...user,
-                // Handle naming differences between DB (snake_case) and App (camelCase)
-                isVerified: user.is_verified,
-                likedStories: user.liked_stories || [],
-                savedBlogs: user.saved_blogs || [],
-                savedAudios: user.saved_audios || [],
-                listenedAudios: user.listened_audios || []
+                isVerified: !!user.is_verified,
+                likedStories: typeof user.liked_stories === 'string' ? JSON.parse(user.liked_stories) : (user.liked_stories || []),
+                savedBlogs: typeof user.saved_blogs === 'string' ? JSON.parse(user.saved_blogs) : (user.saved_blogs || []),
+                savedAudios: typeof user.saved_audios === 'string' ? JSON.parse(user.saved_audios) : (user.saved_audios || []),
+                listenedAudios: typeof user.listened_audios === 'string' ? JSON.parse(user.listened_audios) : (user.listened_audios || [])
             };
 
             next();
         } catch (error) {
-            console.error(error);
+            console.error('[AUTH ERROR]', error.message);
             res.status(401);
             throw new Error('Not authorized');
         }
@@ -54,7 +46,6 @@ const protect = asyncHandler(async (req, res, next) => {
     }
 });
 
-// Grant access to specific roles
 const authorize = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {

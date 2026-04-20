@@ -1,69 +1,56 @@
 const asyncHandler = require('express-async-handler');
-const supabase = require('../config/supabase');
+const db = require('../config/mysql_db');
 
 // @desc    Get site settings
-// @route   GET /api/settings
-// @access  Public
 const getSettings = asyncHandler(async (req, res) => {
-    // Only one row for settings
-    const { data, error } = await supabase
-        .from('settings')
-        .select('*')
-        .single();
+    const [rows] = await db.execute('SELECT * FROM settings LIMIT 1');
+    let settings = rows[0];
 
-    if (!data && !error) {
+    if (!settings) {
         // Create default if not exists
-        const { data: newVal } = await supabase
-            .from('settings')
-            .insert([{ site_name: 'Qalamekahani' }])
-            .select()
-            .single();
-        return res.json(newVal);
+        const [result] = await db.execute('INSERT INTO settings (site_name) VALUES (?)', ['Qalamekahani']);
+        const [newRows] = await db.execute('SELECT * FROM settings WHERE id = ?', [result.insertId]);
+        settings = newRows[0];
     }
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-        res.status(500);
-        throw new Error(error.message);
-    }
-
-    res.json(data || {});
+    res.json(settings);
 });
 
 // @desc    Update site settings
-// @route   PUT /api/settings
-// @access  Private/Admin
 const updateSettings = asyncHandler(async (req, res) => {
-    // We assume ID is known or we just update the first row if we enforce single row
-    // For simplicity, let's assume we pass ID or just fetch the first one.
+    const [rows] = await db.execute('SELECT id FROM settings LIMIT 1');
+    const settingsId = rows[0]?.id;
 
-    // First get the ID
-    const { data: current } = await supabase.from('settings').select('id').limit(1).single();
-
-    if (!current) {
+    if (!settingsId) {
         res.status(404);
         throw new Error('Settings not found');
     }
 
+    const { siteName, isMaintenanceMode, contactEmail } = req.body;
+    
+    // Support both snake_case and camelCase input
     const updates = {
-        site_name: req.body.siteName,
-        maintenance_mode: req.body.isMaintenanceMode,
-        contact_email: req.body.contactEmail,
-        // Map other fields as needed based on Schema
+        site_name: siteName || req.body.site_name,
+        maintenance_mode: isMaintenanceMode !== undefined ? isMaintenanceMode : req.body.maintenance_mode,
+        contact_email: contactEmail || req.body.contact_email
     };
 
-    const { data, error } = await supabase
-        .from('settings')
-        .update(updates)
-        .eq('id', current.id)
-        .select()
-        .single();
+    const updateFields = [];
+    const values = [];
+    Object.keys(updates).forEach(key => {
+        if (updates[key] !== undefined) {
+            updateFields.push(`${key} = ?`);
+            values.push(updates[key]);
+        }
+    });
 
-    if (error) {
-        res.status(400);
-        throw new Error(error.message);
+    if (updateFields.length > 0) {
+        values.push(settingsId);
+        await db.execute(`UPDATE settings SET ${updateFields.join(', ')} WHERE id = ?`, values);
     }
 
-    res.json(data);
+    const [updatedRows] = await db.execute('SELECT * FROM settings WHERE id = ?', [settingsId]);
+    res.json(updatedRows[0]);
 });
 
 module.exports = { getSettings, updateSettings };

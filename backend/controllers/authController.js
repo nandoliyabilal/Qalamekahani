@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
 const db = require('../config/mysql_db');
-const supabase = require('../config/supabase'); // Still used for Google Token verification
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const crypto = require('crypto');
 
 // Helper: Generate JWT
@@ -154,15 +155,22 @@ const loginUser = asyncHandler(async (req, res) => {
 // @desc    Google Login
 const googleLogin = asyncHandler(async (req, res) => {
     const { token } = req.body;
-    const { data: { user: sbUser }, error: sbError } = await supabase.auth.getUser(token);
 
-    if (sbError || !sbUser) {
+    let payload;
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        payload = ticket.getPayload();
+    } catch (error) {
         res.status(401);
         throw new Error('Invalid Google token');
     }
 
-    const email = sbUser.email;
-    const name = sbUser.user_metadata?.full_name || email.split('@')[0];
+    const email = payload.email;
+    const name = payload.name || email.split('@')[0];
+    const googleId = payload.sub;
 
     const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
     let user = users[0];

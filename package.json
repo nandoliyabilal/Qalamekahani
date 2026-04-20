@@ -17,6 +17,7 @@
     "express-async-handler": "^1.2.0",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^7.1.0",
+    "google-auth-library": "^10.6.2",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.6.3",

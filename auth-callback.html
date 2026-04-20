@@ -42,10 +42,14 @@
     <script>
         async function handleAuth() {
             try {
-                // 1. Get token from URL hash (Supabase redirects with #access_token=...)
-                const hash = window.location.hash.substring(1);
-                const params = new URLSearchParams(hash);
-                const accessToken = params.get('access_token');
+                // 1. Get token from localStorage (New Google flow) or Hash (Fallback)
+                let accessToken = localStorage.getItem('google_id_token');
+                
+                if (!accessToken) {
+                    const hash = window.location.hash.substring(1);
+                    const params = new URLSearchParams(hash);
+                    accessToken = params.get('access_token');
+                }
 
                 if (!accessToken) {
                     throw new Error('No access token found. Please try logging in again.');
@@ -66,6 +70,7 @@
 
                 if (backendRes.ok) {
                     // 3. Save backend token and session
+                    localStorage.removeItem('google_id_token'); // Clean up
                     localStorage.setItem('token', backendData.token);
                     localStorage.setItem('userInfo', JSON.stringify(backendData));
                     

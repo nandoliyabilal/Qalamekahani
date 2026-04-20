@@ -75,11 +75,31 @@
             }
         }
 
-        const SUPABASE_URL = 'https://irtsycfpwsjxrodwpthw.supabase.co';
         const redirectUrl = window.location.origin + '/auth-callback.html';
 
+        // Load Google Identity Services Script
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+
+        script.onload = () => {
+            google.accounts.id.initialize({
+                client_id: '483786122795-rnu6unf9un6t8t6t8t6t8t.apps.googleusercontent.com', // Placeholder - use your real ID from .env
+                callback: handleCredentialResponse
+            });
+        };
+
+        function handleCredentialResponse(response) {
+            // Send the ID token to our callback page or directly to backend
+            const token = response.credential;
+            localStorage.setItem('google_id_token', token);
+            window.location.href = 'auth-callback.html';
+        }
+
         document.getElementById('google-login').addEventListener('click', () => {
-             window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
+             google.accounts.id.prompt(); // Shows the "One Tap" or selection window
         });
 
         // Load 3 high-quality horror book images for gallery strip

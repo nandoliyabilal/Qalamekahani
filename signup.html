@@ -76,7 +76,8 @@
         script.onload = () => {
             google.accounts.id.initialize({
                 client_id: '460935650713-6jjjvl3i6e497800a3k1as9iqprrrjqj.apps.googleusercontent.com',
-                callback: handleCredentialResponse
+                callback: handleCredentialResponse,
+                ux_mode: 'popup'
             });
             
             const googleBtnContainer = document.getElementById('google-signup-container');

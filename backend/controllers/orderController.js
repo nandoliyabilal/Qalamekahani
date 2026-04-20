@@ -73,6 +73,9 @@ const verifyPayment = asyncHandler(async (req, res) => {
     const digest = shasum.digest('hex');
 
     if (digest === razorpay_signature) {
+        // Log success for debugging
+        console.log(`✅ Payment successful for Order: ${razorpay_order_id}`);
+
         await db.execute(
             'UPDATE orders SET status = "paid", razorpay_payment_id = ? WHERE razorpay_order_id = ?',
             [razorpay_payment_id, razorpay_order_id]

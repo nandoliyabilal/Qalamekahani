@@ -710,10 +710,9 @@
                 // Store global book object for modal
                 currentBook = book;
 
-                const price = book.original_price || book.originalPrice || 0;
-                const discounted = book.discounted_price || book.discountedPrice || price;
-                const inCart = CartUtils.isInCart(book.id || book._id);
-
+                const discounted = book.price || 0;
+                const price = book.original_price || discounted;
+                
                 const container = document.getElementById('product-area');
 
                 // Calculate discount for badge
@@ -726,7 +725,7 @@
                 <!-- Left: Image -->
                 <div class="product-image-col">
                     <div style="position: relative; width: 100%; max-width: 350px;">
-                        <img src="${book.image}" alt="${book.title}" class="main-img" id="book-image">
+                        <img src="${book.image}" alt="${book.title}" class="main-img" id="book-image" onerror="this.src='https://placehold.co/300x450?text=Book+Cover'">
                     </div>
                 </div>
 
@@ -734,7 +733,7 @@
                 <div class="product-info-col">
                     <h1 class="product-title">${book.title}</h1>
                     <div class="product-brand">
-                        Author: <span style="color:#fff;">${book.author}</span> | Category: <span style="color:#fff;">${book.category || 'General'}</span>
+                        Author: <span style="color:#fff;">${book.author || 'Sabirkhan Pathan'}</span> | Category: <span style="color:#fff;">${book.category || 'Literature'}</span>
                     </div>
 
                     <div class="rating-block">
@@ -767,7 +766,7 @@
                         </div>
 
                         <!-- Force Buy Now -->
-                        <button class="btn-add-cart" id="atc-btn" onclick="startPurchase('${book.id || book._id}')">
+                        <button class="btn-add-cart" id="atc-btn" onclick="startPurchase('${book.id}')">
                             <i class="fas fa-bolt"></i> BUY NOW
                         </button>
                     </div>

@@ -455,16 +455,17 @@
 
             grid.innerHTML = data.map((img, index) => {
                 let imgUrl = img.image || '';
-                if (imgUrl && !imgUrl.startsWith('http')) {
+                // Robust path handling for Cloudinary vs Local
+                if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('data:')) {
                     imgUrl = '/' + imgUrl.replace(/\\/g, '/').replace(/^\/?/, '');
                 }
 
                 return `
                 <div class="masonry-item" onclick="openLightbox(${index})">
-                    <img src="${imgUrl}" alt="${img.title}" loading="lazy">
+                    <img src="${imgUrl}" alt="${img.title}" loading="lazy" onerror="this.src='https://placehold.co/400x600?text=Image+Loading...'">
                     <div class="img-overlay">
                         <div>
-                            <h3 class="img-title">${img.title}</h3>
+                            <h3 class="img-title">${img.title || 'Untitled'}</h3>
                             <span class="img-category">${img.category || 'General'}</span>
                         </div>
                         <div class="img-actions">

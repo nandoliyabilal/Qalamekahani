@@ -6,7 +6,7 @@ dotenv.config();
 const https = require('https');
 
 // Custom fetch to bypass local DNS poison/block - ENABLED for connection stability
-const isBypassNeeded = true; 
+const isBypassNeeded = true;
 
 const customFetch = (url, options = {}) => {
     // Standard secure fetch (Default)

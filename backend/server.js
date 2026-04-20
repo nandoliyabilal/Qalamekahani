@@ -42,6 +42,19 @@ app.use('/admin', express.static(path.join(process.cwd(), 'admin')));
 app.use(express.static(path.join(process.cwd())));
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+const db = require('./config/mysql_db');
+
+// Test Database Connection on Startup
+(async () => {
+    try {
+        const [rows] = await db.execute('SELECT 1 + 1 AS result');
+        console.log('✅ MySQL Database Connected Successfully');
+    } catch (err) {
+        console.error('❌ MySQL Connection Failed:', err.message);
+        console.error('Check your .env MYSQL_ credentials in Hostinger panel.');
+    }
+})();
+
 const { errorHandler } = require('./middleware/errorMiddleware');
 
 // Routes
@@ -65,8 +78,19 @@ const PORT = process.env.PORT || 5000;
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Global Error Listeners to prevent silent crashes
+process.on('uncaughtException', (err) => {
+    console.error('🔥 UNCAUGHT EXCEPTION:', err.message);
+    console.error(err.stack);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('💥 UNHANDLED REJECTION:', reason);
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`App Directory: ${process.cwd()}`);
 });
 
 

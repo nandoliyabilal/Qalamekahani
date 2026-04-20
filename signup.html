@@ -73,7 +73,7 @@
 
         document.getElementById('google-signup-btn').addEventListener('click', () => {
              const nonce = Math.random().toString(36).substring(2);
-             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=id_token&scope=openid%20email%20profile&nonce=${nonce}`;
+             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
              window.location.href = authUrl;
         });
 

@@ -84,7 +84,8 @@
         script.onload = () => {
             google.accounts.id.initialize({
                 client_id: '460935650713-6jjjvl3i6e497800a3k1as9iqprrrjqj.apps.googleusercontent.com',
-                callback: handleCredentialResponse
+                callback: handleCredentialResponse,
+                ux_mode: 'popup'
             });
             
             // Render the official Google button in our container

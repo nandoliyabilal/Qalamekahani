@@ -44,9 +44,7 @@
                 <span>or continue with</span>
             </div>
 
-            <button type="button" class="btn-social-long" id="google-login">
-                <i class="fab fa-google"></i> Continue with Google
-            </button>
+            <div id="google-signup-container" style="width: 100%; margin: 10px 0;"></div>
 
             <p class="terms-text" style="margin-top: 20px;">
                 By clicking create account you agree to Qalamekahani's<br>
@@ -68,13 +66,33 @@
             }
         }
 
-        const SUPABASE_URL = 'https://irtsycfpwsjxrodwpthw.supabase.co';
-        const redirectUrl = window.location.origin + '/auth-callback.html';
+        // Google Authentication Logic
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
 
-        // Social Login
-        document.getElementById('google-login').addEventListener('click', () => {
-             window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
-        });
+        script.onload = () => {
+            google.accounts.id.initialize({
+                client_id: '460935650713-6jjjvl3i6e497800a3k1as9iqprrrjqj.apps.googleusercontent.com',
+                callback: handleCredentialResponse
+            });
+            
+            const googleBtnContainer = document.getElementById('google-signup-container');
+            if (googleBtnContainer) {
+                google.accounts.id.renderButton(
+                    googleBtnContainer,
+                    { theme: "outline", size: "large", width: "100%", text: "signup_with" }
+                );
+            }
+        };
+
+        function handleCredentialResponse(response) {
+            const token = response.credential;
+            localStorage.setItem('google_id_token', token);
+            window.location.href = 'auth-callback.html';
+        }
 
         const signupForm = document.getElementById('signup-form');
         const errorMsg = document.getElementById('error-msg');

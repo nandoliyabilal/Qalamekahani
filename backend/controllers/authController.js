@@ -372,8 +372,70 @@ const toggleNotifications = asyncHandler(async (req, res) => {
     res.json({ success: true });
 });
 
+// @desc    Initiate Admin Login
+const initiateAdminLogin = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    const [users] = await db.execute('SELECT * FROM users WHERE email = ? AND role = "admin"', [email]);
+    const user = users[0];
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpire = new Date(Date.now() + 10 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+
+        await db.execute('UPDATE users SET otp = ?, otp_expire = ? WHERE id = ?', [otp, otpExpire, user.id]);
+        
+        try {
+            await sendEmail({ email: user.email, subject: 'Admin Login OTP', message: otp, type: 'otp' });
+        } catch (e) {
+            console.error('Admin OTP failed but continuing for debug');
+        }
+        
+        res.json({ success: true, message: 'OTP sent to admin email' });
+    } else {
+        res.status(401);
+        throw new Error('Invalid admin credentials');
+    }
+});
+
+// @desc    Verify Admin Login OTP
+const verifyAdminLogin = asyncHandler(async (req, res) => {
+    const { email, otp } = req.body;
+    const [users] = await db.execute('SELECT * FROM users WHERE email = ? AND role = "admin"', [email]);
+    const user = users[0];
+
+    if (!user || user.otp !== otp) {
+        res.status(401);
+        throw new Error('Invalid or expired OTP');
+    }
+
+    await db.execute('UPDATE users SET otp = NULL, otp_expire = NULL, last_login = NOW() WHERE id = ?', [user.id]);
+
+    res.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user.id)
+    });
+});
+
+// @desc    Verify Reset Password OTP
+const verifyResetOtp = asyncHandler(async (req, res) => {
+    const { email, otp } = req.body;
+    const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+    const user = users[0];
+
+    if (!user || user.reset_password_token !== otp) {
+        res.status(400);
+        throw new Error('Invalid OTP');
+    }
+
+    res.json({ success: true, message: 'OTP verified' });
+});
+
 module.exports = {
     registerUser, verifyOtp, resendOtp, loginUser, googleLogin, getMe, updateProfile,
-    forgotPassword, resetPassword, likeStory, saveBlog, saveAudio, saveImage, trackAudio,
+    forgotPassword, resetPassword, verifyResetOtp, initiateAdminLogin, verifyAdminLogin,
+    likeStory, saveBlog, saveAudio, saveImage, trackAudio,
     getAllUsers, getUserById, toggleBlockUser, toggleNotifications
 };

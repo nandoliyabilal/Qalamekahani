@@ -47,9 +47,7 @@
                 <span>or continue with</span>
             </div>
 
-            <button type="button" class="btn-social-long" id="google-login">
-                <i class="fab fa-google"></i> Continue with Google
-            </button>
+            <div id="google-login-container" style="width: 100%; margin: 10px 0;"></div>
 
             <div class="auth-gallery" id="auth-gallery">
                 <!-- Horror book images will be loaded here -->
@@ -77,7 +75,6 @@
 
         const redirectUrl = window.location.origin + '/auth-callback.html';
 
-        // Load Google Identity Services Script
         const script = document.createElement('script');
         script.src = 'https://accounts.google.com/gsi/client';
         script.async = true;
@@ -89,18 +86,22 @@
                 client_id: '460935650713-6jjjvl3i6e497800a3k1as9iqprrrjqj.apps.googleusercontent.com',
                 callback: handleCredentialResponse
             });
+            
+            // Render the official Google button in our container
+            const googleBtnContainer = document.getElementById('google-login-container');
+            if (googleBtnContainer) {
+                google.accounts.id.renderButton(
+                    googleBtnContainer,
+                    { theme: "outline", size: "large", width: "100%", text: "continue_with" }
+                );
+            }
         };
 
         function handleCredentialResponse(response) {
-            // Send the ID token to our callback page or directly to backend
             const token = response.credential;
             localStorage.setItem('google_id_token', token);
             window.location.href = 'auth-callback.html';
         }
-
-        document.getElementById('google-login').addEventListener('click', () => {
-             google.accounts.id.prompt(); // Shows the "One Tap" or selection window
-        });
 
         // Load 3 high-quality horror book images for gallery strip
         function loadGallery() {

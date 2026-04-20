@@ -44,7 +44,9 @@
                 <span>or continue with</span>
             </div>
 
-            <div id="google-signup-container" style="width: 100%; margin: 10px 0;"></div>
+            <button type="button" class="btn-social-long" id="google-signup-btn">
+                <i class="fab fa-google"></i> Sign up with Google
+            </button>
 
             <p class="terms-text" style="margin-top: 20px;">
                 By clicking create account you agree to Qalamekahani's<br>
@@ -66,34 +68,14 @@
             }
         }
 
-        // Google Authentication Logic
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
+        const CLIENT_ID = '460935650713-6jjjvl3i6e497800a3k1as9iqprrrjqj.apps.googleusercontent.com';
+        const REDIRECT_URI = window.location.origin + '/auth-callback.html';
 
-        script.onload = () => {
-            google.accounts.id.initialize({
-                client_id: '460935650713-6jjjvl3i6e497800a3k1as9iqprrrjqj.apps.googleusercontent.com',
-                callback: handleCredentialResponse,
-                ux_mode: 'popup'
-            });
-            
-            const googleBtnContainer = document.getElementById('google-signup-container');
-            if (googleBtnContainer) {
-                google.accounts.id.renderButton(
-                    googleBtnContainer,
-                    { theme: "outline", size: "large", width: "100%", text: "signup_with" }
-                );
-            }
-        };
-
-        function handleCredentialResponse(response) {
-            const token = response.credential;
-            localStorage.setItem('google_id_token', token);
-            window.location.href = 'auth-callback.html';
-        }
+        document.getElementById('google-signup-btn').addEventListener('click', () => {
+             const nonce = Math.random().toString(36).substring(2);
+             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=id_token&scope=openid%20email%20profile&nonce=${nonce}`;
+             window.location.href = authUrl;
+        });
 
         const signupForm = document.getElementById('signup-form');
         const errorMsg = document.getElementById('error-msg');
@@ -123,9 +105,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, password })
                 });
-
                 const data = await res.json();
-
                 if (res.ok) {
                     localStorage.setItem('emailForVerification', email);
                     window.location.href = 'otp-verify.html';

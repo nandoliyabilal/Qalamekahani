@@ -47,7 +47,9 @@
                 <span>or continue with</span>
             </div>
 
-            <div id="google-login-container" style="width: 100%; margin: 10px 0;"></div>
+            <button type="button" class="btn-social-long" id="google-login-btn">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
 
             <div class="auth-gallery" id="auth-gallery">
                 <!-- Horror book images will be loaded here -->
@@ -73,51 +75,15 @@
             }
         }
 
-        const redirectUrl = window.location.origin + '/auth-callback.html';
+        const CLIENT_ID = '460935650713-6jjjvl3i6e497800a3k1as9iqprrrjqj.apps.googleusercontent.com';
+        const REDIRECT_URI = window.location.origin + '/auth-callback.html';
 
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-
-        script.onload = () => {
-            google.accounts.id.initialize({
-                client_id: '460935650713-6jjjvl3i6e497800a3k1as9iqprrrjqj.apps.googleusercontent.com',
-                callback: handleCredentialResponse,
-                ux_mode: 'popup'
-            });
-            
-            // Render the official Google button in our container
-            const googleBtnContainer = document.getElementById('google-login-container');
-            if (googleBtnContainer) {
-                google.accounts.id.renderButton(
-                    googleBtnContainer,
-                    { theme: "outline", size: "large", width: "100%", text: "continue_with" }
-                );
-            }
-        };
-
-        function handleCredentialResponse(response) {
-            const token = response.credential;
-            localStorage.setItem('google_id_token', token);
-            window.location.href = 'auth-callback.html';
-        }
-
-        // Load 3 high-quality horror book images for gallery strip
-        function loadGallery() {
-            const horrorImages = [
-                'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=120&h=180&fit=crop', // Dark Forest
-                'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=120&h=180&fit=crop', // Spooky Castle
-                'https://images.unsplash.com/photo-1505633560063-d8247f636184?w=120&h=180&fit=crop'  // Skull Color
-            ];
-
-            const gallery = document.getElementById('auth-gallery');
-            gallery.innerHTML = horrorImages.map((src, index) => `
-                <img src="${src}" class="gallery-item" alt="Horror Story ${index + 1}">
-            `).join('');
-        }
-        loadGallery();
+        document.getElementById('google-login-btn').addEventListener('click', () => {
+             // Manual OAuth Redirect - Works without cookies/GSI buttons
+             const nonce = Math.random().toString(36).substring(2);
+             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=id_token&scope=openid%20email%20profile&nonce=${nonce}`;
+             window.location.href = authUrl;
+        });
 
         const loginForm = document.getElementById('login-form');
         const errorMsg = document.getElementById('error-msg');
@@ -160,6 +126,21 @@
                 submitBtn.disabled = false;
             }
         });
+
+        function loadGallery() {
+            const horrorImages = [
+                'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=120&h=180&fit=crop',
+                'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=120&h=180&fit=crop',
+                'https://images.unsplash.com/photo-1505633560063-d8247f636184?w=120&h=180&fit=crop'
+            ];
+            const gallery = document.getElementById('auth-gallery');
+            if (gallery) {
+                gallery.innerHTML = horrorImages.map((src, index) => `
+                    <img src="${src}" class="gallery-item" alt="Horror Story ${index + 1}">
+                `).join('');
+            }
+        }
+        loadGallery();
     </script>
 </body>
 </html>

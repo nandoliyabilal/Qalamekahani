@@ -48,7 +48,7 @@
                 if (!accessToken) {
                     const hash = window.location.hash.substring(1);
                     const params = new URLSearchParams(hash);
-                    accessToken = params.get('access_token');
+                    accessToken = params.get('id_token') || params.get('access_token');
                 }
 
                 if (!accessToken) {

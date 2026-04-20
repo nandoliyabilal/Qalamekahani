@@ -102,6 +102,7 @@ CREATE TABLE IF NOT EXISTS audio_episodes (
 CREATE TABLE IF NOT EXISTS book_library (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
+    image VARCHAR(255),
     description TEXT,
     language VARCHAR(50) DEFAULT 'Hindi/Gujarati',
     buy_link VARCHAR(255),

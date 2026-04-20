@@ -55,9 +55,10 @@ const createReview = asyncHandler(async (req, res) => {
     }
 
     // Insert review
+    const userId = parseInt(req.user.id);
     const [result] = await db.execute(
         'INSERT INTO reviews (user_id, user_name, item_id, item_type, rating, comment, status) VALUES (?, ?, ?, ?, ?, ?, "approved")',
-        [req.user.id, req.user.name, targetId, targetType, rating, comment]
+        [userId, req.user.name, String(targetId), targetType, rating, comment]
     );
 
     const [newRows] = await db.execute('SELECT * FROM reviews WHERE id = ?', [result.insertId]);

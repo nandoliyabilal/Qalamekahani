@@ -738,8 +738,8 @@
 
             grid.innerHTML = data.map(book => {
                 const ogPrice = book.original_price || book.originalPrice || 0;
-                const currentPrice = book.discounted_price || book.discount_price || book.price || ogPrice;
-                const discPercent = (ogPrice > 0 && currentPrice < ogPrice) ? Math.round(((ogPrice - currentPrice) / ogPrice) * 100) : 0;
+                const discPercent = book.discount_percent || book.discountPercent || 0;
+                const currentPrice = book.discounted_price || book.discountedPrice || (ogPrice - (ogPrice * discPercent / 100));
                 const rating = book.rating || 5;
 
                 let starsHtml = '';

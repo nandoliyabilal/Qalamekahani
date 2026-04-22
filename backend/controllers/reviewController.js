@@ -8,10 +8,13 @@ const getReviews = asyncHandler(async (req, res) => {
 
     let query = 'SELECT * FROM reviews';
     let params = [];
+    
     if (targetId) {
+        // Handle both Numeric and String IDs (for legacy compatibility)
         query += ' WHERE item_id = ?';
-        params.push(targetId);
+        params.push(String(targetId));
     }
+    
     query += ' ORDER BY created_at DESC';
 
     const [reviews] = await db.execute(query, params);
@@ -25,7 +28,8 @@ const getReviews = asyncHandler(async (req, res) => {
         targetType: review.item_type,
         rating: review.rating,
         comment: review.comment,
-        status: review.status,
+        status: review.status || 'approved', // Default to approved if missing
+        isApproved: review.status === 'approved', // Helper for frontend filters
         reply: review.reply,
         admin_reply_name: review.admin_reply_name || 'Admin',
         created_at: review.created_at

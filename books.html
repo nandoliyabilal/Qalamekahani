@@ -5,14 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Books | Qalamekahani - Literature & Stories by Sabirkhan Pathan</title>
-    <meta name="description" content="Discover soulful books, reading materials, and exclusive literature published by Sabirkhan Pathan. Your gateway to deep human emotions.">
+    <meta name="description"
+        content="Discover soulful books, reading materials, and exclusive literature published by Sabirkhan Pathan. Your gateway to deep human emotions.">
     <meta name="keywords" content="books, hindi books, horror books, book library, Qalamekahani, Sabirkhan Pathan">
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css?v=2.2">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960"
+        crossorigin="anonymous"></script>
     <style>
         .page-header {
             padding: 160px 5% 60px;
@@ -735,9 +737,9 @@
             }
 
             grid.innerHTML = data.map(book => {
-                const ogPrice = book.original_price || 0;
-                const currentPrice = book.discount_price || ogPrice;
-                const discPercent = (ogPrice > 0 && currentPrice < ogPrice) ? Math.round(((ogPrice - currentPrice) / ogPrice) * 100) : 0;
+                const ogPrice = book.original_price || book.originalPrice || 0;
+                const discPercent = book.discount_percent || book.discountPercent || 0;
+                const currentPrice = book.discounted_price || book.discountedPrice || (ogPrice - (ogPrice * discPercent / 100));
                 const rating = book.rating || 5;
 
                 let starsHtml = '';

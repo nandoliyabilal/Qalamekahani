@@ -1,14 +1,20 @@
 const asyncHandler = require('express-async-handler');
 const db = require('../config/mysql_db');
+const { sendEmailNotification } = require('../utils/notificationHelper');
 
 const getBooks = asyncHandler(async (req, res) => {
     const [data] = await db.execute('SELECT * FROM book_library ORDER BY created_at DESC');
-    // Map price fields to ensure frontend compatibility
-    const mappedData = data.map(book => ({
-        ...book,
-        discounted_price: book.discounted_price || book.discount_price || 0,
-        price: book.discounted_price || book.discount_price || book.price || 0
-    }));
+    
+    // Map price fields safely
+    const mappedData = data.map(book => {
+        const discounted = book.discounted_price || book.discount_price || book.price || 0;
+        return {
+            ...book,
+            discounted_price: discounted,
+            price: discounted
+        };
+    });
+    
     res.status(200).json(mappedData);
 });
 
@@ -21,9 +27,10 @@ const getBookById = asyncHandler(async (req, res) => {
         throw new Error('Book not found');
     }
 
-    // Map price fields to ensure frontend compatibility
-    book.discounted_price = book.discounted_price || book.discount_price || 0;
-    book.price = book.discounted_price || book.discount_price || book.price || 0;
+    // Map price fields safely
+    const discounted = book.discounted_price || book.discount_price || book.price || 0;
+    book.discounted_price = discounted;
+    book.price = discounted;
 
     // Increment Views
     if (req.query.increment !== 'false') {
@@ -32,8 +39,6 @@ const getBookById = asyncHandler(async (req, res) => {
 
     res.status(200).json(book);
 });
-
-const { sendEmailNotification } = require('../utils/notificationHelper');
 
 const createBook = asyncHandler(async (req, res) => {
     const columns = Object.keys(req.body);
@@ -48,7 +53,6 @@ const createBook = asyncHandler(async (req, res) => {
     const [newRows] = await db.execute('SELECT * FROM book_library WHERE id = ?', [result.insertId]);
     const data = newRows[0];
 
-    // Trigger Notification
     sendEmailNotification(data, 'book').catch(err => {
         console.error('[BOOK NOTIFICATION ERROR]', err.message);
     });
@@ -72,14 +76,9 @@ const updateBook = asyncHandler(async (req, res) => {
 });
 
 const deleteBook = asyncHandler(async (req, res) => {
-    // 1. Nullify references in orders to avoid FK block
     await db.execute('UPDATE orders SET book_id = NULL WHERE book_id = ?', [req.params.id]);
-
-    // 2. Clear reviews related to this book
     await db.execute('DELETE FROM reviews WHERE item_id = ? AND item_type = "book"', [req.params.id]);
-
     await db.execute('DELETE FROM book_library WHERE id = ?', [req.params.id]);
-
     res.status(200).json({ id: req.params.id });
 });
 

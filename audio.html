@@ -9,12 +9,17 @@
     <meta name="keywords" content="audio story, podcast, hindi podcast, hindi horror stories, storytelling, Qalamekahani">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <style>
+        :root{--p:#d4af37;--b:#0b0b0b;--w:#fff}
+        .page-header{padding:180px 5% 60px;text-align:center;background:var(--b)}
+        .page-title{font-family:'Playfair Display',serif;font-size:3.5rem;color:var(--p);margin-bottom:15px}
+    </style>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap"
-        rel="stylesheet">
+        rel="stylesheet" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="css/style.css?v=2.6">
+    <link rel="stylesheet" href="css/style.css?v=2.7">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960" crossorigin="anonymous"></script>
     <style>
         .page-header {
@@ -534,7 +539,14 @@
         }
     </script>
 
-    <script src="js/global-horror.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            const script = document.createElement('script');
+            script.src = 'js/global-horror.js';
+            script.defer = true;
+            document.body.appendChild(script);
+        });
+    </script>
 </body>
 
 </html>

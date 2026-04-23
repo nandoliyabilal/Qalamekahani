@@ -243,8 +243,11 @@ function editBook(id) {
     document.getElementById('author').value = book.author;
     document.getElementById('price').value = price;
     document.getElementById('discountPercent').value = percent;
-    document.getElementById('category').value = book.category || '';
-    document.getElementById('status').value = book.status || 'published';
+    const elCategory = document.getElementById('category');
+    const elStatus = document.getElementById('status');
+    if (elCategory) elCategory.value = book.category || '';
+    if (elStatus) elStatus.value = book.status || 'published';
+    
     document.getElementById('buyLink').value = book.buy_link || book.buyLink || '';
     document.getElementById('language').value = book.language || 'English';
     document.getElementById('image').value = book.image;
@@ -310,6 +313,7 @@ async function handleFormSubmit(e) {
         const data = {
             title: document.getElementById('title').value,
             author: document.getElementById('author').value,
+            price: price, // Legacy column name for stability
             original_price: price,
             discounted_price: discountedPrice,
             category: document.getElementById('category').value,
@@ -317,9 +321,10 @@ async function handleFormSubmit(e) {
             language: document.getElementById('language').value,
             image: imageUrl,
             description: document.getElementById('description').value,
-            stock: 100, // Default stock
-            status: document.getElementById('status').value || 'published'
+            stock: 100
         };
+        const elStatus = document.getElementById('status');
+        if (elStatus) data.status = elStatus.value;
 
         const url = id ? `/books/${id}` : '/books';
         const method = id ? 'PUT' : 'POST';

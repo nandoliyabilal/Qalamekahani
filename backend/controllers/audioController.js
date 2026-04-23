@@ -62,7 +62,7 @@ const getAudioStories = asyncHandler(async (req, res) => {
 
         return {
             ...s,
-            episodes_count: countsMap[s.id] || 0,
+            episodes_count: countsMap[s.id] || ((s.audio_url || s.file_url) ? 1 : 0),
             rating: parseFloat(avgRating.toFixed(1)),
             review_count: ratingData ? ratingData.count : 0,
             calculated_duration: displayDuration

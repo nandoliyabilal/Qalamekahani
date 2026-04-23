@@ -159,47 +159,90 @@ const deleteStory = asyncHandler(async (req, res) => {
 
 // @desc    Chapter view
 const incrementChapterView = asyncHandler(async (req, res) => {
-    const { id, index } = req.params;
-    const [rows] = await db.execute('SELECT chapter_stats FROM stories WHERE id = ?', [id]);
-    if (rows.length === 0) throw new Error('Not found');
+    const { id: input, index } = req.params;
+    
+    // First find the story to get the numeric ID and current stats
+    const [rows] = await db.execute('SELECT id, chapter_stats FROM stories WHERE id = ? OR slug = ?', [input, input]);
+    if (rows.length === 0) {
+        res.status(404);
+        throw new Error('Story not found');
+    }
 
-    let stats = rows[0].chapter_stats || {};
-    if (typeof stats === 'string') stats = JSON.parse(stats);
+    const storyData = rows[0];
+    const storyId = storyData.id;
+
+    let stats = storyData.chapter_stats || {};
+    if (typeof stats === 'string') {
+        try {
+            stats = JSON.parse(stats);
+        } catch (e) {
+            stats = {};
+        }
+    }
+    
     const key = `ch_${index}`;
     stats[key] = (stats[key] || 0) + 1;
 
-    await db.execute('UPDATE stories SET chapter_stats = ? WHERE id = ?', [JSON.stringify(stats), id]);
+    await db.execute('UPDATE stories SET chapter_stats = ? WHERE id = ?', [JSON.stringify(stats), storyId]);
     res.status(200).json({ success: true, views: stats[key] });
 });
 
 // @desc    Chapter rating
 const addChapterRating = asyncHandler(async (req, res) => {
-    const { id, index } = req.params;
+    const { id: input, index } = req.params;
     const { rating } = req.body;
+
+    // First find the story to get the numeric ID
+    const [stories] = await db.execute('SELECT id FROM stories WHERE id = ? OR slug = ?', [input, input]);
+    if (stories.length === 0) {
+        res.status(404);
+        throw new Error('Story not found');
+    }
+
+    const storyId = stories[0].id;
+
+    // Ensure we are inserting numbers and using the resolved ID
     await db.execute(
         'INSERT INTO chapter_ratings (story_id, chapter_index, rating) VALUES (?, ?, ?)',
-        [id, parseInt(index), parseInt(rating)]
+        [storyId, parseInt(index) || 0, parseInt(rating) || 5]
     );
     res.status(201).json({ message: 'Success' });
 });
 
 // @desc    Chapter stats
 const getChapterStats = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const [ratings] = await db.execute('SELECT * FROM chapter_ratings WHERE story_id = ?', [id]);
-    const [rows] = await db.execute('SELECT chapter_stats FROM stories WHERE id = ?', [id]);
+    const { id: input } = req.params;
+
+    // Resolve real ID first
+    const [stories] = await db.execute('SELECT id, chapter_stats FROM stories WHERE id = ? OR slug = ?', [input, input]);
+    if (stories.length === 0) {
+        res.status(404);
+        throw new Error('Story not found');
+    }
+
+    const storyId = stories[0].id;
+    const [ratings] = await db.execute('SELECT * FROM chapter_ratings WHERE story_id = ?', [storyId]);
     
-    const views = typeof rows[0].chapter_stats === 'string' ? JSON.parse(rows[0].chapter_stats) : (rows[0].chapter_stats || {});
+    let views = stories[0].chapter_stats || {};
+    if (typeof views === 'string') {
+        try {
+            views = JSON.parse(views);
+        } catch (e) {
+            views = {};
+        }
+    }
+
     const aggregated = {};
     ratings.forEach(r => {
         const idx = r.chapter_index;
         if (!aggregated[idx]) aggregated[idx] = { total: 0, count: 0 };
-        aggregated[idx].total += r.rating;
+        aggregated[idx].total += (r.rating || 0);
         aggregated[idx].count += 1;
     });
 
     res.status(200).json({ views, ratings: aggregated });
 });
+
 
 module.exports = {
     getStories, getStory, createStory, updateStory, deleteStory,

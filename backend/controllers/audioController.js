@@ -188,10 +188,16 @@ const addAudioEpisode = asyncHandler(async (req, res) => {
     const { audio_story_id, title, file_url, duration, order_index } = req.body;
     const [result] = await db.execute(
         'INSERT INTO audio_episodes (audio_story_id, title, file_url, duration, order_index) VALUES (?, ?, ?, ?, ?)',
-        [audio_story_id, title, file_url, duration, order_index]
+        [
+            audio_story_id || null, 
+            title || 'Untitled Part', 
+            file_url || '', 
+            duration || '0:00', 
+            order_index || 0
+        ]
     );
-    const [rows] = await db.execute('SELECT * FROM audio_episodes WHERE id = ?', [result.insertId]);
-    res.status(201).json(rows[0]);
+    const [newRows] = await db.execute('SELECT * FROM audio_episodes WHERE id = ?', [result.insertId]);
+    res.status(201).json(newRows[0]);
 });
 
 const deleteAudioEpisode = asyncHandler(async (req, res) => {

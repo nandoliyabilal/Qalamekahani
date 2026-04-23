@@ -110,7 +110,7 @@ const { sendEmailNotification } = require('../utils/notificationHelper');
 
 const createAudioStory = asyncHandler(async (req, res) => {
     const { episodes, ...storyData } = req.body;
-    const allowedColumns = ['title', 'slug', 'description', 'category', 'language', 'author', 'image', 'audio_url', 'file_url', 'duration', 'views', 'status', 'is_premium', 'price', 'discount', 'is_featured'];
+    const allowedColumns = ['title', 'slug', 'description', 'category', 'language', 'author', 'image', 'audio_url', 'file_url', 'duration', 'views', 'status', 'is_premium', 'price'];
 
     const filteredData = {};
     Object.keys(storyData).forEach(key => {
@@ -145,8 +145,8 @@ const updateAudioStory = asyncHandler(async (req, res) => {
     const { episodes, ...storyData } = req.body;
     const id = req.params.id;
 
-    // Define allowed columns to prevent "Unknown column" errors
-    const allowedColumns = ['title', 'slug', 'description', 'category', 'language', 'author', 'image', 'audio_url', 'file_url', 'duration', 'views', 'status', 'is_premium', 'price', 'discount', 'is_featured'];
+    // Define allowed columns (Temporarily removed discount and is_featured until you run SQL)
+    const allowedColumns = ['title', 'slug', 'description', 'category', 'language', 'author', 'image', 'audio_url', 'file_url', 'duration', 'views', 'status', 'is_premium', 'price'];
 
     const updates = [];
     const values = [];

@@ -127,7 +127,7 @@ const updateStory = asyncHandler(async (req, res) => {
     const values = [];
 
     // Define allowed columns to prevent "Unknown column" errors
-    const allowedColumns = ['title', 'slug', 'content', 'summary', 'category', 'status', 'language', 'author', 'image', 'hashtags', 'views', 'likes', 'rating', 'price', 'discount', 'is_premium', 'youtube_link', 'chapter_stats'];
+    const allowedColumns = ['title', 'slug', 'content', 'summary', 'category', 'status', 'language', 'author', 'image', 'hashtags', 'views', 'likes', 'rating', 'price', 'is_premium', 'youtube_link', 'chapter_stats'];
     const mapping = { fullContent: 'content', coverImage: 'image', youtubeLink: 'youtube_link', tags: 'hashtags' };
 
     Object.keys(fields).forEach(key => {

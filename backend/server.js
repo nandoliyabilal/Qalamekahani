@@ -6,8 +6,12 @@ const xss = require('xss-clean');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 
-// Load env vars
-dotenv.config();
+// Load env vars from root directory
+dotenv.config({ path: path.join(__dirname, '../.env') });
+// fallback if first one fails
+if (!process.env.RAZORPAY_KEY_ID) {
+    dotenv.config();
+}
 
 const app = express();
 

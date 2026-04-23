@@ -67,7 +67,9 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
     } catch (error) {
         console.error('[ORDER] Create Order Error:', error);
         res.status(500);
-        throw new Error(`Payment Initialization Failed: ${error.message}`);
+        // Provide more detailed error info for debugging
+        const detailedError = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+        throw new Error(`Payment Initialization Failed: ${detailedError}`);
     }
 });
 

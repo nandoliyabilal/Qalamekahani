@@ -227,7 +227,7 @@ function closeModal() {
 }
 
 function editBook(id) {
-    const book = books.find(b => (b.id === id || b._id === id));
+    const book = books.find(b => (b.id == id || b._id == id));
     if (!book) return;
 
     // Calculate percent back from DB prices
@@ -238,34 +238,42 @@ function editBook(id) {
         percent = Math.round(((price - discounted) / price) * 100);
     }
 
-    document.getElementById('bookId').value = id;
-    document.getElementById('title').value = book.title;
-    document.getElementById('author').value = book.author;
-    document.getElementById('price').value = price;
-    document.getElementById('discountPercent').value = percent;
-    const elCategory = document.getElementById('category');
-    const elStatus = document.getElementById('status');
-    if (elCategory) elCategory.value = book.category || '';
-    if (elStatus) elStatus.value = book.status || 'published';
-    
-    document.getElementById('buyLink').value = book.buy_link || book.buyLink || '';
-    document.getElementById('language').value = book.language || 'English';
-    document.getElementById('image').value = book.image;
-    document.getElementById('description').value = book.description || '';
+    const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val || '';
+    };
+
+    setVal('bookId', id);
+    setVal('title', book.title);
+    setVal('author', book.author);
+    setVal('price', price);
+    setVal('discountPercent', percent);
+    setVal('category', book.category);
+    setVal('status', book.status || 'published');
+    setVal('buyLink', book.buy_link || book.buyLink);
+    setVal('language', book.language || 'English');
+    setVal('image', book.image);
+    setVal('description', book.description);
 
     // Show Preview
     const preview = document.getElementById('imagePreview');
-    if (book.image) {
-        const imgUrl = book.image.startsWith('http') ? book.image : `../${book.image}`;
-        preview.style.backgroundImage = `url('${imgUrl}')`;
-        preview.classList.remove('hidden');
-        document.getElementById('fileName').textContent = 'Current Image kept';
-    } else {
-        preview.classList.add('hidden');
+    if (preview) {
+        if (book.image) {
+            const imgUrl = book.image.startsWith('http') ? book.image : `../${book.image}`;
+            preview.style.backgroundImage = `url('${imgUrl}')`;
+            preview.classList.remove('hidden');
+            const fileName = document.getElementById('fileName');
+            if (fileName) fileName.textContent = 'Current Image kept';
+        } else {
+            preview.classList.add('hidden');
+        }
     }
 
-    document.getElementById('modalTitle').textContent = 'Edit Book';
-    document.getElementById('bookModal').classList.remove('hidden');
+    const modalTitle = document.getElementById('modalTitle');
+    if (modalTitle) modalTitle.textContent = 'Edit Book';
+    
+    const modal = document.getElementById('bookModal');
+    if (modal) modal.classList.remove('hidden');
 }
 
 async function deleteBook(id) {

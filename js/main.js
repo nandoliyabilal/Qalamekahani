@@ -555,28 +555,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const dict = translations[lang];
         if (!dict) return;
 
-        // Translate links and common labels
-        const elements = document.querySelectorAll('a, h1, h2, h3, h4, span, p, button, .nav-links a');
-        elements.forEach(el => {
-            // Check textContent and replace if found in dict
-            const text = el.textContent.trim();
-            if (dict[text]) {
-                const originalHTML = el.innerHTML;
-                const iconMatch = originalHTML.match(/<i.*<\/i>/); // Preserve icons
-                if (iconMatch) {
-                    el.innerHTML = `${dict[text]} ${iconMatch[0]}`;
-                } else {
-                    el.textContent = dict[text];
+        // Use requestIdleCallback to avoid blocking the main thread
+        const runTranslation = () => {
+            // Translate links and common labels - Be more specific with selectors to save time
+            const elements = document.querySelectorAll('.nav-links a, .hero-title, .hero-subtitle, .section-title, .section-subtitle, .ls-title, .ls-subtitle, .btn, .footer-brand, .footer-tagline, .footer-heading, .footer-links a, .view-all-btn');
+            
+            elements.forEach(el => {
+                const text = el.textContent.trim();
+                if (dict[text]) {
+                    const originalHTML = el.innerHTML;
+                    const iconMatch = originalHTML.match(/<i.*<\/i>/); 
+                    if (iconMatch) {
+                        el.innerHTML = `${dict[text]} ${iconMatch[0]}`;
+                    } else {
+                        el.textContent = dict[text];
+                    }
                 }
-            }
-        });
+            });
 
-        // Specific placeholder translations
-        const inputs = document.querySelectorAll('input[placeholder]');
-        inputs.forEach(input => {
-            const p = input.getAttribute('placeholder');
-            if (dict[p]) input.setAttribute('placeholder', dict[p]);
-        });
+            // Specific placeholder translations
+            const inputs = document.querySelectorAll('input[placeholder]');
+            inputs.forEach(input => {
+                const p = input.getAttribute('placeholder');
+                if (dict[p]) input.setAttribute('placeholder', dict[p]);
+            });
+        };
+
+        if (window.requestIdleCallback) {
+            window.requestIdleCallback(runTranslation);
+        } else {
+            setTimeout(runTranslation, 100);
+        }
     }
 
     // Call on load

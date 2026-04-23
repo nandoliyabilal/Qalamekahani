@@ -34,7 +34,7 @@ const getBookById = asyncHandler(async (req, res) => {
 const { sendEmailNotification } = require('../utils/notificationHelper');
 
 const createBook = asyncHandler(async (req, res) => {
-    const allowedColumns = ['title', 'image', 'description', 'language', 'buy_link', 'price'];
+    const allowedColumns = ['title', 'image', 'description', 'language', 'buy_link', 'original_price', 'discounted_price', 'author', 'category', 'status', 'views', 'stock'];
     const filteredData = {};
     Object.keys(req.body).forEach(key => {
         if (allowedColumns.includes(key)) filteredData[key] = req.body[key];
@@ -63,7 +63,7 @@ const createBook = asyncHandler(async (req, res) => {
 });
 
 const updateBook = asyncHandler(async (req, res) => {
-    const allowedColumns = ['title', 'image', 'description', 'language', 'buy_link', 'price'];
+    const allowedColumns = ['title', 'image', 'description', 'language', 'buy_link', 'original_price', 'discounted_price', 'author', 'category', 'status', 'views', 'stock'];
     const filteredData = {};
     Object.keys(req.body).forEach(key => {
         if (allowedColumns.includes(key)) filteredData[key] = req.body[key];

@@ -321,7 +321,6 @@ async function handleFormSubmit(e) {
         const data = {
             title: document.getElementById('title').value,
             author: document.getElementById('author').value,
-            price: price, // Legacy column name for stability
             original_price: price,
             discounted_price: discountedPrice,
             category: document.getElementById('category').value,

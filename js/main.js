@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.showToast('Payment Successful! The content has been unlocked in your account.', 'success');
     // Remove param from URL without reload
     const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + (window.location.search.replace(/[?&]payment=success/, '').replace(/^&/, '?'));
-    window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+    window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
   } else if (paymentStatus === 'pending') {
     window.showToast('Payment is pending. Please complete your transaction if not already done.', 'error');
   }
@@ -383,29 +383,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 // ================= GLOBAL LANGUAGE SELECTOR =================
-(function() {
-    function initLanguageSelector() {
-        const savedLang = localStorage.getItem('user_lang');
-        const isAlreadyShowing = document.querySelector('.lang-popup-overlay');
+(function () {
+  function initLanguageSelector() {
+    const savedLang = localStorage.getItem('user_lang');
+    const isAlreadyShowing = document.querySelector('.lang-popup-overlay');
 
-        if (savedLang || isAlreadyShowing) return;
+    if (savedLang || isAlreadyShowing) return;
 
-        // Lock Scrolling
-        document.body.classList.add('lang-locked');
+    // Lock Scrolling
+    document.body.classList.add('lang-locked');
 
-        // Inject Stylesheet if not already present
-        if (!document.getElementById('lang-popup-style')) {
-            const link = document.createElement('link');
-            link.id = 'lang-popup-style';
-            link.rel = 'stylesheet';
-            link.href = 'css/language-selector.css';
-            document.head.appendChild(link);
-        }
+    // Inject Stylesheet if not already present
+    if (!document.getElementById('lang-popup-style')) {
+      const link = document.createElement('link');
+      link.id = 'lang-popup-style';
+      link.rel = 'stylesheet';
+      link.href = 'css/language-selector.css';
+      document.head.appendChild(link);
+    }
 
-        // Create HTML Structure
-        const overlay = document.createElement('div');
-        overlay.className = 'lang-popup-overlay';
-        overlay.innerHTML = `
+    // Create HTML Structure
+    const overlay = document.createElement('div');
+    overlay.className = 'lang-popup-overlay';
+    overlay.innerHTML = `
             <div class="lang-popup-card">
                 <div class="lang-popup-logo">Qalamekahani</div>
                 <h2 class="lang-popup-title">Choose Your Language</h2>
@@ -441,212 +441,203 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        document.body.appendChild(overlay);
+    document.body.appendChild(overlay);
 
-        // Animate In
-        setTimeout(() => overlay.classList.add('active'), 100);
+    // Animate In
+    setTimeout(() => overlay.classList.add('active'), 100);
 
-        // Click Handlers
-        const btns = overlay.querySelectorAll('.lang-option-btn');
-        btns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const lang = btn.getAttribute('data-lang');
-                localStorage.setItem('user_lang', lang);
-                overlay.classList.remove('active');
-                document.body.classList.remove('lang-locked');
-                
-                // Show Success Toast
-                window.showToast(`Language set to ${lang}`, 'success');
+    // Click Handlers
+    const btns = overlay.querySelectorAll('.lang-option-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lang = btn.getAttribute('data-lang');
+        localStorage.setItem('user_lang', lang);
+        overlay.classList.remove('active');
+        document.body.classList.remove('lang-locked');
 
-                // Remove from DOM after transition
-                setTimeout(() => {
-                    overlay.remove();
-                    // Force reload or event to update content
-                    window.location.reload();
-                }, 500);
-            });
-        });
-    }
+        // Show Success Toast
+        window.showToast(`Language set to ${lang}`, 'success');
 
-    // Language Sync for existing pages (stories.html, audio.html, etc.)
-    function syncPageLanguage() {
-        const savedLang = localStorage.getItem('user_lang');
-        if (!savedLang) return;
+        // Remove from DOM after transition
+        setTimeout(() => {
+          overlay.remove();
+          // Force reload or event to update content
+          window.location.reload();
+        }, 500);
+      });
+    });
+  }
 
-        // 1. Sync on-page filters
-        const langOptions = document.querySelectorAll('[data-lang]');
-        if (langOptions.length > 0) {
-            langOptions.forEach(opt => {
-                const optLang = (opt.getAttribute('data-lang') || '').toLowerCase();
-                
-                // Rule: English = "all" (See everything)
-                // Rule: Hindi/Gujarati = strict filter
-                if (savedLang === 'English') {
-                    if (optLang === 'all' && !opt.classList.contains('active')) opt.click();
-                } else {
-                    if (optLang === savedLang.toLowerCase()) {
-                        if (!opt.classList.contains('active')) opt.click();
-                    }
-                }
-            });
-        }
+  // Language Sync for existing pages (stories.html, audio.html, etc.)
+  function syncPageLanguage() {
+    const savedLang = localStorage.getItem('user_lang');
+    if (!savedLang) return;
 
-        // 2. Global UI Translation
-        translateUI(savedLang);
-    }
+    // 1. Sync on-page filters
+    const langOptions = document.querySelectorAll('[data-lang]');
+    if (langOptions.length > 0) {
+      langOptions.forEach(opt => {
+        const optLang = (opt.getAttribute('data-lang') || '').toLowerCase();
 
-    const translations = {
-        Hindi: {
-            "Home": "होम",
-            "Stories": "कहानियां",
-            "Reading Stories": "कहानियां पढ़ें",
-            "Images & Wallpapers": "इमेज और वॉलपेपर",
-            "Audio Stories": "ऑडियो कहानियां",
-            "Books": "किताबें",
-            "Blog": "ब्लॉग",
-            "About": "बारे में",
-            "Contact": "संपर्क",
-            "Login": "लॉगिन",
-            "Logout": "लॉगआउट",
-            "Profile": "प्रोफ़ाइल",
-            "Latest Stories": "नवीनतम कहानियां",
-            "Stories That Touch The Soul": "आत्मा को छू लेने वाली कहानियां",
-            "Welcome to My World of Words": "शब्दों की मेरी दुनिया में आपका स्वागत है",
-            "Read Stories": "कहानियां पढ़ें",
-            "Listen Audio": "ऑडियो सुनें",
-            "Buy Books": "किताबें खरीदें",
-            "View All Stories": "सभी कहानियां देखें",
-            "Stay Updated": "अपडेट रहें",
-            "Weaving stories that touch your soul": "आत्मा को छू लेने वाली कहानियों की बुनाई",
-            "Quick Links": "त्वरित लिंक",
-            "Choose Your Language": "अपनी भाषा चुनें",
-            "Your Email": "आपका ईमेल"
-        },
-        Gujarati: {
-            "Home": "હોમ",
-            "Stories": "વાર્તાઓ",
-            "Reading Stories": "વાર્તાઓ વાંચો",
-            "Images & Wallpapers": "ઈમેજ અને વોલપેપર",
-            "Audio Stories": "ઓડિયો વાર્તાઓ",
-            "Books": "પુસ્તકો",
-            "Blog": "બ્લોગ",
-            "About": "વિશે",
-            "Contact": "સંપર્ક",
-            "Login": "લોગિન",
-            "Logout": "લોગઆઉટ",
-            "Profile": "પ્રોફાઇલ",
-            "Latest Stories": "નવીનતમ વાર્તાઓ",
-            "Stories That Touch The Soul": "આત્માને સ્પર્શી જાય તેવી વાર્તાઓ",
-            "Welcome to My World of Words": "શબ્દોની મારી દુનિયામાં આપનું સ્વાગત છે",
-            "Read Stories": "વાર્તાઓ વાંચો",
-            "Listen Audio": "ઓડિયો સાંભળો",
-            "Buy Books": "પુસ્તકો ખરીદો",
-            "View All Stories": "બધી વાર્તાઓ જુઓ",
-            "Stay Updated": "અપડેટ રહો",
-            "Weaving stories that touch your soul": "આત્માને સ્પર્શી જાય તેવી વાર્તાઓનું સર્જન",
-            "Quick Links": "ઝડપી લિંક્સ",
-            "Choose Your Language": "તમારી ભાષા પસંદ કરો",
-            "Your Email": "તમારું ઈમેલ"
-        }
-    };
-
-    function translateUI(lang) {
-        if (!lang || lang === 'English') return;
-        const dict = translations[lang];
-        if (!dict) return;
-
-        // Use requestIdleCallback to avoid blocking the main thread
-        const runTranslation = () => {
-            // Translate links and common labels - Be more specific with selectors to save time
-            const elements = document.querySelectorAll('.nav-links a, .hero-title, .hero-subtitle, .section-title, .section-subtitle, .ls-title, .ls-subtitle, .btn, .footer-brand, .footer-tagline, .footer-heading, .footer-links a, .view-all-btn');
-            
-            elements.forEach(el => {
-                const text = el.textContent.trim();
-                if (dict[text]) {
-                    const originalHTML = el.innerHTML;
-                    const iconMatch = originalHTML.match(/<i.*<\/i>/); 
-                    if (iconMatch) {
-                        el.innerHTML = `${dict[text]} ${iconMatch[0]}`;
-                    } else {
-                        el.textContent = dict[text];
-                    }
-                }
-            });
-
-            // Specific placeholder translations
-            const inputs = document.querySelectorAll('input[placeholder]');
-            inputs.forEach(input => {
-                const p = input.getAttribute('placeholder');
-                if (dict[p]) input.setAttribute('placeholder', dict[p]);
-            });
-        };
-
-        if (window.requestIdleCallback) {
-            window.requestIdleCallback(runTranslation);
+        // Rule: English = "all" (See everything)
+        // Rule: Hindi/Gujarati = strict filter
+        if (savedLang === 'English') {
+          if (optLang === 'all' && !opt.classList.contains('active')) opt.click();
         } else {
-            setTimeout(runTranslation, 100);
+          if (optLang === savedLang.toLowerCase()) {
+            if (!opt.classList.contains('active')) opt.click();
+          }
         }
+      });
     }
 
-    // Call on load
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            initLanguageSelector();
-            setTimeout(syncPageLanguage, 500); 
-        });
-    } else {
-        initLanguageSelector();
-        setTimeout(syncPageLanguage, 500);
+    // 2. Global UI Translation
+    translateUI(savedLang);
+  }
+
+  const translations = {
+    Hindi: {
+      "Home": "होम",
+      "Stories": "कहानियां",
+      "Reading Stories": "कहानियां पढ़ें",
+      "Images & Wallpapers": "इमेज और वॉलपेपर",
+      "Audio Stories": "ऑडियो कहानियां",
+      "Books": "किताबें",
+      "Blog": "ब्लॉग",
+      "About": "बारे में",
+      "Contact": "संपर्क",
+      "Login": "लॉगिन",
+      "Logout": "लॉगआउट",
+      "Profile": "प्रोफ़ाइल",
+      "Latest Stories": "नवीनतम कहानियां",
+      "Stories That Touch The Soul": "आत्मा को छू लेने वाली कहानियां",
+      "Welcome to My World of Words": "शब्दों की मेरी दुनिया में आपका स्वागत है",
+      "Read Stories": "कहानियां पढ़ें",
+      "Listen Audio": "ऑडियो सुनें",
+      "Buy Books": "किताबें खरीदें",
+      "View All Stories": "सभी कहानियां देखें",
+      "Stay Updated": "अपडेट रहें",
+      "Weaving stories that touch your soul": "आत्मा को छू लेने वाली कहानियों की बुनाई",
+      "Quick Links": "त्वरित लिंक",
+      "Choose Your Language": "अपनी भाषा चुनें",
+      "Your Email": "आपका ईमेल"
+    },
+    Gujarati: {
+      "Home": "હોમ",
+      "Stories": "વાર્તાઓ",
+      "Reading Stories": "વાર્તાઓ વાંચો",
+      "Images & Wallpapers": "ઈમેજ અને વોલપેપર",
+      "Audio Stories": "ઓડિયો વાર્તાઓ",
+      "Books": "પુસ્તકો",
+      "Blog": "બ્લોગ",
+      "About": "વિશે",
+      "Contact": "સંપર્ક",
+      "Login": "લોગિન",
+      "Logout": "લોગઆઉટ",
+      "Profile": "પ્રોફાઇલ",
+      "Latest Stories": "નવીનતમ વાર્તાઓ",
+      "Stories That Touch The Soul": "આત્માને સ્પર્શી જાય તેવી વાર્તાઓ",
+      "Welcome to My World of Words": "શબ્દોની મારી દુનિયામાં આપનું સ્વાગત છે",
+      "Read Stories": "વાર્તાઓ વાંચો",
+      "Listen Audio": "ઓડિયો સાંભળો",
+      "Buy Books": "પુસ્તકો ખરીદો",
+      "View All Stories": "બધી વાર્તાઓ જુઓ",
+      "Stay Updated": "અપડેટ રહો",
+      "Weaving stories that touch your soul": "આત્માને સ્પર્શી જાય તેવી વાર્તાઓનું સર્જન",
+      "Quick Links": "ઝડપી લિંક્સ",
+      "Choose Your Language": "તમારી ભાષા પસંદ કરો",
+      "Your Email": "તમારું ઈમેલ"
     }
+  };
+
+  function translateUI(lang) {
+    if (!lang || lang === 'English') return;
+    const dict = translations[lang];
+    if (!dict) return;
+
+    // Translate links and common labels
+    const elements = document.querySelectorAll('a, h1, h2, h3, h4, span, p, button, .nav-links a');
+    elements.forEach(el => {
+      // Check textContent and replace if found in dict
+      const text = el.textContent.trim();
+      if (dict[text]) {
+        const originalHTML = el.innerHTML;
+        const iconMatch = originalHTML.match(/<i.*<\/i>/); // Preserve icons
+        if (iconMatch) {
+          el.innerHTML = `${dict[text]} ${iconMatch[0]}`;
+        } else {
+          el.textContent = dict[text];
+        }
+      }
+    });
+
+    // Specific placeholder translations
+    const inputs = document.querySelectorAll('input[placeholder]');
+    inputs.forEach(input => {
+      const p = input.getAttribute('placeholder');
+      if (dict[p]) input.setAttribute('placeholder', dict[p]);
+    });
+  }
+
+  // Call on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initLanguageSelector();
+      setTimeout(syncPageLanguage, 500);
+    });
+  } else {
+    initLanguageSelector();
+    setTimeout(syncPageLanguage, 500);
+  }
 })();
 
 // ================= PROFESSIONAL SHARING SYSTEM =================
 // Supports sharing actual image files + professional text template
-window.shareContent = async function({ title, description, url, imageUrl, type = 'story' }) {
-    const typeEmojis = { story: '📖', audio: '🎧', book: '📚', blog: '📰' };
-    const emoji = typeEmojis[type] || '✨';
-    
-    // 1. Standardize message content (fixed character length for consistency)
-    const cleanDescription = (description || '').replace(/<[^>]*>?/gm, '').trim();
-    const shortDescription = cleanDescription.substring(0, 100).padEnd(103, '.'); 
-    
-    // Structure: Welcome -> Emoji + Title -> Consistent Synopsis -> Brand -> Link -> Footer
-    const professionalText = `🌟 *Welcome to Qalamekahani!* 🌟\n\n${emoji} *${title}*\n\n"${shortDescription}"\n\n✨ Immerse yourself in the soul-touching world of stories, audio & literature by *Sabirkhan Pathan*. ✨\n\n🔗 *Full ${type === 'audio' ? 'Audio' : type.charAt(0).toUpperCase() + type.slice(1)} Link:* ${url}\n\n🚀 *Qalamekahani - Weaving stories that touch your soul.*`;
+window.shareContent = async function ({ title, description, url, imageUrl, type = 'story' }) {
+  const typeEmojis = { story: '📖', audio: '🎧', book: '📚', blog: '📰' };
+  const emoji = typeEmojis[type] || '✨';
 
-    const shareData = {
-        title: title,
-        text: professionalText
-    };
+  // 1. Standardize message content (fixed character length for consistency)
+  const cleanDescription = (description || '').replace(/<[^>]*>?/gm, '').trim();
+  const shortDescription = cleanDescription.substring(0, 100).padEnd(103, '.');
 
-    try {
-        // 2. Try to share as a FILE (for platform file preview)
-        if (navigator.canShare && imageUrl) {
-            try {
-                const response = await fetch(imageUrl);
-                const blob = await response.blob();
-                const file = new File([blob], `kalamekahani-${type}.jpg`, { type: 'image/jpeg' });
-                
-                if (navigator.canShare({ files: [file] })) {
-                    // With a file, we put EVERYTHING in the text to ensure recipient sees it
-                    shareData.files = [file];
-                }
-            } catch (fileErr) {
-                console.warn("[Share] File processing failed.", fileErr);
-            }
-        }
+  // Structure: Welcome -> Emoji + Title -> Consistent Synopsis -> Brand -> Link -> Footer
+  const professionalText = `🌟 *Welcome to Qalamekahani!* 🌟\n\n${emoji} *${title}*\n\n"${shortDescription}"\n\n✨ Immerse yourself in the soul-touching world of stories, audio & literature by *Sabirkhan Pathan*. ✨\n\n🔗 *Full ${type === 'audio' ? 'Audio' : type.charAt(0).toUpperCase() + type.slice(1)} Link:* ${url}\n\n🚀 *Qalamekahani - Weaving stories that touch your soul.*`;
 
-        if (navigator.share) {
-            await navigator.share(shareData);
-        } else {
-            // 3. Desktop/Fallback (Clipboard)
-            await navigator.clipboard.writeText(professionalText);
-            window.showToast('Details copied to clipboard! You can now share it.');
+  const shareData = {
+    title: title,
+    text: professionalText
+  };
+
+  try {
+    // 2. Try to share as a FILE (for platform file preview)
+    if (navigator.canShare && imageUrl) {
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], `kalamekahani-${type}.jpg`, { type: 'image/jpeg' });
+
+        if (navigator.canShare({ files: [file] })) {
+          // With a file, we put EVERYTHING in the text to ensure recipient sees it
+          shareData.files = [file];
         }
-    } catch (err) {
-        if (err.name !== 'AbortError') {
-            console.error('[Share] Error:', err);
-            navigator.clipboard.writeText(url);
-            window.showToast('Link copied to clipboard!');
-        }
+      } catch (fileErr) {
+        console.warn("[Share] File processing failed.", fileErr);
+      }
     }
+
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      // 3. Desktop/Fallback (Clipboard)
+      await navigator.clipboard.writeText(professionalText);
+      window.showToast('Details copied to clipboard! You can now share it.');
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.error('[Share] Error:', err);
+      navigator.clipboard.writeText(url);
+      window.showToast('Link copied to clipboard!');
+    }
+  }
 };

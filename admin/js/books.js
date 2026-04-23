@@ -72,6 +72,11 @@ function renderTable() {
                     </div>
                 ` : '<span class="text-gray-600 text-[10px] font-bold">REGULAR</span>'}
             </td>
+            <td class="px-6 py-5">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${book.status === 'published' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-gray-500/10 text-gray-400 border border-gray-500/20'}">
+                    ${book.status || 'published'}
+                </span>
+            </td>
             <td class="px-6 py-5 text-center">
                 <div class="flex flex-col items-center gap-1">
                     <div class="flex items-center gap-1.5 text-xs text-gray-300">
@@ -239,6 +244,7 @@ function editBook(id) {
     document.getElementById('price').value = price;
     document.getElementById('discountPercent').value = percent;
     document.getElementById('category').value = book.category || '';
+    document.getElementById('status').value = book.status || 'published';
     document.getElementById('buyLink').value = book.buy_link || book.buyLink || '';
     document.getElementById('language').value = book.language || 'English';
     document.getElementById('image').value = book.image;
@@ -312,7 +318,7 @@ async function handleFormSubmit(e) {
             image: imageUrl,
             description: document.getElementById('description').value,
             stock: 100, // Default stock
-            status: 'published'
+            status: document.getElementById('status').value || 'published'
         };
 
         const url = id ? `/books/${id}` : '/books';

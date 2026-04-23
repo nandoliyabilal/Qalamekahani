@@ -37,6 +37,7 @@ async function fetchStats() {
                 ${createStatCard('Total Users', users, 'users', 'blue')}
                 ${createStatCard('Total Views', totalViews, 'eye', 'indigo')}
                 ${createStatCard('Published Stories', stories, 'book-open', 'purple')}
+                ${createStatCard('Published Books', books, 'library', 'cyan')}
                 ${createStatCard('Audio Stories', audio, 'headphones', 'amber')}
                 ${createStatCard('Blogs', blogs, 'file-text', 'pink')}
                 ${createStatCard('Reviews', reviews, 'star', 'yellow')}

@@ -34,9 +34,17 @@ const getBookById = asyncHandler(async (req, res) => {
 const { sendEmailNotification } = require('../utils/notificationHelper');
 
 const createBook = asyncHandler(async (req, res) => {
-    const columns = Object.keys(req.body);
-    const values = Object.values(req.body);
+    const allowedColumns = ['title', 'author', 'category', 'image', 'description', 'language', 'buy_link', 'original_price', 'discounted_price', 'status', 'views', 'stock'];
+    const filteredData = {};
+    Object.keys(req.body).forEach(key => {
+        if (allowedColumns.includes(key)) filteredData[key] = req.body[key];
+    });
+
+    const columns = Object.keys(filteredData);
+    const values = Object.values(filteredData);
     const placeholders = columns.map(() => '?').join(', ');
+
+    if (columns.length === 0) return res.status(400).json({ message: 'No valid fields provided' });
 
     const [result] = await db.execute(
         `INSERT INTO book_library (${columns.join(', ')}) VALUES (${placeholders})`,
@@ -55,9 +63,18 @@ const createBook = asyncHandler(async (req, res) => {
 });
 
 const updateBook = asyncHandler(async (req, res) => {
-    const columns = Object.keys(req.body);
-    const values = Object.values(req.body);
+    const allowedColumns = ['title', 'author', 'category', 'image', 'description', 'language', 'buy_link', 'original_price', 'discounted_price', 'status', 'views', 'stock'];
+    const filteredData = {};
+    Object.keys(req.body).forEach(key => {
+        if (allowedColumns.includes(key)) filteredData[key] = req.body[key];
+    });
+
+    const columns = Object.keys(filteredData);
+    const values = Object.values(filteredData);
     const updateString = columns.map(col => `${col} = ?`).join(', ');
+    
+    if (columns.length === 0) return res.status(400).json({ message: 'No valid fields provided' });
+
     values.push(req.params.id);
 
     await db.execute(

@@ -134,11 +134,16 @@ const updateAudioStory = asyncHandler(async (req, res) => {
     const { episodes, ...storyData } = req.body;
     const id = req.params.id;
 
+    // Define allowed columns to prevent "Unknown column" errors
+    const allowedColumns = ['title', 'slug', 'description', 'category', 'language', 'author', 'image', 'audio_url', 'file_url', 'duration', 'views', 'status', 'is_premium', 'price', 'discount', 'is_featured'];
+
     const updates = [];
     const values = [];
     Object.keys(storyData).forEach(key => {
-        updates.push(`${key} = ?`);
-        values.push(storyData[key]);
+        if (allowedColumns.includes(key)) {
+            updates.push(`${key} = ?`);
+            values.push(storyData[key]);
+        }
     });
 
     if (updates.length > 0) {

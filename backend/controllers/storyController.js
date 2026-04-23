@@ -126,15 +126,18 @@ const updateStory = asyncHandler(async (req, res) => {
     const updates = [];
     const values = [];
 
-    // Map frontend names to DB names if needed
+    // Define allowed columns to prevent "Unknown column" errors
+    const allowedColumns = ['title', 'slug', 'content', 'summary', 'category', 'status', 'language', 'author', 'image', 'hashtags', 'views', 'likes', 'rating', 'price', 'discount', 'is_premium', 'youtube_link', 'chapter_stats'];
     const mapping = { fullContent: 'content', coverImage: 'image', youtubeLink: 'youtube_link', tags: 'hashtags' };
 
     Object.keys(fields).forEach(key => {
         const dbKey = mapping[key] || key;
-        updates.push(`${dbKey} = ?`);
-        let val = fields[key];
-        if (dbKey === 'hashtags') val = JSON.stringify(Array.isArray(val) ? val : [val]);
-        values.push(val);
+        if (allowedColumns.includes(dbKey)) {
+            updates.push(`${dbKey} = ?`);
+            let val = fields[key];
+            if (dbKey === 'hashtags') val = JSON.stringify(Array.isArray(val) ? val : [val]);
+            values.push(val);
+        }
     });
 
     if (updates.length > 0) {

@@ -53,6 +53,14 @@ const db = require('./config/mysql_db');
     try {
         const [rows] = await db.execute('SELECT 1 + 1 AS result');
         console.log('✅ MySQL Database Connected Successfully');
+        
+        // Debug Razorpay Env
+        const rzpKey = process.env.RAZORPAY_KEY_ID;
+        if (rzpKey) {
+            console.log(`✅ Razorpay Key Found: ${rzpKey.substring(0, 8)}...`);
+        } else {
+            console.error('❌ Razorpay Key NOT Found in .env');
+        }
     } catch (err) {
         console.error('❌ MySQL Connection Failed:', err.message);
         console.error('Check your .env MYSQL_ credentials in Hostinger panel.');

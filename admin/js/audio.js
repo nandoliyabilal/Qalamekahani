@@ -671,42 +671,91 @@ function playPreview(url) {
 }
 
 async function addNewEpisodeModal() {
-    const title = prompt('Enter Episode Title:');
-    if (!title) return;
-    
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'audio/*';
-    fileInput.onchange = async () => {
-        if (fileInput.files[0]) {
-            const file = fileInput.files[0];
+    openPartAddModal();
+}
+
+// --- SINGLE PART MODAL LOGIC ---
+const partAddForm = document.getElementById('partAddForm');
+const partFileInput = document.getElementById('partFile');
+
+if (partAddForm) {
+    partAddForm.addEventListener('submit', handlePartSubmit);
+}
+
+if (partFileInput) {
+    partFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('partFilePlaceholder').classList.add('hidden');
+            document.getElementById('partFileInfo').classList.remove('hidden');
+            document.getElementById('partFileName').textContent = file.name;
+            document.getElementById('partFileDuration').textContent = 'Calculating...';
             const duration = await getAudioDuration(file);
-            
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            try {
-                const upRes = await fetchWithAuth('/upload', { method: 'POST', body: formData });
-                const upData = await upRes.json();
-                
-                const epData = {
-                    audio_story_id: activeAudioId,
-                    title,
-                    file_url: upData.url,
-                    duration
-                };
-                
-                const saveRes = await fetchWithAuth('/audio/episodes', {
-                    method: 'POST',
-                    body: JSON.stringify(epData)
-                });
-                
-                if (saveRes.ok) openEpisodesModal(activeAudioId);
-                else alert('Failed to save episode.');
-            } catch (e) { alert('Upload error.'); }
+            document.getElementById('partFileDuration').textContent = `Duration: ${duration}`;
         }
-    };
-    fileInput.click();
+    });
+}
+
+function openPartAddModal() {
+    if (partAddForm) partAddForm.reset();
+    document.getElementById('partFilePlaceholder').classList.remove('hidden');
+    document.getElementById('partFileInfo').classList.add('hidden');
+    document.getElementById('partAddModal').classList.remove('hidden');
+}
+
+function closePartAddModal() {
+    document.getElementById('partAddModal').classList.add('hidden');
+}
+
+async function handlePartSubmit(e) {
+    e.preventDefault();
+    const title = document.getElementById('partTitle').value;
+    const file = document.getElementById('partFile').files[0];
+    
+    if (!file) {
+        alert('Please select an audio file.');
+        return;
+    }
+
+    const btn = document.getElementById('partSubmitBtn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Uploading...';
+    btn.disabled = true;
+
+    try {
+        const duration = await getAudioDuration(file);
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const upRes = await fetchWithAuth('/upload', { method: 'POST', body: formData });
+        const upData = await upRes.json();
+        
+        const epData = {
+            audio_story_id: activeAudioId,
+            title,
+            file_url: upData.url,
+            duration
+        };
+        
+        const saveRes = await fetchWithAuth('/audio/episodes', {
+            method: 'POST',
+            body: JSON.stringify(epData)
+        });
+        
+        if (saveRes.ok) {
+            closePartAddModal();
+            openEpisodesModal(activeAudioId);
+        } else {
+            const err = await saveRes.json();
+            alert('Failed to save episode: ' + (err.message || 'Unknown error'));
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Upload error.');
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
 }
 
 async function deleteEpisode(id) {

@@ -333,6 +333,41 @@
         </div>
     </div>
 
+    <!-- Add/Edit Single Part Modal -->
+    <div id="partAddModal" class="fixed inset-0 z-[70] hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closePartAddModal()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-gray-800 p-8 rounded-3xl shadow-2xl border border-gray-700">
+            <h3 id="partModalTitle" class="text-xl font-bold text-white mb-6">Add New Part</h3>
+            <form id="partAddForm" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Part Title</label>
+                    <input type="text" id="partTitle" required placeholder="e.g. Chapter 1: The Beginning"
+                        class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Audio File</label>
+                    <div class="relative group cursor-pointer h-32 bg-gray-900 border-2 border-dashed border-gray-700 rounded-2xl flex flex-col items-center justify-center overflow-hidden hover:border-indigo-500 transition-colors"
+                        onclick="document.getElementById('partFile').click()">
+                        <div id="partFilePlaceholder" class="flex flex-col items-center gap-2 text-gray-500 group-hover:text-indigo-400">
+                            <i data-lucide="music" class="w-8 h-8"></i>
+                            <span class="text-xs font-medium">Click to select audio file</span>
+                        </div>
+                        <div id="partFileInfo" class="hidden flex flex-col items-center gap-1 text-center px-4">
+                            <i data-lucide="headphones" class="w-6 h-6 text-indigo-400 mb-1"></i>
+                            <span id="partFileName" class="text-xs text-indigo-400 font-bold w-full truncate">No file</span>
+                            <span id="partFileDuration" class="text-[10px] text-emerald-500 font-black uppercase tracking-tighter mt-0.5">Duration: 0:00</span>
+                        </div>
+                        <input type="file" id="partFile" accept="audio/*" class="hidden">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="closePartAddModal()" class="px-6 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-all font-medium">Cancel</button>
+                    <button type="submit" id="partSubmitBtn" class="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xl shadow-indigo-500/20 font-bold">Add Part</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="/admin/js/main.js"></script>
     <script src="/admin/js/audio.js"></script>
     <script>lucide.createIcons();</script>

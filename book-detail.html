@@ -706,7 +706,7 @@
                 // Store global book object for modal
                 currentBook = book;
 
-                const discounted = book.price || 0;
+                const discounted = book.discounted_price || book.price || 0;
                 const price = book.original_price || discounted;
 
                 const container = document.getElementById('product-area');

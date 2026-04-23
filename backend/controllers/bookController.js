@@ -3,7 +3,12 @@ const db = require('../config/mysql_db');
 
 const getBooks = asyncHandler(async (req, res) => {
     const [data] = await db.execute('SELECT * FROM book_library ORDER BY created_at DESC');
-    res.status(200).json(data);
+    // Ensure frontend compatibility
+    const mappedData = data.map(book => ({
+        ...book,
+        price: book.discounted_price || book.price || 0
+    }));
+    res.status(200).json(mappedData);
 });
 
 const getBookById = asyncHandler(async (req, res) => {
@@ -14,6 +19,9 @@ const getBookById = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error('Book not found');
     }
+
+    // Ensure frontend compatibility
+    book.price = book.discounted_price || book.price || 0;
 
     // Increment Views
     if (req.query.increment !== 'false') {

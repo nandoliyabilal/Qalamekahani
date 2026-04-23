@@ -44,8 +44,15 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
             user_id: req.user ? req.user.id : null
         };
 
-        const columns = Object.keys(insertData);
-        const values = Object.values(insertData);
+        const allowedColumns = ['amount', 'currency', 'razorpay_order_id', 'razorpay_payment_id', 'status', 'customer_name', 'customer_email', 'customer_phone', 'book_title', 'book_id', 'story_id', 'audio_id', 'user_id', 'created_at', 'updated_at'];
+        
+        const filteredData = {};
+        Object.keys(insertData).forEach(key => {
+            if (allowedColumns.includes(key)) filteredData[key] = insertData[key];
+        });
+
+        const columns = Object.keys(filteredData);
+        const values = Object.values(filteredData);
         const placeholders = columns.map(() => '?').join(', ');
 
         await db.execute(

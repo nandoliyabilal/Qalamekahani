@@ -110,10 +110,21 @@ const { sendEmailNotification } = require('../utils/notificationHelper');
 
 const createAudioStory = asyncHandler(async (req, res) => {
     const { episodes, ...storyData } = req.body;
-    
-    const columns = Object.keys(storyData).join(',');
-    const placeholders = Object.keys(storyData).map(() => '?').join(',');
-    const [result] = await db.execute(`INSERT INTO audio_stories (${columns}) VALUES (${placeholders})`, Object.values(storyData));
+    const allowedColumns = ['title', 'slug', 'description', 'category', 'language', 'author', 'image', 'audio_url', 'file_url', 'duration', 'views', 'status', 'is_premium', 'price', 'discount', 'is_featured'];
+
+    const filteredData = {};
+    Object.keys(storyData).forEach(key => {
+        if (allowedColumns.includes(key)) filteredData[key] = storyData[key];
+    });
+
+    if (!filteredData.slug && filteredData.title) {
+        filteredData.slug = filteredData.title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+        filteredData.slug = `${filteredData.slug}-${Date.now().toString(36)}`;
+    }
+
+    const columns = Object.keys(filteredData).join(',');
+    const placeholders = Object.keys(filteredData).map(() => '?').join(',');
+    const [result] = await db.execute(`INSERT INTO audio_stories (${columns}) VALUES (${placeholders})`, Object.values(filteredData));
     const newId = result.insertId;
 
     if (episodes && episodes.length > 0) {

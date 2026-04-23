@@ -28,9 +28,16 @@ const createImage = asyncHandler(async (req, res) => {
         throw new Error('Title and Image are required');
     }
 
+    const allowedColumns = ['title', 'image', 'category', 'downloads'];
+    const filteredData = { title, image, category: category || 'General' };
+    
+    const columns = Object.keys(filteredData).filter(c => allowedColumns.includes(c));
+    const placeholders = columns.map(() => '?').join(', ');
+    const values = columns.map(c => filteredData[c]);
+
     const [result] = await db.execute(
-        'INSERT INTO gallery (title, image, category) VALUES (?, ?, ?)',
-        [title, image, category || 'General']
+        `INSERT INTO gallery (${columns.join(', ')}) VALUES (${placeholders})`,
+        values
     );
 
     const [newRows] = await db.execute('SELECT * FROM gallery WHERE id = ?', [result.insertId]);

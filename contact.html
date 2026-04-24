@@ -21,24 +21,36 @@
             --border: rgba(255, 255, 255, 0.1);
         }
 
+        html, body {
+            overflow-x: hidden !important;
+            width: 100%;
+            position: relative;
+            margin: 0;
+            padding: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             background: var(--c-bg) !important;
             color: #fff;
             font-family: 'Poppins', sans-serif;
-            overflow-x: hidden;
+            perspective: 1000px;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(126, 34, 206, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 40%);
-            perspective: 1000px;
         }
 
         /* --- Magical Particle Background --- */
         .particles {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; left: 0; 
+            width: 100vw; height: 100vh;
             z-index: -1;
             pointer-events: none;
-            overflow: hidden;
+            overflow: hidden !important;
         }
 
         .dot {
@@ -70,6 +82,8 @@
             text-transform: uppercase;
             letter-spacing: 12px;
             margin: 0;
+            max-width: 100%;
+            overflow-wrap: break-word;
             background: linear-gradient(to right, #fff, var(--c-gold), var(--c-pink));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -114,7 +128,7 @@
         .cosmic-card::before {
             content: '';
             position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(45deg, transparent, var(--c-purple), var(--c-pink), transparent);
             z-index: -1;
             border-radius: 32px;

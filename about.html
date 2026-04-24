@@ -12,255 +12,235 @@
     <link rel="stylesheet" href="css/style.css?v=2.2">
     <style>
         :root {
-            --a-bg: #030008;
-            --a-gold: #d4af37;
-            --a-purple: #7e22ce;
-            --a-pink: #ec4899;
-            --a-glass: rgba(255, 255, 255, 0.03);
-            --a-border: rgba(255, 255, 255, 0.08);
+            --p-bg: #050505;
+            --p-gold: #d4af37;
+            --p-accent: #7e22ce;
+            --p-text: #f5f5f5;
+            --p-muted: #888;
         }
 
         html, body {
             overflow-x: hidden !important;
             width: 100%;
-            position: relative;
-            margin: 0; padding: 0;
-            background: var(--a-bg) !important;
+            background: var(--p-bg) !important;
         }
 
         body {
-            color: #fff;
+            color: var(--p-text);
             font-family: 'Poppins', sans-serif;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(126, 34, 206, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 40%);
+            margin: 0; padding: 0;
         }
 
-        /* --- Magical Particle Background --- */
-        .particles {
+        /* --- Luxury Star Background --- */
+        .star-canvas {
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #111, #000);
             overflow: hidden;
         }
 
-        .dot {
+        .star {
             position: absolute;
             background: #fff;
             border-radius: 50%;
-            opacity: 0.2;
-            animation: move linear infinite;
+            opacity: 0.5;
+            animation: twink 5s infinite;
         }
 
-        @keyframes move {
-            from { transform: translateY(100vh) scale(0); opacity: 0; }
-            50% { opacity: 0.5; }
-            to { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        @keyframes twink {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
         }
 
-        /* --- Cinematic Header --- */
-        .about-hero {
-            padding: 220px 5% 100px;
+        /* --- Minimalist Luxury Header --- */
+        .pro-hero {
+            padding: 240px 5% 120px;
             text-align: center;
-            position: relative;
         }
 
-        .hero-title {
+        .pro-title {
             font-family: 'Cinzel', serif;
-            font-size: clamp(3rem, 10vw, 6.5rem);
-            font-weight: 900;
+            font-size: clamp(3rem, 12vw, 7rem);
+            font-weight: 800;
+            letter-spacing: 20px;
             text-transform: uppercase;
-            letter-spacing: 15px;
             margin: 0;
-            background: linear-gradient(to bottom, #fff 30%, var(--a-gold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.3));
-            animation: heroReveal 1.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            color: #fff;
+            line-height: 1;
         }
 
-        .hero-subtitle {
+        .pro-subtitle {
             font-family: 'Playfair Display', serif;
             font-style: italic;
-            font-size: 1.5rem;
-            color: #888;
-            margin-top: 15px;
-            letter-spacing: 2px;
-            animation: fadeIn 2.5s ease;
+            font-size: 1.4rem;
+            color: var(--p-gold);
+            margin-top: 20px;
+            letter-spacing: 5px;
+            opacity: 0.8;
         }
 
-        /* --- Main Biography --- */
-        .bio-section {
-            padding: 0 5% 100px;
-            max-width: 1400px;
+        /* --- Professional Layout --- */
+        .content-pro-grid {
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 0 5% 150px;
             display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 60px;
-            align-items: center;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 100px;
+            align-items: flex-start;
         }
 
-        .bio-image-container {
-            position: relative;
-            border-radius: 40px;
-            overflow: hidden;
-            border: 1px solid var(--a-border);
-            box-shadow: 0 50px 100px rgba(0,0,0,0.8);
-            animation: slideLeft 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .image-frame {
+            position: sticky;
+            top: 150px;
+            padding: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            background: rgba(255,255,255,0.02);
         }
 
-        .bio-image-container img {
+        .image-frame img {
             width: 100%;
+            border-radius: 15px;
             display: block;
-            transition: 0.7s;
-            filter: contrast(1.1) brightness(0.9);
+            filter: grayscale(100%);
+            transition: 1s;
         }
 
-        .bio-image-container:hover img {
-            transform: scale(1.05);
-            filter: contrast(1) brightness(1);
+        .image-frame:hover img {
+            filter: grayscale(0%);
         }
 
-        .bio-card {
-            background: var(--a-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--a-border);
-            border-radius: 40px;
-            padding: 60px;
+        .pro-bio-card {
             position: relative;
-            animation: slideRight 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        .bio-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, transparent, rgba(212, 175, 55, 0.05));
-            border-radius: 40px;
-            pointer-events: none;
+        .section-tag {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--p-gold);
+            margin-bottom: 20px;
+            display: block;
         }
 
-        .bio-heading {
+        .pro-bio-heading {
             font-family: 'Cinzel', serif;
-            font-size: 2.8rem;
-            color: var(--a-gold);
-            margin-bottom: 30px;
-            position: relative;
+            font-size: 3rem;
+            margin-bottom: 40px;
+            color: #fff;
         }
 
-        .bio-text p {
-            font-size: 1.15rem;
-            line-height: 1.9;
+        .pro-bio-text p {
+            font-size: 1.2rem;
+            line-height: 2;
             color: #bbb;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             font-weight: 300;
         }
 
-        /* --- Published Works --- */
-        .works-section {
-            padding: 100px 5%;
-            background: rgba(255, 255, 255, 0.01);
-            border-top: 1px solid var(--a-border);
+        /* --- Stats Section --- */
+        .stats-stripe {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            padding: 60px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 50px;
         }
 
-        .works-title {
+        .stat-item { text-align: center; }
+
+        .stat-num {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--p-gold);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* --- Books Layout --- */
+        .published-section {
+            padding: 120px 5%;
+            background: #080808;
             text-align: center;
+        }
+
+        .works-heading-pro {
             font-family: 'Cinzel', serif;
             font-size: 3rem;
-            color: #fff;
-            margin-bottom: 60px;
-            letter-spacing: 5px;
+            margin-bottom: 80px;
+            letter-spacing: 10px;
         }
 
-        .works-grid {
-            max-width: 1300px;
+        .pro-book-grid {
+            max-width: 1200px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 40px;
         }
 
-        .work-item {
-            background: rgba(25, 25, 35, 0.4);
-            border: 1px solid var(--a-border);
-            padding: 40px;
-            border-radius: 25px;
+        .pro-book-item {
+            padding: 60px 40px;
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.03);
             transition: 0.5s;
+            text-align: left;
             position: relative;
-            overflow: hidden;
-            cursor: pointer;
         }
 
-        .work-item:hover {
-            transform: translateY(-10px) rotateX(5deg);
-            border-color: var(--a-gold);
-            background: rgba(212, 175, 55, 0.03);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        .pro-book-item:hover {
+            border-color: var(--p-gold);
+            background: #000;
+            transform: translateY(-5px);
         }
 
-        .work-item i {
+        .pro-book-item::after {
+            content: '';
             position: absolute;
-            right: 20px; bottom: 20px;
-            font-size: 5rem;
-            color: rgba(212, 175, 55, 0.03);
+            left: 0; bottom: 0; width: 0; height: 2px;
+            background: var(--p-gold);
             transition: 0.5s;
         }
 
-        .work-item:hover i {
-            color: rgba(212, 175, 55, 0.1);
-            transform: scale(1.2);
-        }
+        .pro-book-item:hover::after { width: 100%; }
 
-        .work-title {
+        .pro-book-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            color: #fff;
+            font-size: 1.8rem;
             margin-bottom: 10px;
+            color: #fff;
         }
 
-        .work-lang {
-            color: var(--a-gold);
+        .pro-book-meta {
+            color: var(--p-gold);
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
-        /* --- Animations --- */
-        @keyframes heroReveal {
-            from { opacity: 0; transform: translateY(100px) scale(1.1); filter: blur(20px); }
-            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideLeft {
-            from { opacity: 0; transform: translateX(-100px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes slideRight {
-            from { opacity: 0; transform: translateX(100px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
         /* --- Responsive --- */
         @media (max-width: 1024px) {
-            .bio-section { grid-template-columns: 1fr; text-align: center; }
-            .bio-image-container { max-width: 400px; margin: 0 auto; order: -1; }
-            .hero-title { font-size: 4rem; letter-spacing: 8px; }
+            .content-pro-grid { grid-template-columns: 1fr; }
+            .image-frame { position: relative; top: 0; max-width: 500px; margin: 0 auto; }
+            .pro-title { font-size: 4rem; letter-spacing: 10px; }
         }
 
         @media (max-width: 600px) {
-            .about-hero { padding-top: 150px; }
-            .hero-title { font-size: 2.5rem; letter-spacing: 4px; }
-            .bio-card { padding: 40px 20px; border-radius: 30px; }
-            .bio-heading { font-size: 2rem; }
-            .works-title { font-size: 2rem; }
+            .pro-hero { padding-top: 150px; }
+            .pro-title { font-size: 2.5rem; letter-spacing: 5px; }
+            .pro-bio-heading { font-size: 2rem; }
+            .stats-stripe { grid-template-columns: 1fr; gap: 30px; }
         }
 
         /* --- Responsive --- */
@@ -318,59 +298,79 @@
         </div>
     </header>
 
-    <div class="particles" id="particle-container"></div>
+    <div class="star-canvas" id="star-field"></div>
 
-    <section class="about-hero">
-        <h1 class="hero-title">Sabirkhan Pathan</h1>
-        <p class="hero-subtitle">The Voice of Qalamverce</p>
+    <section class="pro-hero">
+        <h1 class="pro-title">Sabirkhan</h1>
+        <p class="pro-subtitle">Premier Storyteller & Creative Visionary</p>
     </section>
 
-    <section class="bio-section">
-        <div class="bio-image-container">
+    <div class="content-pro-grid">
+        <!-- Left: Sticky Image Frame -->
+        <aside class="image-frame">
             <img id="author-image" src="images/author.png" alt="Sabirkhan Pathan"
                 onerror="this.src='https://via.placeholder.com/600x800/111/d4af37?text=Author'">
-        </div>
+        </aside>
 
-        <div class="bio-card">
-            <h2 class="bio-heading">Our Story</h2>
-            <div class="bio-text" id="author-bio">
-                <p>Connecting soul through stories...</p>
+        <!-- Right: Story & Bio -->
+        <main class="pro-bio-card">
+            <span class="section-tag">Since 2017</span>
+            <h2 class="pro-bio-heading">Legacy of Words</h2>
+            
+            <div class="stats-stripe">
+                <div class="stat-item">
+                    <span class="stat-num">50+</span>
+                    <span class="stat-label">Stories Shared</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">10K+</span>
+                    <span class="stat-label">Active Readers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">08</span>
+                    <span class="stat-label">Books Published</span>
+                </div>
             </div>
 
-            <div class="social-icons" style="justify-content: flex-start; margin-top: 40px;">
+            <div class="pro-bio-text" id="author-bio">
+                <p>Weaving intricate narratives that blur the line between reality and the supernatural...</p>
+            </div>
+
+            <div class="social-icons" style="justify-content: flex-start; margin-top: 50px;">
                 <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
                 <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i class="fab fa-facebook-f"></i></a>
                 <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i class="fab fa-whatsapp"></i></a>
             </div>
-        </div>
-    </section>
+        </main>
+    </div>
 
-    <section class="works-section">
-        <h3 class="works-title">Legacy of Stories</h3>
-        <div class="works-grid" id="published-works-grid">
-            <p style="grid-column: 1/-1; text-align: center;">Awakening stories...</p>
+    <section class="published-section">
+        <h3 class="works-heading-pro">Published Works</h3>
+        <div class="pro-book-grid" id="published-works-grid">
+            <p style="grid-column: 1/-1; text-align: center; color: #555;">Discovering literary gems...</p>
         </div>
     </section>
 
     <!-- Script to Fetch Data -->
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-             // --- Magical Particle Generator ---
-            const container = document.getElementById('particle-container');
-            const particleCount = 50;
-            for (let i = 0; i < particleCount; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'dot';
+             // --- Luxury Star Engine ---
+            const starField = document.getElementById('star-field');
+            const starCount = 150;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
                 const x = Math.random() * 100;
-                const delay = Math.random() * 15;
-                const duration = 10 + Math.random() * 20;
-                const size = 1 + Math.random() * 3;
-                dot.style.left = x + '%';
-                dot.style.width = size + 'px';
-                dot.style.height = size + 'px';
-                dot.style.animationDuration = duration + 's';
-                dot.style.animationDelay = delay + 's';
-                container.appendChild(dot);
+                const y = Math.random() * 100;
+                const size = Math.random() * 2;
+                const delay = Math.random() * 5;
+                
+                star.style.left = x + '%';
+                star.style.top = y + '%';
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.animationDelay = delay + 's';
+                starField.appendChild(star);
             }
 
             // 1. Fetch Author Settings
@@ -395,14 +395,13 @@
                     const grid = document.getElementById('published-works-grid');
                     if (books && books.length > 0) {
                         grid.innerHTML = books.map(book => `
-                            <div class="work-item" onclick="window.location.href='book-detail.html?id=${book.id}'">
-                                <h4 class="work-title">${book.title}</h4>
-                                <span class="work-lang">${book.language || 'Hindi / Gujarati'}</span>
-                                <i class="fas fa-book-open"></i>
+                            <div class="pro-book-item" onclick="window.location.href='book-detail.html?id=${book.id}'">
+                                <h4 class="pro-book-title">${book.title}</h4>
+                                <span class="pro-book-meta">${book.language || 'Hindi / Gujarati'}</span>
                             </div>
                         `).join('');
                     } else {
-                        grid.innerHTML = '<p style="grid-column: 1/-1;">No published works found.</p>';
+                        grid.innerHTML = '<p style="grid-column: 1/-1; color: #444;">Selection currently in archives...</p>';
                     }
                 }
             } catch (err) { console.error(err); }

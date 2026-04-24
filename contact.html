@@ -33,16 +33,14 @@
         /* --- Hero Section --- */
         .hero-section {
             padding: 160px 5% 60px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: center;
-            gap: 50px;
+            text-align: center;
             max-width: 1300px;
             margin: 0 auto;
         }
 
         .hero-content {
-            text-align: left;
+            margin: 0 auto;
+            max-width: 800px;
         }
 
         .tagline-small {
@@ -65,33 +63,14 @@
 
         .hero-title span {
             color: var(--p-accent);
-            display: block;
         }
 
         .hero-desc {
             color: #aaa;
             font-size: 1.1rem;
-            max-width: 500px;
+            max-width: 600px;
+            margin: 0 auto;
             line-height: 1.6;
-        }
-
-        .hero-image-container {
-            position: relative;
-            border-radius: 30px;
-            overflow: hidden;
-            box-shadow: 0 0 50px rgba(110, 44, 242, 0.2);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .hero-image-container img {
-            width: 100%;
-            display: block;
-            border-radius: 30px;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
         }
 
         /* --- Grid Layout --- */
@@ -431,9 +410,6 @@
             <h1 class="hero-title">Contact Us <span>We're Here to Help ❤️</span></h1>
             <p class="hero-desc">Have a question, suggestion, or just want to say hello? We'd love to hear from you.</p>
         </div>
-        <div class="hero-image-container">
-            <img src="images/contact_hero.png" alt="Mystical Lantern and Quill">
-        </div>
     </div>
 
     <div class="contact-main-grid">
@@ -465,14 +441,6 @@
                 <div class="info-card-text">
                     <h6>Our Office</h6>
                     <p>Surat, Gujarat, India</p>
-                </div>
-            </div>
-
-            <div class="info-card">
-                <div class="icon-circle"><i class="fas fa-clock"></i></div>
-                <div class="info-card-text">
-                    <h6>Working Hours</h6>
-                    <p>Mon - Sat: 10:00 AM - 7:00 PM</p>
                 </div>
             </div>
         </div>

@@ -163,9 +163,31 @@
             border-radius: 15px;
             display: flex; justify-content: center; align-items: center;
             font-size: 1.5rem;
-            color: var(--c-gold);
+            transition: 0.4s;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
         }
+
+        .pill-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%; height: 100%;
+            background: inherit;
+            filter: blur(10px);
+            opacity: 0;
+            transition: 0.4s;
+        }
+
+        .contact-pill:hover .pill-icon::after { opacity: 0.5; }
+
+        /* Icon Specific Gradients */
+        .icon-mail { background: linear-gradient(135deg, #7e22ce, #ec4899) !important; color: #fff !important; }
+        .icon-phone { background: linear-gradient(135deg, #d4af37, #f59e0b) !important; color: #000 !important; }
+        .icon-loc { background: linear-gradient(135deg, #06b6d4, #3b82f6) !important; color: #fff !important; }
+
+        .pill-text div { transition: 0.3s; }
+        .contact-pill:hover .pill-text div { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
 
         /* --- Futuristic Form --- */
         .cosmic-input-group {
@@ -175,7 +197,7 @@
 
         .cosmic-input {
             width: 100%;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 20px 25px 20px 60px;
             border-radius: 15px;
@@ -185,10 +207,12 @@
             transition: 0.4s;
         }
 
+        .cosmic-input::placeholder { color: #555; }
+
         .cosmic-input:focus {
             border-color: var(--c-cyan);
-            background: rgba(6, 182, 212, 0.05);
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+            background: rgba(6, 182, 212, 0.08);
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.2);
         }
 
         .cosmic-icon {
@@ -400,26 +424,26 @@
         <!-- Left: Cosmic Info -->
         <div class="cosmic-card">
             <div class="contact-pill">
-                <div class="pill-icon"><i class="fas fa-envelope"></i></div>
+                <div class="pill-icon icon-mail"><i class="fas fa-envelope"></i></div>
                 <div class="pill-text">
                     <small style="color: #666; text-transform: uppercase;">Direct Mail</small>
-                    <div style="font-weight: 600; font-size: 1.1rem;">info@qalamekahani.com</div>
+                    <div id="display-email" style="font-weight: 600; font-size: 1.1rem;">info@qalamekahani.com</div>
                 </div>
             </div>
 
             <div class="contact-pill">
-                <div class="pill-icon"><i class="fas fa-phone-alt"></i></div>
+                <div class="pill-icon icon-phone"><i class="fas fa-phone-alt"></i></div>
                 <div class="pill-text">
                     <small style="color: #666; text-transform: uppercase;">Phone Line</small>
-                    <div style="font-weight: 600; font-size: 1.1rem;">+91 98765 43210</div>
+                    <div id="display-phone" style="font-weight: 600; font-size: 1.1rem;">+91 98765 43210</div>
                 </div>
             </div>
 
             <div class="contact-pill">
-                <div class="pill-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="pill-icon icon-loc"><i class="fas fa-map-marker-alt"></i></div>
                 <div class="pill-text">
                     <small style="color: #666; text-transform: uppercase;">Location</small>
-                    <div style="font-weight: 600; font-size: 1.1rem;">Surat, Gujarat, India</div>
+                    <div id="display-address" style="font-weight: 600; font-size: 1.1rem;">Surat, Gujarat, India</div>
                 </div>
             </div>
         </div>
@@ -502,6 +526,20 @@
     <script src="js/global-horror.js"></script>
 
     <script>
+        // --- Dynamic Settings Fetch ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/settings?t=' + Date.now())
+                .then(res => res.json())
+                .then(settings => {
+                    if (settings) {
+                        if (settings.contactEmail) document.getElementById('display-email').textContent = settings.contactEmail;
+                        if (settings.contactPhone) document.getElementById('display-phone').textContent = settings.contactPhone;
+                        if (settings.contactAddress) document.getElementById('display-address').textContent = settings.contactAddress;
+                    }
+                })
+                .catch(err => console.error('Error loading settings:', err));
+        });
+
         // --- Magical Particle Generator ---
         const container = document.getElementById('particle-container');
         const particleCount = 60;

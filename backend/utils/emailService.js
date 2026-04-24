@@ -135,6 +135,9 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
     } else if (type === 'contact_admin') {
         const content = `<div class="title">New Inquiry</div><p>From: ${itemData.name} (${itemData.userEmail})</p><p>${itemData.userMessage}</p>`;
         finalHtml = getPremiumTemplate(content);
+    } else if (type === 'contact_user') {
+        const content = `<div class="title">Message Received</div><p>Hello ${itemData.name},</p><p>Thank you for reaching out to Qalamekahani. We have received your message and will get back to you shortly.</p><div style="padding: 15px; background: #111; border-left: 2px solid #d4af37; font-style: italic; margin-top: 20px;">"${itemData.userMessage}"</div>`;
+        finalHtml = getPremiumTemplate(content);
     } else if (type === 'new_item') {
         const content = `<div class="title">New ${itemData.typeLabel}</div><h3>${itemData.title}</h3><p>${itemData.summary}</p><a href="${itemData.link}" class="btn">View Now</a>`;
         finalHtml = getPremiumTemplate(content);

@@ -280,15 +280,65 @@ async function editStory(id) {
 function addChapterField(titleValue = '', bodyValue = '') {
     const container = document.getElementById('chaptersContainer');
     if (!container) return;
+    const index = container.children.length;
     const div = document.createElement('div');
     div.className = 'p-4 bg-gray-800/50 border border-gray-700/50 rounded-xl mb-4 relative';
     div.innerHTML = `
         <button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-gray-500 hover:text-red-400 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-        <input type="text" placeholder="Title..." value="${titleValue}" class="chapter-title-input w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white font-bold outline-none mb-3">
-        <textarea placeholder="Content..." rows="6" class="chapter-body-input w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-3 text-sm text-gray-300 leading-relaxed outline-none">${bodyValue.trim()}</textarea>
+        <div class="flex items-center gap-2 mb-2">
+            <input type="text" placeholder="Title..." value="${titleValue}" class="chapter-title-input flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white font-bold outline-none">
+            <button type="button" onclick="triggerChapterImageUpload('ch-body-${index}')" class="px-3 py-2 bg-gray-700 hover:bg-indigo-600 text-xs text-white rounded-lg flex items-center gap-1.5 transition-all">
+                <i data-lucide="image" class="w-3.5 h-3.5"></i> Insert Image
+            </button>
+        </div>
+        <textarea id="ch-body-${index}" placeholder="Content..." rows="6" class="chapter-body-input w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-3 text-sm text-gray-300 leading-relaxed outline-none">${bodyValue.trim()}</textarea>
     `;
     container.appendChild(div);
     if (window.lucide) lucide.createIcons();
+}
+
+/**
+ * Handle Inline Image Upload for Chapters
+ */
+async function triggerChapterImageUpload(targetId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async () => {
+        const file = input.files[0];
+        if (!file) return;
+
+        const originalBtn = event.currentTarget;
+        const originalHtml = originalBtn.innerHTML;
+        originalBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>...';
+        originalBtn.disabled = true;
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetchWithAuth('/upload', { method: 'POST', body: formData });
+            if (!res.ok) throw new Error('Upload failed');
+            const data = await res.json();
+            
+            const textarea = document.getElementById(targetId);
+            const cursorPos = textarea.selectionStart;
+            const textBefore = textarea.value.substring(0, cursorPos);
+            const textAfter = textarea.value.substring(cursorPos);
+            
+            // Insert the image tag
+            textarea.value = `${textBefore}\n[IMG:${data.url}]\n${textAfter}`;
+            textarea.focus();
+            textarea.selectionEnd = cursorPos + data.url.length + 8; // Position after tag
+            
+            alert('Image inserted at cursor!');
+        } catch (err) {
+            alert('Upload failed: ' + err.message);
+        } finally {
+            originalBtn.innerHTML = originalHtml;
+            originalBtn.disabled = false;
+        }
+    };
+    input.click();
 }
 
 async function handleFormSubmit(e) {
@@ -425,8 +475,14 @@ function renderChapterCards(story) {
 
             <!-- Modern Inner Editor (Hidden by default) -->
             <div id="editor-${ch.id}" class="hidden mt-4 pt-4 border-t border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] text-gray-400 uppercase font-bold">Story Editor</span>
+                    <button onclick="triggerChapterImageUpload('ta-${ch.id}')" class="px-3 py-1.5 bg-gray-800 hover:bg-indigo-600 text-[11px] text-white rounded-lg flex items-center gap-1.5 border border-gray-700 transition-all">
+                        <i data-lucide="image" class="w-3.5 h-3.5"></i> Add Image
+                    </button>
+                </div>
                 <div class="bg-black/20 rounded-2xl p-4 border border-gray-200">
-                    <textarea onchange="updateChapterBody('${ch.id}', this.value)" 
+                    <textarea id="ta-${ch.id}" onchange="updateChapterBody('${ch.id}', this.value)" 
                         placeholder="Chapter content..."
                         class="w-full bg-transparent border-none text-gray-700 h-[400px] outline-none text-lg font-serif leading-relaxed placeholder:text-gray-300">${ch.body.replace(/<p>/g, '').replace(/<\/p>/g, '\n').trim()}</textarea>
                 </div>

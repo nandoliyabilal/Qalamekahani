@@ -159,6 +159,8 @@
 
         .pill-icon {
             width: 60px; height: 60px;
+            min-width: 60px; /* Don't allow it to squeeze */
+            flex-shrink: 0;   /* Force fixed size */
             background: linear-gradient(45deg, #111, #222);
             border-radius: 15px;
             display: flex; justify-content: center; align-items: center;
@@ -186,7 +188,12 @@
         .icon-phone { background: linear-gradient(135deg, #d4af37, #f59e0b) !important; color: #000 !important; }
         .icon-loc { background: linear-gradient(135deg, #06b6d4, #3b82f6) !important; color: #fff !important; }
 
-        .pill-text div { transition: 0.3s; }
+        .pill-text {
+            overflow: hidden;
+            word-break: break-word;
+        }
+
+        .pill-text div { transition: 0.3s; font-size: clamp(0.9rem, 4vw, 1.1rem); }
         .contact-pill:hover .pill-text div { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
 
         /* --- Futuristic Form --- */
@@ -205,6 +212,7 @@
             font-size: 1.1rem;
             outline: none;
             transition: 0.4s;
+            box-sizing: border-box; /* Crucial for overflow */
         }
 
         .cosmic-input::placeholder { color: #555; }
@@ -272,14 +280,18 @@
         /* --- Responsive Master --- */
         @media (max-width: 1100px) {
             .main-cosmic-grid { grid-template-columns: 1fr; }
-            .master-title { font-size: 4rem; }
+            .master-title { font-size: 4rem; letter-spacing: 6px; }
         }
 
         @media (max-width: 600px) {
-            .master-header { padding-top: 120px; }
-            .master-title { font-size: 2.5rem; letter-spacing: 4px; }
-            .cosmic-card { padding: 30px 20px; }
-            .energy-btn { font-size: 1rem; letter-spacing: 3px; }
+            .master-header { padding: 140px 15px 40px; }
+            .master-title { font-size: 2.2rem; letter-spacing: 2px; }
+            .master-subtitle { font-size: 0.9rem; letter-spacing: 2px; }
+            .main-cosmic-grid { padding: 0 15px; width: 100%; box-sizing: border-box; }
+            .cosmic-card { padding: 30px 15px; border-radius: 20px; }
+            .energy-btn { font-size: 1rem; letter-spacing: 2px; padding: 20px; }
+            .contact-pill { gap: 15px; padding: 15px; }
+            .pill-icon { width: 50px; height: 50px; min-width: 50px; font-size: 1.2rem; }
         }
 
         @keyframes fadeInUp {

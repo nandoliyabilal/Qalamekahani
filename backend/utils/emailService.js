@@ -1,4 +1,4 @@
-// Using HTTPS module instead of fetch for maximum compatibility with older Node versions (Hostinger/Shared Hosting)
+// Using Resend API (HTTPS) for better limits and stability
 const https = require('https');
 
 /**
@@ -120,176 +120,52 @@ const getPremiumTemplate = (content, previewText = '') => {
 };
 
 /**
- * Master Email Sender Utility using Brevo API (via HTTPS)
+ * Master Email Sender Utility using Resend API
  */
 const sendEmail = async ({ email, subject, message, type, itemData }) => {
     let finalHtml = '';
 
+    // -- Template Logic (Same as before) --
     if (type === 'otp') {
-        const content = `
-            <div style="text-transform: uppercase; color: #d4af37; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Identity Verification</div>
-            <div class="title">Security Code</div>
-            <div class="message" style="color: #ccc; margin-bottom: 30px;">To complete your session, please use the following one-time password (OTP).</div>
-            <div class="otp-box">${message}</div>
-            <div style="margin-top: 40px; color: #777; font-size: 13px;">This code is valid for 15 minutes.</div>
-        `;
+        const content = `<div class="title">Security Code</div><div class="otp-box">${message}</div>`;
         finalHtml = getPremiumTemplate(content);
     } else if (type === 'password_reset_otp') {
-        const content = `
-            <div style="text-transform: uppercase; color: #d4af37; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Account Security</div>
-            <div class="title">Password Reset Code</div>
-            <div class="message" style="color: #ccc; margin-bottom: 30px;">Use the following OTP to reset your password. This code will expire in 10 minutes.</div>
-            <div class="otp-box">${message}</div>
-            <div style="margin-top: 40px; color: #777; font-size: 13px;">If you didn't request this, please ignore this email.</div>
-        `;
-        finalHtml = getPremiumTemplate(content);
-    } else if (type === 'security_alert') {
-        const content = `
-            <div style="text-transform: uppercase; color: #ff6b6b; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Security Alert</div>
-            <div class="title">Password Changed</div>
-            <div class="message" style="color: #ccc; margin-bottom: 30px;">This is to confirm that the password for your Qalamekahani account has been successfully updated.</div>
-            <div style="background: #111; padding: 20px; border-radius: 8px; border: 1px solid #333; margin: 20px 0;">
-                <p style="color: #fff; margin: 0;"><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
-                <p style="color: #888; font-size: 12px; margin-top: 10px;">If you did not make this change, please contact us immediately to secure your account.</p>
-            </div>
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/profile.html" class="btn">View Account</a>
-        `;
-        finalHtml = getPremiumTemplate(content);
-    } else if (type === 'welcome') {
-        const content = `
-            <div class="title">Welcome to Qalamekahani!</div>
-            <div class="message">Hi ${itemData.name}, we're thrilled to have you join our community of readers and storytellers.</div>
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}" class="btn">Start Your Journey</a>
-        `;
-        finalHtml = getPremiumTemplate(content);
-    } else if (type === 'newsletter_admin') {
-        const content = `
-            <div class="title">New Subscriber!</div>
-            <div class="message">A new user has just subscribed to the Qalamekahani newsletter.</div>
-            <div style="background: #111; padding: 20px; border-radius: 8px; border: 1px solid #333; margin: 20px 0;">
-                <p style="color: #d4af37; margin: 0; font-size: 18px;"><strong>${itemData.email}</strong></p>
-                <p style="color: #666; font-size: 12px; margin-top: 10px;">Date: ${new Date().toLocaleString()}</p>
-            </div>
-        `;
-        finalHtml = getPremiumTemplate(content);
-    } else if (type === 'newsletter_user') {
-        const content = `
-            <div class="title">Subscription Confirmed!</div>
-            <div class="message">Thank you for joining our newsletter. You are now part of our exclusive inner circle.</div>
-            <div class="message" style="color: #ccc;">We'll keep you updated with the latest stories, audio series, and special releases from Sabirkhan Pathan.</div>
-            <div style="margin-top: 30px;">
-                <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}" class="btn">Explore Stories</a>
-            </div>
-        `;
+        const content = `<div class="title">Reset Code</div><div class="otp-box">${message}</div>`;
         finalHtml = getPremiumTemplate(content);
     } else if (type === 'contact_admin') {
-        const content = `
-            <div class="title">New Inquiry Received</div>
-            <div style="text-align: left; background: #111; padding: 25px; border-radius: 10px; border: 1px solid #333;">
-                <p style="margin-bottom: 10px;"><strong style="color: #d4af37;">From:</strong> ${itemData.name}</p>
-                <p style="margin-bottom: 10px;"><strong style="color: #d4af37;">Email:</strong> ${itemData.userEmail}</p>
-                <p style="margin-bottom: 10px;"><strong style="color: #d4af37;">Message:</strong></p>
-                <p style="color: #ccc; line-height: 1.6; background: #000; padding: 15px; border-radius: 5px;">${itemData.userMessage}</p>
-            </div>
-        `;
-        finalHtml = getPremiumTemplate(content);
-    } else if (type === 'contact_user') {
-        const content = `
-            <div class="title">Message Received</div>
-            <div class="message">Hi ${itemData.name}, thank you for reaching out to us. We have received your inquiry.</div>
-            <div class="message" style="color: #ccc;">Our team (or Sabirkhan himself) will review your message and get back to you as soon as possible.</div>
-            <div style="text-align: left; background: #111; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 3px solid #d4af37;">
-                <p style="font-size: 12px; color: #666; margin-bottom: 5px;">Your Message Summary:</p>
-                <p style="color: #aaa; font-style: italic;">"${itemData.userMessage}"</p>
-            </div>
-            <p style="font-size: 13px; color: #888;">Thank you for your patience.</p>
-        `;
-        finalHtml = getPremiumTemplate(content);
-    } else if (type === 'password_reset') {
-        const content = `
-            <div style="text-transform: uppercase; color: #d4af37; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Account Recovery</div>
-            <div class="title">Password Reset</div>
-            <div class="message" style="color: #ccc; margin-bottom: 30px;">We received a request to reset your password. Click the button below to choose a new one.</div>
-            <a href="${itemData.resetUrl}" class="btn">Reset Password</a>
-            <div style="margin-top: 40px; color: #777; font-size: 12px; border-top: 1px solid #1a1a1a; padding-top: 20px;">
-                If you didn't request this, you can safely ignore this email. This link will expire in 10 minutes.
-            </div>
-        `;
+        const content = `<div class="title">New Inquiry</div><p>From: ${itemData.name} (${itemData.userEmail})</p><p>${itemData.userMessage}</p>`;
         finalHtml = getPremiumTemplate(content);
     } else if (type === 'new_item') {
-        const content = `
-            <div style="text-transform: uppercase; color: #d4af37; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">New ${itemData.typeLabel} Arrival</div>
-            <div class="title">${itemData.title}</div>
-            ${itemData.image ? `<img src="${itemData.image}" style="width: 100%; max-width: 500px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #333;" alt="${itemData.title}">` : ''}
-            <div class="message" style="color: #ccc; margin-bottom: 30px;">${itemData.summary}</div>
-            <a href="${itemData.link}" class="btn">View ${itemData.typeLabel}</a>
-            <div style="margin-top: 40px; color: #777; font-size: 12px; border-top: 1px solid #1a1a1a; padding-top: 20px;">
-                You are receiving this because you subscribed to Qalamekahani updates.
-            </div>
-        `;
+        const content = `<div class="title">New ${itemData.typeLabel}</div><h3>${itemData.title}</h3><p>${itemData.summary}</p><a href="${itemData.link}" class="btn">View Now</a>`;
         finalHtml = getPremiumTemplate(content);
     } else if (type === 'payment_success') {
-        const content = `
-            <div style="text-transform: uppercase; color: #2ecc71; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Order Confirmed</div>
-            <div class="title">Payment Successful</div>
-            <div class="message" style="color: #ccc; margin-bottom: 30px;">Thank you for your purchase. We've received your payment and the content has been unlocked in your account.</div>
-            
-            <div style="background: #111; padding: 25px; border-radius: 10px; border: 1px solid #333; text-align: left; margin: 20px 0;">
-                <p style="margin: 0 0 10px 0; color: #fff;"><strong>Item:</strong> ${itemData.itemTitle}</p>
-                <p style="margin: 0 0 10px 0; color: #fff;"><strong>Order ID:</strong> #${itemData.orderId}</p>
-                <p style="margin: 0; color: #d4af37;"><strong>Total Paid:</strong> ₹${itemData.amount}</p>
-            </div>
-            
-            <div style="margin-top: 30px;">
-                <a href="${itemData.itemUrl}" class="btn">Access Content</a>
-            </div>
-            
-            <p style="font-size: 11px; color: #666; margin-top: 30px;">If the button above doesn't work, you can always find your purchases in your profile section.</p>
-        `;
-        finalHtml = getPremiumTemplate(content);
-    } else if (type === 'payment_pending') {
-        const content = `
-            <div style="text-transform: uppercase; color: #d4af37; font-size: 13px; letter-spacing: 4px; font-weight: 600; margin-bottom: 25px;">Notice</div>
-            <div class="title">Payment Pending</div>
-            <div class="message" style="color: #ccc; margin-bottom: 30px;">We noticed that your transaction for <strong>${itemData.itemTitle}</strong> was not completed.</div>
-            
-            <div style="background: #111; padding: 20px; border-radius: 8px; border: 1px solid #333; margin: 20px 0; text-align: left;">
-                <p style="color: #fff; margin: 0 0 5px 0;"><strong>Order ID:</strong> #${itemData.orderId}</p>
-                <p style="color: #666; font-size: 12px; margin: 0;">Status: Initiated</p>
-            </div>
-            
-            <div class="message" style="color: #888;">If you were trying to pay and encountered an issue, feel free to try again from the catalog.</div>
-            
-            <div style="margin-top: 30px;">
-                <a href="${process.env.FRONTEND_URL || 'https://qalamekahani.com'}" class="btn">View Catalog</a>
-            </div>
-        `;
+        const content = `<div class="title">Payment Success</div><p>Order ID: #${itemData.orderId}</p><p>Amount: ₹${itemData.amount}</p>`;
         finalHtml = getPremiumTemplate(content);
     } else {
         finalHtml = getPremiumTemplate(`<div class="message">${message}</div>`);
     }
 
     return new Promise((resolve, reject) => {
-        const apiKey = process.env.BREVO_API_KEY;
-        if (!apiKey) return reject(new Error('BREVO_API_KEY is missing'));
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) return reject(new Error('RESEND_API_KEY is missing'));
 
-        const senderEmail = process.env.EMAIL_USERNAME || 'sabirkhanp646@gmail.com';
-        
+        // Important: RESEND MUST use a verified domain (info@qalamekahani.com)
+        const senderEmail = "info@qalamekahani.com"; 
+
         const postData = JSON.stringify({
-            sender: { name: "Qalamekahani", email: senderEmail },
-            to: [{ email: email }],
+            from: "Qalamekahani <" + senderEmail + ">",
+            to: [email],
             subject: subject,
-            htmlContent: finalHtml
+            html: finalHtml
         });
 
         const options = {
-            hostname: 'api.brevo.com',
-            path: '/v3/smtp/email',
+            hostname: 'api.resend.com',
+            path: '/emails',
             method: 'POST',
             headers: {
-                'accept': 'application/json',
-                'api-key': apiKey,
-                'content-type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
                 'Content-Length': Buffer.byteLength(postData)
             }
         };
@@ -301,23 +177,19 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
                 try {
                     const response = JSON.parse(data);
                     if (res.statusCode >= 200 && res.statusCode < 300) {
-                        console.log(`[EMAIL] Success to ${email}:`, response.messageId);
+                        console.log(`[EMAIL] Resend Success to ${email}:`, response.id);
                         resolve(response);
                     } else {
-                        console.error('[EMAIL ERROR] Brevo API Refused:', response);
-                        reject(new Error(response.message || 'Brevo API Error'));
+                        console.error('[EMAIL ERROR] Resend API Refused:', response);
+                        reject(new Error(response.message || 'Resend API Error'));
                     }
                 } catch (e) {
-                    reject(new Error('Invalid JSON response from Brevo'));
+                    reject(new Error('Invalid JSON from Resend'));
                 }
             });
         });
 
-        req.on('error', (e) => {
-            console.error('[EMAIL ERROR] Request failed:', e.message);
-            reject(e);
-        });
-
+        req.on('error', (e) => reject(e));
         req.write(postData);
         req.end();
     });

@@ -1,5 +1,5 @@
-// Using Brevo REST API instead of SMTP to avoid Port-blocking on Cloud Hosting (Render/Hostinger)
-const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
+// Using HTTPS module instead of fetch for maximum compatibility with older Node versions (Hostinger/Shared Hosting)
+const https = require('https');
 
 /**
  * Premium Email Template Wrapper
@@ -120,7 +120,7 @@ const getPremiumTemplate = (content, previewText = '') => {
 };
 
 /**
- * Master Email Sender Utility using Resend API
+ * Master Email Sender Utility using Brevo API (via HTTPS)
  */
 const sendEmail = async ({ email, subject, message, type, itemData }) => {
     let finalHtml = '';
@@ -269,45 +269,61 @@ const sendEmail = async ({ email, subject, message, type, itemData }) => {
         finalHtml = getPremiumTemplate(`<div class="message">${message}</div>`);
     }
 
-    try {
-        console.log(`[EMAIL DEBUG] Preparing to send ${type} email via Brevo API to: ${email}`);
-        
+    return new Promise((resolve, reject) => {
         const apiKey = process.env.BREVO_API_KEY;
-        if (!apiKey) throw new Error('BREVO_API_KEY is missing');
+        if (!apiKey) return reject(new Error('BREVO_API_KEY is missing'));
 
         const senderEmail = process.env.EMAIL_USERNAME || 'sabirkhanp646@gmail.com';
-
-        const body = {
+        
+        const postData = JSON.stringify({
             sender: { name: "Qalamekahani", email: senderEmail },
             to: [{ email: email }],
             subject: subject,
             htmlContent: finalHtml
-        };
+        });
 
-        const response = await fetch(BREVO_API_URL, {
+        const options = {
+            hostname: 'api.brevo.com',
+            path: '/v3/smtp/email',
             method: 'POST',
             headers: {
                 'accept': 'application/json',
                 'api-key': apiKey,
-                'content-type': 'application/json'
-            },
-            body: JSON.stringify(body)
+                'content-type': 'application/json',
+                'Content-Length': Buffer.byteLength(postData)
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
+            res.on('end', () => {
+                try {
+                    const response = JSON.parse(data);
+                    if (res.statusCode >= 200 && res.statusCode < 300) {
+                        console.log(`[EMAIL] Success to ${email}:`, response.messageId);
+                        resolve(response);
+                    } else {
+                        console.error('[EMAIL ERROR] Brevo API Refused:', response);
+                        reject(new Error(response.message || 'Brevo API Error'));
+                    }
+                } catch (e) {
+                    reject(new Error('Invalid JSON response from Brevo'));
+                }
+            });
         });
 
-        const data = await response.json();
+        req.on('error', (e) => {
+            console.error('[EMAIL ERROR] Request failed:', e.message);
+            reject(e);
+        });
 
-        if (response.ok) {
-            console.log('[EMAIL] Sent successfully via Brevo API:', data.messageId);
-            return data;
-        } else {
-            console.error('[EMAIL ERROR] Brevo API Refused:', data);
-            throw new Error(data.message || 'Brevo API Error');
-        }
-    } catch (err) {
-        console.error('[EMAIL ERROR] Fatal Error in sendEmail:', err.message);
-        throw err;
-    }
+        req.write(postData);
+        req.end();
+    });
 };
+
+module.exports = { sendEmail };
 
 module.exports = { sendEmail };
 

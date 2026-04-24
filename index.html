@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qalamekahani | Horror Stories, Audio Series & Book Library</title>
+    <title>Qalamekahani | Where Stories Come Alive</title>
     <link rel="icon" type="image/png" href="images/favicon.png">
     <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
     <link rel="apple-touch-icon" href="images/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=3.6">
-    <link rel="stylesheet" href="css/cinematic.css?v=1.1">
+    <link rel="stylesheet" href="css/style.css?v=3.7">
+    <link rel="stylesheet" href="css/cinematic.css?v=1.2">
 </head>
 
 <body>
@@ -21,21 +21,24 @@
             <ul class="nav-links">
                 <li><a href="index.html" class="active">HOME</a></li>
                 <li class="dropdown desktop-only-nav">
-                    <a href="stories.html">STORY <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
+                    <a href="stories.html">STORIES <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
                     <ul class="dropdown-menu">
                         <li><a href="stories.html">READING STORIES</a></li>
                         <li><a href="gallery.html">IMAGES & WALLPAPERS</a></li>
                     </ul>
                 </li>
-                <li class="mobile-only-nav"><a href="stories.html">STORY</a></li>
-                <li><a href="audio.html">AUDIO SERIES</a></li>
+                <li><a href="audio.html">AUDIO STORIES</a></li>
                 <li><a href="books.html">BOOKS</a></li>
                 <li><a href="blog.html">BLOG</a></li>
-                <li class="mobile-only-nav"><a href="gallery.html">IMAGE AND WALLPAPER</a></li>
                 <li><a href="about.html">ABOUT</a></li>
                 <li><a href="contact.html">CONTACT</a></li>
                 <span id="auth-links"></span>
             </ul>
+            <div class="header-actions">
+                <button class="icon-btn"><i class="fas fa-search"></i></button>
+                <button class="icon-btn"><i class="fas fa-moon"></i></button>
+                <a href="login.html" class="minimal-btn gold-btn">SIGN IN</a>
+            </div>
             <div class="hamburger">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -54,46 +57,48 @@
     <section class="hero cinematic-hero" id="home">
         <div class="hero-container">
             <div class="hero-content">
-                <span class="hero-tagline-luxury">Where Shadows Speak</span>
-                <h1 class="hero-title-cinematic">Tales From <br> <span class="soul-text">The Infinite</span></h1>
-                <h3 class="hero-subtitle-magazine">Curated & Crafted by Sabirkhan Pathan</h3>
-                <p class="hero-description-premium">
-                    Step into an immersive universe where every word is a heartbeat and every shadow tells a story. 
-                    Experience premium Indian horror and supernatural thrillers like never before.
-                </p>
+                <span class="hero-tagline-luxury">Where Stories Come Alive</span>
+                <h1 class="hero-title-cinematic">EVERY STORY <br> <span class="soul-text">HOLDS A DARK SECRET</span></h1>
+                <h3 class="hero-subtitle-magazine">Step into a world of mystery, horror, and the unknown. Are you ready to listen?</h3>
                 <div class="cta-luxury-group">
-                    <a href="stories.html" class="cta-link gold-btn"><i class="fas fa-book-open"></i> Universe of Stories</a>
-                    <a href="audio.html" class="cta-link ghost-btn"><i class="fas fa-headphones"></i> The Auditory Pulse</a>
+                    <a href="stories.html" class="cta-link gold-btn">EXPLORE STORIES <i class="fas fa-arrow-right"></i></a>
+                    <a href="audio.html" class="cta-link ghost-btn"><i class="fas fa-headphones"></i> LISTEN AUDIO STORIES</a>
                 </div>
-            </div>
-        </div>
-        <div class="luxury-scroll-indicator">
-            <span></span>
-        </div>
-    </section>
 
-    <!-- Content Categories Section -->
-    <section class="content-categories">
-        <div class="categories-container">
-            <div class="category-item" onclick="window.location.href='stories.html'">
-                <div class="cat-icon"><i class="fas fa-book-open"></i></div>
-                <span>STORY</span>
-            </div>
-            <div class="category-item" onclick="window.location.href='audio.html'">
-                <div class="cat-icon"><i class="fas fa-headphones"></i></div>
-                <span>AUDIO SERIES</span>
-            </div>
-            <div class="category-item" onclick="window.location.href='books.html'">
-                <div class="cat-icon"><i class="fas fa-book"></i></div>
-                <span>BOOKS</span>
-            </div>
-            <div class="category-item" onclick="window.location.href='blog.html'">
-                <div class="cat-icon"><i class="fas fa-pen-nib"></i></div>
-                <span>BLOG</span>
-            </div>
-            <div class="category-item" onclick="window.location.href='gallery.html'">
-                <div class="cat-icon"><i class="fas fa-image"></i></div>
-                <span>IMAGE & WALLPAPER</span>
+                <!-- Masterpiece Stats Pavilion -->
+                <div class="stats-pavilion reveal-on-scroll">
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value">500+</span>
+                            <span class="stat-label">Stories</span>
+                        </div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value">25K+</span>
+                            <span class="stat-label">Happy Readers</span>
+                        </div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="fas fa-star"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value">4.8</span>
+                            <span class="stat-label">Average Rating</span>
+                        </div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value">Daily</span>
+                            <span class="stat-label">New Stories</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -101,64 +106,26 @@
     <!-- Latest Stories Section -->
     <section class="latest-stories reveal-on-scroll">
         <div class="ls-container">
-            <h2 class="ls-title">Latest Stories</h2>
-            <p class="ls-subtitle">Discover the newest tales written straight from imagination and emotion.</p>
+            <div class="section-header-row">
+                <div class="title-group">
+                    <span class="section-badge">Discover the unknown</span>
+                    <h2 class="ls-title">LATEST STORIES</h2>
+                </div>
+                <div class="action-group">
+                    <a href="stories.html" class="view-all-outline">VIEW ALL STORIES <i class="fas fa-arrow-right"></i></a>
+                    <div class="carousel-nav">
+                        <button class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+                        <button class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
             <div class="ls-grid">
                 <div id="featured-stories-container" style="display: contents;">
                     <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: white;">
                         <i class="fas fa-spinner fa-spin fa-2x"></i> Loading Featured Stories...
                     </div>
                 </div>
-            </div>
-            <div class="section-footer">
-                <a href="stories.html" class="view-all-btn">View All Stories <i class="fas fa-arrow-right"></i></a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Audio Stories Section -->
-    <section class="audio-stories reveal-on-scroll" id="audio">
-        <div class="audio-container">
-            <h2 class="section-title">Audio Stories</h2>
-            <p class="section-subtitle">Experience stories through voice and emotion.</p>
-            <div id="featured-audio-container" class="audio-grid">
-                <div style="grid-column: 1/-1; text-align: center; color: white;">Loading Audio...</div>
-            </div>
-        </div>
-        <div class="section-footer">
-            <a href="audio.html" class="view-all-btn">View All Audio Series <i class="fas fa-arrow-right"></i></a>
-        </div>
-    </section>
-
-    <!-- Image Gallery Section -->
-    <section class="gallery-section reveal-on-scroll" id="gallery-home"
-        style="border-top: 1px solid rgba(212,175,55,0.2); border-bottom: 1px solid rgba(212,175,55,0.2); background: rgba(0,0,0,0.15); margin: 40px 0;">
-        <div class="gallery-container" style="max-width:1200px; margin:0 auto; padding:60px 20px;">
-            <div style="text-align:center; margin-bottom:40px;">
-                <h2 class="section-title" style="margin-bottom:10px;">Images & Wallpapers</h2>
-                <p class="section-subtitle">Exclusive copyright-free character concepts.</p>
-            </div>
-            <div class="gallery-carousel-wrapper" style="position:relative;">
-                <div id="home-gallery-carousel" style="display:flex; gap:30px; overflow-x:auto; padding-bottom:20px; scroll-behavior:smooth;">
-                    <div style="width:100%; text-align:center; color:white;">Loading Images...</div>
-                </div>
-            </div>
-            <div class="section-footer" style="text-align:center; margin-top:20px;">
-                <a href="gallery.html" class="view-all-btn">View All Images <i class="fas fa-arrow-right"></i></a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Books Section -->
-    <section class="books-section reveal-on-scroll">
-        <div class="books-container">
-            <h2 class="section-title">Books</h2>
-            <p class="section-subtitle">Stories published in print and digital formats.</p>
-            <div id="featured-books-container" class="books-grid">
-                <div style="grid-column: 1/-1; text-align: center; color: white;">Loading Books...</div>
-            </div>
-            <div class="section-footer">
-                <a href="books.html" class="view-all-btn">View All Books <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </section>
@@ -184,7 +151,6 @@
                     <li><a href="audio.html">Audio Series</a></li>
                     <li><a href="books.html">Books</a></li>
                     <li><a href="blog.html">Blog</a></li>
-                    <li><a href="gallery.html">Gallery</a></li>
                 </ul>
             </div>
             <div class="footer-col links-col">
@@ -194,7 +160,6 @@
                     <li><a href="terms.html">Terms & Conditions</a></li>
                     <li><a href="refund.html">Refund Policy</a></li>
                     <li><a href="shipping.html">Shipping Policy</a></li>
-                    <li><a href="disclaimer.html">Disclaimer</a></li>
                 </ul>
             </div>
         </div>
@@ -206,8 +171,8 @@
     <script src="js/main.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Particle Engine Logic
-            const particleCount = 40;
+             // Particle Engine Logic
+             const particleCount = 40;
             const container = document.getElementById('particle-container');
             if (container) {
                 for (let i = 0; i < particleCount; i++) {
@@ -225,11 +190,7 @@
             }
 
             // Scroll Reveal Logic
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
+            const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -237,7 +198,6 @@
                     }
                 });
             }, observerOptions);
-
             document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
 
             // DYNAMIC DATA FETCHING
@@ -246,77 +206,30 @@
                 if (el) el.innerHTML = html;
             };
 
-            // Fetch Stories
             fetch('/api/stories')
                 .then(res => res.json())
                 .then(data => {
                     if (!data || data.length === 0) return;
-                    const userLang = localStorage.getItem('user_lang');
-                    let filteredData = data;
-                    if (userLang && userLang !== 'English') {
-                        filteredData = data.filter(s => (s.language || '').toLowerCase() === userLang.toLowerCase());
-                    }
-                    filteredData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                    const featured = filteredData.slice(0, 3);
+                    const featured = data.slice(0, 6);
                     updateContainer('featured-stories-container', featured.map(story => {
                         const isFree = parseFloat(story.price || 0) === 0;
-                        const btnText = isFree ? 'Read Story' : `Unlock for ₹${story.price}`;
                         return `
-                        <article class="story-card">
+                        <article class="story-card" onclick="window.location.href='story-detail.html?id=${story.id}'">
                             <div class="card-image-wrapper">
                                 <img src="${story.image || 'images/story-default.png'}" class="card-image">
                                 <div class="badge-container">
-                                    <span class="card-badge">${story.category || 'Story'}</span>
-                                    ${isFree ? '' : '<span class="card-badge"><i class="fas fa-crown"></i> Premium</span>'}
+                                    <span class="card-tag">${story.category || 'HORROR'}</span>
                                 </div>
                             </div>
                             <div class="card-content">
                                 <h3 class="card-title">${story.title}</h3>
-                                <p class="card-desc">${story.summary || 'Read this amazing tale...'}</p>
-                                <a href="story-detail.html?id=${story.id}" class="card-btn">${btnText}</a>
+                                <div class="card-meta">
+                                    <span><i class="fas fa-star"></i> ${story.rating || '4.9'}</span>
+                                    <span><i class="fas fa-clock"></i> ${story.readTime || '8 min read'}</span>
+                                </div>
                             </div>
                         </article>
                     `}).join(''));
-                });
-
-            // Fetch Audio
-            fetch('/api/audio')
-                .then(res => res.json())
-                .then(data => {
-                    if (!data || data.length === 0) return;
-                    const featured = data.slice(0, 3);
-                    updateContainer('featured-audio-container', featured.map(audio => `
-                        <div class="audio-card" onclick="window.location.href='audio-detail.html?id=${audio.id}'">
-                            <div class="audio-thumb">
-                                <img src="${audio.image || 'images/audio-default.png'}">
-                                <div class="play-overlay"><i class="fas fa-play"></i></div>
-                            </div>
-                            <div class="audio-info">
-                                <h3 class="audio-title">${audio.title}</h3>
-                                <p class="audio-desc">${audio.category || 'Audio Series'}</p>
-                            </div>
-                        </div>
-                    `).join(''));
-                });
-
-            // Fetch Books
-            fetch('/api/books')
-                .then(res => res.json())
-                .then(data => {
-                    if (!data || data.length === 0) return;
-                    const featured = data.slice(0, 3);
-                    updateContainer('featured-books-container', featured.map(book => `
-                        <div class="book-card" onclick="window.location.href='book-detail.html?id=${book.id}'">
-                            <div class="book-cover-wrapper">
-                                <img src="${book.image || 'images/book-default.png'}" class="book-cover">
-                            </div>
-                            <div class="book-info">
-                                <h3 class="book-title">${book.title}</h3>
-                                <p class="book-author">by ${book.author}</p>
-                                <a href="book-detail.html?id=${book.id}" class="btn-buy">Buy Now</a>
-                            </div>
-                        </div>
-                    `).join(''));
                 });
         });
     </script>

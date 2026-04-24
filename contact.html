@@ -189,36 +189,54 @@
 
         .form-input {
             width: 100%;
-            padding: 18px 20px 18px 50px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: #fff;
             border-radius: 12px;
             font-size: 1rem;
             outline: none;
-            transition: 0.3s;
+            transition: all 0.4s ease;
             font-family: 'Poppins', sans-serif;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Specific padding for Name/Email inputs to clear the icon */
+        .form-group .form-input {
+            padding-left: 50px;
+        }
+
+        /* Reset padding for Textarea as it has no left-aligned icon in my logic */
+        textarea.form-input {
+            padding-left: 20px;
         }
 
         .form-input:focus {
             border-color: var(--horror-accent);
-            background: rgba(212, 175, 55, 0.05);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+            background: rgba(212, 175, 55, 0.03);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            transform: scale(1.01);
+        }
+
+        .form-input::placeholder {
+            color: #555;
+            font-weight: 300;
         }
 
         .input-icon {
             position: absolute;
-            left: 20px;
+            left: 18px;
             top: 50%;
             transform: translateY(-50%);
-            color: #555;
+            color: #444;
+            pointer-events: none;
             transition: 0.3s;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
-        .form-input:focus ~ .input-icon {
+        .form-group .form-input:focus ~ .input-icon {
             color: var(--horror-accent);
-            transform: translateY(-50%) scale(1.2);
+            text-shadow: 0 0 8px var(--horror-accent);
         }
 
         textarea.form-input {

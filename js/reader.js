@@ -164,12 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     let content = clone.innerHTML;
                     if (content.includes('[IMG:')) {
                         content = content.replace(/\[IMG:(.*?)\]/g, (match, url) => {
-                            // Ensure URL is clean
                             const cleanUrl = url.startsWith('http') ? url : (url.startsWith('../') ? url : `../${url}`);
                             return `
-                                <div class="story-img-wrapper" style="margin: 2em 0; text-align: center;">
+                                <div class="story-img-wrapper" style="margin: 1.5em 0; text-align: left;">
                                     <img src="${cleanUrl}" class="story-inline-img" 
-                                         style="max-width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);"
+                                         style="max-width: 300px; width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);"
                                          onerror="this.style.display='none'">
                                 </div>`;
                         });

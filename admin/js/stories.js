@@ -291,11 +291,56 @@ function addChapterField(titleValue = '', bodyValue = '') {
                 <i data-lucide="image" class="w-3.5 h-3.5"></i> Insert Image
             </button>
         </div>
-        <textarea id="ch-body-${index}" placeholder="Content..." rows="6" class="chapter-body-input w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-3 text-sm text-gray-300 leading-relaxed outline-none">${bodyValue.trim()}</textarea>
+        <textarea id="ch-body-${index}" oninput="scanChapterImages('ch-body-${index}', 'ch-gallery-${index}')" placeholder="Content..." rows="6" class="chapter-body-input w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-3 text-sm text-gray-300 leading-relaxed outline-none">${bodyValue.trim()}</textarea>
+        <div id="ch-gallery-${index}" class="mt-2 flex flex-wrap gap-2"></div>
     `;
     container.appendChild(div);
     if (window.lucide) lucide.createIcons();
+    // Initial scan
+    scanChapterImages(`ch-body-${index}`, `ch-gallery-${index}`);
 }
+
+/**
+ * Scan chapter text for [IMG:...] tags and show them as a gallery
+ */
+function scanChapterImages(taId, galleryId) {
+    const ta = document.getElementById(taId);
+    const gallery = document.getElementById(galleryId);
+    if (!ta || !gallery) return;
+
+    const matches = Array.from(ta.value.matchAll(/\[IMG:(.*?)\]/g));
+    if (matches.length === 0) {
+        gallery.innerHTML = '';
+        return;
+    }
+
+    gallery.innerHTML = matches.map(m => {
+        const url = m[1];
+        const displayUrl = url.startsWith('http') ? url : `../${url}`;
+        return `
+            <div class="relative group w-16 h-16 rounded-lg border border-gray-700 overflow-hidden bg-gray-900">
+                <img src="${displayUrl}" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity">
+                <button type="button" onclick="deleteInlineImage('${taId}', '${url}')" class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity text-red-500">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>
+        `;
+    }).join('');
+    if (window.lucide) lucide.createIcons();
+}
+
+/**
+ * Delete specific image tag from textarea
+ */
+window.deleteInlineImage = function(taId, url) {
+    const ta = document.getElementById(taId);
+    if (!ta) return;
+    const tag = `[IMG:${url}]`;
+    ta.value = ta.value.replace(tag, '').replace(/\n\s*\n\s*\n/g, '\n\n').trim();
+    // Re-scan
+    const galleryId = taId.startsWith('ch-body') ? `ch-gallery-${taId.split('-').pop()}` : `ga-${taId.split('-').pop()}`;
+    scanChapterImages(taId, galleryId);
+};
 
 /**
  * Handle Inline Image Upload for Chapters
@@ -330,6 +375,10 @@ async function triggerChapterImageUpload(targetId) {
             textarea.focus();
             textarea.selectionEnd = cursorPos + data.url.length + 8; // Position after tag
             
+            // Re-scan gallery
+            const galleryId = targetId.startsWith('ch-body') ? `ch-gallery-${targetId.split('-').pop()}` : `ga-${targetId.split('-').pop()}`;
+            scanChapterImages(targetId, galleryId);
+
             alert('Image inserted at cursor!');
         } catch (err) {
             alert('Upload failed: ' + err.message);
@@ -482,10 +531,12 @@ function renderChapterCards(story) {
                     </button>
                 </div>
                 <div class="bg-black/20 rounded-2xl p-4 border border-gray-200">
-                    <textarea id="ta-${ch.id}" onchange="updateChapterBody('${ch.id}', this.value)" 
+                    <textarea id="ta-${ch.id}" oninput="scanChapterImages('ta-${ch.id}', 'ga-${ch.id}')" onchange="updateChapterBody('${ch.id}', this.value)" 
                         placeholder="Chapter content..."
                         class="w-full bg-transparent border-none text-gray-700 h-[400px] outline-none text-lg font-serif leading-relaxed placeholder:text-gray-300">${ch.body.replace(/<p>/g, '').replace(/<\/p>/g, '\n').trim()}</textarea>
                 </div>
+                <!-- Inline Image Gallery managed by scanChapterImages -->
+                <div id="ga-${ch.id}" class="mt-3 flex flex-wrap gap-2"></div>
                 <div class="flex justify-end mt-3">
                      <button onclick="toggleChapterEditor('${ch.id}')" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-md uppercase tracking-widest">Finish Editing</button>
                 </div>

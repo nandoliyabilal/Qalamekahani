@@ -284,68 +284,114 @@
     transform: translateX(8px);
 }
 
-/* Mobile Adjustments */
+/* Mobile Adjustments (Pratilipi Style) */
 @media (max-width: 1024px) {
     .story-hero {
-        padding-top: 100px !important;
+        padding-top: 80px !important;
+        padding-bottom: 20px !important;
     }
     .story-hero-container {
         grid-template-columns: 1fr;
-        gap: 25px;
-        padding: 25px;
-        margin-top: 20px;
+        gap: 20px;
+        padding: 25px 15px;
+        margin-top: 10px;
+        background: rgba(10, 10, 10, 0.7);
+        border-radius: 0; /* Full width feel */
+        border-left: none;
+        border-right: none;
     }
     
     .story-visual {
-        max-width: 220px; /* Much smaller cover on mobile */
+        max-width: 180px; /* Pratilipi style smaller centered cover */
         margin: 0 auto;
+        perspective: 1000px;
+    }
+
+    .story-cover-wrapper {
+        box-shadow: 0 15px 40px rgba(0,0,0,0.8) !important;
+        transform: rotateY(-5deg); /* Slight 3D tilt for premium look */
     }
     
     .story-title {
         font-size: 2.2rem !important;
         text-align: center;
+        font-weight: 700 !important;
+        margin-top: 10px !important;
     }
     
     .story-author {
         text-align: center;
-        margin-bottom: 10px !important;
+        margin-bottom: 5px !important;
+        font-size: 1rem !important;
     }
     
     .story-rating-row {
         justify-content: center;
-        margin-bottom: 20px !important;
+        margin-bottom: 15px !important;
+        transform: scale(0.9);
     }
     
+    /* Stats Row (Pratilipi Style) */
     .story-meta-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        display: grid !important;
-        gap: 15px !important;
-        padding: 15px !important;
+        display: flex !important;
+        justify-content: space-around !important;
+        background: transparent !important;
+        border: none !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        padding: 15px 0 !important;
+        margin-bottom: 20px !important;
+        border-radius: 0 !important;
+    }
+    
+    .meta-item {
+        flex: 1;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .meta-item:last-child {
+        border-right: none;
+    }
+
+    .meta-label {
+        font-size: 0.6rem !important;
+        letter-spacing: 1px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .meta-value {
+        font-size: 0.85rem !important;
     }
     
     .story-synopsis {
         text-align: center;
-        -webkit-line-clamp: 3;
+        font-size: 0.95rem !important;
+        line-height: 1.5 !important;
+        -webkit-line-clamp: 4;
+        color: rgba(255, 255, 255, 0.6) !important;
+        padding: 0 10px;
     }
 
     .story-actions {
         justify-content: center;
         flex-wrap: wrap;
-        gap: 10px;
-        position: relative; /* Normal position for flow */
+        gap: 15px;
+        margin-top: 10px;
     }
 
     /* Fixed Read Button on Mobile Scroll */
     .btn-read-mobile-fixed {
         position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1000;
-        width: 90%;
-        max-width: 400px;
-        animation: slideUpFade 0.5s ease forwards;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
+        bottom: 15px;
+        left: 5%;
+        width: 90% !important;
+        max-width: none !important;
+        z-index: 2000;
+        transform: none !important;
+        border-radius: 12px !important; /* Slightly more square like Pratilipi */
+        padding: 16px !important;
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.4) !important;
+        transition: 0.3s;
     }
 }
 
@@ -354,12 +400,12 @@
         font-size: 1.8rem !important;
     }
     
-    .btn-read {
-        width: 100% !important;
+    .story-hero-container {
+        padding: 20px 10px;
     }
 
-    .story-hero-container {
-        padding: 20px;
+    .story-visual {
+        max-width: 160px;
     }
 }
 

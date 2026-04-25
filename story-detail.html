@@ -582,8 +582,8 @@
                 loadReviews(story.id);
 
                 // Sticky Read Button Logic for Mobile
-                const readBtn = document.querySelector('.btn-read');
                 if (window.innerWidth <= 1024 && readBtn) {
+
                     window.addEventListener('scroll', () => {
                         const heroBottom = document.querySelector('.story-hero').getBoundingClientRect().bottom;
                         if (heroBottom < 0) {

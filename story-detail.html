@@ -581,7 +581,21 @@
                 // Load Reviews using resolved ID (fixes issue when URL param is invalid/slug)
                 loadReviews(story.id);
 
+                // Sticky Read Button Logic for Mobile
+                const readBtn = document.querySelector('.btn-read');
+                if (window.innerWidth <= 1024 && readBtn) {
+                    window.addEventListener('scroll', () => {
+                        const heroBottom = document.querySelector('.story-hero').getBoundingClientRect().bottom;
+                        if (heroBottom < 0) {
+                            readBtn.classList.add('btn-read-mobile-fixed');
+                        } else {
+                            readBtn.classList.remove('btn-read-mobile-fixed');
+                        }
+                    });
+                }
+
             } catch (error) {
+
                 console.error(error);
                 showNotFound();
             }

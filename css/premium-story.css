@@ -7,7 +7,9 @@
     --glass: rgba(255, 255, 255, 0.03);
     --glass-border: rgba(255, 255, 255, 0.08);
     --premium-font: 'Playfair Display', serif;
+    --star-gold: #ffc107;
 }
+
 
 @keyframes slideUpFade {
     from { opacity: 0; transform: translateY(40px); }
@@ -371,6 +373,8 @@
 }
 
 .mobile-only { display: none; }
+.mobile-bottom-bar { display: none; } /* Hide by default on desktop */
+
 
 /* Mobile Adjustments */
 @media (max-width: 1024px) {
@@ -429,6 +433,19 @@
     body {
         padding-bottom: 100px;
     }
+
+    /* Hide Navbar Logo and Hamburger on Mobile for Detail Pages */
+    .detail-page .logo,
+    .detail-page .hamburger {
+        display: none !important;
+    }
+
+    /* Center Back Link when logo is hidden */
+    .detail-page .nav-container {
+        justify-content: center;
+        padding: 10px 0;
+    }
+
 
 
     .story-hero {

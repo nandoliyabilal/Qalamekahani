@@ -21,7 +21,8 @@
     </style>
 </head>
 
-<body>
+<body class="detail-page">
+
     <header class="header">
         <div class="nav-container">
             <a href="index.html" class="logo">Qalamekahani</a>
@@ -174,6 +175,9 @@
             <i class="fas fa-bolt"></i> BUY NOW
         </button>
     </div>
+
+
+
 
 
         <footer class="site-footer">
@@ -404,9 +408,10 @@
                 });
             }
 
-            async function submitReview() {
+            async function submitReview(e) {
+                if(e) e.preventDefault();
                 if (selectedRating === 0) return alert('Please select a star rating.');
-                const text = document.getElementById('review-text').value;
+                const text = document.getElementById('review-comment').value;
                 if (!text.trim()) return alert('Please write a review text.');
 
                 const payload = {
@@ -436,6 +441,10 @@
                     if (res.ok) {
                         document.getElementById('review-form-box').style.display = 'none';
                         document.getElementById('review-success-msg').style.display = 'block';
+                        // Optionally reload reviews list
+                        const reviewsRes = await fetch(`/api/reviews?targetId=${id}`);
+                        const reviews = await reviewsRes.json();
+                        renderReviews(reviews);
                     } else {
                         const errData = await res.json();
                         alert(`Failed to submit review: ${res.status} - ${errData.message || 'Unknown Error'}`);
@@ -445,6 +454,7 @@
                     alert(`Error submitting review: ${err.message}`);
                 }
             }
+
 
             function renderReviews(reviews) {
                 const list = document.getElementById('reviews-list');

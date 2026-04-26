@@ -65,8 +65,9 @@
                         <li><a href="gallery.html">Images & Wallpapers</a></li>
                     </ul>
                 </li>
-                <li class="mobile-only-nav"><a href="stories.html">Reading Stories</a></li>
+                <li class="mobile-only-nav"><a href="stories.html">Stories</a></li>
                 <li><a href="audio.html">Audio Stories</a></li>
+
                 <li><a href="books.html">Books</a></li>
                 <li><a href="blog.html">Blog</a></li>
                 <li class="mobile-only-nav"><a href="gallery.html">Images & Wallpapers</a></li>
@@ -224,7 +225,16 @@
         </section>
     </div>
 
+    <!-- Mobile Bottom Action Bar -->
+    <div class="mobile-bottom-bar">
+        <div class="mobile-bottom-container">
+            <div class="mobile-story-title-mini" id="mobile-mini-title">Title</div>
+            <button class="btn btn-primary mobile-sticky-btn" onclick="openReaderMode()">Read Now</button>
+        </div>
+    </div>
+
     <!-- Footer Section -->
+
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-col brand-col">
@@ -323,7 +333,11 @@
                 document.title = `${story.title} | Qalamekahani`;
 
                 document.getElementById('story-title').textContent = story.title;
+                if (document.getElementById('mobile-mini-title')) {
+                    document.getElementById('mobile-mini-title').textContent = story.title;
+                }
                 document.getElementById('story-author').textContent = story.author || 'Sabirkhan Pathan';
+
 
                 const img = document.getElementById('story-image');
                 const coverUrl = story.image || 'images/story-default.png';

@@ -418,6 +418,34 @@
             line-height: 1.5;
         }
 
+        .review-link {
+            color: var(--star-gold);
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-left: 10px;
+            transition: opacity 0.2s;
+        }
+
+        .review-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .rating-block {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stars {
+            color: var(--star-gold);
+            font-size: 0.9rem;
+            display: flex;
+            gap: 2px;
+        }
+
         /* Responsive */
         @media (max-width: 900px) {
             .product-detail-card {
@@ -518,7 +546,9 @@
 
         <h3 class="review-title">Detailed Reviews</h3>
         <div id="reviews-area"></div>
-        <footer class="site-footer">
+    </div>
+
+    <footer class="site-footer">
             <div class="footer-container">
                 <div class="footer-col brand-col">
                     <h3 class="footer-brand">Sabirkhan Pathan</h3>

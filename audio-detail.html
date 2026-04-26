@@ -799,6 +799,14 @@
                     body: JSON.stringify({ audioId })
                 });
 
+        async function checkSavedStatus(audioId) {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
                 const data = await res.json();
                 if (data.success) {
                     const isSaved = data.savedAudios.some(s => String(s) === String(audioId));
@@ -808,28 +816,21 @@
                 console.error(e);
             }
         }
+
+        function showNotFound(msg = "") {
+            const container = document.getElementById('story-container');
+            if (container) {
+                const safeMsg = msg || "Audio story not found.";
+                container.innerHTML = `<div style="text-align:center; padding:100px 20px; color:#fff;">
+                    <h1>Audio Not Found</h1>
+                    <p>${safeMsg}</p><a href="audio.html" class="btn btn-primary">Back</a>
+                </div>`;
+            }
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAudioPage);
+        else initAudioPage();
     </script>
-</body>
-
-</html>
-
-
-
-
-function showNotFound(msg = "") {
-const container = document.getElementById('story-container');
-if (container) {
-const safeMsg = msg || "Audio story not found.";
-container.innerHTML = `<div style="text-align:center; padding:100px 20px; color:#fff;">
-    <h1>Audio Not Found</h1>
-    <p>${safeMsg}</p><a href="audio.html" class="btn btn-primary">Back</a>
-</div>`;
-}
-}
-
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAudioPage);
-else initAudioPage();
-</script>
 </body>
 
 </html>

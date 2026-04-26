@@ -521,8 +521,23 @@
     
     .rating-text {
         font-size: 0.75rem !important;
-        opacity: 0.6;
+        opacity: 0.8;
+        color: rgba(255, 255, 255, 0.7);
     }
+
+    .review-link {
+        color: var(--gold) !important;
+        text-decoration: none !important;
+        font-size: 0.8rem;
+        margin-left: 10px;
+        transition: color 0.3s;
+    }
+
+    .review-link:hover {
+        color: var(--gold-bright) !important;
+        text-decoration: underline !important;
+    }
+
 
     .story-meta-grid { 
         grid-area: meta; 
@@ -570,8 +585,22 @@
 }
 
 .stars .far, .stars .fa-star-o {
-    opacity: 0.4;
+    opacity: 0.2;
 }
+
+.review-link {
+    color: var(--gold) !important;
+    text-decoration: none !important;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.review-link:hover {
+    color: var(--gold-bright) !important;
+    text-decoration: underline !important;
+}
+
 
 /* --- PREMIUM REVIEWS SECTION --- */
 

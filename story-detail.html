@@ -90,11 +90,13 @@
         </div>
     </header>
 
-    <div class="story-page-bg">
-        <div id="story-blurred-bg"></div>
-        <div class="story-overlay-mist"></div>
-        <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
-    </div>
+    <div id="story-container">
+        <div class="story-page-bg">
+            <div id="story-blurred-bg"></div>
+            <div class="story-overlay-mist"></div>
+            <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
+        </div>
+
 
     <!-- STORY HERO SECTION -->
     <section class="story-hero">
@@ -294,7 +296,9 @@
         <div class="footer-bottom">
             <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
         </div>
+        </div>
     </footer>
+
 
     <script src="js/stories-data.js"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
@@ -339,6 +343,8 @@
                 if (!res.ok) throw new Error('Story not found');
 
                 const story = await res.json();
+                window.currentStoryUUID = story.id; // Store for like/reviews
+
 
                 // Initialize default
                 window.storyHasAccess = false;
@@ -839,7 +845,7 @@
             const desktopIcon = desktopBtn ? desktopBtn.querySelector('i') : null;
             const mobileIcon = mobileBtn ? mobileBtn.querySelector('i') : null;
 
-            const isCurrentlyLiked = desktopIcon ? desktopIcon.classList.contains('fas') : (mobileIcon ? mobileIcon.classList.contains('fas') : false);
+            const isCurrentlyLiked = (desktopIcon && desktopIcon.classList.contains('fas')) || (mobileIcon && mobileIcon.classList.contains('fas'));
             const becomingLiked = !isCurrentlyLiked;
 
             // Optimistic Update
@@ -872,12 +878,20 @@
                 });
 
                 if (!res.ok) throw new Error('Failed to like story');
+                
+                const data = await res.json();
+                if (data.success) {
+                    const isLikedNow = data.likedStories.some(s => String(s.id || s._id || s) === String(window.currentStoryUUID));
+                    updateUI(isLikedNow);
+                }
             } catch (err) {
                 console.error(err);
                 // Revert
                 updateUI(isCurrentlyLiked);
+                alert('Error updating like status.');
             }
         }
+
 
         // Review Form Logic
         let currentRating = 0;
@@ -975,7 +989,8 @@
             const description = document.getElementById('story-synopsis').textContent;
             const imageUrl = document.getElementById('story-image').src;
             // Use ID instead of slug for a professional, clean short link
-            const url = `${window.location.origin}/story-detail.html?id=${window.currentStoryUUID}`;
+            const url = `${window.location.origin}/story-detail.html?id=${window.currentStoryUUID || storyId}`;
+
 
             window.shareContent({
                 title,

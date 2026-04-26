@@ -370,13 +370,18 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        const isSaved = data.savedBooks.some(b => String(b) === String(id));
+                        // Check if it's now in the saved list
+                        const isSaved = data.savedBooks && data.savedBooks.some(b => String(b.id || b._id || b) === String(id));
                         updateWishlistUI(isSaved);
+                    } else {
+                        alert('Failed to update wishlist: ' + (data.message || 'Unknown error'));
                     }
                 } catch (e) {
                     console.error(e);
+                    alert('Error updating wishlist.');
                 }
             }
+
 
             // Star Rating Logic
             document.querySelectorAll('.star-input').forEach(star => {

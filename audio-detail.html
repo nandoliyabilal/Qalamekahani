@@ -717,13 +717,17 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    const isSavedNow = data.savedAudios.some(s => String(s) === String(audioId));
+                    const isSavedNow = data.savedAudios.some(s => String(s.id || s._id || s) === String(audioId));
                     updateSaveBtn(isSavedNow);
+                } else {
+                    alert('Failed: ' + (data.message || 'Unknown error'));
                 }
             } catch (e) {
                 console.error(e);
+                alert('Error saving audio.');
             }
         }
+
 
     </script>
 </body>

@@ -291,184 +291,150 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    background: #111;
-    border-top: 1px solid var(--glass-border);
-    padding: 15px 20px;
+    background: #000;
+    padding: 12px 15px 25px; /* Added bottom padding for safe area */
     z-index: 2000;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
-    backdrop-filter: blur(20px);
-}
-
-.mobile-bottom-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.mobile-story-title-mini {
-    font-family: var(--premium-font);
-    font-size: 1.1rem;
-    color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
 }
 
 .mobile-sticky-btn {
-    padding: 12px 25px !important;
-    font-size: 0.9rem !important;
-    background: var(--gold) !important;
+    width: 100%;
+    padding: 16px !important;
+    font-size: 1.1rem !important;
+    background: #d4af37 !important; /* Solid Gold */
     color: #000 !important;
     font-weight: 700 !important;
-    border-radius: 8px !important;
-    flex-shrink: 0;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3) !important;
+    border-radius: 10px !important;
+    border: none !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* Mobile Adjustments (Pratilipi Style) */
+/* Mobile Adjustments */
 @media (max-width: 1024px) {
     .mobile-bottom-bar {
         display: block;
     }
 
     body {
-        padding-bottom: 80px; /* Space for bottom bar */
+        padding-bottom: 90px;
     }
 
     .story-hero {
-        padding-top: 100px !important;
+        padding-top: 40px !important; /* Smaller top padding since header is hidden */
         padding-bottom: 10px !important;
     }
 
     .story-hero-container {
-        display: flex !important;
-        flex-direction: column !important;
-        padding: 20px 15px !important;
+        padding: 15px !important;
         background: transparent !important;
         border: none !important;
-        backdrop-filter: none !important;
         box-shadow: none !important;
     }
 
-    /* Top Row: Side by Side */
-    .hero-top-row-mobile {
-        display: grid !important;
-        grid-template-columns: 110px 1fr;
+    .mobile-hero-header {
+        display: grid;
+        grid-template-columns: 120px 1fr;
         gap: 20px;
-        align-items: center;
-        width: 100%;
-        margin-bottom: 25px;
+        margin-bottom: 30px;
     }
 
-    /* Move visual and info into top row layout via CSS if possible, 
-       but we need to restructure HTML slightly or use Flex hacks.
-       Let's use Flex on the container and reorder. */
-
-    .story-hero-container {
-        display: flex !important;
-        flex-direction: column !important;
-    }
-
-    /* We'll use a specific wrapper for the top part in CSS */
     .story-visual {
-        max-width: 110px !important;
-        margin: 0 !important;
+        max-width: 120px !important;
+    }
+
+    .story-cover-wrapper {
+        border-radius: 10px !important;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
     }
 
     .story-info {
-        text-align: left !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .story-title {
-        font-size: 1.6rem !important;
-        text-align: left !important;
+        font-size: 1.8rem !important;
         margin-bottom: 5px !important;
-        background: none !important;
         color: #fff !important;
-        -webkit-text-fill-color: initial !important;
+        text-align: left !important;
     }
 
     .story-author {
+        font-size: 1rem !important;
+        color: var(--gold) !important;
         text-align: left !important;
-        font-size: 0.9rem !important;
         margin-bottom: 10px !important;
     }
 
     .story-rating-row {
         justify-content: flex-start !important;
-        margin-bottom: 10px !important;
-        transform: scale(0.85);
-        transform-origin: left;
+        margin-bottom: 0 !important;
     }
 
-    /* Stats Row */
+    .stars {
+        font-size: 0.9rem !important;
+        color: #ffcc00 !important;
+    }
+
+    /* Stats Grid Refinement */
     .story-meta-grid {
         display: grid !important;
         grid-template-columns: repeat(3, 1fr) !important;
         background: rgba(255,255,255,0.03) !important;
-        border: 1px solid rgba(255,255,255,0.05) !important;
-        padding: 15px !important;
-        margin-bottom: 20px !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        padding: 15px 10px !important;
         border-radius: 12px !important;
-        width: 100%;
+        margin-bottom: 25px !important;
     }
 
     .meta-item {
         border-right: 1px solid rgba(255,255,255,0.1);
     }
     .meta-item:last-child { border-right: none; }
+    
+    .meta-item:nth-child(4) { display: none; } /* Hide 4th item if grid is 3-col */
 
-    .meta-label { font-size: 0.6rem !important; }
-    .meta-value { font-size: 0.8rem !important; }
+    .meta-label {
+        font-size: 0.6rem !important;
+        color: #888 !important;
+    }
+
+    .meta-value {
+        font-size: 0.8rem !important;
+        color: #fff !important;
+    }
+
+    .story-synopsis-container {
+        margin-bottom: 30px;
+    }
 
     .story-synopsis {
+        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+        color: rgba(255,255,255,0.7) !important;
         text-align: left !important;
-        font-size: 0.9rem !important;
-        padding: 0 !important;
-        -webkit-line-clamp: 3;
-        margin-bottom: 20px !important;
     }
 
-    /* Hide original buttons on mobile as they are in the sticky bar */
-    .story-actions {
+    .desktop-only {
         display: none !important;
     }
-
-    .story-back-row {
-        margin-bottom: 15px;
+    
+    /* Chapters Styling */
+    .tab-btn {
+        font-size: 1.1rem !important;
     }
 
-    /* Force Chapters to be more readable */
-    .chapter-list-display {
-        padding-bottom: 20px;
+    .chapter-item {
+        padding: 15px 10px !important;
     }
-}
-
-@media (max-width: 1024px) {
-    /* Side-by-side header hack without changing HTML structure */
-    .story-hero-container {
-        display: grid !important;
-        grid-template-areas: 
-            "back back"
-            "visual info"
-            "meta meta"
-            "synopsis synopsis";
-        grid-template-columns: 110px 1fr;
-    }
-    .story-back-row { grid-area: back; }
-    .story-visual { grid-area: visual; }
-    .story-info { grid-area: info; }
-    .story-meta-grid { grid-area: meta; }
-    .story-synopsis { grid-area: synopsis; }
 }
 
 @media (max-width: 480px) {
-    .story-title { font-size: 1.4rem !important; }
-    .story-hero-container { padding: 15px !important; }
+    .story-title { font-size: 1.5rem !important; }
+    .mobile-hero-header { grid-template-columns: 100px 1fr; gap: 15px; }
 }
 
 @media (max-width: 480px) {

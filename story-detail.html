@@ -53,117 +53,86 @@
         <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
     </div>
 
-    <header class="header">
-        <div class="nav-container">
-            <a href="index.html" class="logo">Qalamekahani</a>
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li class="dropdown desktop-only-nav">
-                    <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="stories.html">Reading Stories</a></li>
-                        <li><a href="gallery.html">Images & Wallpapers</a></li>
-                    </ul>
-                </li>
-                <li class="mobile-only-nav"><a href="stories.html">Stories</a></li>
-                <li><a href="audio.html">Audio Stories</a></li>
+    <style>
+        /* Hide main header on mobile for this page */
+        @media (max-width: 960px) {
+            .header { display: none !important; }
+            body { padding-top: 0 !important; }
+        }
+    </style>
+</head>
 
-                <li><a href="books.html">Books</a></li>
-                <li><a href="blog.html">Blog</a></li>
-                <li class="mobile-only-nav"><a href="gallery.html">Images & Wallpapers</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <span id="auth-links"></span>
-            </ul>
-            <div class="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
+<body>
+    <div class="story-page-bg">
+        <div id="story-blurred-bg"></div>
+        <div class="story-overlay-mist"></div>
+        <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
+    </div>
+
+    <!-- STORY HERO SECTION -->
+    <section class="story-hero">
+        <div class="story-hero-container">
+            <!-- Back Row -->
+            <div class="story-back-row">
+                <a href="stories.html" class="back-link"><i class="fas fa-chevron-left"></i> BACK TO STORIES</a>
             </div>
-        </div>
-    </header>
 
-    <!-- CONTENT WRAPPER -->
-    <div id="story-container">
-        <!-- STORY HERO SECTION -->
-        <section class="story-hero">
-            <div class="story-hero-container">
-                <!-- Back Link (Mobile/Desktop) -->
-                <div class="story-back-row">
-                    <a href="stories.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Stories</a>
-                </div>
-
-                <!-- Left: Visual -->
+            <!-- Mobile Top Row (Cover + Info) -->
+            <div class="mobile-hero-header">
                 <div class="story-visual">
-                    <div class="story-cover-wrapper" style="position: relative;">
+                    <div class="story-cover-wrapper">
                         <img id="story-image" src="" alt="Story Cover" class="story-cover">
                         <div class="story-badges">
                             <span id="story-cat-badge" class="badge badge-cat"></span>
-                            <span id="story-lang-badge" class="badge badge-lang"></span>
                         </div>
-                        <!-- Download Button -->
-                        <button onclick="downloadImage('story-image')" class="download-overlay-btn"
-                            style="position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;"
-                            title="Download Image">
-                            <i class="fas fa-download"></i>
-                        </button>
                     </div>
                 </div>
 
-                <!-- Right: Details -->
                 <div class="story-info">
                     <h1 id="story-title" class="story-title">Loading...</h1>
                     <h3 class="story-author">By <span id="story-author" class="author-name"></span></h3>
-
                     <div class="story-rating-row">
                         <div class="stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                                class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
                         </div>
                         <span id="story-rating" class="rating-text"></span>
                     </div>
-
-                    <div class="story-meta-grid">
-                        <div class="meta-item">
-                            <span class="meta-label">CATEGORY</span>
-                            <span id="meta-genre" class="meta-value"></span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">PUBLISHED</span>
-                            <span id="meta-date" class="meta-value"></span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">READ TIME</span>
-                            <span id="meta-time" class="meta-value"></span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">VIEWS</span>
-                            <span id="meta-views" class="meta-value">0</span>
-                        </div>
-                    </div>
-
-                    <h4 class="meta-label" style="margin-bottom: 5px; color: #888;">Summary</h4>
-                    <p id="story-synopsis" class="story-synopsis"></p>
-
-                    <div class="story-actions">
-                        <button class="btn btn-primary btn-read" onclick="openReaderMode()"><i
-                                class="fas fa-book-open"></i> Read Full Story</button>
-
-                        <a id="youtube-btn" href="#" target="_blank" class="btn btn-youtube"
-                            style="display:none; background-color: #FF0000; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 500; align-items: center; gap: 8px;">
-                            <i class="fab fa-youtube"></i> YouTube
-                        </a>
-
-                        <button class="btn-fav" onclick="toggleLike()" aria-label="Like Story">
-                            <i class="far fa-heart" id="like-icon"></i>
-                        </button>
-                        <button class="btn-share" onclick="shareStory()" aria-label="Share Story">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
-                    </div>
                 </div>
             </div>
-        </section>
+
+            <!-- Stats Grid -->
+            <div class="story-meta-grid">
+                <div class="meta-item">
+                    <span class="meta-label">CATEGORY</span>
+                    <span id="meta-genre" class="meta-value"></span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">PUBLISHED</span>
+                    <span id="meta-date" class="meta-value"></span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">READ TIME</span>
+                    <span id="meta-time" class="meta-value"></span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">VIEWS</span>
+                    <span id="meta-views" class="meta-value">0</span>
+                </div>
+            </div>
+
+            <div class="story-synopsis-container">
+                <h4 class="meta-label">SUMMARY</h4>
+                <p id="story-synopsis" class="story-synopsis"></p>
+            </div>
+
+            <!-- Desktop Actions (Hidden on Mobile) -->
+            <div class="story-actions desktop-only">
+                <button class="btn btn-primary btn-read" onclick="openReaderMode()"><i class="fas fa-book-open"></i> Read Full Story</button>
+                <button class="btn-fav" onclick="toggleLike()"><i class="far fa-heart"></i></button>
+                <button class="btn-share" onclick="shareStory()"><i class="fas fa-share-alt"></i></button>
+            </div>
+        </div>
+    </section>
 
         <!-- TABS SECTION -->
         <section class="story-content-section">

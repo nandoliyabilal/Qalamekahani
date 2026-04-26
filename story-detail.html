@@ -324,10 +324,13 @@
 
     <script>
         // Logic to load story data based on URL ID
-        document.addEventListener('DOMContentLoaded', async () => {
-            const params = new URLSearchParams(window.location.search);
-            const storyId = params.get('id');
+    <script>
+        // Move ID to window scope for other functions
+        const params = new URLSearchParams(window.location.search);
+        window.storyUrlId = params.get('id');
 
+        async function loadStoryData() {
+            const storyId = window.storyUrlId;
             if (!storyId) {
                 showNotFound();
                 return;
@@ -338,307 +341,233 @@
                 const authHeaders = {};
                 if (effectiveToken) authHeaders['Authorization'] = `Bearer ${effectiveToken}`;
 
-                // Fetch from your API with cache busting
+                // Try fetching by ID or Slug
                 const res = await fetch(`/api/stories/${encodeURIComponent(storyId.trim())}?t=${Date.now()}`, { headers: authHeaders });
-                if (!res.ok) throw new Error('Story not found');
+                
+                if (!res.ok) {
+                    // Try fallback to slug search if backend supports it via query
+                    const slugRes = await fetch(`/api/stories?slug=${encodeURIComponent(storyId.trim())}&t=${Date.now()}`, { headers: authHeaders });
+                    if (!slugRes.ok) throw new Error('Story not found');
+                    const slugData = await slugRes.json();
+                    if (Array.isArray(slugData) && slugData.length > 0) {
+                        renderStory(slugData[0]);
+                    } else if (slugData && slugData.id) {
+                        renderStory(slugData);
+                    } else {
+                        throw new Error('Story not found');
+                    }
+                    return;
+                }
 
                 const story = await res.json();
-                window.currentStoryUUID = story.id; // Store for like/reviews
+                renderStory(story);
 
+            } catch (error) {
+                console.error("Load Error:", error);
+                showNotFound();
+            }
+        }
 
-                // Initialize default
-                window.storyHasAccess = false;
-                if (!story.price || story.price <= 0) window.storyHasAccess = true;
+        async function renderStory(story) {
+            if (!story) {
+                showNotFound();
+                return;
+            }
 
-                // Populate Page
-                document.title = `${story.title} | Qalamekahani`;
+            window.currentStoryUUID = story.id; 
+            window.storyHasAccess = false;
+            if (!story.price || story.price <= 0) window.storyHasAccess = true;
 
-                document.getElementById('story-title').textContent = story.title;
-                if (document.getElementById('mobile-mini-title')) {
-                    document.getElementById('mobile-mini-title').textContent = story.title;
-                }
-                document.getElementById('story-author').textContent = story.author || 'Sabirkhan Pathan';
+            // Populate Page
+            document.title = `${story.title} | Qalamekahani`;
+            document.getElementById('story-title').textContent = story.title;
+            if (document.getElementById('mobile-mini-title')) {
+                document.getElementById('mobile-mini-title').textContent = story.title;
+            }
+            document.getElementById('story-author').textContent = story.author || 'Sabirkhan Pathan';
 
+            const img = document.getElementById('story-image');
+            const coverUrl = story.image || 'images/story-default.png';
+            img.src = coverUrl;
+            img.alt = story.title;
+            img.onerror = () => { img.src = 'https://placehold.co/600x400/222/FFF?text=No+Image'; };
 
-                const img = document.getElementById('story-image');
-                const coverUrl = story.image || 'images/story-default.png';
-                img.src = coverUrl;
-                img.alt = story.title;
-                img.onerror = () => { img.src = 'https://placehold.co/600x400/222/FFF?text=No+Image'; };
+            const blurredBg = document.getElementById('story-blurred-bg');
+            if (blurredBg) {
+                blurredBg.style.backgroundImage = `url('${coverUrl}')`;
+            }
 
-                // Set Blurred Background
-                const blurredBg = document.getElementById('story-blurred-bg');
-                if (blurredBg) {
-                    blurredBg.style.backgroundImage = `url('${coverUrl}')`;
-                }
-
-
-                document.getElementById('story-cat-badge').textContent = story.category || 'Story';
-
-                // Colors for badges (Sanitized for CSS)
-                const catRaw = (story.category || '').toLowerCase().trim().replace(/[\s,]+/g, '-');
-                if (catRaw) {
-                    const catClass = `badge-${catRaw}`;
-                    try {
-                        document.getElementById('story-cat-badge').classList.add(catClass);
-                    } catch (e) { console.warn("Invalid dynamic class:", catClass); }
-                }
-
-                document.getElementById('story-lang-badge').textContent = story.language || 'English';
-                document.getElementById('story-lang-badge').textContent = story.language || 'English';
-
-                const ratingValue = parseFloat(story.rating) || 0;
-                const reviewCount = story.reviewCount || 0;
-
-                if (ratingValue > 0) {
-                    document.getElementById('story-rating').textContent = `${ratingValue} (${reviewCount} Reviews)`;
-                } else {
-                    document.getElementById('story-rating').textContent = 'No Ratings';
-                }
-
-                // Render Dynamic Stars
-                const starsContainer = document.querySelector('.story-rating-row .stars');
-                if (starsContainer) {
-                    starsContainer.innerHTML = generateStars(ratingValue);
-                }
-
-                document.getElementById('meta-genre').textContent = story.category;
-                document.getElementById('meta-date').textContent = new Date(story.created_at || story.date).toLocaleDateString();
-                document.getElementById('meta-time').textContent = calculateReadTime(story.content || '');
-
-                document.getElementById('story-synopsis').textContent = story.summary || story.synopsis || story.description || '';
-                document.getElementById('meta-views').textContent = story.views || 0;
-                if (document.getElementById('mobile-views-count')) {
-                    document.getElementById('mobile-views-count').textContent = story.views || 0;
-                }
-
-
-                // Load Chapter Stats (Views)
-                let chapterStats = { views: {} };
+            document.getElementById('story-cat-badge').textContent = story.category || 'Story';
+            const catRaw = (story.category || '').toLowerCase().trim().replace(/[\s,]+/g, '-');
+            if (catRaw) {
+                const catClass = `badge-${catRaw}`;
                 try {
-                    const statsRes = await fetch(`/api/stories/${story.id}/chapters/stats`);
-                    if (statsRes.ok) chapterStats = await statsRes.json();
-                } catch (e) { console.warn("Stats fetch failed"); }
+                    document.getElementById('story-cat-badge').classList.add(catClass);
+                } catch (e) { }
+            }
 
-                // YouTube Button
-                const youtubeBtn = document.getElementById('youtube-btn');
-                if (story.youtube_link) {
-                    youtubeBtn.href = story.youtube_link;
-                    youtubeBtn.style.display = 'inline-flex';
-                } else {
-                    youtubeBtn.style.display = 'none';
-                }
+            document.getElementById('story-lang-badge').textContent = story.language || 'English';
 
-                // HTML Content -> Parse Chapters for Tab
-                // document.getElementById('description').innerHTML = story.summary || story.synopsis || '<p>No description available.</p>'; // OLD
+            const ratingValue = parseFloat(story.rating) || 0;
+            const reviewCount = story.reviewCount || 0;
 
-                const chapterList = document.getElementById('chapter-list');
-                chapterList.innerHTML = '';
+            if (ratingValue > 0) {
+                document.getElementById('story-rating').textContent = `${ratingValue} (${reviewCount} Reviews)`;
+            } else {
+                document.getElementById('story-rating').textContent = 'No Ratings';
+            }
 
-                // content parser logic (same as reader.js simplified)
-                // We want to extract H2 headers
-                const parser = new DOMParser();
-                let rawContent = story.content || '';
+            const starsContainer = document.querySelector('.story-rating-row .stars');
+            if (starsContainer) {
+                starsContainer.innerHTML = generateStars(ratingValue);
+            }
 
-                // DECODE HTML ENTITIES (Fix for Full Story showing instead of Chapters)
-                const txt = document.createElement('textarea');
-                txt.innerHTML = rawContent;
-                rawContent = txt.value;
+            document.getElementById('meta-genre').textContent = story.category;
+            document.getElementById('meta-date').textContent = new Date(story.created_at || story.date).toLocaleDateString();
+            document.getElementById('meta-time').textContent = calculateReadTime(story.content || '');
 
-                // Auto-fix plain text if needed
-                if (!rawContent.trim().startsWith('<')) {
-                    // It's plain text, treat as one chapter
-                }
+            document.getElementById('story-synopsis').textContent = story.summary || story.synopsis || story.description || '';
+            document.getElementById('meta-views').textContent = story.views || 0;
+            if (document.getElementById('mobile-views-count')) {
+                document.getElementById('mobile-views-count').textContent = story.views || 0;
+            }
 
-                const doc = parser.parseFromString(rawContent, 'text/html');
-                const headings = doc.querySelectorAll('h2');
+            // Load Chapter Stats
+            let chapterStats = { views: {} };
+            try {
+                const statsRes = await fetch(`/api/stories/${story.id}/chapters/stats`);
+                if (statsRes.ok) chapterStats = await statsRes.json();
+            } catch (e) { }
 
-                if (headings.length > 0) {
-                    headings.forEach((h2, index) => {
-                        const li = document.createElement('li');
-                        li.className = 'chapter-item';
-                        // Clean Styling: No borders, no list bullets
-                        li.style.listStyle = 'none';
-                        li.style.padding = '12px 0';
-                        // li.style.borderBottom = '1px solid #333'; // REMOVED as per request
-                        li.style.cursor = 'pointer';
-                        li.style.color = '#ccc';
-                        li.style.transition = 'color 0.3s';
+            // YouTube
+            const youtubeBtn = document.getElementById('youtube-btn');
+            if (story.youtube_link) {
+                youtubeBtn.href = story.youtube_link;
+                youtubeBtn.style.display = 'inline-flex';
+            } else {
+                youtubeBtn.style.display = 'none';
+            }
 
-                        // Hover effect
-                        li.onmouseover = () => li.style.color = '#d4af37';
-                        li.onmouseout = () => li.style.color = '#ccc';
+            // Chapters
+            const chapterList = document.getElementById('chapter-list');
+            chapterList.innerHTML = '';
+            const parser = new DOMParser();
+            let rawContent = story.content || '';
+            const txt = document.createElement('textarea');
+            txt.innerHTML = rawContent;
+            rawContent = txt.value;
+            const doc = parser.parseFromString(rawContent, 'text/html');
+            const headings = doc.querySelectorAll('h2');
 
-                        const views = chapterStats.views[`ch_${index}`] || 0;
-                        li.innerHTML = `
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <div>
-                                    <span style="font-weight:600; color:#d4af37; margin-right:8px;">${index + 1}.</span> 
-                                    <span style="font-family:'Poppins';">${h2.textContent}</span>
-                                </div>
-                                <div style="font-size:0.7rem; color:#666; font-weight:bold;">
-                                    <i class="fas fa-eye" style="margin-right:4px;"></i>${views} VIEWS
-                                </div>
-                            </div>
-                        `;
-                        // On click, go to reader at that chapter
-                        li.onclick = () => {
-                            const token = localStorage.getItem('token');
-
-                            // Check Access (defined globally after async check)
-                            // If it's undefined (still loading), we assume false or wait
-                            if (typeof window.storyHasAccess !== 'undefined' && !window.storyHasAccess) {
-                                alert('Please purchase this story to read chapters.');
-                                return;
-                            }
-
-                            if (!token) {
-                                alert('You must be logged in to read stories.');
-                                window.location.href = 'login.html';
-                                return;
-                            }
-                            window.location.href = `read.html?id=${storyId}&ch=${index}`;
-                        };
-                        chapterList.appendChild(li);
-                    });
-                } else {
-                    // No headers found, just one "Full Story" chapter
+            if (headings.length > 0) {
+                headings.forEach((h2, index) => {
                     const li = document.createElement('li');
                     li.className = 'chapter-item';
-                    li.style.listStyle = 'none';
-                    li.style.padding = '12px 0';
-                    li.style.cursor = 'pointer';
-                    li.innerHTML = `<span style="font-weight:600; color:#d4af37; margin-right:8px;">1.</span> Full Story`;
+                    const views = chapterStats.views[`ch_${index}`] || 0;
+                    li.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="font-weight:600; color:#d4af37; margin-right:8px;">${index + 1}.</span> 
+                                <span style="font-family:'Poppins';">${h2.textContent}</span>
+                            </div>
+                            <div style="font-size:0.7rem; color:#666; font-weight:bold;">
+                                <i class="fas fa-eye" style="margin-right:4px;"></i>${views} VIEWS
+                            </div>
+                        </div>
+                    `;
                     li.onclick = () => {
                         const token = localStorage.getItem('token');
-
                         if (typeof window.storyHasAccess !== 'undefined' && !window.storyHasAccess) {
-                            alert('Please purchase this story to read the full content.');
+                            alert('Please purchase this story to read chapters.');
                             return;
                         }
-
                         if (!token) {
                             alert('You must be logged in to read stories.');
                             window.location.href = 'login.html';
                             return;
                         }
-                        window.location.href = `read.html?id=${storyId}`;
+                        window.location.href = `read.html?id=${story.id}&ch=${index}`;
                     };
                     chapterList.appendChild(li);
-                }
-
-                // Check Payment/Access Logic
-                const price = parseFloat(story.price || 0);
-                const isPremium = price > 0;
-
-                // Use backend 'isLocked' flag as the primary source of truth
-                // If backend says it's locked, it means we don't have the full content.
-                // If backend says it's NOT locked, and it's premium, it means we either own it or backend logic gave us access.
-
-                // However, we still fetch orders to double check 'bought' status for UI elements if needed, 
-                // but for access control, rely on 'isLocked'.
-
-                let hasAccess = !isPremium;
-                if (typeof story.isLocked !== 'undefined') {
-                    hasAccess = !story.isLocked;
-                } else if (isPremium) {
-                    // Fallback if backend doesn't send isLocked (e.g. older version)
+                });
+            } else {
+                const li = document.createElement('li');
+                li.className = 'chapter-item';
+                li.innerHTML = `<span style="font-weight:600; color:#d4af37; margin-right:8px;">1.</span> Full Story`;
+                li.onclick = () => {
                     const token = localStorage.getItem('token');
-                    if (token) {
-                        // ... same logic as before ...
-                        // Actually, we can just keep the previous logic as a fallback or parallel check
+                    if (typeof window.storyHasAccess !== 'undefined' && !window.storyHasAccess) {
+                        alert('Please purchase this story to read the full content.');
+                        return;
                     }
-                }
-
-                // We still do the orders check to update UI state if needed (e.g. confirm purchase visually)
-                if (isPremium && !hasAccess) {
-                    const token = localStorage.getItem('token');
-                    if (token) {
-                        try {
-                            const ordersRes = await fetch('/api/orders/mine', {
-                                headers: { 'Authorization': `Bearer ${token}` }
-                            });
-                            if (ordersRes.ok) {
-                                const myOrders = await ordersRes.json();
-                                const bought = myOrders.some(o => (o.story_id === story.id) && o.status === 'paid');
-                                if (bought) hasAccess = true; // Should match backend, but good for UI sync
-                            }
-                        } catch (e) { console.error(e); }
+                    if (!token) {
+                        alert('You must be logged in to read stories.');
+                        window.location.href = 'login.html';
+                        return;
                     }
-                }
-
-                // Update Button based on Access
-                const readBtn = document.querySelector('.btn-read');
-                const buyLink = story.buy_link || "";
-                if (hasAccess) {
-                    readBtn.innerHTML = '<i class="fas fa-book-open"></i> Read Full Story';
-                    readBtn.onclick = () => {
-                        window.location.href = `read.html?id=${storyId}`;
-                    };
-                } else if (buyLink) {
-                    readBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
-                    readBtn.classList.remove('btn-primary');
-                    readBtn.style.background = '#d4af37';
-                    readBtn.style.color = '#000';
-                    readBtn.onclick = () => {
-                        window.open(buyLink, '_blank');
-                    };
-                } else {
-                    let priceDisplay = `₹${price}`;
-                    let finalPrice = price;
-
-                    if (story.discount && story.discount > 0) {
-                        const discountedPrice = (price - (price * story.discount / 100)).toFixed(1).replace(/\.0$/, '');
-                        finalPrice = discountedPrice;
-                        priceDisplay = `₹${discountedPrice} <span style="text-decoration: line-through; color: #888; font-size: 0.8em; margin-left: 5px;">₹${price}</span>`;
-                    }
-
-                    readBtn.innerHTML = `<i class="fas fa-lock"></i> Unlock Story (${priceDisplay})`;
-                    readBtn.classList.remove('btn-primary');
-                    readBtn.style.background = '#d4af37'; // Gold
-                    readBtn.style.color = '#000';
-                    readBtn.onclick = () => {
-                        const token = localStorage.getItem('token');
-                        if (!token) {
-                            alert('Please login to purchase this story.');
-                            window.location.href = `login.html?redirect=story-detail.html?id=${storyId}`;
-                            return;
-                        }
-                        // Redirect to checkout
-                        window.location.href = `checkout.html?storyId=${storyId}`;
-                    };
-                }
-
-                // Global reference 
-                window.currentStoryUUID = story.id;
-                window.storyHasAccess = hasAccess; // Store for other functions if needed
-
-                // Initial Liked Status Check
-                const userToken = localStorage.getItem('token');
-                if (userToken) checkLikedStatus(story.id);
-
-                // Load Reviews using resolved ID (fixes issue when URL param is invalid/slug)
-                loadReviews(story.id);
-
-                // Sticky Read Button Logic for Mobile
-                if (window.innerWidth <= 1024 && readBtn) {
-
-                    window.addEventListener('scroll', () => {
-                        const heroBottom = document.querySelector('.story-hero').getBoundingClientRect().bottom;
-                        if (heroBottom < 0) {
-                            readBtn.classList.add('btn-read-mobile-fixed');
-                        } else {
-                            readBtn.classList.remove('btn-read-mobile-fixed');
-                        }
-                    });
-                }
-
-            } catch (error) {
-
-                console.error(error);
-                showNotFound();
+                    window.location.href = `read.html?id=${story.id}`;
+                };
+                chapterList.appendChild(li);
             }
-        });
+
+            // Access
+            const price = parseFloat(story.price || 0);
+            const isPremium = price > 0;
+            let hasAccess = !isPremium;
+            if (typeof story.isLocked !== 'undefined') hasAccess = !story.isLocked;
+
+            if (isPremium && !hasAccess) {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    try {
+                        const ordersRes = await fetch('/api/orders/mine', { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (ordersRes.ok) {
+                            const myOrders = await ordersRes.json();
+                            const bought = myOrders.some(o => (o.story_id === story.id) && o.status === 'paid');
+                            if (bought) hasAccess = true;
+                        }
+                    } catch (e) { }
+                }
+            }
+
+            window.storyHasAccess = hasAccess;
+            const readBtn = document.querySelector('.btn-read');
+            const buyLink = story.buy_link || "";
+            if (hasAccess) {
+                readBtn.innerHTML = '<i class="fas fa-book-open"></i> Read Full Story';
+                readBtn.onclick = () => window.location.href = `read.html?id=${story.id}`;
+            } else if (buyLink) {
+                readBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
+                readBtn.style.background = '#d4af37';
+                readBtn.style.color = '#000';
+                readBtn.onclick = () => window.open(buyLink, '_blank');
+            } else {
+                let priceDisplay = `₹${price}`;
+                if (story.discount && story.discount > 0) {
+                    const discountedPrice = (price - (price * story.discount / 100)).toFixed(1).replace(/\.0$/, '');
+                    priceDisplay = `₹${discountedPrice} <span style="text-decoration: line-through; color: #888; font-size: 0.8em; margin-left: 5px;">₹${price}</span>`;
+                }
+                readBtn.innerHTML = `<i class="fas fa-lock"></i> Unlock Story (${priceDisplay})`;
+                readBtn.style.background = '#d4af37';
+                readBtn.style.color = '#000';
+                readBtn.onclick = () => {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        alert('Please login to purchase this story.');
+                        window.location.href = `login.html?redirect=story-detail.html?id=${story.id}`;
+                        return;
+                    }
+                    window.location.href = `checkout.html?storyId=${story.id}`;
+                };
+            }
+
+            const userToken = localStorage.getItem('token');
+            if (userToken) checkLikedStatus(story.id);
+            loadReviews(story.id);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadStoryData);
+
 
         async function checkLikedStatus(storyId) {
             const token = localStorage.getItem('token');
@@ -989,8 +918,7 @@
             const description = document.getElementById('story-synopsis').textContent;
             const imageUrl = document.getElementById('story-image').src;
             // Use ID instead of slug for a professional, clean short link
-            const url = `${window.location.origin}/story-detail.html?id=${window.currentStoryUUID || storyId}`;
-
+            const url = `${window.location.origin}/story-detail.html?id=${window.currentStoryUUID || window.storyUrlId}`;
 
             window.shareContent({
                 title,
@@ -1000,6 +928,7 @@
                 type: 'story'
             });
         }
+
     </script>
 </body>
 

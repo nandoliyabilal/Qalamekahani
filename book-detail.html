@@ -9,451 +9,19 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/premium-story.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960"
         crossorigin="anonymous"></script>
     <style>
-        :root {
-            --bg-body: #000000;
-            --bg-container: #111111;
-            --text-main: #e1e1e1;
-            --text-muted: #a0a0a0;
-            --accent-red: #ff3b30;
-            --accent-green: #2ecc71;
-            --star-gold: #f1c40f;
-            --border-color: #333333;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            padding-bottom: 50px;
-        }
-
-        /* Nav */
-        .nav-bar {
-            background: #050505;
-            padding: 15px 30px;
-            border-bottom: 1px solid #222;
-        }
-
-        .nav-logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #d4af37;
-            text-decoration: none;
-            letter-spacing: 1px;
-        }
-
-        /* Main Container */
-        .product-wrapper {
-            max-width: 1200px;
-            margin: 140px auto 40px;
-            padding: 0 20px;
-            position: relative;
-        }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            color: #d4af37;
-            text-decoration: none;
-            margin-bottom: 30px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 10px 24px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 50px;
-            background: rgba(212, 175, 55, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .back-btn:hover {
-            background: rgba(212, 175, 55, 0.12);
-            border-color: #d4af37;
-            color: #fff;
-            transform: translateX(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .back-btn i {
-            transition: transform 0.3s ease;
-        }
-
-        .back-btn:hover i {
-            transform: translateX(-3px);
-        }
-
-        .product-detail-card {
-            background: var(--bg-container);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 50px;
-        }
-
-        /* Left: Image */
-        .product-image-col {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-        }
-
-        .main-img {
-            width: 100%;
-            max-width: 350px;
-            border-radius: 4px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease;
-        }
-
-        .main-img:hover {
-            transform: scale(1.02);
-        }
-
-        /* Right: Info */
-        .product-info-col {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .product-title {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #fff;
-            line-height: 1.2;
-        }
-
-        .product-brand {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-        }
-
-        .rating-block {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-        }
-
-        .stars {
-            color: var(--star-gold);
-        }
-
-        .review-link {
-            color: var(--text-muted);
-            text-decoration: none;
-        }
-
-        /* Price Section */
-        .price-section {
-            margin: 15px 0;
-            display: flex;
-            align-items: baseline;
-            gap: 15px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .current-price {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--accent-red);
-        }
-
-        .original-price {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            text-decoration: line-through;
-        }
-
-        /* Stock Status */
-        .stock-status {
-            color: var(--accent-green);
-            font-weight: 600;
-            font-size: 0.95rem;
-            margin-bottom: 10px;
-        }
-
-        /* Description */
-        .description {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #ccc;
-            margin-bottom: 20px;
-        }
-
-        /* Actions */
-        .action-row {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-top: 10px;
-            margin-bottom: 20px;
-        }
-
-        /* Quantity Input */
-        .qty-wrapper {
-            display: flex;
-            align-items: center;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .qty-btn {
-            background: #222;
-            color: #fff;
-            border: none;
-            width: 35px;
-            height: 40px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .qty-btn:hover {
-            background: #333;
-        }
-
-        .qty-input {
-            width: 50px;
-            height: 40px;
-            background: #000;
-            color: #fff;
-            border: none;
-            text-align: center;
-            font-size: 1rem;
-            pointer-events: none;
-            /* simple display */
-        }
-
-        /* Add to Cart Button */
-        .btn-add-cart {
-            background-color: var(--accent-red);
-            color: #fff;
-            border: none;
-            height: 45px;
-            padding: 0 40px;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: background 0.2s, transform 0.1s;
-        }
-
-        .btn-add-cart:hover {
-            background-color: #d63031;
-            transform: translateY(-2px);
-        }
-
-        .btn-add-cart.added {
-            background-color: #2ecc71;
-            cursor: default;
-            pointer-events: none;
-        }
-
-        /* Wishlist Links */
-        .extra-links {
-            display: flex;
-            gap: 25px;
-            font-size: 0.9rem;
-            margin-top: 10px;
-        }
-
-        .extra-link {
-            color: var(--text-main);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.2s;
-        }
-
-        .extra-link:hover {
-            color: var(--accent-red);
-        }
-
-        /* Reviews Section */
-        .reviews-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .review-title {
-            font-size: 1.5rem;
-            color: #fff;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        /* Write Review Form */
-        .write-review-box {
-            background: var(--bg-container);
-            border: 1px solid var(--border-color);
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 40px;
-        }
-
-        .rating-input {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        .star-input {
-            color: #444;
-            transition: color 0.2s;
-        }
-
-        .star-input:hover,
-        .star-input.active {
-            color: var(--star-gold);
-        }
-
-        .review-textarea {
-            width: 100%;
-            height: 100px;
-            background: #000;
-            border: 1px solid var(--border-color);
-            color: #fff;
-            padding: 15px;
-            border-radius: 4px;
-            font-family: 'Poppins', sans-serif;
-            resize: vertical;
-            margin-bottom: 15px;
-        }
-
-        .review-textarea:focus {
-            outline: 1px solid var(--accent-red);
-        }
-
-        .btn-submit-review {
-            background: var(--accent-red);
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-submit-review:hover {
-            background: #d63031;
-        }
-
-        /* Success Message */
-        .review-success-msg {
-            display: none;
-            background: var(--bg-container);
-            border: 1px solid var(--accent-green);
-            padding: 30px;
-            text-align: center;
-            border-radius: 8px;
-            margin-bottom: 40px;
-        }
-
-        .review-success-msg i {
-            font-size: 2rem;
-            color: var(--accent-green);
-            margin-bottom: 10px;
-        }
-
-        .review-success-msg h4 {
-            color: #fff;
-            margin-bottom: 5px;
-        }
-
-        /* Existing Reviews */
-        .review-card {
-            background: var(--bg-container);
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .reviewer-name {
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .review-date {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .review-text {
-            color: #ccc;
-            margin-top: 8px;
-            line-height: 1.5;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .product-detail-card {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-
-            .product-image-col {
-                justify-content: center;
-            }
-
-            .main-img {
-                max-width: 250px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .btn-add-cart {
-                padding: 0 15px;
-                /* Reduced padding */
-                font-size: 0.85rem;
-                /* Smaller Font */
-                gap: 5px;
-            }
-
-            .qty-wrapper {
-                transform: scale(0.9);
-                /* Slightly smaller qty */
-            }
+        /* Book specific styles if any */
+        .btn-bolt {
+            background: linear-gradient(135deg, #f1c40f, #d4af37) !important;
+            color: #000 !important;
         }
     </style>
 </head>
 
 <body>
-    <!-- Removed forced login requirement here to allow public browsing -->
-
     <header class="header">
         <div class="nav-container">
             <a href="index.html" class="logo">Qalamekahani</a>
@@ -483,14 +51,93 @@
         </div>
     </header>
 
-    <div class="product-wrapper">
-        <a href="books.html" class="back-btn"><i class="fas fa-long-arrow-alt-left"></i> Back to Bookstore</a>
-
-        <div class="product-detail-card" id="product-area">
-            <!-- Content Loaded via JS -->
-            <h2 style="text-align: center; grid-column: 1/-1; padding: 50px;">Loading Book Details...</h2>
-        </div>
+    <div class="story-page-bg">
+        <div id="story-blurred-bg"></div>
+        <div class="story-overlay-mist"></div>
+        <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
     </div>
+
+    <div id="story-container">
+        <section class="story-hero">
+            <div class="story-hero-container">
+                <!-- Back Link -->
+                <div class="story-back-row">
+                    <a href="books.html" class="back-link"><i class="fas fa-chevron-left"></i> BACK TO BOOKSTORE</a>
+                </div>
+
+                <!-- Left: Visual -->
+                <div class="story-visual">
+                    <div class="story-cover-wrapper">
+                        <img id="book-image" src="" alt="Book Cover" class="story-cover">
+                        <div class="story-badges">
+                            <span id="book-cat-badge" class="badge badge-cat">Book</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Details -->
+                <div class="story-info">
+                    <!-- Hanging Views Cart (Mobile Only) -->
+                    <div class="hanging-views mobile-only">
+                        <div class="view-cart">
+                            <i class="fas fa-eye"></i>
+                            <span id="mobile-views-count">0</span>
+                        </div>
+                    </div>
+
+                    <h1 id="book-title" class="story-title">Loading...</h1>
+                    <h3 class="story-author">By <span id="book-author" class="author-name"></span></h3>
+                    
+                    <div class="rating-block">
+                        <div class="stars" id="book-avg-stars"></div>
+                        <a href="#reviews-area" class="review-link" id="reviews-count-text"></a>
+                    </div>
+
+                    <!-- Mobile Actions Row -->
+                    <div class="mobile-actions mobile-only">
+                        <button class="mobile-action-btn fav-btn" id="mobile-wishlist-btn" onclick="toggleWishlist()">
+                            <i class="far fa-heart" id="mobile-wish-icon"></i> <span>Wishlist</span>
+                        </button>
+                        <button class="mobile-action-btn share-btn" onclick="shareBook()">
+                            <i class="fas fa-share-alt"></i> <span>Share</span>
+                        </button>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="story-meta-grid">
+                        <div class="meta-item">
+                            <span class="meta-label">CATEGORY</span>
+                            <span id="meta-category" class="meta-value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">PRICE</span>
+                            <span id="meta-price" class="meta-value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">VIEWS</span>
+                            <span id="meta-views" class="meta-value">0</span>
+                        </div>
+                    </div>
+
+                    <div class="story-synopsis-container">
+                        <h4 class="meta-label">SUMMARY</h4>
+                        <p id="book-description" class="story-synopsis"></p>
+                    </div>
+
+                    <!-- Desktop Actions -->
+                    <div class="story-actions desktop-only">
+                        <button id="atc-btn" class="btn btn-primary btn-read btn-bolt" onclick="startPurchase()"></button>
+                        
+                        <button class="btn-fav" onclick="toggleWishlist()" id="wishlist-btn">
+                            <i class="far fa-heart" id="wish-icon"></i>
+                        </button>
+                        <button class="btn-share" onclick="shareBook()">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
 
     <div class="reviews-container">
         <!-- WRITE REVIEW FORM -->
@@ -585,15 +232,12 @@
 
             async function loadBookAndReviews() {
                 try {
-                    // Fetch Book
                     const bookRes = await fetch(`/api/books/${id}`);
                     const book = await bookRes.json();
 
-                    // Fetch Reviews separately
                     const reviewsRes = await fetch(`/api/reviews?targetId=${id}`);
                     const reviews = await reviewsRes.json();
 
-                    // Calculate Average Rating dynamically
                     const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true || r.approved === true || !r.hasOwnProperty('status'));
 
                     if (approved.length > 0) {
@@ -605,13 +249,108 @@
                         book.reviewsCount = 0;
                     }
 
-                    // Render both
-                    renderLayout(book);
+                    // Populate UI
+                    document.title = `${book.title} | Qalamekahani`;
+                    document.getElementById('book-title').textContent = book.title;
+                    document.getElementById('book-author').textContent = book.author || 'Sabirkhan Pathan';
+                    document.getElementById('book-description').textContent = book.description || '';
+                    document.getElementById('meta-category').textContent = book.category || 'Literature';
+                    document.getElementById('meta-views').textContent = book.views || 0;
+                    if (document.getElementById('mobile-views-count')) {
+                        document.getElementById('mobile-views-count').textContent = book.views || 0;
+                    }
+
+                    const discounted = book.discounted_price || book.price || 0;
+                    document.getElementById('meta-price').textContent = `₹${discounted}`;
+
+                    const img = document.getElementById('book-image');
+                    img.src = book.image;
+                    img.onerror = () => { img.src = 'https://placehold.co/300x450?text=Book+Cover'; };
+
+                    // Blurred Background
+                    const blurredBg = document.getElementById('story-blurred-bg');
+                    if (blurredBg) blurredBg.style.backgroundImage = `url('${book.image}')`;
+
+                    // Rating
+                    document.getElementById('book-avg-stars').innerHTML = getStars(book.rating);
+                    document.getElementById('reviews-count-text').textContent = `(${book.reviewsCount} Reviews)`;
+
+                    // Purchase Button
+                    const buyBtn = document.getElementById('atc-btn');
+                    buyBtn.innerHTML = `<i class="fas fa-bolt"></i> BUY NOW (₹${discounted})`;
+                    buyBtn.onclick = () => {
+                        const buyLink = book.buy_link || book.buyLink || "https://shopizon-eta.vercel.app/";
+                        window.open(buyLink, '_blank');
+                    };
+
+                    // Check wishlist
+                    checkWishlistStatus(id);
+
                     renderReviews(reviews);
 
                 } catch (err) {
                     console.error(err);
-                    document.getElementById('product-area').innerHTML = `<h2 style='text-align:center; color:red;'>Error loading content.</h2>`;
+                }
+            }
+
+            async function checkWishlistStatus(bookId) {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+                try {
+                    const res = await fetch(`/api/auth/me?t=${Date.now()}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const user = await res.json();
+                        const isSaved = user.savedBooks && user.savedBooks.some(b => String(b) === String(bookId));
+                        updateWishlistUI(isSaved);
+                    }
+                } catch (e) {}
+            }
+
+            function updateWishlistUI(isSaved) {
+                const icon = document.getElementById('wish-icon');
+                const mobileIcon = document.getElementById('mobile-wish-icon');
+                const btn = document.getElementById('wishlist-btn');
+                const mobileBtn = document.getElementById('mobile-wishlist-btn');
+
+                if (isSaved) {
+                    if (icon) icon.className = 'fas fa-heart';
+                    if (mobileIcon) mobileIcon.className = 'fas fa-heart';
+                    if (btn) btn.style.color = '#e74c3c';
+                    if (mobileBtn) mobileBtn.style.color = '#e74c3c';
+                } else {
+                    if (icon) icon.className = 'far fa-heart';
+                    if (mobileIcon) mobileIcon.className = 'far fa-heart';
+                    if (btn) btn.style.color = '#aaa';
+                    if (mobileBtn) mobileBtn.style.color = '#aaa';
+                }
+            }
+
+            async function toggleWishlist() {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Please login to use wishlist.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/auth/save-book', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ bookId: id })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        const isSaved = data.savedBooks.some(b => String(b) === String(id));
+                        updateWishlistUI(isSaved);
+                    }
+                } catch (e) {
+                    console.error(e);
                 }
             }
 
@@ -640,7 +379,7 @@
                     } else {
                         s.classList.remove('fas');
                         s.classList.add('far');
-                        s.style.color = '#444'; // inactive color
+                        s.style.color = '#444';
                     }
                 });
             }
@@ -654,10 +393,7 @@
                     targetId: id,
                     targetType: 'book',
                     rating: selectedRating,
-                    comment: text,
-                    comment: text,
-                    // user: 'Guest User', // Removed hardcoded user
-                    // review_text: text // Removed redundant field
+                    comment: text
                 };
 
                 try {
@@ -678,11 +414,8 @@
                     });
 
                     if (res.ok) {
-                        // UX Improvement: Hide form, Show success message
                         document.getElementById('review-form-box').style.display = 'none';
                         document.getElementById('review-success-msg').style.display = 'block';
-
-                        // Do NOT reload. Do NOT show alert.
                     } else {
                         const errData = await res.json();
                         alert(`Failed to submit review: ${res.status} - ${errData.message || 'Unknown Error'}`);
@@ -693,98 +426,9 @@
                 }
             }
 
-            // Global variable to store current book link
-            let currentBookLink = "https://shopizon-eta.vercel.app/";
-            let currentBook = null;
-
-            function renderLayout(book) {
-                document.title = `${book.title} | Qalamekahani`;
-
-                // Store the buy link (fallback to default if missing)
-                currentBookLink = book.buy_link || book.buyLink || "";
-
-                // Store global book object for modal
-                currentBook = book;
-
-                const discounted = book.discounted_price || book.price || 0;
-                const price = book.original_price || discounted;
-
-                const container = document.getElementById('product-area');
-
-                // Calculate discount for badge
-                let percent = 0;
-                if (price > 0 && discounted < price) {
-                    percent = Math.round(((price - discounted) / price) * 100);
-                }
-
-                container.innerHTML = `
-                <!-- Left: Image -->
-                <div class="product-image-col">
-                    <div style="position: relative; width: 100%; max-width: 350px;">
-                        <img src="${book.image}" alt="${book.title}" class="main-img" id="book-image" onerror="this.src='https://placehold.co/300x450?text=Book+Cover'">
-                    </div>
-                </div>
-
-                <!-- Right: Info -->
-                <div class="product-info-col">
-                    <h1 class="product-title">${book.title}</h1>
-                    <div class="product-brand">
-                        Author: <span style="color:#fff;">${book.author || 'Sabirkhan Pathan'}</span> | Category: <span style="color:#fff;">${book.category || 'Literature'}</span>
-                    </div>
-
-                    <div class="rating-block">
-                        <div class="stars">${getStars(book.rating || 4.5)}</div>
-                        <a href="#reviews-area" class="review-link">(${book.reviewsCount || 0} Reviews)</a>
-                        <span style="color: #666; font-size: 0.8rem; margin-left:10px;"><i class="fas fa-eye"></i> ${book.views || 0} Views</span>
-                    </div>
-
-                    <div class="price-section">
-                        <span class="current-price">₹${discounted}</span>
-                        ${price > discounted ? `<span class="original-price">₹${price}</span>` : ''}
-                        ${percent > 0 ? `<span style="color:#2ecc71; font-size:0.9rem; margin-left:10px;">${percent}% OFF</span>` : ''}
-                    </div>
-
-                    <div class="stock-status">
-                        <i class="fas fa-check-circle"></i> Available In Stock
-                    </div>
-
-                    <div class="description">
-                        ${book.description || 'Experience this masterpiece of storytelling. A journey through emotion, suspense, and the art of words.'}
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="action-row">
-                        <!-- Qty Selector (Visual Only) -->
-                        <div class="qty-wrapper">
-                            <button class="qty-btn" onclick="adjustQty(-1)">-</button>
-                            <input type="text" class="qty-input" value="1" id="qty-val" readonly>
-                            <button class="qty-btn" onclick="adjustQty(1)">+</button>
-                        </div>
-
-                        <!-- Force Buy Now -->
-                        <button class="btn-add-cart" id="atc-btn" onclick="startPurchase('${book.id}')">
-                            <i class="fas fa-bolt"></i> BUY NOW
-                        </button>
-                    </div>
-
-                    <div class="extra-links">
-                        <a href="#" class="extra-link"><i class="far fa-heart"></i> Add to Wishlist</a>
-                        <a href="javascript:void(0)" class="extra-link" onclick="shareBook()"><i class="fas fa-share-alt"></i> Share This Book</a>
-                    </div>
-                </div>
-            `;
-            }
-
             function renderReviews(reviews) {
                 const rArea = document.getElementById('reviews-area');
-
-                // Filter logic (if API returns mixed status, otherwise handled by API but good to be safe)
-                // Assuming simplified API for now, usually filtering handled on backend or returned all.
-                // Let's filter client side just in case.
                 const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true || r.approved === true || !r.hasOwnProperty('status'));
-                // Note: !hasOwnProperty check is weak but default for simple APIs. 
-                // Ideally we assume API filters, but user said "after approving in admin panel", so API likely returns all?
-                // If the API returns ALL reviews (including pending), we MUST filter here.
 
                 if (!approved || approved.length === 0) {
                     rArea.innerHTML = "<p style='color:#777; font-style:italic;'>No approved reviews yet. Be the first to share your thoughts!</p>";
@@ -799,21 +443,6 @@
                         <p class="review-text">${r.text || r.comment}</p>
                     </div>
                 `).join('');
-                }
-            }
-
-            function adjustQty(delta) {
-                const input = document.getElementById('qty-val');
-                let val = parseInt(input.value) + delta;
-                if (val < 1) val = 1;
-                input.value = val;
-            }
-
-            function startPurchase(bookId) {
-                if (currentBookLink) {
-                    window.open(currentBookLink, '_blank');
-                } else {
-                    alert('Buy link not available for this book yet.');
                 }
             }
 

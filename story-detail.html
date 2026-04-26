@@ -653,18 +653,27 @@
                     });
 
                     if (isLiked) {
-                        const btn = document.querySelector('.btn-fav');
-                        const icon = btn.querySelector('i');
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
-                        btn.style.color = '#e74c3c';
-                        btn.classList.add('active');
+                        const desktopBtn = document.querySelector('.btn-fav');
+                        const mobileBtn = document.querySelector('#mobile-like-btn');
+                        
+                        [desktopBtn, mobileBtn].forEach(btn => {
+                            if (btn) {
+                                const icon = btn.querySelector('i');
+                                if (icon) {
+                                    icon.classList.remove('far');
+                                    icon.classList.add('fas');
+                                    btn.style.color = '#e74c3c';
+                                    btn.classList.add('active');
+                                }
+                            }
+                        });
                     }
                 }
             } catch (e) {
                 console.error("Like check error:", e);
             }
         }
+
 
         function calculateReadTime(text) {
             const wordsPerMinute = 200;
@@ -829,22 +838,33 @@
                 return;
             }
 
-            const btn = document.querySelector('.btn-fav');
-            const icon = btn.querySelector('i');
-            const isLiking = icon.classList.contains('far'); // currently empty, so we are liking
+            const desktopBtn = document.querySelector('.btn-fav');
+            const mobileBtn = document.querySelector('#mobile-like-btn');
+            
+            const desktopIcon = desktopBtn ? desktopBtn.querySelector('i') : null;
+            const mobileIcon = mobileBtn ? mobileBtn.querySelector('i') : null;
 
-            // Optimistic UI Update
-            if (isLiking) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                btn.style.color = '#e74c3c';
-                btn.classList.add('active');
-            } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                btn.style.color = '';
-                btn.classList.remove('active');
-            }
+            const isCurrentlyLiked = desktopIcon ? desktopIcon.classList.contains('fas') : (mobileIcon ? mobileIcon.classList.contains('fas') : false);
+            const becomingLiked = !isCurrentlyLiked;
+
+            // Optimistic Update
+            const updateUI = (liked) => {
+                [desktopIcon, mobileIcon].forEach(icon => {
+                    if (icon) {
+                        if (liked) {
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                            icon.parentElement.style.color = '#e74c3c';
+                        } else {
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                            icon.parentElement.style.color = '';
+                        }
+                    }
+                });
+            };
+
+            updateUI(becomingLiked);
 
             try {
                 const res = await fetch('/api/auth/like-story', {
@@ -859,20 +879,11 @@
                 if (!res.ok) throw new Error('Failed to like story');
             } catch (err) {
                 console.error(err);
-                // Revert UI on failure
-                if (isLiking) {
-                    icon.classList.remove('fas');
-                    icon.classList.add('far');
-                    btn.style.color = '';
-                    btn.classList.remove('active');
-                } else {
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                    btn.style.color = '#e74c3c';
-                    btn.classList.add('active');
-                }
+                // Revert
+                updateUI(isCurrentlyLiked);
             }
         }
+
         // Review Form Logic
         let currentRating = 0;
 

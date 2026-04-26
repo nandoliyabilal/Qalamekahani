@@ -11,182 +11,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="css/style.css?v=2.3">
+    <link rel="stylesheet" href="css/premium-story.css">
     <style>
-        /* Specific Styles for Blog Detail to match Story Detail + Reader */
-        .story-hero {
-            padding: 150px 0;
-            background: linear-gradient(to bottom, #0a0a0a, #111);
-        }
-
-        @media (max-width: 900px) {
-            .story-hero {
-                padding: 60px 0;
-            }
-
-            .story-hero-container {
-                flex-direction: column !important;
-                padding: 0 20px !important;
-                text-align: center;
-                gap: 30px !important;
-            }
-
-            .story-visual {
-                flex: none !important;
-                width: 100%;
-                max-width: 300px;
-                margin: 0 auto;
-            }
-
-            .story-info {
-                width: 100%;
-            }
-
-            .meta-grid {
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 15px;
-            }
-
-            .action-row {
-                justify-content: center;
-                flex-direction: column;
-                gap: 15px;
-                width: 100%;
-            }
-
-            .btn-read-full {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .story-title {
-                font-size: 2.2rem !important;
-                margin-top: 10px;
-            }
-
-            .reader-container {
-                padding: 60px 20px !important;
-            }
-
-            .close-reader {
-                right: 20px;
-                top: 15px;
-            }
-        }
-
-        .story-hero-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            gap: 60px;
-            padding: 0 40px;
-            align-items: center;
-        }
-
-        .story-visual {
-            flex: 0 0 320px;
-            position: relative;
-        }
-
-        .story-cover {
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-            aspect-ratio: 2/3;
-            object-fit: cover;
-        }
-
-        .story-info {
-            flex: 1;
-        }
-
-        .story-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5rem;
-            color: #fff;
-            margin-bottom: 0.5rem;
-            line-height: 1.1;
-        }
-
-        .story-author {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.1rem;
-            color: #ccc;
-            margin-bottom: 2rem;
-            font-weight: 400;
-        }
-
-        .story-author span {
-            color: #d4af37;
-        }
-
-        .meta-grid {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #333;
-            padding-bottom: 2rem;
-        }
-
-        .meta-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .meta-label {
-            font-size: 0.8rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .meta-value {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            color: #fff;
-            font-weight: 500;
-        }
-
-        .blog-excerpt {
-            font-family: 'Poppins', sans-serif;
-            color: #aaa;
-            line-height: 1.8;
-            font-size: 1rem;
-            margin-bottom: 30px;
-            display: -webkit-box;
-            line-clamp: 3;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .action-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn-read-full {
-            background: #d4af37;
-            color: #000;
-            padding: 14px 35px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1rem;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .btn-read-full:hover {
-            transform: translateY(-3px);
-            background: #fff;
-        }
-
-        /* --- PDF READER OVERLAY --- */
+        /* PDF READER OVERLAY */
         .reader-overlay {
             position: fixed;
             top: 0;
@@ -210,7 +37,6 @@
             max-width: 800px;
             margin: 0 auto;
             background: #1a1a1a;
-            /* Dark Paper Mode */
             min-height: 100vh;
             padding: 80px 60px;
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
@@ -276,86 +102,10 @@
             margin-bottom: 20px;
             font-size: 2rem;
         }
-
-        @media (max-width: 768px) {
-            .story-hero-container {
-                flex-direction: column;
-                text-align: center;
-                padding: 0 20px;
-            }
-
-            .story-visual {
-                flex: none;
-                width: 250px;
-                margin-bottom: 30px;
-            }
-
-            .meta-grid {
-                justify-content: center;
-            }
-
-            .action-row {
-                justify-content: center;
-            }
-
-            .reader-container {
-                padding: 60px 20px;
-            }
-        }
-
-        /* TOAST NOTIFICATION */
-        .toast-msg {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #d4af37;
-            color: #000;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-weight: 600;
-            z-index: 3000;
-            opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-            pointer-events: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-
-        .toast-msg.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(10px);
-        }
-
-        /* IMAGE BACK BUTTON OVERLAY */
-        .img-back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            z-index: 10;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .img-back-btn:hover {
-            background: #d4af37;
-            color: #000;
-            transform: translateY(-2px);
-        }
     </style>
 </head>
 
 <body>
-    <!-- HEADER -->
     <header class="header">
         <div class="nav-container">
             <a href="index.html" class="logo">Qalamekahani</a>
@@ -385,61 +135,93 @@
         </div>
     </header>
 
-    <!-- BLOG DETAIL VIEW (Left Img, Right Details) -->
-    <section class="story-hero">
-        <div class="story-hero-container">
-            <!-- Left: Image -->
-            <div class="story-visual" style="position: relative;">
-                <a href="blog.html" class="img-back-btn">
-                    <i class="fas fa-arrow-left"></i> Back
-                </a>
-                <img id="blog-image" src="" alt="Blog Cover" class="story-cover"
-                    onerror="this.src='https://via.placeholder.com/400x600'">
-            </div>
+    <div class="story-page-bg">
+        <div id="story-blurred-bg"></div>
+        <div class="story-overlay-mist"></div>
+        <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
+    </div>
 
-            <!-- Right: Details -->
-            <div class="story-info">
-                <h1 id="blog-title" class="story-title">Loading Blog...</h1>
-                <h3 class="story-author">Written By <span id="blog-author">Loading...</span></h3>
+    <div id="story-container">
+        <section class="story-hero">
+            <div class="story-hero-container">
+                <!-- Back Link -->
+                <div class="story-back-row">
+                    <a href="blog.html" class="back-link"><i class="fas fa-chevron-left"></i> BACK TO BLOGS</a>
+                </div>
 
-                <div class="meta-grid">
-                    <div class="meta-item">
-                        <span class="meta-label">Category</span>
-                        <span id="blog-category" class="meta-value">-</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Published</span>
-                        <span id="blog-date" class="meta-value">-</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Read Time</span>
-                        <span id="blog-time" class="meta-value">-</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Views</span>
-                        <span id="blog-views" class="meta-value">0</span>
+                <!-- Left: Visual -->
+                <div class="story-visual">
+                    <div class="story-cover-wrapper">
+                        <img id="blog-image" src="" alt="Blog Cover" class="story-cover">
+                        <div class="story-badges">
+                            <span id="blog-cat-badge" class="badge badge-cat">Blog</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="blog-excerpt" id="blog-excerpt"></div>
+                <!-- Right: Details -->
+                <div class="story-info">
+                    <!-- Hanging Views Cart (Mobile Only) -->
+                    <div class="hanging-views mobile-only">
+                        <div class="view-cart">
+                            <i class="fas fa-eye"></i>
+                            <span id="mobile-views-count">0</span>
+                        </div>
+                    </div>
 
-                <div class="action-row">
-                    <button class="btn-read-full" onclick="openReader()">
-                        <i class="fas fa-book-reader"></i> Read Full Blog
-                    </button>
-                    <!-- Save Button -->
-                    <button id="save-btn" class="btn-read-full" style="background:#222; color:#fff;"
-                        onclick="toggleSaveBlog()">
-                        <i id="save-icon" class="far fa-bookmark"></i>
-                    </button>
-                    <!-- Share Button -->
-                    <button class="btn-read-full" style="background:#222; color:#fff;" onclick="shareBlog()">
-                        <i class="fas fa-share-alt"></i>
-                    </button>
+                    <h1 id="blog-title" class="story-title">Loading...</h1>
+                    <h3 class="story-author">Written By <span id="blog-author" class="author-name"></span></h3>
+                    
+                    <div class="story-rating-row">
+                        <div class="stars" id="blog-avg-stars"></div>
+                        <span id="blog-rating-text" class="rating-text"></span>
+                    </div>
+
+                    <!-- Mobile Actions Row -->
+                    <div class="mobile-actions mobile-only">
+                        <button class="mobile-action-btn fav-btn" id="mobile-save-btn" onclick="toggleSaveBlog()">
+                            <i class="far fa-bookmark" id="mobile-save-icon"></i> <span>Save</span>
+                        </button>
+                        <button class="mobile-action-btn share-btn" onclick="shareBlog()">
+                            <i class="fas fa-share-alt"></i> <span>Share</span>
+                        </button>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="story-meta-grid">
+                        <div class="meta-item">
+                            <span class="meta-label">CATEGORY</span>
+                            <span id="blog-category" class="meta-value">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">PUBLISHED</span>
+                            <span id="blog-date" class="meta-value">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">VIEWS</span>
+                            <span id="blog-views" class="meta-value">0</span>
+                        </div>
+                    </div>
+
+                    <div class="story-synopsis-container">
+                        <h4 class="meta-label">EXCERPT</h4>
+                        <p id="blog-excerpt" class="story-synopsis"></p>
+                    </div>
+
+                    <!-- Desktop Actions -->
+                    <div class="story-actions desktop-only">
+                        <button onclick="openReader()" class="btn btn-primary btn-read"><i class="fas fa-book-reader"></i> READ FULL BLOG</button>
+                        
+                        <button class="btn-fav" onclick="toggleSaveBlog()" id="save-btn">
+                            <i class="far fa-bookmark" id="save-icon"></i>
+                        </button>
+                        <button class="btn-share" onclick="shareBlog()">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+
 
     <!-- REVIEWS SECTION -->
     <section class="reviews-section" style="background:#0a0a0a; padding:60px 0; border-top:1px solid #222;">
@@ -583,15 +365,114 @@
             } catch (e) { console.error('Error checking save status', e); }
         }
 
+        function renderPage(post) {
+            document.title = `${post.title} | Qalamekahani`;
+
+            document.getElementById('blog-title').textContent = post.title;
+            document.getElementById('blog-author').textContent = post.author || 'Sabirkhan Pathan';
+            document.getElementById('blog-category').textContent = post.category || 'General';
+            document.getElementById('blog-date').textContent = new Date(post.created_at).toLocaleDateString();
+            document.getElementById('blog-views').textContent = post.views || 0;
+            if (document.getElementById('mobile-views-count')) {
+                document.getElementById('mobile-views-count').textContent = post.views || 0;
+            }
+
+            const img = document.getElementById('blog-image');
+            if (post.image) {
+                img.src = post.image;
+                const blurredBg = document.getElementById('story-blurred-bg');
+                if (blurredBg) blurredBg.style.backgroundImage = `url('${post.image}')`;
+            }
+
+            let excerpt = post.excerpt;
+            if (!excerpt) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = post.content;
+                excerpt = tempDiv.textContent.substring(0, 200) + '...';
+            }
+            document.getElementById('blog-excerpt').textContent = excerpt;
+
+            document.getElementById('reader-title').textContent = post.title;
+            document.getElementById('reader-author').textContent = 'By ' + (post.author || 'Sabirkhan Pathan');
+            document.getElementById('reader-date').textContent = new Date(post.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            let contentHtml = post.content;
+            if (!contentHtml.includes('<p>')) {
+                contentHtml = contentHtml.split('\n').map(line => line.trim() ? `<p>${line}</p>` : '').join('');
+            }
+            document.getElementById('reader-body').innerHTML = contentHtml;
+
+            initStars();
+            loadReviews(post.id);
+        }
+
+        async function loadReviews(blogId) {
+            const list = document.getElementById('reviews-list');
+            try {
+                const res = await fetch(`/api/reviews?targetId=${blogId}&t=${Date.now()}`);
+                if (!res.ok) throw new Error('Failed to load reviews');
+                const reviews = await res.json();
+                const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true);
+
+                if (approved.length > 0) {
+                    list.innerHTML = approved.map(r => `
+                        <div class="review-item" style="background: rgba(255,255,255,0.02); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom:20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #f1c40f); display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold;">
+                                        ${(r.user_name || 'R')[0].toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <h4 style="color: #fff; font-size: 1rem; font-weight: 600;">${r.user_name || r.name || 'Reader'}</h4>
+                                        <div style="display: flex; gap: 3px; color: #d4af37; font-size: 0.75rem;">
+                                            ${generateStarsHTML(r.rating || 5)}
+                                        </div>
+                                    </div>
+                                </div>
+                                <span style="color: #555; font-size: 0.75rem;">${new Date(r.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <p style="color: #ccc; line-height: 1.6; font-style: italic;">"${r.comment}"</p>
+                        </div>
+                    `).join('');
+
+                    const total = approved.reduce((acc, r) => acc + (parseFloat(r.rating) || 0), 0);
+                    const avg = (total / approved.length).toFixed(1);
+                    document.getElementById('blog-avg-stars').innerHTML = generateStarsHTML(avg);
+                    document.getElementById('blog-rating-text').textContent = `${avg} (${approved.length} Reviews)`;
+                } else {
+                    list.innerHTML = '<p style="color:#666;">No reviews yet.</p>';
+                    document.getElementById('blog-avg-stars').innerHTML = generateStarsHTML(0);
+                    document.getElementById('blog-rating-text').textContent = `No ratings yet`;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function generateStarsHTML(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.floor(rating)) html += '<i class="fas fa-star"></i>';
+                else if (i === Math.ceil(rating) && rating % 1 >= 0.5) html += '<i class="fas fa-star-half-alt"></i>';
+                else html += '<i class="far fa-star"></i>';
+            }
+            return html;
+        }
+
         function updateSaveIcon(isSaved) {
             const icon = document.getElementById('save-icon');
+            const mobileIcon = document.getElementById('mobile-save-icon');
             const btn = document.getElementById('save-btn');
+            const mobileBtn = document.getElementById('mobile-save-btn');
+
             if (isSaved) {
-                icon.className = 'fas fa-bookmark';
-                btn.style.color = '#d4af37';
+                if (icon) icon.className = 'fas fa-bookmark';
+                if (mobileIcon) mobileIcon.className = 'fas fa-bookmark';
+                if (btn) btn.style.color = '#d4af37';
+                if (mobileBtn) mobileBtn.style.color = '#d4af37';
             } else {
-                icon.className = 'far fa-bookmark';
-                btn.style.color = '#fff';
+                if (icon) icon.className = 'far fa-bookmark';
+                if (mobileIcon) mobileIcon.className = 'far fa-bookmark';
+                if (btn) btn.style.color = '#fff';
+                if (mobileBtn) mobileBtn.style.color = '#fff';
             }
         }
 
@@ -599,6 +480,7 @@
             const token = localStorage.getItem('token');
             if (!token) {
                 alert('Please login to save blogs.');
+                window.location.href = 'login.html';
                 return;
             }
             if (!currentPost) return;
@@ -615,66 +497,14 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    // Check if current ID is in the returned list (which might be IDs or objects depending on controller)
-                    // authController returns { savedBlogs: [...] } which are IDs (strings).
-                    // WAIT: authController logic at line 362 returns `user.savedBlogs`. 
-                    // In `saveBlog` controller, `user.savedBlogs` is array of ObjectIds (strings) because it's not populated there.
-                    // So we check simply if ID is included.
-
-                    const isSaved = data.savedBlogs.includes(currentPost.id);
+                    const isSaved = data.savedBlogs.some(b => String(b) === String(currentPost.id));
                     updateSaveIcon(isSaved);
-
-                    // Show toast
-                    const msg = isSaved ? 'Blog Saved to Profile' : 'Blog Removed from Profile';
-                    // Simple alert for now or custom toast if available
-                    // alert(msg); 
                 }
             } catch (e) {
                 console.error(e);
             }
         }
 
-        function renderPage(post) {
-            document.title = `${post.title} | Qalamekahani`;
-
-            // Hero Section
-            document.getElementById('blog-title').textContent = post.title;
-            document.getElementById('blog-author').textContent = post.author || 'Sabirkhan Pathan';
-            document.getElementById('blog-category').textContent = post.category || 'General';
-            document.getElementById('blog-date').textContent = new Date(post.created_at).toLocaleDateString();
-            document.getElementById('blog-time').textContent = post.readTime || '5 min read';
-
-            if (post.image) {
-                document.getElementById('blog-image').src = post.image;
-            }
-            document.getElementById('blog-views').textContent = post.views || 0;
-
-            // Excerpt
-            let excerpt = post.excerpt;
-            if (!excerpt) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = post.content;
-                excerpt = tempDiv.textContent.substring(0, 200) + '...';
-            }
-            document.getElementById('blog-excerpt').textContent = excerpt;
-
-            // Reader Mode Content
-            document.getElementById('reader-title').textContent = post.title;
-            document.getElementById('reader-author').textContent = 'By ' + (post.author || 'Sabirkhan Pathan');
-            document.getElementById('reader-date').textContent = new Date(post.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-            let contentHtml = post.content;
-            if (!contentHtml.includes('<p>')) {
-                contentHtml = contentHtml.split('\n').map(line => line.trim() ? `<p>${line}</p>` : '').join('');
-            }
-            document.getElementById('reader-body').innerHTML = contentHtml;
-
-            // Initialize Modules
-            initStars();
-            loadReviews(post.id);
-        }
-
-        async function downloadImage(imgId) {
             const img = document.getElementById(imgId);
             if (!img || !img.src) return;
             try {

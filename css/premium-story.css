@@ -439,17 +439,30 @@
         height: 30px;
     }
 
+    /* Mobile Bottom Bar - Hidden by default on Desktop */
     .mobile-bottom-bar {
+        display: none !important; 
+    }
 
-        display: none;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: #000;
-        padding: 12px 15px 25px;
-        z-index: 2000;
-        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
+    @media (max-width: 768px) {
+        .mobile-bottom-bar {
+            display: none; /* Controlled by JS scroll */
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.98);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 12px 15px 25px;
+            z-index: 2000;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.9);
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .mobile-bottom-bar.active {
+            display: block !important;
+        }
     }
 
     .mobile-sticky-btn {

@@ -201,9 +201,15 @@
 
     <!-- Mobile Bottom Action Bar -->
     <div class="mobile-bottom-bar">
-        <div class="mobile-bottom-container">
-            <div class="mobile-story-title-mini" id="mobile-mini-title">Title</div>
-            <button class="btn btn-primary mobile-sticky-btn" id="mobile-action-btn">Listen Now</button>
+        <div class="mobile-bottom-container" style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="mobile-story-title-mini" id="mobile-mini-title" style="color: #fff; font-size: 0.8rem; opacity: 0.8; font-weight: 500;">Title</div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn btn-primary mobile-sticky-btn" id="mobile-action-btn" style="flex: 1; padding: 12px !important; font-size: 0.95rem !important;">Listen Now</button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-fav" onclick="saveAudio()" id="save-btn-mobile" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 10px; color: #fff;"><i class="far fa-bookmark"></i></button>
+                    <button class="btn-share" onclick="shareAudio()" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;"><i class="fas fa-share-alt"></i></button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -424,9 +430,10 @@
 
                 // Check saved status
                 if (token) checkSavedStatus(canonicalId);
-
-                // Load Reviews
                 loadReviews(canonicalId);
+
+                // Initial scroll check
+                handleScroll();
 
             } catch (error) {
                 console.error(error);
@@ -659,20 +666,32 @@
                 }, { background: '#d4af37', color: '#000' });
             }
 
-            // Sticky Logic for Mobile
-            if (window.innerWidth <= 768 && btn) {
-                window.addEventListener('scroll', () => {
-                    const heroBottom = document.querySelector('.story-hero').getBoundingClientRect().bottom;
-                    const mobileBar = document.querySelector('.mobile-bottom-bar');
-                    if (heroBottom < 0) {
-                        mobileBar.classList.add('active'); // CSS should handle showing it
-                        // Or just show/hide directly if not using 'active' class
-                        mobileBar.style.display = 'block';
-                    } else {
-                        mobileBar.style.display = 'none';
-                    }
-                });
+            // Scroll Sticky Logic
+            function handleScroll() {
+                const bar = document.querySelector('.mobile-bottom-bar');
+                if (!bar) return;
+                
+                // On Laptop/Desktop, always keep it hidden
+                if (window.innerWidth > 768) {
+                    bar.classList.remove('active');
+                    return;
+                }
+
+                const hero = document.querySelector('.story-hero');
+                if (!hero) return;
+                
+                const heroBottom = hero.getBoundingClientRect().bottom;
+                
+                // Show only when user scrolls past the hero section
+                if (heroBottom < 0) {
+                    bar.classList.add('active');
+                } else {
+                    bar.classList.remove('active');
+                }
             }
+
+            window.addEventListener('scroll', handleScroll);
+            window.addEventListener('resize', handleScroll);
         }
 
         function handleEpisodeClick(canonicalId, hasAccess) {
@@ -731,11 +750,23 @@
                 });
                 if (res.ok) {
                     const user = await res.json();
-                    const isSaved = user.savedAudios && user.savedAudios.some(item => {
-                        const itemId = typeof item === 'object' ? (item.id || item._id) : item;
-                        return String(itemId) === String(canonicalId);
-                    });
-                    updateSaveBtn(isSaved);
+                    const isSaved = user.savedAudios && user.savedAudios.some(s => String(s.id || s) === String(canonicalId));
+                    
+                    const updateBtn = (id) => {
+                        const btn = document.getElementById(id);
+                        if (btn) {
+                            const icon = btn.querySelector('i');
+                            if (isSaved) {
+                                icon.className = 'fas fa-bookmark';
+                                btn.style.color = '#d4af37';
+                            } else {
+                                icon.className = 'far fa-bookmark';
+                                btn.style.color = '#fff';
+                            }
+                        }
+                    };
+                    updateBtn('save-btn');
+                    updateBtn('save-btn-mobile');
                 }
             } catch (e) { }
         }

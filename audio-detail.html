@@ -160,34 +160,34 @@
                     </div>
 
                     <div class="tab-content" id="reviews-tab" style="display: none;">
-                        <div id="review-list" style="display: flex; flex-direction: column; gap: 25px;">
-                            <p id="no-reviews-msg" style="color: #666; font-style: italic;">No reviews yet. Be the first to share your experience!</p>
-                        </div>
+                        <div class="reviews-container" style="padding: 0; margin-top: 30px;">
+                            <!-- Review Form -->
+                            <div class="write-review-box" id="review-form-box">
+                                <h3 class="review-title" style="font-size: 1.5rem; margin-bottom: 20px;">Rate & Review</h3>
+                                <div class="rating-input" id="star-rating-input">
+                                    <i class="far fa-star star-input" data-val="1"></i>
+                                    <i class="far fa-star star-input" data-val="2"></i>
+                                    <i class="far fa-star star-input" data-val="3"></i>
+                                    <i class="far fa-star star-input" data-val="4"></i>
+                                    <i class="far fa-star star-input" data-val="5"></i>
+                                </div>
+                                <textarea id="review-comment" class="review-textarea" placeholder="What did you think of the story?"></textarea>
+                                <button onclick="submitReview(event)" class="btn-submit-review" style="width: 100%;">Post Review</button>
+                            </div>
 
-                        <!-- Review Form -->
-                        <div class="review-form-container" style="margin-top: 50px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 35px; border-radius: 24px;">
-                            <h3 style="color: #fff; margin-bottom: 25px; font-family: 'Playfair Display', serif; font-size: 1.5rem;">Rate & Review</h3>
-                            <form id="review-form" onsubmit="submitReview(event)">
-                                <div style="margin-bottom: 25px;">
-                                    <label style="color: #888; display: block; margin-bottom: 12px; font-size: 0.9rem;">Your Rating</label>
-                                    <div class="rating-stars-input" id="star-rating-input" style="color: #444; font-size: 1.8rem; cursor: pointer; display: flex; gap: 10px;">
-                                        <i class="fas fa-star" data-val="1"></i>
-                                        <i class="fas fa-star" data-val="2"></i>
-                                        <i class="fas fa-star" data-val="3"></i>
-                                        <i class="fas fa-star" data-val="4"></i>
-                                        <i class="fas fa-star" data-val="5"></i>
-                                    </div>
-                                    <input type="hidden" id="selected-rating" value="5">
-                                </div>
-                                <div style="margin-bottom: 25px;">
-                                    <label style="color: #888; display: block; margin-bottom: 12px; font-size: 0.9rem;">Your Message</label>
-                                    <textarea id="review-comment" required placeholder="What did you think of the story?" 
-                                              style="width: 100%; padding: 20px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 16px; height: 120px; font-family: inherit; resize: none; outline: none; transition: border-color 0.3s;"></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 18px; border-radius: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Post Review</button>
-                            </form>
+                            <div class="review-success-msg" id="review-success-msg">
+                                <i class="fas fa-check-circle"></i>
+                                <h4>Review Submitted!</h4>
+                                <p>Thank you for your feedback. It will be visible after approval.</p>
+                            </div>
+
+                            <!-- Reviews List -->
+                            <div id="review-list">
+                                <p id="no-reviews-msg" style="color: #666; font-style: italic;">No reviews yet. Be the first to share your experience!</p>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>
@@ -456,75 +456,50 @@
 
         async function loadReviews(audioId) {
             const list = document.getElementById('review-list');
-            const noMsg = document.getElementById('no-reviews-msg');
-            const tabBtn = document.getElementById('reviews-tab-btn');
             const avgStars = document.getElementById('audio-avg-stars');
             const ratingText = document.getElementById('audio-rating-text');
+            const noMsg = document.getElementById('no-reviews-msg');
+            const tabBtn = document.getElementById('reviews-tab-btn');
 
             try {
-                const res = await fetch(`/api/reviews?targetId=${audioId}&t=${Date.now()}`);
-                if (!res.ok) throw new Error('Failed to load reviews');
+                const res = await fetch(`/api/reviews?targetType=audio&targetId=${audioId}&t=${Date.now()}`);
+                if (!res.ok) throw new Error('Failed');
                 const reviews = await res.json();
-                
-                // Filter approved or pending (for current user)
                 const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true);
-                
-                tabBtn.textContent = `Reviews (${approved.length})`;
-                
+
+                if (tabBtn) tabBtn.textContent = `Reviews (${approved.length})`;
+
                 if (approved.length > 0) {
-                    noMsg.style.display = 'none';
+                    if (noMsg) noMsg.style.display = 'none';
                     list.innerHTML = approved.map(r => `
-                        <div class="review-item" style="background: rgba(255,255,255,0.02); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #f1c40f); display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold;">
-                                        ${(r.user_name || 'R')[0].toUpperCase()}
-                                    </div>
-                                    <div>
-                                        <h4 style="color: #fff; font-size: 1rem; font-weight: 600;">${r.user_name || r.name || 'Reader'}</h4>
-                                        <div style="display: flex; gap: 3px; color: #d4af37; font-size: 0.75rem;">
-                                            ${generateStarsHTML(r.rating || 5)}
-                                        </div>
-                                    </div>
-                                </div>
-                                <span style="color: #555; font-size: 0.75rem;">${new Date(r.created_at).toLocaleDateString()}</span>
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="reviewer-name">${r.user_name || r.name || 'Reader'}</span>
+                                <span class="review-date">${new Date(r.created_at || Date.now()).toLocaleDateString()}</span>
                             </div>
-                            <p style="color: #ccc; line-height: 1.6; font-style: italic;">"${r.comment}"</p>
-                            
-                            ${r.reply ? `
-                                <div class="admin-reply" style="margin-top: 20px; padding: 20px; background: rgba(212,175,55,0.05); border-left: 3px solid #d4af37; border-radius: 12px;">
-                                    <h5 style="color: #d4af37; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Response from Qalamverce</h5>
-                                    <p style="color: #eee; font-size: 0.9rem; line-height: 1.5;">${r.reply}</p>
-                                </div>
-                            ` : ''}
+                            <div class="stars" style="color:var(--gold); font-size:0.8rem; margin-bottom:5px;">${generateStarsHTML(r.rating || 5)}</div>
+                            <p class="review-text">"${r.comment}"</p>
                         </div>
                     `).join('');
 
-                    // Calculate Avg
                     const total = approved.reduce((acc, r) => acc + (parseFloat(r.rating) || 0), 0);
                     const avg = (total / approved.length).toFixed(1);
                     avgStars.innerHTML = generateStarsHTML(avg);
                     ratingText.textContent = `${avg} (${approved.length} Reviews)`;
                 } else {
-                    noMsg.style.display = 'block';
+                    if (noMsg) noMsg.style.display = 'block';
                     avgStars.innerHTML = generateStarsHTML(0);
                     ratingText.textContent = `No ratings yet`;
                 }
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
         }
 
         function generateStarsHTML(rating) {
             let html = '';
             for (let i = 1; i <= 5; i++) {
-                if (i <= Math.floor(rating)) {
-                    html += '<i class="fas fa-star"></i>';
-                } else if (i === Math.ceil(rating) && rating % 1 >= 0.5) {
-                    html += '<i class="fas fa-star-half-alt"></i>';
-                } else {
-                    html += '<i class="far fa-star"></i>';
-                }
+                if (i <= Math.floor(rating)) html += '<i class="fas fa-star"></i>';
+                else if (i === Math.ceil(rating) && rating % 1 >= 0.5) html += '<i class="fas fa-star-half-alt"></i>';
+                else html += '<i class="far fa-star"></i>';
             }
             return html;
         }
@@ -557,18 +532,13 @@
                     })
                 });
 
-                if (!res.ok) throw new Error('Failed to submit');
-                
-                alert('Thank you! Your review has been submitted correctly.');
-                document.getElementById('review-form').reset();
-                // Reset stars
-                document.querySelectorAll('#star-rating-input i').forEach(s => {
-                    s.style.color = '#d4af37';
-                    s.classList.add('fas');
-                    s.classList.remove('far');
-                });
-                document.getElementById('selected-rating').value = 5;
-                loadReviews(audioId);
+                if (res.ok) {
+                    document.getElementById('review-form-box').style.display = 'none';
+                    document.getElementById('review-success-msg').style.display = 'block';
+                    loadReviews(audioId);
+                } else {
+                    alert('Failed to submit review');
+                }
             } catch (e) {
                 alert('Error submitting review');
             }

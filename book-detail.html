@@ -138,33 +138,36 @@
                 </div>
             </div>
 
+    <!-- REVIEWS SECTION -->
+    <div class="reviews-container" id="reviews-area">
+        <h3 class="review-title">Reader Reviews</h3>
 
-    <div class="reviews-container">
-        <!-- WRITE REVIEW FORM -->
-        <h3 class="review-title">Write a Review</h3>
-
+        <!-- Review Form -->
         <div class="write-review-box" id="review-form-box">
+            <h4 style="color: #fff; margin-bottom: 15px;">Leave a Review</h4>
             <div class="rating-input">
-                <span style="margin-right: 15px; color: #ccc; font-size: 1rem;">Click to Rate:</span>
                 <i class="far fa-star star-input" data-value="1"></i>
                 <i class="far fa-star star-input" data-value="2"></i>
                 <i class="far fa-star star-input" data-value="3"></i>
                 <i class="far fa-star star-input" data-value="4"></i>
                 <i class="far fa-star star-input" data-value="5"></i>
             </div>
-            <textarea id="review-text" class="review-textarea"
-                placeholder="Share your thoughts on this book..."></textarea>
-            <button class="btn-submit-review" onclick="submitReview()">Submit Review</button>
+            <textarea id="review-comment" class="review-textarea" placeholder="Share your thoughts about this book..."></textarea>
+            <button onclick="submitReview(event)" class="btn-submit-review">Submit Review</button>
         </div>
 
         <div class="review-success-msg" id="review-success-msg">
             <i class="fas fa-check-circle"></i>
-            <h4>Thank you for your review!</h4>
-            <p style="color: #aaa;">Your feedback has been submitted successfully.</p>
+            <h4>Review Submitted!</h4>
+            <p>Thank you for your feedback. It will be visible after approval.</p>
         </div>
 
-        <h3 class="review-title">Detailed Reviews</h3>
-        <div id="reviews-area"></div>
+        <!-- Reviews List -->
+        <div id="reviews-list">
+            <p style="color:#666;">Loading latest reviews...</p>
+        </div>
+    </div>
+
         <footer class="site-footer">
             <div class="footer-container">
                 <div class="footer-col brand-col">
@@ -427,24 +430,27 @@
             }
 
             function renderReviews(reviews) {
-                const rArea = document.getElementById('reviews-area');
-                const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true || r.approved === true || !r.hasOwnProperty('status'));
+                const list = document.getElementById('reviews-list');
+                if (!list) return;
+
+                const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true || r.approved === true);
 
                 if (!approved || approved.length === 0) {
-                    rArea.innerHTML = "<p style='color:#777; font-style:italic;'>No approved reviews yet. Be the first to share your thoughts!</p>";
+                    list.innerHTML = "<p style='color:#777; font-style:italic;'>No approved reviews yet. Be the first to share your thoughts!</p>";
                 } else {
-                    rArea.innerHTML = approved.map(r => `
-                    <div class="review-card">
+                    list.innerHTML = approved.map(r => `
+                    <div class="review-item">
                         <div class="review-header">
                             <span class="reviewer-name">${r.user_name || r.name || 'Reader'}</span>
                             <span class="review-date">${new Date(r.created_at || Date.now()).toLocaleDateString()}</span>
                         </div>
-                        <div class="stars" style="font-size:0.8rem; margin-bottom:5px;">${getStars(r.rating || 5)}</div>
+                        <div class="stars" style="color:var(--gold); font-size:0.8rem; margin-bottom:5px;">${getStars(r.rating || 5)}</div>
                         <p class="review-text">${r.text || r.comment}</p>
                     </div>
                 `).join('');
                 }
             }
+
 
             async function downloadImage(imgId) {
                 const img = document.getElementById(imgId);

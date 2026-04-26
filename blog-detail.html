@@ -224,35 +224,34 @@
 
 
     <!-- REVIEWS SECTION -->
-    <section class="reviews-section" style="background:#0a0a0a; padding:60px 0; border-top:1px solid #222;">
-        <div class="story-hero-container" style="display:block;">
-            <h3 style="color:#d4af37; font-family:'Playfair Display'; font-size:2rem; margin-bottom:30px;">Readers
-                Reviews</h3>
+    <div class="reviews-container">
+        <h3 class="review-title">Reader Reviews</h3>
 
-            <!-- Review Form -->
-            <div class="review-form" style="background:#111; padding:30px; border-radius:12px; margin-bottom:40px;">
-                <h4 style="color:#fff; margin-bottom:15px;">Leave a Review</h4>
-                <div class="stars-input" id="rating-stars"
-                    style="color:#444; font-size:1.5rem; margin-bottom:15px; cursor:pointer;">
-                    <i class="far fa-star" data-val="1"></i>
-                    <i class="far fa-star" data-val="2"></i>
-                    <i class="far fa-star" data-val="3"></i>
-                    <i class="far fa-star" data-val="4"></i>
-                    <i class="far fa-star" data-val="5"></i>
-                </div>
-                <textarea id="review-text" placeholder="Share your thoughts about this blog..."
-                    style="width:100%; height:100px; background:#000; border:1px solid #333; color:#fff; padding:15px; border-radius:8px; margin-bottom:15px; resize:none; font-family:'Poppins';"></textarea>
-                <button onclick="submitReview()"
-                    style="background:#d4af37; color:#000; border:none; padding:10px 30px; border-radius:30px; font-weight:600; cursor:pointer;">Submit
-                    Review</button>
+        <!-- Review Form -->
+        <div class="write-review-box" id="review-form-box">
+            <h4 style="color: #fff; margin-bottom: 15px;">Leave a Review</h4>
+            <div class="rating-input" id="rating-stars">
+                <i class="far fa-star star-input" data-val="1"></i>
+                <i class="far fa-star star-input" data-val="2"></i>
+                <i class="far fa-star star-input" data-val="3"></i>
+                <i class="far fa-star star-input" data-val="4"></i>
+                <i class="far fa-star star-input" data-val="5"></i>
             </div>
-
-            <!-- Reviews List -->
-            <div id="reviews-list">
-                <p style="color:#666;">Loading latest reviews...</p>
-            </div>
+            <textarea id="review-text" class="review-textarea" placeholder="Share your thoughts about this blog..."></textarea>
+            <button onclick="submitReview()" class="btn-submit-review">Submit Review</button>
         </div>
-    </section>
+
+        <div class="review-success-msg" id="review-success-msg">
+            <i class="fas fa-check-circle"></i>
+            <h4>Review Submitted!</h4>
+            <p>Thank you for your feedback. It will be visible after approval.</p>
+        </div>
+
+        <!-- Reviews List -->
+        <div id="reviews-list">
+            <p style="color:#666;">Loading latest reviews...</p>
+        </div>
+    </div>
 
     <!-- FULL SCREEN READER OVERLAY -->
     <div id="reader-view" class="reader-overlay">
@@ -324,27 +323,25 @@
     <script src="js/main.js"></script>
     <script>
         const params = new URLSearchParams(window.location.search);
-        const slug = params.get('slug');
+        const blogIdOrSlug = params.get('slug') || params.get('id');
         let currentPost = null;
-        let selectedRating = 0; // State for star rating
+        let selectedRating = 0;
 
         async function init() {
-            if (!slug) {
-                document.querySelector('.story-title').textContent = "Blog Not Found";
+            if (!blogIdOrSlug) {
+                document.getElementById('blog-title').textContent = "Blog Not Found";
                 return;
             }
 
             try {
-                const res = await fetch(`/api/blogs/${slug}`);
+                const res = await fetch(`/api/blogs/${blogIdOrSlug}`);
                 if (!res.ok) throw new Error('Blog not found');
                 currentPost = await res.json();
                 renderPage(currentPost);
-
-                // Check if saved
                 checkSavedStatus();
             } catch (e) {
                 console.error(e);
-                document.querySelector('.story-title').textContent = "Error Loading Blog";
+                document.getElementById('blog-title').textContent = "Error Loading Blog";
             }
         }
 
@@ -358,8 +355,7 @@
                 });
                 if (res.ok) {
                     const user = await res.json();
-                    const isSaved = user.savedBlogs && user.savedBlogs.some(b => b.id === currentPost.id || b._id === currentPost.id); // check ID in populated array
-
+                    const isSaved = user.savedBlogs && user.savedBlogs.some(b => String(b.id || b._id || b) === String(currentPost.id));
                     updateSaveIcon(isSaved);
                 }
             } catch (e) { console.error('Error checking save status', e); }
@@ -409,29 +405,29 @@
         async function loadReviews(blogId) {
             const list = document.getElementById('reviews-list');
             try {
-                const res = await fetch(`/api/reviews?targetId=${blogId}&t=${Date.now()}`);
+                const res = await fetch(`/api/reviews?targetType=blog&targetId=${blogId}&t=${Date.now()}`);
                 if (!res.ok) throw new Error('Failed to load reviews');
                 const reviews = await res.json();
                 const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true);
 
                 if (approved.length > 0) {
                     list.innerHTML = approved.map(r => `
-                        <div class="review-item" style="background: rgba(255,255,255,0.02); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom:20px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div class="review-item">
+                            <div class="review-header">
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #f1c40f); display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold;">
                                         ${(r.user_name || 'R')[0].toUpperCase()}
                                     </div>
                                     <div>
-                                        <h4 style="color: #fff; font-size: 1rem; font-weight: 600;">${r.user_name || r.name || 'Reader'}</h4>
+                                        <h4 class="reviewer-name">${r.user_name || r.name || 'Reader'}</h4>
                                         <div style="display: flex; gap: 3px; color: #d4af37; font-size: 0.75rem;">
                                             ${generateStarsHTML(r.rating || 5)}
                                         </div>
                                     </div>
                                 </div>
-                                <span style="color: #555; font-size: 0.75rem;">${new Date(r.created_at).toLocaleDateString()}</span>
+                                <span class="review-date">${new Date(r.created_at).toLocaleDateString()}</span>
                             </div>
-                            <p style="color: #ccc; line-height: 1.6; font-style: italic;">"${r.comment}"</p>
+                            <p class="review-text">"${r.comment}"</p>
                         </div>
                     `).join('');
 
@@ -505,61 +501,8 @@
             }
         }
 
-            const img = document.getElementById(imgId);
-            if (!img || !img.src) return;
-            try {
-                const response = await fetch(img.src);
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `qalamverce-blog-${Date.now()}.png`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-            } catch (error) { window.open(img.src, '_blank'); }
-        }
-
-        function openReader() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('You must be logged in to read blogs.');
-                window.location.href = 'login.html';
-                return;
-            }
-            const overlay = document.getElementById('reader-view');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeReader() {
-            const overlay = document.getElementById('reader-view');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        async function shareBlog() {
-            if (!currentPost) return;
-
-            const title = document.getElementById('blog-title').textContent;
-            const description = document.getElementById('blog-excerpt').textContent;
-            const imageUrl = document.getElementById('blog-image').src;
-            // Use ID instead of slug for a professional, clean short link
-            const url = `${window.location.origin}/blog-detail.html?id=${currentPost.id}`;
-
-            window.shareContent({
-                title,
-                description,
-                url,
-                imageUrl,
-                type: 'blog'
-            });
-        }
-
-        // --- REVIEWS & RATING LOGIC ---
         function initStars() {
-            document.querySelectorAll('#rating-stars i').forEach(star => {
+            document.querySelectorAll('.star-input').forEach(star => {
                 star.addEventListener('click', function () {
                     selectedRating = this.getAttribute('data-val');
                     updateStars(selectedRating);
@@ -568,14 +511,14 @@
         }
 
         function updateStars(val) {
-            document.querySelectorAll('#rating-stars i').forEach(star => {
+            document.querySelectorAll('.star-input').forEach(star => {
                 const sVal = star.getAttribute('data-val');
                 if (sVal <= val) {
-                    star.className = 'fas fa-star';
-                    star.style.color = '#d4af37';
+                    star.classList.remove('far');
+                    star.classList.add('fas');
                 } else {
-                    star.className = 'far fa-star';
-                    star.style.color = '#444';
+                    star.classList.remove('fas');
+                    star.classList.add('far');
                 }
             });
         }
@@ -608,19 +551,13 @@
                         targetId: currentPost.id,
                         rating: selectedRating,
                         comment: text
-                        // name: 'Guest Reader' // Removed hardcoded name
                     })
                 });
 
                 if (res.ok) {
-                    alert('Success! Your review has been submitted and is pending approval.');
-                    // Reload reviews immediately
-                    if (currentPost) loadReviews(currentPost.id);
-                    // Clear inputs manually
-                    selectedRating = 0;
-                    updateStars(0);
-                    const reviewArea = document.getElementById('review-text');
-                    if (reviewArea) reviewArea.value = '';
+                    document.getElementById('review-form-box').style.display = 'none';
+                    document.getElementById('review-success-msg').style.display = 'block';
+                    loadReviews(currentPost.id);
                 } else {
                     const errData = await res.json();
                     alert(`Failed to submit review: ${res.status} - ${errData.message || 'Unknown Error'} `);
@@ -631,48 +568,35 @@
             }
         }
 
-        async function loadReviews(targetId) {
-            const list = document.getElementById('reviews-list');
-            try {
-                const res = await fetch(`/api/reviews?targetType=blog&targetId=${targetId}`);
-                if (!res.ok) throw new Error('Failed to load');
-                let reviews = await res.json();
+        function openReader() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('You must be logged in to read blogs.');
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('reader-view').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
 
-                // Only show approved
-                reviews = reviews.filter(r => r.status === 'approved' || r.isApproved === true);
+        function closeReader() {
+            document.getElementById('reader-view').classList.remove('active');
+            document.body.style.overflow = '';
+        }
 
-                if (reviews.length === 0) {
-                    list.innerHTML = '<p style="color:#666;">No reviews yet. Be the first to review!</p>';
-                    return;
-                }
-
-                list.innerHTML = reviews.map(r => `
-                        <div style="background:#111; padding:20px; border-radius:8px; margin-bottom:15px; border-left:3px solid #d4af37;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                            <span style="color:#fff; font-weight:600;">${r.user_name || r.name || 'Reader'}</span>
-                            <div style="color:#d4af37; font-size:0.9rem;">
-                                ${'<i class="fas fa-star"></i>'.repeat(r.rating)}
-                            </div>
-                        </div>
-                        <p style="color:#ccc; font-size:0.95rem; line-height:1.5;">${r.comment}</p>
-                        <span style="display:block; margin-top:10px; font-size:0.8rem; color:#555;">
-                            ${new Date(r.created_at).toLocaleDateString()}
-                        </span>
-                    </div>
-                `).join('');
-
-            } catch (e) {
-                console.warn(e);
-                list.innerHTML = '<p style="color:#666;">Could not load reviews.</p>';
+        async function shareBlog() {
+            if (!currentPost) return;
+            const title = document.getElementById('blog-title').textContent;
+            const url = `${window.location.origin}/blog-detail.html?id=${currentPost.id}`;
+            if (navigator.share) {
+                navigator.share({ title, url }).catch(() => {});
+            } else {
+                prompt("Copy link to share:", url);
             }
         }
 
         init();
     </script>
 </body>
-
-</html>
-
-
 
 

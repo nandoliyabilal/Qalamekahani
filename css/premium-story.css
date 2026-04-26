@@ -289,8 +289,108 @@
     transform: translateX(8px);
 }
 
-/* Mobile Bottom Action Bar */
-.mobile-bottom-bar {
+/* Hanging Views Cart Animation */
+@keyframes swing {
+    0% { transform: rotate(5deg); }
+    100% { transform: rotate(-5deg); }
+}
+
+.hanging-views {
+    position: absolute;
+    top: -60px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.hanging-views::before {
+    content: '';
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, var(--gold));
+    box-shadow: 0 0 10px var(--gold);
+}
+
+.view-cart {
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid var(--gold);
+    padding: 8px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--gold);
+    font-size: 0.9rem;
+    font-weight: 700;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(212, 175, 55, 0.2);
+    transform-origin: top center;
+    animation: swing 2s ease-in-out infinite alternate;
+}
+
+.view-cart i {
+    font-size: 0.8rem;
+    filter: drop-shadow(0 0 5px var(--gold));
+}
+
+/* Mobile Actions Row */
+.mobile-actions {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0;
+    width: 100%;
+}
+
+.mobile-action-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 10px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.mobile-action-btn i {
+    font-size: 1.1rem;
+    color: var(--gold);
+}
+
+.mobile-action-btn:active {
+    transform: scale(0.95);
+    background: rgba(212, 175, 55, 0.1);
+    border-color: var(--gold);
+}
+
+.mobile-only { display: none; }
+
+/* Mobile Adjustments */
+@media (max-width: 1024px) {
+    .mobile-only { display: flex; }
+    
+    .hanging-views {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin: -10px auto 20px;
+        width: fit-content;
+        transform: scale(1.1);
+    }
+    
+    .hanging-views::before {
+        height: 30px;
+    }
+
+    .mobile-bottom-bar {
+
     display: none;
     position: fixed;
     bottom: 0;

@@ -116,6 +116,14 @@
 
             <!-- Right: Details -->
             <div class="story-info">
+                <!-- Hanging Views Cart (Mobile Only) -->
+                <div class="hanging-views mobile-only">
+                    <div class="view-cart">
+                        <i class="fas fa-eye"></i>
+                        <span id="mobile-views-count">0</span>
+                    </div>
+                </div>
+
                 <h1 id="story-title" class="story-title">Loading...</h1>
                 <h3 class="story-author">By <span id="story-author" class="author-name"></span></h3>
                 <div class="story-rating-row">
@@ -123,7 +131,18 @@
                     <span id="story-rating" class="rating-text"></span>
                 </div>
 
+                <!-- Mobile Actions Row -->
+                <div class="mobile-actions mobile-only">
+                    <button class="mobile-action-btn fav-btn" onclick="toggleLike()">
+                        <i class="far fa-heart" id="mobile-like-icon"></i> <span>Like</span>
+                    </button>
+                    <button class="mobile-action-btn share-btn" onclick="shareStory()">
+                        <i class="fas fa-share-alt"></i> <span>Share</span>
+                    </button>
+                </div>
+
                 <!-- Stats Grid -->
+
                 <div class="story-meta-grid">
                     <div class="meta-item">
                         <span class="meta-label">CATEGORY</span>
@@ -387,6 +406,10 @@
 
                 document.getElementById('story-synopsis').textContent = story.summary || story.synopsis || story.description || '';
                 document.getElementById('meta-views').textContent = story.views || 0;
+                if (document.getElementById('mobile-views-count')) {
+                    document.getElementById('mobile-views-count').textContent = story.views || 0;
+                }
+
 
                 // Load Chapter Stats (Views)
                 let chapterStats = { views: {} };

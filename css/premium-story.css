@@ -420,8 +420,8 @@
     display: none;
 }
 
-/* Mobile Adjustments */
-@media (max-width: 1024px) {
+/* Mobile Adjustments - Strictly for Mobile/Tablets (< 768px) */
+@media (max-width: 768px) {
     .mobile-only {
         display: flex;
     }
@@ -465,22 +465,23 @@
         letter-spacing: 1px;
     }
 
-    /* Mobile Adjustments */
-    @media (max-width: 1024px) {
-        .mobile-bottom-bar {
-            display: block;
-            background: rgba(0, 0, 0, 0.95);
-            padding: 15px 20px 25px;
-        }
 
-        .mobile-story-title-mini {
-            display: none !important;
-            /* Remove story name from above button */
-        }
+    /* Mobile Bottom Bar Adjustment */
+    .mobile-bottom-bar {
+        display: block;
+        background: rgba(0, 0, 0, 0.98);
+        padding: 15px 20px 25px;
+        border-top: 1px solid rgba(212, 175, 55, 0.2);
+    }
 
-        .mobile-sticky-btn {
-            margin-top: 0 !important;
-        }
+    .mobile-story-title-mini {
+        display: block !important;
+        color: #fff;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        font-weight: 500;
+        opacity: 0.9;
+    }
 
         body {
             padding-bottom: 90px;

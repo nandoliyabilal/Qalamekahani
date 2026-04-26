@@ -271,6 +271,13 @@
         </div>
     </div>
 
+    <!-- Mobile Bottom Action Bar -->
+    <div class="mobile-bottom-bar">
+        <button id="mobile-read-btn" class="mobile-sticky-btn" onclick="openReader()">
+            <i class="fas fa-book-open"></i> READ FULL BLOG
+        </button>
+    </div>
+
     <!-- FOOTER -->
     <footer class="site-footer">
         <div class="footer-container">
@@ -400,7 +407,14 @@
 
             initStars();
             loadReviews(post.id);
+
+            // Update mobile button text
+            const mobileBtn = document.getElementById('mobile-read-btn');
+            if (mobileBtn) {
+                mobileBtn.innerHTML = `<i class="fas fa-book-open"></i> READ FULL BLOG`;
+            }
         }
+
 
         async function loadReviews(blogId) {
             const list = document.getElementById('reviews-list');

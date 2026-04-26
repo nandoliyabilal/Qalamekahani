@@ -168,6 +168,14 @@
         </div>
     </div>
 
+    <!-- Mobile Bottom Action Bar -->
+    <div class="mobile-bottom-bar">
+        <button id="mobile-atc-btn" class="mobile-sticky-btn" onclick="startPurchase()">
+            <i class="fas fa-bolt"></i> BUY NOW
+        </button>
+    </div>
+
+
         <footer class="site-footer">
             <div class="footer-container">
                 <div class="footer-col brand-col">
@@ -280,11 +288,20 @@
 
                     // Purchase Button
                     const buyBtn = document.getElementById('atc-btn');
-                    buyBtn.innerHTML = `<i class="fas fa-bolt"></i> BUY NOW (₹${discounted})`;
-                    buyBtn.onclick = () => {
+                    const mobileBuyBtn = document.getElementById('mobile-atc-btn');
+                    const btnHtml = `<i class="fas fa-bolt"></i> BUY NOW (₹${discounted})`;
+                    
+                    if(buyBtn) buyBtn.innerHTML = btnHtml;
+                    if(mobileBuyBtn) mobileBuyBtn.innerHTML = btnHtml;
+
+                    const purchaseFn = () => {
                         const buyLink = book.buy_link || book.buyLink || "https://shopizon-eta.vercel.app/";
                         window.open(buyLink, '_blank');
                     };
+
+                    if(buyBtn) buyBtn.onclick = purchaseFn;
+                    if(mobileBuyBtn) mobileBuyBtn.onclick = purchaseFn;
+
 
                     // Check wishlist
                     checkWishlistStatus(id);

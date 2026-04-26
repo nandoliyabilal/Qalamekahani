@@ -193,6 +193,14 @@
         </section>
     </div>
 
+    <!-- Mobile Bottom Action Bar -->
+    <div class="mobile-bottom-bar">
+        <button id="mobile-action-btn" class="mobile-sticky-btn">
+            <i class="fas fa-play"></i> LISTEN NOW
+        </button>
+    </div>
+
+
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-col brand-col">
@@ -556,49 +564,50 @@
 
         function updateActionButton(audio, hasAccess) { 
             const btn = document.getElementById("action-btn");
+            const mobileBtn = document.getElementById("mobile-action-btn");
             const buyLink = audio.buy_link || "";
             const canonicalId = audio.id || audio._id;
             const token = localStorage.getItem('token');
             const price = parseFloat(audio.price || 0);
-            const discount = parseFloat(audio.discount || 0);
 
-            if (hasAccess && !buyLink) { 
-                btn.innerHTML = '<i class="fas fa-play"></i> Listen Now';
-                btn.onclick = () => {
-                    window.location.href = `listen.html?id=${canonicalId}`;
-                };
-                btn.className = 'btn btn-primary btn-read';
-                btn.style.background = '';
-                btn.style.color = '';
-            } else if (buyLink) {
-                btn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
-                btn.className = 'btn btn-primary btn-read';
-                btn.style.background = '#d4af37';
-                btn.style.color = '#000';
-                btn.onclick = () => {
-                   window.open(buyLink, '_blank');
-                };
-            } else {
-                let displayPrice = `₹${price}`;
-                if (discount > 0) {
-                    const discounted = Math.floor(price - (price * discount / 100));
-                    displayPrice = `₹${discounted} <span style="text-decoration:line-through; font-size:0.8em; opacity:0.7">₹${price}</span>`;
-                }
+            const playHtml = '<i class="fas fa-play"></i> LISTEN NOW';
+            const buyHtml = buyLink ? '<i class="fas fa-shopping-cart"></i> BUY NOW' : `<i class="fas fa-lock"></i> UNLOCK STORY (₹${price})`;
 
-                btn.innerHTML = `<i class="fas fa-lock"></i> Unlock Audio Story (${displayPrice})`;
-                btn.className = 'btn btn-primary btn-read';
-                btn.style.background = '#d4af37';
-                btn.style.color = '#000';
-                btn.onclick = () => {
+            const playFn = () => { window.location.href = `listen.html?id=${canonicalId}`; };
+            const purchaseFn = () => {
+                if (buyLink) {
+                    window.open(buyLink, '_blank');
+                } else {
                     if (!token) {
                         alert('Please login to purchase.');
                         window.location.href = `login.html?redirect=audio-detail.html?id=${canonicalId}`;
                         return;
                     }
                     window.location.href = `checkout.html?audioId=${canonicalId}`;
-                };
+                }
+            };
+
+            if (hasAccess && !buyLink) { 
+                if(btn) {
+                    btn.innerHTML = playHtml;
+                    btn.onclick = playFn;
+                }
+                if(mobileBtn) {
+                    mobileBtn.innerHTML = playHtml;
+                    mobileBtn.onclick = playFn;
+                }
+            } else {
+                if(btn) {
+                    btn.innerHTML = buyHtml;
+                    btn.onclick = purchaseFn;
+                }
+                if(mobileBtn) {
+                    mobileBtn.innerHTML = buyHtml;
+                    mobileBtn.onclick = purchaseFn;
+                }
             }
         }
+
 
         function handleEpisodeClick(canonicalId, hasAccess) {
             if (hasAccess) { // Clean restoration

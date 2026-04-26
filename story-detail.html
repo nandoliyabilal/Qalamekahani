@@ -390,29 +390,42 @@
             try {
                 const res = await fetch(`/api/stories?category=${category}&limit=4`);
                 const stories = await res.json();
-                const grid = document.getElementById('similar-stories');
-                if (stories.length > 0) {
-                    grid.innerHTML = stories.map(s => `
-                        <div class="story-card" onclick="window.location.href='story-detail.html?id=${s.id || s._id}'">
-                            <img src="${s.image}" alt="${s.title}">
-                            <div class="card-info">
-                                <h5>${s.title}</h5>
-                                <p>${s.category}</p>
+                const filtered = stories.filter(s => (s.id || s._id) !== (currentStory.id || currentStory._id));
+                if (filtered.length > 0) {
+                    const grid = document.getElementById('similar-stories');
+                    if (grid) {
+                        grid.innerHTML = filtered.map(s => {
+                            const title = s.title;
+                            const category = s.category;
+                            const image = s.image;
+                            const id = s.id || s._id;
+                            return `
+                            <div class="story-card" onclick="window.location.href='story-detail.html?id=${id}'">
+                                <img src="${image}" alt="${title}">
+                                <div class="story-card-content">
+                                    <h5>${title}</h5>
+                                    <p>${category}</p>
+                                </div>
                             </div>
-                        </div>
-                    `).join('');
+                            `;
+                        }).join('');
+                    }
                 }
             } catch (e) {}
         }
 
         function showNotFound(msg = "") {
-            document.getElementById('story-container').innerHTML = `
-                <div style="text-align:center; padding: 100px 20px; color:#fff;">
-                    <h1 style="color:#d4af37;">Story Not Found</h1>
-                    <p>${msg || 'Story doesn\\'t exist.'}</p>
-                    <a href="stories.html" class="btn btn-primary" style="margin-top:20px;">Back to Stories</a>
-                </div>
-            `;
+            const container = document.getElementById('story-container');
+            if (container) {
+                const safeMsg = msg || "Story doesn't exist.";
+                container.innerHTML = `
+                    <div style="text-align:center; padding: 100px 20px; color:#fff;">
+                        <h1 style="color:#d4af37;">Story Not Found</h1>
+                        <p>${safeMsg}</p>
+                        <a href="stories.html" class="btn btn-primary" style="margin-top:20px;">Back to Stories</a>
+                    </div>
+                `;
+            }
         }
 
         // Star Rating Setup

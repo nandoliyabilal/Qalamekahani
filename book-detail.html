@@ -413,20 +413,26 @@
             const list = document.getElementById('reviews-list');
             if (!list) return;
             const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true || r.approved === true);
-            if (approved.length === 0) {
-                list.innerHTML = "<p style='color:#777; font-style:italic;'>No reviews yet.</p>";
-            } else {
-                list.innerHTML = approved.map(r => `
-                    <div class="review-item">
-                        <div class="review-header">
-                            <span class="reviewer-name">${r.user_name || 'Reader'}</span>
-                            <span class="review-date">${new Date(r.created_at).toLocaleDateString()}</span>
+                if (approved.length === 0) {
+                    list.innerHTML = "<p style='color:#777; font-style:italic;'>No reviews yet.</p>";
+                } else {
+                    list.innerHTML = approved.map(r => {
+                        const name = r.user_name || 'Reader';
+                        const date = new Date(r.created_at).toLocaleDateString();
+                        const stars = getStarsHTML(r.rating);
+                        const comment = r.comment;
+                        return `
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="reviewer-name">${name}</span>
+                                <span class="review-date">${date}</span>
+                            </div>
+                            <div class="stars" style="color:#d4af37; font-size:0.8rem; margin-bottom:5px;">${stars}</div>
+                            <p class="review-text">${comment}</p>
                         </div>
-                        <div class="stars" style="color:#d4af37; font-size:0.8rem; margin-bottom:5px;">${getStarsHTML(r.rating)}</div>
-                        <p class="review-text">${r.comment}</p>
-                    </div>
-                `).join('');
-            }
+                        `;
+                    }).join('');
+                }
         }
 
         function getStarsHTML(rating) {
@@ -454,7 +460,8 @@
         function showNotFound(msg = "") {
             const container = document.getElementById('story-container');
             if (container) {
-                container.innerHTML = `<div style="text-align:center; padding: 100px 20px; color:#fff;"><h1>Book Not Found</h1><p>${msg}</p><a href="books.html" class="btn btn-primary">Back</a></div>`;
+                const safeMsg = msg || "Book not found.";
+                container.innerHTML = `<div style="text-align:center; padding: 100px 20px; color:#fff;"><h1>Book Not Found</h1><p>${safeMsg}</p><a href="books.html" class="btn btn-primary">Back</a></div>`;
             }
         }
 

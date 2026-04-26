@@ -440,25 +440,30 @@
                 const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true);
 
                 if (approved.length > 0) {
-                    list.innerHTML = approved.map(r => `
+                    list.innerHTML = approved.map(r => {
+                        const firstChar = (r.user_name || r.name || 'R')[0].toUpperCase();
+                        const stars = generateStarsHTML(r.rating || 5);
+                        const date = new Date(r.created_at).toLocaleDateString();
+                        return `
                         <div class="review-item">
                             <div class="review-header">
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #f1c40f); display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold;">
-                                        ${(r.user_name || 'R')[0].toUpperCase()}
+                                        ${firstChar}
                                     </div>
                                     <div>
                                         <h4 class="reviewer-name">${r.user_name || r.name || 'Reader'}</h4>
                                         <div style="display: flex; gap: 3px; color: #d4af37; font-size: 0.75rem;">
-                                            ${generateStarsHTML(r.rating || 5)}
+                                            ${stars}
                                         </div>
                                     </div>
                                 </div>
-                                <span class="review-date">${new Date(r.created_at).toLocaleDateString()}</span>
+                                <span class="review-date">${date}</span>
                             </div>
                             <p class="review-text">"${r.comment}"</p>
                         </div>
-                    `).join('');
+                        `;
+                    }).join('');
 
                     const total = approved.reduce((acc, r) => acc + (parseFloat(r.rating) || 0), 0);
                     const avg = (total / approved.length).toFixed(1);
@@ -595,7 +600,8 @@
         function showNotFound(msg = "") {
             const container = document.getElementById('story-container');
             if (container) {
-                container.innerHTML = `<div style="text-align:center; padding: 100px 20px; color:#fff;"><h1>Blog Not Found</h1><p>${msg}</p><a href="blog.html" class="btn btn-primary">Back to Blog</a></div>`;
+                const safeMsg = msg || "The requested blog could not be found.";
+                container.innerHTML = `<div style="text-align:center; padding: 100px 20px; color:#fff;"><h1>Blog Not Found</h1><p>${safeMsg}</p><a href="blog.html" class="btn btn-primary">Back to Blog</a></div>`;
             }
         }
 

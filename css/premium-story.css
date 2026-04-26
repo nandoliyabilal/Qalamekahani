@@ -319,6 +319,16 @@
 @media (max-width: 1024px) {
     .mobile-bottom-bar {
         display: block;
+        background: rgba(0, 0, 0, 0.95);
+        padding: 15px 20px 25px;
+    }
+
+    .mobile-story-title-mini {
+        display: none !important; /* Remove story name from above button */
+    }
+
+    .mobile-sticky-btn {
+        margin-top: 0 !important;
     }
 
     body {
@@ -326,8 +336,9 @@
     }
 
     .story-hero {
-        padding-top: 40px !important;
+        padding-top: 20px !important;
         padding-bottom: 10px !important;
+        background: radial-gradient(circle at top left, rgba(212, 175, 55, 0.05), transparent 60%) !important;
     }
 
     .story-hero-container {
@@ -343,65 +354,100 @@
             "visual stars"
             "meta meta"
             "synopsis synopsis";
-        grid-template-columns: 120px 1fr;
+        grid-template-columns: 110px 1fr;
         grid-template-rows: auto auto auto auto auto auto;
-        gap: 15px;
+        gap: 12px;
+        animation: fadeIn 1s ease;
     }
 
-    .story-back-row { grid-area: back; margin-bottom: 10px; }
-    .story-visual { grid-area: visual; max-width: 120px !important; }
+    .story-back-row { grid-area: back; margin-bottom: 5px; }
+    .story-visual { grid-area: visual; max-width: 110px !important; }
     
     .story-info { 
         display: contents !important;
     }
 
+    .story-badges {
+        display: none !important; /* Hide Category/Language badges on image in mobile */
+    }
+
     .story-title { 
         grid-area: title; 
         font-size: 1.6rem !important; 
-        margin-bottom: 0 !important;
-        align-self: center;
+        margin: 0 !important;
+        align-self: end;
         background: none !important;
         -webkit-text-fill-color: initial !important;
         color: #fff !important;
+        line-height: 1.2;
     }
 
-    .story-author { grid-area: author; font-size: 0.9rem !important; margin: 0 !important; color: var(--gold) !important; }
-    .story-rating-row { grid-area: stars; margin: 0 !important; transform: scale(0.8); transform-origin: left; }
-    .story-meta-grid { grid-area: meta; margin-top: 15px !important; }
-    .story-synopsis-container { grid-area: synopsis; }
-
-    .story-cover-wrapper {
-        border-radius: 10px !important;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+    .story-author { 
+        grid-area: author; 
+        font-size: 0.95rem !important; 
+        margin: 0 !important; 
+        color: var(--gold) !important; 
+        opacity: 0.9;
+        align-self: center;
     }
 
-    .story-meta-grid {
+    .story-rating-row { 
+        grid-area: stars; 
+        margin: 0 !important; 
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px;
+        align-self: start;
+    }
+
+    .stars { 
+        font-size: 0.75rem !important; 
+        white-space: nowrap !important; /* Prevent star wrapping */
+        display: flex !important;
+    }
+    
+    .rating-text {
+        font-size: 0.75rem !important;
+        opacity: 0.6;
+    }
+
+    .story-meta-grid { 
+        grid-area: meta; 
+        margin-top: 15px !important; 
         display: grid !important;
         grid-template-columns: repeat(3, 1fr) !important;
-        background: rgba(255,255,255,0.03) !important;
-        border: 1px solid rgba(255,255,255,0.08) !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
         padding: 15px 10px !important;
         border-radius: 12px !important;
+        gap: 5px;
     }
 
-    .meta-item { border-right: 1px solid rgba(255,255,255,0.1); }
+    .meta-item { border-right: 1px solid rgba(255, 255, 255, 0.1); padding: 0 5px; }
     .meta-item:last-child { border-right: none; }
     .meta-item:nth-child(4) { display: none; }
 
-    .meta-label { font-size: 0.6rem !important; }
-    .meta-value { font-size: 0.8rem !important; }
+    .meta-label { font-size: 0.55rem !important; color: var(--gold) !important; opacity: 0.8 !important; }
+    .meta-value { font-size: 0.8rem !important; margin-top: 4px; font-weight: 500; }
 
+    .story-synopsis-container { grid-area: synopsis; margin-top: 10px; }
+    
     .story-synopsis {
         font-size: 0.9rem !important;
-        line-height: 1.5 !important;
+        line-height: 1.6 !important;
         text-align: left !important;
-        padding-top: 10px;
+        color: rgba(255, 255, 255, 0.75) !important;
+        -webkit-line-clamp: 4 !important; /* Slightly more lines for mobile */
     }
 
     .desktop-only { display: none !important; }
+
+    /* Fix tabs for mobile */
+    .tab-btn { font-size: 1.1rem !important; }
+    .story-content-section { padding-top: 0 !important; }
 }
 
 @media (max-width: 480px) {
+    .story-hero-container { grid-template-columns: 100px 1fr; gap: 10px; }
     .story-title { font-size: 1.4rem !important; }
-    .story-hero-container { grid-template-columns: 100px 1fr; gap: 15px; }
 }

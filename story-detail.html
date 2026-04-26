@@ -600,7 +600,8 @@
 
             try {
                 // Fetch Approved Reviews from API (Cache Busted)
-                const res = await fetch(`/api/reviews?targetId=${storyId}&t=${Date.now()}`);
+                const res = await fetch(`/api/reviews?targetType=story&targetId=${storyId}&t=${Date.now()}`);
+
                 if (!res.ok) throw new Error('Failed to fetch reviews');
 
                 const allReviews = await res.json();

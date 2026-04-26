@@ -5,14 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog | Qalamekahani - Reflections on Storytelling & Art</title>
-    <meta name="description" content="Read blogs, writing tips, and behind-the-scenes reflections by Sabirkhan Pathan. Explore the philosophy of horror and romance.">
+    <meta name="description"
+        content="Read blogs, writing tips, and behind-the-scenes reflections by Sabirkhan Pathan. Explore the philosophy of horror and romance.">
     <meta name="keywords" content="blog, storytelling blog, writer, Sabirkhan Pathan, Qalamekahani">
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css?v=2.2">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960"
+        crossorigin="anonymous"></script>
     <style>
         :root {
             --bg-dark: #000000;
@@ -486,19 +488,20 @@
     </div>
 
     <div class="search-filter-container">
-            <div class="search-box" style="flex: 1; margin-bottom: 0; max-width: 800px; margin: 0 auto; position: relative;">
-                <input type="text" class="search-input" id="search-input" placeholder="Search blog posts..."
-                    onkeyup="applyAllFilters()">
-                <i class="fas fa-search search-icon"></i>
-            </div>
+        <div class="search-box"
+            style="flex: 1; margin-bottom: 0; max-width: 800px; margin: 0 auto; position: relative;">
+            <input type="text" class="search-input" id="search-input" placeholder="Search blog posts..."
+                onkeyup="applyAllFilters()">
+            <i class="fas fa-search search-icon"></i>
         </div>
-        <div class="filter-buttons">
-            <button class="filter-btn active" onclick="setCat('All', this)">All Categories</button>
-            <button class="filter-btn" onclick="setCat('Writing Tips', this)">Writing Tips</button>
-            <button class="filter-btn" onclick="setCat('Behind the Scenes', this)">Behind Scenes</button>
-            <button class="filter-btn" onclick="setCat('Reflections', this)">Reflections</button>
-            <button class="filter-btn" onclick="setCat('Updates', this)">Updates</button>
-        </div>
+    </div>
+    <div class="filter-buttons">
+        <button class="filter-btn active" onclick="setCat('All', this)">All Categories</button>
+        <button class="filter-btn" onclick="setCat('Writing Tips', this)">Writing Tips</button>
+        <button class="filter-btn" onclick="setCat('Behind the Scenes', this)">Behind Scenes</button>
+        <button class="filter-btn" onclick="setCat('Reflections', this)">Reflections</button>
+        <button class="filter-btn" onclick="setCat('Updates', this)">Updates</button>
+    </div>
     </div>
 
     <!-- Blog Grid Content -->
@@ -566,27 +569,20 @@
         function renderBlog(data) {
             grid.innerHTML = data.map((post, index) => {
                 const delay = index * 0.1;
-                const title = post.title;
-                const slug = post.slug;
-                const image = post.image;
-                const category = post.category || 'General';
-                const readTime = post.read_time || post.readTime || '5 min read';
-                const excerpt = post.excerpt || '';
-                
                 return `
                 <article class="blog-card-premium" style="animation: fadeInUp 0.5s ease ${delay}s backwards;">
-                    <div class="blog-img-wrapper" onclick="window.location.href='blog-detail.html?slug=${slug}'">
-                        <img src="${image}" alt="${title}" class="blog-img" onerror="this.src='https://via.placeholder.com/400x300?text=Qalamekahani'">
+                    <div class="blog-img-wrapper" onclick="window.location.href='blog-detail.html?slug=${post.slug}'">
+                        <img src="${post.image}" alt="${post.title}" class="blog-img" onerror="this.src='https://via.placeholder.com/400x300?text=Qalamekahani'">
                     </div>
                     <div class="blog-content">
                         <div class="blog-meta">
-                            <span>${category}</span>
+                            <span>${post.category || 'General'}</span>
                             <span>•</span>
-                            <span>${readTime}</span>
+                            <span>${post.read_time || post.readTime || '5 min read'}</span>
                         </div>
-                        <h3 class="blog-title-card"><a href="blog-detail.html?slug=${slug}" style="color:inherit; text-decoration:none;">${title}</a></h3>
-                        <p class="blog-excerpt">${excerpt}</p>
-                        <a href="blog-detail.html?slug=${slug}" class="read-more-btn">Read full article</a>
+                        <h3 class="blog-title-card"><a href="blog-detail.html?slug=${post.slug}" style="color:inherit; text-decoration:none;">${post.title}</a></h3>
+                        <p class="blog-excerpt">${post.excerpt || ''}</p>
+                        <a href="blog-detail.html?slug=${post.slug}" class="read-more-btn">Read full article</a>
                     </div>
                 </article>
                 `;
@@ -619,6 +615,8 @@
 
         initBlogs();
 
+        initBlogs();
+
         function setCat(cat, btn) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -635,7 +633,7 @@
                     (p.excerpt && p.excerpt.toLowerCase().includes(query));
 
                 const matchesCat = currentCat === 'All' || (p.category && p.category === currentCat);
-                
+
                 // Language Filtering (English = All)
                 let matchesLang = true;
                 if (userLang !== 'english') {

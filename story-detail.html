@@ -127,7 +127,8 @@
                     </div>
                 </div>
 
-                <h1 id="story-title" class="story-title">Loading...</h1>
+                <h1 id="story-title" class="story-title">Preparing Story...</h1>
+
                 <h3 class="story-author">By <span id="story-author" class="author-name"></span></h3>
                 <div class="story-rating-row">
                     <div class="stars"></div>
@@ -324,7 +325,19 @@
     </script>
 
     <script>
+        // Global Error Handler for debugging
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            const container = document.getElementById('story-title');
+            if (container) {
+                container.innerHTML = `<span style="color:red;">JS Error: ${msg} <br>Line: ${lineNo}</span>`;
+                container.style.fontSize = "0.8rem";
+            }
+            console.error(msg, url, lineNo, columnNo, error);
+            return false;
+        };
+
         // Global variables
+
         window.currentStoryUUID = null;
         window.storyUrlId = new URLSearchParams(window.location.search).get('id');
 

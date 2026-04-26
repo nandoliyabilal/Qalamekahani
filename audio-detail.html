@@ -31,7 +31,7 @@
                 text-align: center;
             }
         }
-        
+
         .ep-card:hover {
             transform: translateX(8px);
             background: rgba(212, 175, 55, 0.05) !important;
@@ -79,8 +79,13 @@
     <style>
         /* Hide main header on mobile for this page specifically */
         @media (max-width: 960px) {
-            header.header { display: none !important; }
-            body { padding-top: 0 !important; }
+            header.header {
+                display: none !important;
+            }
+
+            body {
+                padding-top: 0 !important;
+            }
         }
     </style>
 
@@ -105,16 +110,24 @@
                 <!-- Right: Details -->
                 <div class="story-info">
                     <!-- Hanging Views Cart (Mobile Only) -->
-                    <div class="hanging-views mobile-only">
+                    <div class="hanging-views mobile-only" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
                         <div class="view-cart">
                             <i class="fas fa-eye"></i>
                             <span id="mobile-views-count">0</span>
+                        </div>
+                        <div class="mobile-action-group">
+                            <button class="mobile-action-btn-hanging btn-fav" onclick="saveAudio()" id="save-btn-mobile">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                            <button class="mobile-action-btn-hanging" onclick="shareAudio()">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
                         </div>
                     </div>
 
                     <h1 id="audio-title" class="story-title">Loading...</h1>
                     <h3 class="story-author">By <span id="audio-author" class="author-name"></span></h3>
-                    
+
                     <div class="story-rating-row">
                         <div class="stars" id="audio-avg-stars"></div>
                         <span id="audio-rating-text" class="rating-text"></span>
@@ -144,7 +157,8 @@
                     <!-- Desktop Actions -->
                     <div class="story-actions desktop-only">
                         <button id="action-btn" class="btn btn-primary btn-read"></button>
-                        <button class="btn-fav" onclick="saveAudio()" id="save-btn"><i class="far fa-bookmark"></i></button>
+                        <button class="btn-fav" onclick="saveAudio()" id="save-btn"><i
+                                class="far fa-bookmark"></i></button>
                         <button class="btn-share" onclick="shareAudio()"><i class="fas fa-share-alt"></i></button>
                     </div>
                 </div>
@@ -169,15 +183,19 @@
                 <!-- Tab 2: Reviews -->
                 <div id="reviews-tab" class="tab-pane">
                     <div class="review-list" id="review-list">
-                        <p id="no-reviews-msg" style="display:none; color:#888;">No reviews yet. Be the first to share your experience!</p>
-                        
+                        <p id="no-reviews-msg" style="display:none; color:#888;">No reviews yet. Be the first to share
+                            your experience!</p>
+
                         <!-- Review Form -->
-                        <div class="review-form-container" style="margin-top: 30px; background: #1a1a1a; padding: 20px; border-radius: 10px;">
-                            <h3 style="color: #d4af37; margin-bottom: 15px; font-family: 'Playfair Display', serif;">Write a Review</h3>
+                        <div class="review-form-container"
+                            style="margin-top: 30px; background: #1a1a1a; padding: 20px; border-radius: 10px;">
+                            <h3 style="color: #d4af37; margin-bottom: 15px; font-family: 'Playfair Display', serif;">
+                                Write a Review</h3>
                             <form id="review-form" onsubmit="submitReview(event)">
                                 <div style="margin-bottom: 15px;">
                                     <label style="color: #ccc; display: block; margin-bottom: 5px;">Rating</label>
-                                    <div class="rating-input" id="star-rating-input" style="color: #ffd700; font-size: 1.2rem; cursor: pointer;">
+                                    <div class="rating-input" id="star-rating-input"
+                                        style="color: #ffd700; font-size: 1.2rem; cursor: pointer;">
                                         <i class="far fa-star" data-val="1"></i>
                                         <i class="far fa-star" data-val="2"></i>
                                         <i class="far fa-star" data-val="3"></i>
@@ -188,9 +206,11 @@
                                 </div>
                                 <div style="margin-bottom: 15px;">
                                     <label style="color: #ccc; display: block; margin-bottom: 5px;">Review</label>
-                                    <textarea id="review-comment" required style="width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: #fff; border-radius: 5px; height: 100px;"></textarea>
+                                    <textarea id="review-comment" required
+                                        style="width: 100%; padding: 10px; background: #333; border: 1px solid #444; color: #fff; border-radius: 5px; height: 100px;"></textarea>
                                 </div>
-                                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Review</button>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit
+                                    Review</button>
                             </form>
                         </div>
                     </div>
@@ -201,15 +221,8 @@
 
     <!-- Mobile Bottom Action Bar -->
     <div class="mobile-bottom-bar">
-        <div class="mobile-bottom-container" style="display: flex; flex-direction: column; gap: 10px;">
-            <div class="mobile-story-title-mini" id="mobile-mini-title" style="color: #fff; font-size: 0.8rem; opacity: 0.8; font-weight: 500;">Title</div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <button class="btn btn-primary mobile-sticky-btn" id="mobile-action-btn" style="flex: 1; padding: 12px !important; font-size: 0.95rem !important;">Listen Now</button>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn-fav" onclick="saveAudio()" id="save-btn-mobile" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 10px; color: #fff;"><i class="far fa-bookmark"></i></button>
-                    <button class="btn-share" onclick="shareAudio()" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;"><i class="fas fa-share-alt"></i></button>
-                </div>
-            </div>
+        <div class="mobile-bottom-container">
+            <button class="btn btn-primary mobile-sticky-btn" id="mobile-action-btn">Listen Now</button>
         </div>
     </div>
 
@@ -261,28 +274,28 @@
         </div>
     </footer>
 
-        <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-        <script src="js/main.js"></script>
-        <script>
-            // Particles Config
-            if (typeof particlesJS !== 'undefined') {
-                particlesJS('particles-js', {
-                    "particles": {
-                        "number": { "value": 40, "density": { "enable": true, "value_area": 800 } },
-                        "color": { "value": "#d4af37" },
-                        "shape": { "type": "circle" },
-                        "opacity": { "value": 0.3, "random": true },
-                        "size": { "value": 3, "random": true },
-                        "line_linked": { "enable": false },
-                        "move": { "enable": true, "speed": 1, "direction": "top", "random": true, "straight": false, "out_mode": "out" }
-                    },
-                    "interactivity": { "events": { "onhover": { "enable": false } } },
-                    "retina_detect": true
-                });
-            }
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', async () => {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Particles Config
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": { "value": 40, "density": { "enable": true, "value_area": 800 } },
+                    "color": { "value": "#d4af37" },
+                    "shape": { "type": "circle" },
+                    "opacity": { "value": 0.3, "random": true },
+                    "size": { "value": 3, "random": true },
+                    "line_linked": { "enable": false },
+                    "move": { "enable": true, "speed": 1, "direction": "top", "random": true, "straight": false, "out_mode": "out" }
+                },
+                "interactivity": { "events": { "onhover": { "enable": false } } },
+                "retina_detect": true
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
             const audioId = params.get('id');
 
@@ -365,7 +378,7 @@
 
                 document.getElementById('audio-description').textContent = audio.description || 'No description available for this audio story.';
                 document.getElementById('meta-views').textContent = audio.views || 0;
-                
+
                 if (document.getElementById('mobile-views-count')) {
                     document.getElementById('mobile-views-count').textContent = audio.views || 0;
                 }
@@ -430,10 +443,9 @@
 
                 // Check saved status
                 if (token) checkSavedStatus(canonicalId);
-                loadReviews(canonicalId);
 
-                // Initial scroll check
-                handleScroll();
+                // Load Reviews
+                loadReviews(canonicalId);
 
             } catch (error) {
                 console.error(error);
@@ -452,7 +464,7 @@
 
                 btn.classList.add('active');
                 const tabId = btn.getAttribute('data-tab');
-                
+
                 if (tabId === 'parts') {
                     document.getElementById('parts-tab').classList.add('active');
                 } else if (tabId === 'reviews') {
@@ -666,32 +678,7 @@
                 }, { background: '#d4af37', color: '#000' });
             }
 
-            // Scroll Sticky Logic
-            function handleScroll() {
-                const bar = document.querySelector('.mobile-bottom-bar');
-                if (!bar) return;
-                
-                // On Laptop/Desktop, always keep it hidden
-                if (window.innerWidth > 768) {
-                    bar.classList.remove('active');
-                    return;
-                }
-
-                const hero = document.querySelector('.story-hero');
-                if (!hero) return;
-                
-                const heroBottom = hero.getBoundingClientRect().bottom;
-                
-                // Show only when user scrolls past the hero section
-                if (heroBottom < 0) {
-                    bar.classList.add('active');
-                } else {
-                    bar.classList.remove('active');
-                }
-            }
-
-            window.addEventListener('scroll', handleScroll);
-            window.addEventListener('resize', handleScroll);
+            // Removed scroll sticky logic - now handled by CSS media query
         }
 
         function handleEpisodeClick(canonicalId, hasAccess) {
@@ -750,37 +737,28 @@
                 });
                 if (res.ok) {
                     const user = await res.json();
-                    const isSaved = user.savedAudios && user.savedAudios.some(s => String(s.id || s) === String(canonicalId));
-                    
-                    const updateBtn = (id) => {
-                        const btn = document.getElementById(id);
-                        if (btn) {
-                            const icon = btn.querySelector('i');
-                            if (isSaved) {
-                                icon.className = 'fas fa-bookmark';
-                                btn.style.color = '#d4af37';
-                            } else {
-                                icon.className = 'far fa-bookmark';
-                                btn.style.color = '#fff';
-                            }
-                        }
-                    };
-                    updateBtn('save-btn');
-                    updateBtn('save-btn-mobile');
+                    const isSaved = user.savedAudios && user.savedAudios.some(item => {
+                        const itemId = typeof item === 'object' ? (item.id || item._id) : item;
+                        return String(itemId) === String(canonicalId);
+                    });
+                    updateSaveBtn(isSaved);
                 }
             } catch (e) { }
         }
 
         function updateSaveBtn(isSaved) {
-            const btn = document.getElementById('save-btn');
-            const icon = btn.querySelector('i');
-            if (isSaved) {
-                icon.className = 'fas fa-bookmark';
-                btn.style.color = '#d4af37';
-            } else {
-                icon.className = 'far fa-bookmark';
-                btn.style.color = '#aaa';
-            }
+            const btns = [document.getElementById('save-btn'), document.getElementById('save-btn-mobile')];
+            btns.forEach(btn => {
+                if (!btn) return;
+                const icon = btn.querySelector('i');
+                if (isSaved) {
+                    icon.className = 'fas fa-bookmark';
+                    btn.style.color = '#d4af37';
+                } else {
+                    icon.className = 'far fa-bookmark';
+                    btn.style.color = '#fff';
+                }
+            });
         }
 
         async function saveAudio() {

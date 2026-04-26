@@ -565,7 +565,8 @@
             return html;
         }
 
-        document.addEventListener('DOMContentLoaded', initStoryPage);
+
+
 
         async function checkLikedStatus(storyId) {
             const t = localStorage.getItem('token');
@@ -882,6 +883,12 @@
                 imageUrl,
                 type: 'story'
             });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initStoryPage);
+        } else {
+            initStoryPage();
         }
 
     </script>

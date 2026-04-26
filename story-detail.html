@@ -296,8 +296,9 @@
         <div class="footer-bottom">
             <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
         </div>
-        </div>
     </footer>
+    </div>
+
 
 
     <script src="js/stories-data.js"></script>
@@ -323,9 +324,8 @@
     </script>
 
     <script>
-        // Logic to load story data based on URL ID
-    <script>
         // Move ID to window scope for other functions
+
         const params = new URLSearchParams(window.location.search);
         window.storyUrlId = params.get('id');
 
@@ -531,35 +531,42 @@
             }
 
             window.storyHasAccess = hasAccess;
-            const readBtn = document.querySelector('.btn-read');
+            const readBtns = document.querySelectorAll('.btn-read, .mobile-sticky-btn');
             const buyLink = story.buy_link || "";
-            if (hasAccess) {
-                readBtn.innerHTML = '<i class="fas fa-book-open"></i> Read Full Story';
-                readBtn.onclick = () => window.location.href = `read.html?id=${story.id}`;
-            } else if (buyLink) {
-                readBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
-                readBtn.style.background = '#d4af37';
-                readBtn.style.color = '#000';
-                readBtn.onclick = () => window.open(buyLink, '_blank');
-            } else {
-                let priceDisplay = `₹${price}`;
-                if (story.discount && story.discount > 0) {
-                    const discountedPrice = (price - (price * story.discount / 100)).toFixed(1).replace(/\.0$/, '');
-                    priceDisplay = `₹${discountedPrice} <span style="text-decoration: line-through; color: #888; font-size: 0.8em; margin-left: 5px;">₹${price}</span>`;
-                }
-                readBtn.innerHTML = `<i class="fas fa-lock"></i> Unlock Story (${priceDisplay})`;
-                readBtn.style.background = '#d4af37';
-                readBtn.style.color = '#000';
-                readBtn.onclick = () => {
-                    const token = localStorage.getItem('token');
-                    if (!token) {
-                        alert('Please login to purchase this story.');
-                        window.location.href = `login.html?redirect=story-detail.html?id=${story.id}`;
-                        return;
+            
+            readBtns.forEach(btn => {
+                if (hasAccess) {
+                    btn.innerHTML = '<i class="fas fa-book-open"></i> Read Full Story';
+                    btn.onclick = () => window.location.href = `read.html?id=${story.id}`;
+                    if (btn.classList.contains('mobile-sticky-btn')) {
+                        btn.innerHTML = '<i class="fas fa-book-open"></i> READ NOW';
                     }
-                    window.location.href = `checkout.html?storyId=${story.id}`;
-                };
-            }
+                } else if (buyLink) {
+                    btn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
+                    btn.style.background = '#d4af37';
+                    btn.style.color = '#000';
+                    btn.onclick = () => window.open(buyLink, '_blank');
+                } else {
+                    let priceDisplay = `₹${price}`;
+                    if (story.discount && story.discount > 0) {
+                        const discountedPrice = (price - (price * story.discount / 100)).toFixed(1).replace(/\.0$/, '');
+                        priceDisplay = `₹${discountedPrice}`;
+                    }
+                    btn.innerHTML = `<i class="fas fa-lock"></i> Unlock (${priceDisplay})`;
+                    btn.style.background = '#d4af37';
+                    btn.style.color = '#000';
+                    btn.onclick = () => {
+                        const token = localStorage.getItem('token');
+                        if (!token) {
+                            alert('Please login to purchase this story.');
+                            window.location.href = `login.html?redirect=story-detail.html?id=${story.id}`;
+                            return;
+                        }
+                        window.location.href = `checkout.html?storyId=${story.id}`;
+                    };
+                }
+            });
+
 
             const userToken = localStorage.getItem('token');
             if (userToken) checkLikedStatus(story.id);
@@ -585,7 +592,7 @@
 
                     if (isLiked) {
                         const desktopBtn = document.querySelector('.btn-fav');
-                        const mobileBtn = document.querySelector('#mobile-like-btn');
+                        const mobileBtn = document.querySelector('.mobile-actions .fav-btn');
                         
                         [desktopBtn, mobileBtn].forEach(btn => {
                             if (btn) {
@@ -594,11 +601,11 @@
                                     icon.classList.remove('far');
                                     icon.classList.add('fas');
                                     btn.style.color = '#e74c3c';
-                                    btn.classList.add('active');
                                 }
                             }
                         });
                     }
+
                 }
             } catch (e) {
                 console.error("Like check error:", e);
@@ -769,10 +776,11 @@
             }
 
             const desktopBtn = document.querySelector('.btn-fav');
-            const mobileBtn = document.querySelector('#mobile-like-btn');
+            const mobileBtn = document.querySelector('.mobile-actions .fav-btn');
             
             const desktopIcon = desktopBtn ? desktopBtn.querySelector('i') : null;
             const mobileIcon = mobileBtn ? mobileBtn.querySelector('i') : null;
+
 
             const isCurrentlyLiked = (desktopIcon && desktopIcon.classList.contains('fas')) || (mobileIcon && mobileIcon.classList.contains('fas'));
             const becomingLiked = !isCurrentlyLiked;

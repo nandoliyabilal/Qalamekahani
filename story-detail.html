@@ -5,65 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Story Details | Qalamekahani</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/premium-story.css">
-
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960"
-        crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960" crossorigin="anonymous"></script>
     <style>
-        /* Mobile specific adjustments */
         @media (max-width: 768px) {
-            .btn-read {
-                font-size: 0.8rem !important;
-                padding: 12px 15px !important;
-                width: auto !important;
-                min-width: 180px;
-                max-width: 100% !important;
-                white-space: normal !important;
-                line-height: 1.3 !important;
-                height: auto !important;
-                display: inline-flex !important;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-            }
-
-            .story-actions {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
+            .btn-read { font-size: 0.8rem !important; padding: 12px 15px !important; min-width: 180px; }
         }
-    </style>
-    <style>
-        .download-overlay-btn {
-            display: none !important;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="story-page-bg">
-        <div id="story-blurred-bg"></div>
-        <div class="story-overlay-mist"></div>
-        <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
-    </div>
-
-    <style>
-        /* Hide main header on mobile for this page specifically */
-        @media (max-width: 960px) {
-            header.header { display: none !important; }
-            body { padding-top: 0 !important; }
-        }
+        .download-overlay-btn { display: none !important; }
     </style>
 </head>
 
 <body class="detail-page">
-
     <header class="header">
         <div class="nav-container">
             <a href="index.html" class="logo">Qalamekahani</a>
@@ -97,161 +52,120 @@
             <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
         </div>
 
-
-    <!-- STORY HERO SECTION -->
-    <section class="story-hero">
-        <div class="story-hero-container">
-            <!-- Back Link -->
-            <div class="story-back-row">
-                <a href="stories.html" class="back-link"><i class="fas fa-chevron-left"></i> BACK TO STORIES</a>
-            </div>
-
-            <!-- Left: Visual -->
-            <div class="story-visual">
-                <div class="story-cover-wrapper">
-                    <img id="story-image" src="" alt="Story Cover" class="story-cover">
-                    <div class="story-badges">
-                        <span id="story-cat-badge" class="badge badge-cat"></span>
-                        <span id="story-lang-badge" class="badge badge-lang"></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right: Details -->
-            <div class="story-info">
-                <!-- Hanging Views Cart (Mobile Only) -->
-                <div class="hanging-views mobile-only">
-                    <div class="view-cart">
-                        <i class="fas fa-eye"></i>
-                        <span id="mobile-views-count">0</span>
-                    </div>
+        <section class="story-hero">
+            <div class="story-hero-container">
+                <div class="story-back-row">
+                    <a href="stories.html" class="back-link"><i class="fas fa-chevron-left"></i> BACK TO STORIES</a>
                 </div>
 
-                <h1 id="story-title" class="story-title">Preparing Story...</h1>
-
-                <h3 class="story-author">By <span id="story-author" class="author-name"></span></h3>
-                <div class="story-rating-row">
-                    <div class="stars"></div>
-                    <span id="story-rating" class="rating-text"></span>
-                </div>
-
-                <!-- Mobile Actions Row -->
-                <div class="mobile-actions mobile-only">
-                    <button class="mobile-action-btn fav-btn" onclick="toggleLike()">
-                        <i class="far fa-heart" id="mobile-like-icon"></i> <span>Like</span>
-                    </button>
-                    <button class="mobile-action-btn share-btn" onclick="shareStory()">
-                        <i class="fas fa-share-alt"></i> <span>Share</span>
-                    </button>
-                </div>
-
-                <!-- Stats Grid -->
-
-                <div class="story-meta-grid">
-                    <div class="meta-item">
-                        <span class="meta-label">CATEGORY</span>
-                        <span id="meta-genre" class="meta-value"></span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">PUBLISHED</span>
-                        <span id="meta-date" class="meta-value"></span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">READ TIME</span>
-                        <span id="meta-time" class="meta-value"></span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">VIEWS</span>
-                        <span id="meta-views" class="meta-value">0</span>
-                    </div>
-                </div>
-
-                <div class="story-synopsis-container">
-                    <h4 class="meta-label">SUMMARY</h4>
-                    <p id="story-synopsis" class="story-synopsis"></p>
-                </div>
-
-                <!-- Desktop Actions -->
-                <div class="story-actions desktop-only">
-                    <button class="btn btn-primary btn-read" onclick="openReaderMode()"><i class="fas fa-book-open"></i> Read Full Story</button>
-                    
-                    <a id="youtube-btn" href="#" target="_blank" class="btn btn-youtube" style="display:none; background-color: #FF0000; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 500; align-items: center; gap: 8px;">
-                        <i class="fab fa-youtube"></i> YouTube
-                    </a>
-
-                    <button class="btn-fav" onclick="toggleLike()"><i class="far fa-heart" id="like-icon"></i></button>
-                    <button class="btn-share" onclick="shareStory()"><i class="fas fa-share-alt"></i></button>
-                </div>
-            </div>
-        </div>
-
-    </section>
-
-
-        <!-- TABS SECTION -->
-        <section class="story-content-section">
-            <div class="tabs-container">
-                <button class="tab-btn active" data-tab="chapters">Chapters</button>
-                <button class="tab-btn" data-tab="reviews" id="reviews-tab-btn">Reviews (0)</button>
-            </div>
-
-            <div class="tab-content-container">
-                <!-- Tab 1: Chapters List -->
-                <div id="chapters" class="tab-pane active">
-                    <ul id="chapter-list" class="chapter-list-display">
-                        <!-- Chapters populated by JS -->
-                        <li style="color:#888;">Loading chapters...</li>
-                    </ul>
-                </div>
-
-                <!-- Tab 2: Full Story -->
-                <!-- Removed Full Story Tab -->
-
-                <!-- Tab 3: Reviews -->
-                <div id="reviews" class="tab-pane">
-                    <div class="reviews-container" style="padding: 0; margin-top: 30px;">
-                        <h3 class="review-title" style="font-size: 1.5rem; margin-bottom: 20px;">Reader Reviews</h3>
-
-                        <!-- Review Form -->
-                        <div class="write-review-box" id="review-form-box">
-                            <h4 style="color: #fff; margin-bottom: 15px;">Leave a Review</h4>
-                            <div class="rating-input" id="rating-stars">
-                                <i class="far fa-star star-input" data-value="1" onclick="setRating(1)"></i>
-                                <i class="far fa-star star-input" data-value="2" onclick="setRating(2)"></i>
-                                <i class="far fa-star star-input" data-value="3" onclick="setRating(3)"></i>
-                                <i class="far fa-star star-input" data-value="4" onclick="setRating(4)"></i>
-                                <i class="far fa-star star-input" data-value="5" onclick="setRating(5)"></i>
-                            </div>
-                            <input type="hidden" id="review-rating" value="5">
-                            <textarea id="review-comment" class="review-textarea" placeholder="Share your thoughts about this story..."></textarea>
-                            <button onclick="submitReview(event)" class="btn-submit-review">Submit Review</button>
-                        </div>
-
-                        <div class="review-success-msg" id="review-success-msg">
-                            <i class="fas fa-check-circle"></i>
-                            <h4>Review Submitted!</h4>
-                            <p>Thank you for your feedback. It will be visible after approval.</p>
-                        </div>
-
-                        <div class="review-list" id="review-list">
-                            <p id="no-reviews-msg" style="display:none; color:#888;">No reviews yet. Be the first to review!</p>
+                <div class="story-visual">
+                    <div class="story-cover-wrapper">
+                        <img id="story-image" src="" alt="Story Cover" class="story-cover">
+                        <div class="story-badges">
+                            <span id="story-cat-badge" class="badge badge-cat"></span>
+                            <span id="story-lang-badge" class="badge badge-lang"></span>
                         </div>
                     </div>
                 </div>
 
+                <div class="story-info">
+                    <div class="hanging-views mobile-only">
+                        <div class="view-cart">
+                            <i class="fas fa-eye"></i>
+                            <span id="mobile-views-count">0</span>
+                        </div>
+                    </div>
+                    <h1 id="story-title" class="story-title">Preparing Story...</h1>
+                    <h3 class="story-author">By <span id="story-author" class="author-name"></span></h3>
+                    <div class="story-rating-row">
+                        <div class="stars"></div>
+                        <span id="story-rating" class="rating-text"></span>
+                    </div>
+
+                    <div class="mobile-actions mobile-only">
+                        <button class="mobile-action-btn fav-btn" onclick="toggleLike()">
+                            <i class="far fa-heart" id="mobile-like-icon"></i> <span>Like</span>
+                        </button>
+                        <button class="mobile-action-btn share-btn" onclick="shareStory()">
+                            <i class="fas fa-share-alt"></i> <span>Share</span>
+                        </button>
+                    </div>
+
+                    <div class="story-meta-grid">
+                        <div class="meta-item">
+                            <span class="meta-label">CATEGORY</span>
+                            <span id="story-category" class="meta-value">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">PUBLISHED</span>
+                            <span id="story-published" class="meta-value">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">READ TIME</span>
+                            <span id="story-readtime" class="meta-value">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">VIEWS</span>
+                            <span id="story-views" class="meta-value">0</span>
+                        </div>
+                    </div>
+
+                    <div class="story-synopsis-container">
+                        <h4 class="meta-label">SUMMARY</h4>
+                        <p id="story-summary" class="story-synopsis"></p>
+                    </div>
+
+                    <div class="story-actions desktop-only">
+                        <button id="read-btn-desktop" class="btn btn-primary btn-read"><i class="fas fa-book-open"></i> READ FULL STORY</button>
+                        <button class="btn-fav" id="like-btn" onclick="toggleLike()"><i class="far fa-heart" id="like-icon"></i></button>
+                        <button class="btn-share" onclick="shareStory()"><i class="fas fa-share-alt"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="story-content-tabs">
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="reviews" id="reviews-tab-btn">Reviews (0)</button>
+                <button class="tab-btn" data-tab="similar">Similar Stories</button>
+            </div>
+
+            <div class="tab-content active" id="reviews-tab">
+                <div class="reviews-container">
+                    <div class="write-review-box" id="review-form-box">
+                        <h4 style="color:#fff; margin-bottom:15px;">Rate this story</h4>
+                        <div class="rating-input">
+                            <i class="far fa-star" data-value="1"></i>
+                            <i class="far fa-star" data-value="2"></i>
+                            <i class="far fa-star" data-value="3"></i>
+                            <i class="far fa-star" data-value="4"></i>
+                            <i class="far fa-star" data-value="5"></i>
+                        </div>
+                        <textarea id="review-comment" placeholder="Write your review..."></textarea>
+                        <button class="btn-submit-review" onclick="submitReview(event)">Submit Review</button>
+                    </div>
+                    <div id="review-success-msg" style="display:none; text-align:center; padding:20px; color:#d4af37;">
+                        <i class="fas fa-check-circle" style="font-size:2rem; margin-bottom:10px;"></i>
+                        <h4>Review submitted!</h4>
+                        <p>It will be visible once approved.</p>
+                    </div>
+                    <div id="reviews-list">
+                        <p id="no-reviews-msg" style="color:#888; font-style:italic;">No reviews yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="similar-tab">
+                <div class="similar-stories-grid" id="similar-stories"></div>
             </div>
         </section>
     </div>
 
-    <!-- Mobile Bottom Action Bar -->
     <div class="mobile-bottom-bar">
-        <button class="mobile-sticky-btn" onclick="openReaderMode()">
-            <i class="fas fa-book-open"></i> READ NOW
+        <button id="mobile-read-btn" class="mobile-sticky-btn">
+            <i class="fas fa-book-open"></i> READ FULL STORY
         </button>
     </div>
-
-
-    <!-- Footer Section -->
 
     <footer class="site-footer">
         <div class="footer-container">
@@ -259,35 +173,27 @@
                 <h3 class="footer-brand">Sabirkhan Pathan</h3>
                 <p class="footer-tagline">Weaving stories that touch your soul.</p>
                 <div class="social-icons">
-                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i
-                            class="fab fa-instagram"></i></a>
-                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i
-                            class="fab fa-facebook-f"></i></a>
-                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link"
-                        target="_blank"><i class="fab fa-youtube"></i></a>
-                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i
-                            class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
             <div class="footer-col links-col">
                 <h4 class="footer-heading">Quick Links</h4>
                 <ul class="footer-links">
                     <li><a href="index.html">Home</a></li>
-                    <li class="dropdown">
-                        <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="stories.html">Reading Stories</a></li>
-                            <li><a href="gallery.html">Images & Wallpapers</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="about.html">About</a></li>
+                    <li><a href="stories.html">Stories</a></li>
+                    <li><a href="audio.html">Audio Stories</a></li>
                     <li><a href="books.html">Books</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="about.html">About</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
             </div>
             <div class="footer-col newsletter-col">
                 <h4 class="footer-heading">Stay Updated</h4>
-                <p class="newsletter-text">Subscribe to get the latest stories.</p>
+                <p class="newsletter-text">Subscribe for new story releases.</p>
                 <form class="newsletter-form">
                     <input type="email" placeholder="Your Email" class="newsletter-input" required>
                     <button type="submit" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
@@ -298,15 +204,12 @@
             <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
         </div>
     </footer>
-    </div>
-
-
 
     <script src="js/stories-data.js"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="js/main.js"></script>
     <script>
-        // Particles Config
+        // Particles
         if (typeof particlesJS !== 'undefined') {
             particlesJS('particles-js', {
                 "particles": {
@@ -315,575 +218,238 @@
                     "shape": { "type": "circle" },
                     "opacity": { "value": 0.3, "random": true },
                     "size": { "value": 3, "random": true },
-                    "line_linked": { "enable": false },
                     "move": { "enable": true, "speed": 1, "direction": "top", "random": true, "straight": false, "out_mode": "out" }
                 },
                 "interactivity": { "events": { "onhover": { "enable": false } } },
                 "retina_detect": true
             });
         }
-    </script>
 
-    <script>
-        // Global Error Handler for debugging
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            const container = document.getElementById('story-title');
-            if (container) {
-                container.innerHTML = `<span style="color:red;">JS Error: ${msg} <br>Line: ${lineNo}</span>`;
-                container.style.fontSize = "0.8rem";
-            }
-            console.error(msg, url, lineNo, columnNo, error);
-            return false;
-        };
-
-        // Global variables
-
-        window.currentStoryUUID = null;
-        window.storyUrlId = new URLSearchParams(window.location.search).get('id');
+        const params = new URLSearchParams(window.location.search);
+        const storyId = params.get('id') || params.get('slug');
+        let currentStory = null;
+        let selectedRating = 0;
 
         async function initStoryPage() {
             const titleEl = document.getElementById('story-title');
             if (titleEl) titleEl.textContent = "Loading Story Details...";
 
-            if (!window.storyUrlId) {
-                console.error("No Story ID provided in URL");
-                showNotFound();
+            if (!storyId) {
+                showNotFound("No story ID provided.");
                 return;
             }
 
             try {
-                const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
-                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-
-                // Use a controller for timeout
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-
-                try {
-                    let res = await fetch(`/api/stories/${encodeURIComponent(window.storyUrlId.trim())}?t=${Date.now()}`, { 
-                        headers,
-                        signal: controller.signal 
-                    });
-                    
-                    let storyData;
-                    if (!res.ok) {
-                        // Fallback to slug search
-                        const slugRes = await fetch(`/api/stories?slug=${encodeURIComponent(window.storyUrlId.trim())}&t=${Date.now()}`, { 
-                            headers,
-                            signal: controller.signal 
-                        });
-                        if (!slugRes.ok) throw new Error('Story not found on server');
-                        
-                        const results = await slugRes.json();
-                        storyData = Array.isArray(results) ? results[0] : results;
-                    } else {
-                        storyData = await res.json();
-                    }
-
-                    clearTimeout(timeoutId);
-
-                    if (!storyData || (!storyData.id && !storyData._id)) {
-                        throw new Error('Invalid story data received');
-                    }
-
-                    await renderStory(storyData);
-
-                } catch (fetchErr) {
-                    clearTimeout(timeoutId);
-                    throw fetchErr;
-                }
-
-            } catch (err) {
-                console.error("Initialization Failed:", err);
-                if (titleEl) titleEl.textContent = "Error: " + err.message;
-                showNotFound(err.message);
+                const res = await fetch(`/api/stories/${storyId}`);
+                if (!res.ok) throw new Error('Story not found');
+                currentStory = await res.json();
+                renderStory(currentStory);
+                checkLikedStatus(currentStory.id || currentStory._id);
+                loadReviews(currentStory.id || currentStory._id);
+                loadSimilarStories(currentStory.category);
+            } catch (e) {
+                console.error(e);
+                showNotFound(e.message);
             }
         }
 
-        async function renderStory(story) {
+        function renderStory(story) {
+            if (!story) return;
+            document.title = `${story.title} | Qalamekahani`;
+            const titleEl = document.getElementById('story-title');
+            if (titleEl) titleEl.textContent = story.title;
+            const authorEl = document.getElementById('story-author');
+            if (authorEl) authorEl.textContent = story.author || 'Sabirkhan Pathan';
+            const catEl = document.getElementById('story-category');
+            if (catEl) catEl.textContent = story.category || '-';
+            const pubEl = document.getElementById('story-published');
+            if (pubEl) pubEl.textContent = new Date(story.created_at).toLocaleDateString();
+            const rtEl = document.getElementById('story-readtime');
+            if (rtEl) rtEl.textContent = story.read_time || '5 min';
+            const viewsEl = document.getElementById('story-views');
+            if (viewsEl) viewsEl.textContent = story.views || 0;
+            const mViewsEl = document.getElementById('mobile-views-count');
+            if (mViewsEl) mViewsEl.textContent = story.views || 0;
+            const summaryEl = document.getElementById('story-summary');
+            if (summaryEl) summaryEl.textContent = story.summary || '';
+
+            const img = document.getElementById('story-image');
+            if (img && story.image) img.src = story.image;
+            const bg = document.getElementById('story-blurred-bg');
+            if (bg && story.image) bg.style.backgroundImage = `url('${story.image}')`;
+
+            const badges = document.getElementById('story-cat-badge');
+            if (badges) badges.textContent = story.category || 'Story';
+
+            const readBtnD = document.getElementById('read-btn-desktop');
+            const readBtnM = document.getElementById('mobile-read-btn');
+            const readFn = () => { window.location.href = `read.html?id=${story.id || story._id}`; };
+            if (readBtnD) readBtnD.onclick = readFn;
+            if (readBtnM) readBtnM.onclick = readFn;
+        }
+
+        async function checkLikedStatus(id) {
+            const token = localStorage.getItem('token');
+            if (!token) return;
             try {
-                window.currentStoryUUID = story.id || story._id;
-                
-                // 1. Basic Info
-                document.title = `${story.title} | Qalamekahani`;
-                const titleEl = document.getElementById('story-title');
-                if (titleEl) titleEl.textContent = story.title;
-                
-                const authorEl = document.getElementById('story-author');
-                if (authorEl) authorEl.textContent = story.author || 'Sabirkhan Pathan';
-
-                // 2. Images
-                const coverUrl = story.image || 'images/story-default.png';
-                const img = document.getElementById('story-image');
-                if (img) {
-                    img.src = coverUrl;
-                    img.onerror = () => { img.src = 'https://placehold.co/600x400/222/FFF?text=No+Image'; };
-                }
-                const blurredBg = document.getElementById('story-blurred-bg');
-                if (blurredBg) blurredBg.style.backgroundImage = `url('${coverUrl}')`;
-
-                // 3. Badges & Meta
-                const catEl = document.getElementById('story-cat-badge');
-                if (catEl) catEl.textContent = story.category || 'Story';
-                const langEl = document.getElementById('story-lang-badge');
-                if (langEl) langEl.textContent = story.language || 'Hindi';
-
-                const ratingValue = parseFloat(story.rating) || 0;
-                const ratingText = document.getElementById('story-rating');
-                if (ratingText) ratingText.textContent = ratingValue > 0 ? `${ratingValue} (${story.reviewCount || 0} Reviews)` : 'No Ratings';
-
-                const starsContainer = document.querySelector('.story-rating-row .stars');
-                if (starsContainer) starsContainer.innerHTML = generateStars(ratingValue);
-
-                const genreMeta = document.getElementById('meta-genre');
-                if (genreMeta) genreMeta.textContent = story.category || 'Story';
-                const dateMeta = document.getElementById('meta-date');
-                if (dateMeta) dateMeta.textContent = new Date(story.created_at || story.date || Date.now()).toLocaleDateString();
-                const viewsMeta = document.getElementById('meta-views');
-                if (viewsMeta) viewsMeta.textContent = story.views || 0;
-
-                const synopsisEl = document.getElementById('story-synopsis');
-                if (synopsisEl) synopsisEl.textContent = story.summary || story.synopsis || story.description || 'No summary available.';
-
-                // 4. Access & Buttons
-                const price = parseFloat(story.price || 0);
-                const isPremium = price > 0;
-                let hasAccess = !isPremium;
-                if (typeof story.isLocked !== 'undefined') hasAccess = !story.isLocked;
-
-                // Double check ownership if premium
-                if (isPremium && !hasAccess) {
-                    const token = localStorage.getItem('token');
-                    if (token) {
-                        try {
-                            const res = await fetch('/api/orders/mine', { headers: { 'Authorization': `Bearer ${token}` } });
-                            if (res.ok) {
-                                const orders = await res.json();
-                                if (orders.some(o => (o.story_id === window.currentStoryUUID) && o.status === 'paid')) hasAccess = true;
-                            }
-                        } catch (e) { }
-                    }
-                }
-
-                window.storyHasAccess = hasAccess;
-                const actionBtns = document.querySelectorAll('.btn-read, .mobile-sticky-btn');
-                const buyLink = story.buy_link;
-
-                actionBtns.forEach(btn => {
-                    if (hasAccess) {
-                        btn.innerHTML = btn.classList.contains('mobile-sticky-btn') ? '<i class="fas fa-book-open"></i> READ NOW' : '<i class="fas fa-book-open"></i> Read Full Story';
-                        btn.onclick = () => window.location.href = `read.html?id=${window.currentStoryUUID}`;
-                    } else if (buyLink) {
-                        btn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
-                        btn.style.background = '#d4af37'; btn.style.color = '#000';
-                        btn.onclick = () => window.open(buyLink, '_blank');
-                    } else {
-                        btn.innerHTML = `<i class="fas fa-lock"></i> Unlock (₹${price})`;
-                        btn.style.background = '#d4af37'; btn.style.color = '#000';
-                        btn.onclick = () => {
-                            const t = localStorage.getItem('token');
-                            if (!t) {
-                                alert('Please login to purchase.');
-                                window.location.href = `login.html?redirect=story-detail.html?id=${window.storyUrlId}`;
-                            } else {
-                                window.location.href = `checkout.html?storyId=${window.currentStoryUUID}`;
-                            }
-                        };
-                    }
-                });
-
-                // 5. Extra Loads
-                const token = localStorage.getItem('token');
-                if (token) checkLikedStatus(window.currentStoryUUID);
-                loadReviews(window.currentStoryUUID);
-                loadChapters(story);
-
-            } catch (err) {
-                console.error("Rendering Failed:", err);
-                throw err;
-            }
-        }
-
-        async function loadChapters(story) {
-            const list = document.getElementById('chapter-list');
-            if (!list) return;
-            list.innerHTML = '';
-            
-            const content = story.content || '';
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(content, 'text/html');
-            const headings = doc.querySelectorAll('h2');
-
-            if (headings.length > 0) {
-                headings.forEach((h, i) => {
-                    const li = document.createElement('li');
-                    li.className = 'chapter-item';
-                    li.innerHTML = `<span style="color:#d4af37; font-weight:bold;">${i+1}.</span> ${h.textContent}`;
-                    li.onclick = () => {
-                        if (!window.storyHasAccess) { alert('Unlock this story to read.'); return; }
-                        window.location.href = `read.html?id=${window.currentStoryUUID}&ch=${i}`;
-                    };
-                    list.appendChild(li);
-                });
-            } else {
-                const li = document.createElement('li');
-                li.className = 'chapter-item';
-                li.innerHTML = `<span style="color:#d4af37; font-weight:bold;">1.</span> Full Story`;
-                li.onclick = () => {
-                    if (!window.storyHasAccess) { alert('Unlock this story to read.'); return; }
-                    window.location.href = `read.html?id=${window.currentStoryUUID}`;
-                };
-                list.appendChild(li);
-            }
-        }
-
-        function showNotFound(msg = "") {
-            const container = document.getElementById('story-container');
-            if (container) {
-                container.innerHTML = `
-                    <div style="text-align:center; padding: 100px 20px; color: #fff;">
-                        <h1 style="color: #d4af37;">Story Not Found</h1>
-                        <p>${msg || 'Sorry, we couldn\\'t find the story you are looking for.'}</p>
-                        <a href="stories.html" class="btn btn-primary" style="margin-top:20px; background:#d4af37; color:#000; padding: 10px 30px; text-decoration:none; border-radius:50px;">Back to Stories</a>
-                    </div>
-                `;
-            }
-        }
-
-        function calculateReadTime(text) {
-            const words = (text || '').split(/\s/g).length;
-            return Math.ceil(words / 200) + ' min read';
-        }
-
-        function generateStars(rating) {
-            const full = Math.floor(rating);
-            const half = rating % 1 >= 0.5;
-            let html = '';
-            for (let i = 0; i < full; i++) html += '<i class="fas fa-star" style="color:#FFD700;"></i>';
-            if (half) html += '<i class="fas fa-star-half-alt" style="color:#FFD700;"></i>';
-            for (let i = 0; i < (5 - full - (half?1:0)); i++) html += '<i class="far fa-star" style="color:#ccc;"></i>';
-            return html;
-        }
-
-
-
-
-        async function checkLikedStatus(storyId) {
-            const t = localStorage.getItem('token');
-            if (!t) return;
-            try {
-                const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${t}` } });
+                const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
                 if (res.ok) {
                     const user = await res.json();
-                    const liked = user.likedStories && user.likedStories.some(item => {
-                        const id = typeof item === 'object' ? (item.id || item._id) : item;
-                        return String(id) === String(storyId);
-                    });
-                    if (liked) {
-                        const btns = document.querySelectorAll('.fav-btn');
-                        btns.forEach(b => {
-                            const i = b.querySelector('i');
-                            if (i) { i.classList.replace('far', 'fas'); b.style.color = '#e74c3c'; }
-                        });
-                    }
+                    const isLiked = user.likedStories && user.likedStories.some(s => String(s.id || s._id || s) === String(id));
+                    updateLikeUI(isLiked);
                 }
-            } catch (e) { }
+            } catch (e) {}
         }
 
-
-        async function loadReviews(storyId) {
-            const reviewContainer = document.getElementById('review-list');
-            const noReviewMsg = document.getElementById('no-reviews-msg');
-            const tabBtn = document.getElementById('reviews-tab-btn');
-
-            reviewContainer.innerHTML = '';
-
-            try {
-                // Fetch Approved Reviews from API (Cache Busted)
-                const res = await fetch(`/api/reviews?targetType=story&targetId=${storyId}&t=${Date.now()}`);
-
-                if (!res.ok) throw new Error('Failed to fetch reviews');
-
-                const allReviews = await res.json();
-                // Include pending so user sees their own submission
-                const approvedReviews = allReviews.filter(r => r.status === 'approved' || r.status === 'pending' || r.isApproved === true);
-
-                // --- CLIENT-SIDE RATING CALCULATION (Fix for missing stars) ---
-                if (approvedReviews.length > 0) {
-                    const validRatings = approvedReviews.filter(r => r.rating > 0);
-                    if (validRatings.length > 0) {
-                        const total = validRatings.reduce((acc, r) => acc + (parseFloat(r.rating) || 0), 0);
-                        const avg = (total / validRatings.length).toFixed(1);
-
-                        // Update Top Rating UI
-                        const ratingText = document.getElementById('story-rating');
-                        const starsContainer = document.querySelector('.story-rating-row .stars');
-
-                        if (ratingText) ratingText.textContent = `${avg} (${approvedReviews.length} Reviews)`;
-                        if (starsContainer) starsContainer.innerHTML = generateStars(avg);
-                    }
-                }
-                // -------------------------------------------------------------
-
-                // Update Tab Count
-                if (tabBtn) tabBtn.textContent = `Reviews (${approvedReviews.length})`;
-
-                if (approvedReviews.length > 0) {
-                    noReviewMsg.style.display = 'none';
-
-                    approvedReviews.forEach(r => {
-                        let starsHtml = '';
-
-                        const rating = r.rating || 5;
-                        for (let i = 0; i < 5; i++) {
-                            starsHtml += `<i class="${i < rating ? 'fas' : 'far'} fa-star" style="font-size: 0.8rem; margin-right: 2px;"></i>`;
-                        }
-
-                        const reviewDiv = document.createElement('div');
-                        reviewDiv.className = 'review-item';
-                        reviewDiv.innerHTML = `
-                            <div class="review-header">
-                                <span class="reviewer-name">${r.user_name || r.name || 'Reader'}</span>
-                                <div class="review-stars">${starsHtml}</div>
-                            </div>
-                            <p class="review-text">"${r.comment}"</p>
-                            
-                            ${r.reply ? `
-                                <div class="admin-reply" style="margin-top:15px; padding:15px; background:rgba(212,175,55,0.05); border-left:3px solid #d4af37; border-radius:10px;">
-                                    <div style="font-size:0.7rem; color:#d4af37; font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;">
-                                        ${r.admin_reply_name || 'Admin'} RESPONSE
-                                    </div>
-                                    <p style="margin:0; color:#eee; font-size:0.9rem; font-style: normal;">${r.reply}</p>
-                                </div>
-                            ` : ''}
-
-                            <div style="text-align: right; margin-top: 10px;">
-                                <span class="review-date">${new Date(r.created_at).toLocaleDateString()}</span>
-                            </div>
-                        `;
-                        reviewContainer.appendChild(reviewDiv);
-                    });
-                } else {
-
-                    noReviewMsg.style.display = 'block';
-                    reviewContainer.appendChild(noReviewMsg);
-                }
-            } catch (error) {
-                console.error(error);
-                noReviewMsg.textContent = 'Failed to load reviews.';
-                noReviewMsg.style.display = 'block';
-                reviewContainer.appendChild(noReviewMsg);
-            }
-        }
-
-        // Tab Switching Logic
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabPanes = document.querySelectorAll('.tab-pane');
-
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabPanes.forEach(p => p.classList.remove('active'));
-
-                btn.classList.add('active');
-                const tabId = btn.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-
-        function switchTab(tabId) {
-            const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-            if (targetBtn) targetBtn.click();
-            document.querySelector('.tabs-container').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function openReaderMode() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('You must be logged in to read stories.');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            // Fix: Use the resolved UUID if available, otherwise fallback to URL params
-            if (window.currentStoryUUID) {
-                window.location.href = `read.html?id=${window.currentStoryUUID}`;
+        function updateLikeUI(isLiked) {
+            const icon = document.getElementById('like-icon');
+            const mIcon = document.getElementById('mobile-like-icon');
+            if (isLiked) {
+                if (icon) icon.className = 'fas fa-heart';
+                if (mIcon) mIcon.className = 'fas fa-heart';
             } else {
-                const params = new URLSearchParams(window.location.search);
-                const storyId = params.get('id');
-                window.location.href = `read.html?id=${storyId || ''}`;
+                if (icon) icon.className = 'far fa-heart';
+                if (mIcon) mIcon.className = 'far fa-heart';
             }
         }
 
-        // Heart Toggle
         async function toggleLike() {
             const token = localStorage.getItem('token');
-            if (!token) {
-                alert('Please login to like stories.');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            const desktopBtn = document.querySelector('.btn-fav');
-            const mobileBtn = document.querySelector('.mobile-actions .fav-btn');
-            
-            const desktopIcon = desktopBtn ? desktopBtn.querySelector('i') : null;
-            const mobileIcon = mobileBtn ? mobileBtn.querySelector('i') : null;
-
-
-            const isCurrentlyLiked = (desktopIcon && desktopIcon.classList.contains('fas')) || (mobileIcon && mobileIcon.classList.contains('fas'));
-            const becomingLiked = !isCurrentlyLiked;
-
-            // Optimistic Update
-            const updateUI = (liked) => {
-                [desktopIcon, mobileIcon].forEach(icon => {
-                    if (icon) {
-                        if (liked) {
-                            icon.classList.remove('far');
-                            icon.classList.add('fas');
-                            icon.parentElement.style.color = '#e74c3c';
-                        } else {
-                            icon.classList.remove('fas');
-                            icon.classList.add('far');
-                            icon.parentElement.style.color = '';
-                        }
-                    }
-                });
-            };
-
-            updateUI(becomingLiked);
-
+            if (!token) { alert('Please login to like stories.'); return; }
+            if (!currentStory) return;
             try {
                 const res = await fetch('/api/auth/like-story', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ storyId: window.currentStoryUUID })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ storyId: currentStory.id || currentStory._id })
                 });
-
-                if (!res.ok) throw new Error('Failed to like story');
-                
                 const data = await res.json();
                 if (data.success) {
-                    const isLikedNow = data.likedStories.some(s => String(s.id || s._id || s) === String(window.currentStoryUUID));
-                    updateUI(isLikedNow);
+                    const isLiked = data.likedStories.some(s => String(s.id || s._id || s) === String(currentStory.id || currentStory._id));
+                    updateLikeUI(isLiked);
                 }
-            } catch (err) {
-                console.error(err);
-                // Revert
-                updateUI(isCurrentlyLiked);
-                alert('Error updating like status.');
-            }
+            } catch (e) {}
         }
 
-
-        // Review Form Logic
-        let currentRating = 0;
-
-        function setRating(val) {
-            currentRating = val;
-            document.getElementById('review-rating').value = val;
-            const stars = document.querySelectorAll('.rating-input i');
-            stars.forEach(s => {
-                const sVal = parseInt(s.getAttribute('data-value'));
-                if (sVal <= val) {
-                    s.classList.remove('far');
-                    s.classList.add('fas');
-                } else {
-                    s.classList.remove('fas');
-                    s.classList.add('far');
+        async function loadReviews(id) {
+            try {
+                const res = await fetch(`/api/reviews?targetType=story&targetId=${id}`);
+                const reviews = await res.json();
+                const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true);
+                const list = document.getElementById('reviews-list');
+                const btn = document.getElementById('reviews-tab-btn');
+                if (btn) btn.textContent = `Reviews (${approved.length})`;
+                if (approved.length > 0) {
+                    document.getElementById('no-reviews-msg').style.display = 'none';
+                    list.innerHTML = approved.map(r => `
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="reviewer-name">${r.user_name || 'Reader'}</span>
+                                <span class="review-date">${new Date(r.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <div class="stars" style="color:#d4af37; margin-bottom:5px;">${generateStars(r.rating)}</div>
+                            <p class="review-text">${r.comment}</p>
+                        </div>
+                    `).join('');
                 }
-            });
+            } catch (e) {}
         }
 
-        // Initialize with 5 stars
-        document.addEventListener('DOMContentLoaded', () => setRating(5));
+        function generateStars(rating) {
+            let h = '';
+            for (let i = 1; i <= 5; i++) h += `<i class="${i <= rating ? 'fas' : 'far'} fa-star"></i>`;
+            return h;
+        }
 
         async function submitReview(e) {
             e.preventDefault();
-
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('Please login to submit a review.');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            const rating = document.getElementById('review-rating').value;
+            if (!selectedRating) { alert('Please select a rating.'); return; }
             const comment = document.getElementById('review-comment').value;
-
-            if (!comment.trim()) {
-                alert('Please write a comment.');
-                return;
-            }
-
+            if (!comment.trim()) { alert('Please write a review.'); return; }
+            const token = localStorage.getItem('token');
+            if (!token) { alert('Please login to review.'); return; }
             try {
                 const res = await fetch('/api/reviews', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({
                         targetType: 'story',
-                        targetId: window.currentStoryUUID,
-                        rating: parseInt(rating),
+                        targetId: currentStory.id || currentStory._id,
+                        rating: selectedRating,
                         comment
                     })
                 });
-
                 if (res.ok) {
                     document.getElementById('review-form-box').style.display = 'none';
                     document.getElementById('review-success-msg').style.display = 'block';
-                    loadReviews(window.currentStoryUUID);
-                } else {
-                    const errData = await res.json();
-                    alert(`Failed: ${errData.message || 'Unknown error'}`);
                 }
-            } catch (err) {
-                console.error(err);
-                alert('Error submitting review.');
-            }
+            } catch (e) {}
         }
 
-
-        async function downloadImage(imgId) {
-            const img = document.getElementById(imgId);
-            if (!img || !img.src) return;
+        async function loadSimilarStories(category) {
             try {
-                const response = await fetch(img.src);
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `qalamverce-${imgId.split('-')[0]}-${Date.now()}.png`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-            } catch (error) {
-                console.error('Download failed:', error);
-                // Fallback direct link
-                window.open(img.src, '_blank');
-            }
+                const res = await fetch(`/api/stories?category=${category}&limit=4`);
+                const stories = await res.json();
+                const grid = document.getElementById('similar-stories');
+                if (stories.length > 0) {
+                    grid.innerHTML = stories.map(s => `
+                        <div class="story-card" onclick="window.location.href='story-detail.html?id=${s.id || s._id}'">
+                            <img src="${s.image}" alt="${s.title}">
+                            <div class="card-info">
+                                <h5>${s.title}</h5>
+                                <p>${s.category}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {}
         }
+
+        function showNotFound(msg = "") {
+            document.getElementById('story-container').innerHTML = `
+                <div style="text-align:center; padding: 100px 20px; color:#fff;">
+                    <h1 style="color:#d4af37;">Story Not Found</h1>
+                    <p>${msg || 'Story doesn\\'t exist.'}</p>
+                    <a href="stories.html" class="btn btn-primary" style="margin-top:20px;">Back to Stories</a>
+                </div>
+            `;
+        }
+
+        // Star Rating Setup
+        document.querySelectorAll('.rating-input i').forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.getAttribute('data-value'));
+                document.querySelectorAll('.rating-input i').forEach(s => {
+                    const v = parseInt(s.getAttribute('data-value'));
+                    s.className = v <= selectedRating ? 'fas fa-star' : 'far fa-star';
+                });
+            });
+        });
+
+        // Tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`${btn.getAttribute('data-tab')}-tab`).classList.add('active');
+            });
+        });
 
         async function shareStory() {
-            const title = document.getElementById('story-title').textContent;
-            const description = document.getElementById('story-synopsis').textContent;
-            const imageUrl = document.getElementById('story-image').src;
-            // Use ID instead of slug for a professional, clean short link
-            const url = `${window.location.origin}/story-detail.html?id=${window.currentStoryUUID || window.storyUrlId}`;
-
-            window.shareContent({
-                title,
-                description,
-                url,
-                imageUrl,
-                type: 'story'
-            });
+            if (!currentStory) return;
+            const url = `${window.location.origin}/story-detail.html?id=${currentStory.id || currentStory._id}`;
+            if (window.shareContent) {
+                window.shareContent({
+                    title: currentStory.title,
+                    description: currentStory.summary || '',
+                    url: url,
+                    imageUrl: currentStory.image,
+                    type: 'story'
+                });
+            } else if (navigator.share) {
+                navigator.share({ title: currentStory.title, url }).catch(() => {});
+            } else { prompt("Copy link:", url); }
         }
 
         if (document.readyState === 'loading') {
@@ -891,8 +457,6 @@
         } else {
             initStoryPage();
         }
-
     </script>
 </body>
-
 </html>

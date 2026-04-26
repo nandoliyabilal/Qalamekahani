@@ -249,11 +249,12 @@
             }
 
             try {
-                const bookRes = await fetch(`/api/books/${bookId}?t=${Date.now()}`);
+                const bookRes = await fetch(`/api/books/${bookId}`);
                 if (!bookRes.ok) throw new Error('Book not found on server');
                 currentBook = await bookRes.json();
 
-                const reviewsRes = await fetch(`/api/reviews?targetType=book&targetId=${bookId}&t=${Date.now()}`);
+                // Fetch reviews
+                const reviewsRes = await fetch(`/api/reviews?targetType=book&targetId=${bookId}`);
                 const reviews = await reviewsRes.json();
                 const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true || r.approved === true || !r.hasOwnProperty('status'));
 
@@ -269,7 +270,6 @@
                 renderPage(currentBook);
                 renderReviews(reviews);
                 checkWishlistStatus(bookId);
-
             } catch (err) {
                 console.error(err);
                 showNotFound(err.message);
@@ -281,22 +281,16 @@
             document.title = `${book.title} | Qalamekahani`;
             const titleEl = document.getElementById('book-title');
             if (titleEl) titleEl.textContent = book.title;
-
             const authorEl = document.getElementById('book-author');
             if (authorEl) authorEl.textContent = book.author || 'Sabirkhan Pathan';
-
             const descEl = document.getElementById('book-description');
             if (descEl) descEl.textContent = book.description || '';
-
             const catEl = document.getElementById('meta-category');
             if (catEl) catEl.textContent = book.category || 'Literature';
-
             const viewsEl = document.getElementById('meta-views');
             if (viewsEl) viewsEl.textContent = book.views || 0;
-
             const mViewsEl = document.getElementById('mobile-views-count');
             if (mViewsEl) mViewsEl.textContent = book.views || 0;
-
             const discounted = book.discounted_price || book.price || 0;
             const priceEl = document.getElementById('meta-price');
             if (priceEl) priceEl.textContent = `₹${discounted}`;
@@ -306,20 +300,17 @@
                 img.src = book.image;
                 img.onerror = () => { img.src = 'https://placehold.co/300x450?text=Book+Cover'; };
             }
-
             const blurredBg = document.getElementById('story-blurred-bg');
             if (blurredBg && book.image) blurredBg.style.backgroundImage = `url('${book.image}')`;
 
             const starEl = document.getElementById('book-avg-stars');
             if (starEl) starEl.innerHTML = getStarsHTML(book.rating);
-
             const countEl = document.getElementById('reviews-count-text');
             if (countEl) countEl.textContent = `(${book.reviewsCount} Reviews)`;
 
             const buyBtn = document.getElementById('atc-btn');
             const mobileBuyBtn = document.getElementById('mobile-atc-btn');
-            const btnHtml = `<i class="fas fa-bolt"></i> BUY NOW (₹${discounted})`;
-            
+            const btnHtml = `<i class="fas fa-bolt"></i> BUY NOW`;
             if(buyBtn) buyBtn.innerHTML = btnHtml;
             if(mobileBuyBtn) mobileBuyBtn.innerHTML = btnHtml;
 
@@ -327,23 +318,19 @@
                 const buyLink = book.buy_link || book.buyLink || "https://shopizon-eta.vercel.app/";
                 window.open(buyLink, '_blank');
             };
-
             if(buyBtn) buyBtn.onclick = purchaseFn;
             if(mobileBuyBtn) mobileBuyBtn.onclick = purchaseFn;
-            
             initStars();
         }
 
-        async function checkWishlistStatus(bookId) {
+        async function checkWishlistStatus(id) {
             const token = localStorage.getItem('token');
             if (!token) return;
             try {
-                const res = await fetch(`/api/auth/me?t=${Date.now()}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
                 if (res.ok) {
                     const user = await res.json();
-                    const isSaved = user.savedBooks && user.savedBooks.some(b => String(b.id || b._id || b) === String(bookId));
+                    const isSaved = user.savedBooks && user.savedBooks.some(b => String(b.id || b._id || b) === String(id));
                     updateWishlistUI(isSaved);
                 }
             } catch (e) {}
@@ -352,46 +339,31 @@
         function updateWishlistUI(isSaved) {
             const icon = document.getElementById('wish-icon');
             const mobileIcon = document.getElementById('mobile-wish-icon');
-            const btn = document.getElementById('wishlist-btn');
-            const mobileBtn = document.getElementById('mobile-wishlist-btn');
-
             if (isSaved) {
                 if (icon) icon.className = 'fas fa-heart';
                 if (mobileIcon) mobileIcon.className = 'fas fa-heart';
-                if (btn) btn.style.color = '#e74c3c';
-                if (mobileBtn) mobileBtn.style.color = '#e74c3c';
             } else {
                 if (icon) icon.className = 'far fa-heart';
                 if (mobileIcon) mobileIcon.className = 'far fa-heart';
-                if (btn) btn.style.color = '#aaa';
-                if (mobileBtn) mobileBtn.style.color = '#aaa';
             }
         }
 
         async function toggleWishlist() {
             const token = localStorage.getItem('token');
-            if (!token) {
-                alert('Please login to use wishlist.');
-                window.location.href = 'login.html';
-                return;
-            }
-            if (!bookId) return;
-
+            if (!token) { alert('Please login to use wishlist.'); return; }
+            if (!currentBook) return;
             try {
                 const res = await fetch('/api/auth/save-book', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ bookId: bookId })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ bookId: currentBook.id || currentBook._id })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    const isSaved = data.savedBooks && data.savedBooks.some(b => String(b.id || b._id || b) === String(bookId));
+                    const isSaved = data.savedBooks && data.savedBooks.some(b => String(b.id || b._id || b) === String(currentBook.id || currentBook._id));
                     updateWishlistUI(isSaved);
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {}
         }
 
         function initStars() {
@@ -400,93 +372,58 @@
                     selectedRating = parseInt(this.getAttribute('data-value'));
                     updateStarVisuals(selectedRating);
                 });
-                star.addEventListener('mouseover', function () {
-                    updateStarVisuals(this.getAttribute('data-value'));
-                });
             });
-
-            const ratingInput = document.querySelector('.rating-input');
-            if (ratingInput) {
-                ratingInput.addEventListener('mouseleave', () => {
-                    updateStarVisuals(selectedRating);
-                });
-            }
         }
 
         function updateStarVisuals(rating) {
             document.querySelectorAll('.star-input').forEach(s => {
                 const val = parseInt(s.getAttribute('data-value'));
-                if (val <= rating) {
-                    s.classList.remove('far');
-                    s.classList.add('fas');
-                    s.style.color = '#d4af37';
-                } else {
-                    s.classList.remove('fas');
-                    s.classList.add('far');
-                    s.style.color = '#444';
-                }
+                s.className = val <= rating ? 'fas fa-star star-input' : 'far fa-star star-input';
             });
         }
 
         async function submitReview(e) {
             if(e) e.preventDefault();
-            if (selectedRating === 0) return alert('Please select a star rating.');
+            if (selectedRating === 0) return alert('Select rating.');
             const text = document.getElementById('review-comment').value;
-            if (!text.trim()) return alert('Please write a review text.');
+            if (!text.trim()) return alert('Write a review.');
+            const token = localStorage.getItem('token');
+            if (!token) return alert('Login to review.');
 
             try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    alert('You must be logged in to submit a review.');
-                    window.location.href = 'login.html';
-                    return;
-                }
-
                 const res = await fetch('/api/reviews', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({
-                        targetId: bookId,
+                        targetId: currentBook.id || currentBook._id,
                         targetType: 'book',
                         rating: selectedRating,
                         comment: text
                     })
                 });
-
                 if (res.ok) {
                     document.getElementById('review-form-box').style.display = 'none';
                     document.getElementById('review-success-msg').style.display = 'block';
-                    initBookPage(); // Refresh data
-                } else {
-                    const errData = await res.json();
-                    alert(`Failed: ${errData.message || 'Unknown Error'}`);
+                    initBookPage();
                 }
-            } catch (err) {
-                console.error(err);
-                alert(`Error: ${err.message}`);
-            }
+            } catch (err) {}
         }
 
         function renderReviews(reviews) {
             const list = document.getElementById('reviews-list');
             if (!list) return;
-
             const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true || r.approved === true);
-
-            if (!approved || approved.length === 0) {
-                list.innerHTML = "<p style='color:#777; font-style:italic;'>No approved reviews yet. Be the first to share your thoughts!</p>";
+            if (approved.length === 0) {
+                list.innerHTML = "<p style='color:#777; font-style:italic;'>No reviews yet.</p>";
             } else {
                 list.innerHTML = approved.map(r => `
                     <div class="review-item">
                         <div class="review-header">
-                            <span class="reviewer-name">${r.user_name || r.name || 'Reader'}</span>
-                            <span class="review-date">${new Date(r.created_at || Date.now()).toLocaleDateString()}</span>
+                            <span class="reviewer-name">${r.user_name || 'Reader'}</span>
+                            <span class="review-date">${new Date(r.created_at).toLocaleDateString()}</span>
                         </div>
-                        <div class="stars" style="color:#d4af37; font-size:0.8rem; margin-bottom:5px;">${getStarsHTML(r.rating || 5)}</div>
-                        <p class="review-text">${r.comment || r.text || ''}</p>
+                        <div class="stars" style="color:#d4af37; font-size:0.8rem; margin-bottom:5px;">${getStarsHTML(r.rating)}</div>
+                        <p class="review-text">${r.comment}</p>
                     </div>
                 `).join('');
             }
@@ -494,44 +431,30 @@
 
         function getStarsHTML(rating) {
             let s = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= rating) s += '<i class="fas fa-star"></i>';
-                else if (i === Math.ceil(rating) && !Number.isInteger(parseFloat(rating))) s += '<i class="fas fa-star-half-alt"></i>';
-                else s += '<i class="far fa-star"></i>';
-            }
+            for (let i = 1; i <= 5; i++) s += `<i class="${i <= rating ? 'fas' : 'far'} fa-star"></i>`;
             return s;
         }
 
         async function shareBook() {
             if (!currentBook) return;
-            const title = currentBook.title;
             const url = `${window.location.origin}/book-detail.html?id=${currentBook.id || currentBook._id}`;
-
             if (window.shareContent) {
                 window.shareContent({
-                    title,
+                    title: currentBook.title,
                     description: currentBook.description || '',
-                    url,
+                    url: url,
                     imageUrl: currentBook.image,
                     type: 'book'
                 });
             } else if (navigator.share) {
-                navigator.share({ title, url }).catch(() => {});
-            } else {
-                prompt("Copy link to share:", url);
-            }
+                navigator.share({ title: currentBook.title, url }).catch(() => {});
+            } else { prompt("Copy link:", url); }
         }
 
         function showNotFound(msg = "") {
             const container = document.getElementById('story-container');
             if (container) {
-                container.innerHTML = `
-                    <div style="text-align:center; padding: 100px 20px; color: #fff;">
-                        <h1 style="color: #d4af37;">Book Not Found</h1>
-                        <p>${msg || 'Sorry, we couldn\\'t find the book you are looking for.'}</p>
-                        <a href="books.html" class="btn btn-primary" style="margin-top:20px; display:inline-block; padding:12px 30px; border-radius:30px; text-decoration:none; background:#d4af37; color:#000;">Back to Bookstore</a>
-                    </div>
-                `;
+                container.innerHTML = `<div style="text-align:center; padding: 100px 20px; color:#fff;"><h1>Book Not Found</h1><p>${msg}</p><a href="books.html" class="btn btn-primary">Back</a></div>`;
             }
         }
 
@@ -541,6 +464,7 @@
             initBookPage();
         }
     </script>
+
 
         <script src="js/main.js"></script>
 </body>

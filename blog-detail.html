@@ -345,13 +345,12 @@
             }
 
             try {
-                // Fetch with cache busting
-                const res = await fetch(`/api/blogs/${blogIdOrSlug}?t=${Date.now()}`);
+                const res = await fetch(`/api/blogs/${blogIdOrSlug}`);
                 if (!res.ok) throw new Error('Blog not found on server');
                 
                 currentPost = await res.json();
                 renderPage(currentPost);
-                checkSavedStatus(currentPost.id);
+                checkSavedStatus(currentPost.id || currentPost._id);
             } catch (e) {
                 console.error(e);
                 showNotFound(e.message);
@@ -361,7 +360,6 @@
         async function checkSavedStatus(blogId) {
             const token = localStorage.getItem('token');
             if (!token) return;
-
             try {
                 const res = await fetch('/api/auth/me', {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -429,15 +427,14 @@
             if (rBody) rBody.innerHTML = contentHtml;
 
             initStars();
-            loadReviews(post.id);
+            loadReviews(post.id || post._id);
         }
 
         async function loadReviews(blogId) {
             const list = document.getElementById('reviews-list');
             if (!list) return;
-
             try {
-                const res = await fetch(`/api/reviews?targetType=blog&targetId=${blogId}&t=${Date.now()}`);
+                const res = await fetch(`/api/reviews?targetType=blog&targetId=${blogId}`);
                 if (!res.ok) throw new Error('Failed to load reviews');
                 const reviews = await res.json();
                 const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true);
@@ -510,26 +507,17 @@
 
         async function toggleSaveBlog() {
             const token = localStorage.getItem('token');
-            if (!token) {
-                alert('Please login to save blogs.');
-                window.location.href = 'login.html';
-                return;
-            }
+            if (!token) { alert('Please login to save blogs.'); return; }
             if (!currentPost) return;
-
             try {
                 const res = await fetch('/api/auth/save-blog', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ blogId: currentPost.id })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ blogId: currentPost.id || currentPost._id })
                 });
-
                 const data = await res.json();
                 if (data.success) {
-                    const isSaved = data.savedBlogs && data.savedBlogs.some(b => String(b.id || b._id || b) === String(currentPost.id));
+                    const isSaved = data.savedBlogs && data.savedBlogs.some(b => String(b.id || b._id || b) === String(currentPost.id || currentPost._id));
                     updateSaveIcon(isSaved);
                 }
             } catch (e) { console.error(e); }
@@ -547,68 +535,36 @@
         function updateStars(val) {
             document.querySelectorAll('.star-input').forEach(star => {
                 const sVal = star.getAttribute('data-val');
-                if (sVal <= val) {
-                    star.classList.remove('far');
-                    star.classList.add('fas');
-                } else {
-                    star.classList.remove('fas');
-                    star.classList.add('far');
-                }
+                star.className = sVal <= val ? 'fas fa-star star-input' : 'far fa-star star-input';
             });
         }
 
         async function submitReview() {
             if (!currentPost) return;
             const text = document.getElementById('review-text').value;
-
-            if (!text.trim() || selectedRating == 0) {
-                alert('Please give a rating and write a review.');
-                return;
-            }
-
+            if (!text.trim() || selectedRating == 0) { alert('Please give a rating and review.'); return; }
+            const token = localStorage.getItem('token');
+            if (!token) { alert('Login to submit a review.'); return; }
             try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    alert('You must be logged in to submit a review.');
-                    window.location.href = 'login.html';
-                    return;
-                }
-
                 const res = await fetch('/api/reviews', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({
                         targetType: 'blog',
-                        targetId: currentPost.id,
+                        targetId: currentPost.id || currentPost._id,
                         rating: parseInt(selectedRating),
                         comment: text
                     })
                 });
-
                 if (res.ok) {
                     document.getElementById('review-form-box').style.display = 'none';
                     document.getElementById('review-success-msg').style.display = 'block';
-                    loadReviews(currentPost.id);
-                } else {
-                    const errData = await res.json();
-                    alert(`Failed to submit review: ${errData.message || 'Unknown Error'} `);
+                    loadReviews(currentPost.id || currentPost._id);
                 }
-            } catch (e) {
-                console.error(e);
-                alert(`Error submitting review: ${e.message} `);
-            }
+            } catch (e) { console.error(e); }
         }
 
         function openReader() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('You must be logged in to read blogs.');
-                window.location.href = 'login.html';
-                return;
-            }
             const reader = document.getElementById('reader-view');
             if (reader) reader.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -622,35 +578,24 @@
 
         async function shareBlog() {
             if (!currentPost) return;
-            const title = currentPost.title;
-            const slug = currentPost.slug || currentPost.id;
-            const url = `${window.location.origin}/blog-detail.html?slug=${slug}`;
-            
+            const url = `${window.location.origin}/blog-detail.html?id=${currentPost.id || currentPost._id || currentPost.slug}`;
             if (window.shareContent) {
                 window.shareContent({
-                    title,
+                    title: currentPost.title,
                     description: currentPost.excerpt || '',
-                    url,
+                    url: url,
                     imageUrl: currentPost.image,
                     type: 'blog'
                 });
             } else if (navigator.share) {
-                navigator.share({ title, url }).catch(() => {});
-            } else {
-                prompt("Copy link to share:", url);
-            }
+                navigator.share({ title: currentPost.title, url }).catch(() => {});
+            } else { prompt("Copy link:", url); }
         }
 
         function showNotFound(msg = "") {
             const container = document.getElementById('story-container');
             if (container) {
-                container.innerHTML = `
-                    <div style="text-align:center; padding: 100px 20px; color: #fff;">
-                        <h1 style="color: #d4af37;">Blog Not Found</h1>
-                        <p>${msg || 'Sorry, we couldn\\'t find the blog you are looking for.'}</p>
-                        <a href="blog.html" class="btn btn-primary" style="margin-top:20px; display:inline-block; padding:12px 30px; border-radius:30px; text-decoration:none; background:#d4af37; color:#000;">Back to Blog</a>
-                    </div>
-                `;
+                container.innerHTML = `<div style="text-align:center; padding: 100px 20px; color:#fff;"><h1>Blog Not Found</h1><p>${msg}</p><a href="blog.html" class="btn btn-primary">Back to Blog</a></div>`;
             }
         }
 
@@ -660,6 +605,7 @@
             initBlogPage();
         }
     </script>
+
 
 </body>
 

@@ -1,28 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Details | Qalamekahani</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/premium-story.css">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960" crossorigin="anonymous"></script>
     <style>
-        /* Keep any specific audio overrides here if needed */
         .ep-card:hover {
             transform: translateX(8px);
             background: rgba(255,255,255,0.06) !important;
             border-color: rgba(212, 175, 55, 0.4) !important;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
     </style>
 </head>
-
 <body class="detail-page">
 
     <header class="header">
@@ -57,37 +50,28 @@
     <div class="story-page-bg">
         <div id="story-blurred-bg"></div>
         <div class="story-overlay-mist"></div>
-        <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
     </div>
 
     <div id="story-container">
         <section class="story-hero">
             <div class="story-hero-container">
-                <!-- Back Link -->
                 <div class="story-back-row">
                     <a href="audio.html" class="back-link"><i class="fas fa-chevron-left"></i> BACK TO AUDIO STORIES</a>
                 </div>
 
-                <!-- Left: Visual -->
                 <div class="story-visual">
                     <div class="story-cover-wrapper">
                         <img id="audio-image" src="" alt="Audio Cover" class="story-cover">
                         <div class="story-badges">
-                            <span id="audio-cat-badge" class="badge badge-cat"></span>
+                            <span id="audio-cat-badge" class="badge badge-cat">Audio</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right: Details -->
                 <div class="story-info">
-                    <!-- Hanging Views Cart (Mobile Only) -->
                     <div class="hanging-views mobile-only">
-                        <div class="view-cart">
-                            <i class="fas fa-eye"></i>
-                            <span id="mobile-views-count">0</span>
-                        </div>
+                        <div class="view-cart"><i class="fas fa-eye"></i> <span id="mobile-views-count">0</span></div>
                     </div>
-
                     <h1 id="audio-title" class="story-title">Loading...</h1>
                     <h3 class="story-author">By <span id="audio-author" class="author-name"></span></h3>
                     
@@ -96,7 +80,6 @@
                         <span id="audio-rating-text" class="rating-text"></span>
                     </div>
 
-                    <!-- Mobile Actions Row -->
                     <div class="mobile-actions mobile-only">
                         <button class="mobile-action-btn fav-btn" id="mobile-save-btn" onclick="saveAudio()">
                             <i class="far fa-bookmark" id="mobile-save-icon"></i> <span>Save</span>
@@ -106,20 +89,10 @@
                         </button>
                     </div>
 
-                    <!-- Stats Grid -->
                     <div class="story-meta-grid">
-                        <div class="meta-item">
-                            <span class="meta-label">CATEGORY</span>
-                            <span id="meta-category" class="meta-value"></span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">DURATION</span>
-                            <span id="meta-duration" class="meta-value"></span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">TOTAL HITS</span>
-                            <span id="meta-views" class="meta-value">0</span>
-                        </div>
+                        <div class="meta-item"><span class="meta-label">CATEGORY</span><span id="meta-category" class="meta-value"></span></div>
+                        <div class="meta-item"><span class="meta-label">DURATION</span><span id="meta-duration" class="meta-value">--:--</span></div>
+                        <div class="meta-item"><span class="meta-label">VIEWS</span><span id="meta-views" class="meta-value">0</span></div>
                     </div>
 
                     <div class="story-synopsis-container">
@@ -127,80 +100,53 @@
                         <p id="audio-description" class="story-synopsis"></p>
                     </div>
 
-                    <!-- Desktop Actions -->
                     <div class="story-actions desktop-only">
-                        <button id="action-btn" class="btn btn-primary btn-read"></button>
-                        
-                        <button class="btn-fav" onclick="saveAudio()" id="save-btn">
-                            <i class="far fa-bookmark" id="save-icon"></i>
-                        </button>
-                        <button class="btn-share" onclick="shareAudio()">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
+                        <button id="action-btn" class="btn btn-primary btn-read"><i class="fas fa-play"></i> LISTEN NOW</button>
+                        <button class="btn-fav" onclick="saveAudio()" id="save-btn"><i class="far fa-bookmark" id="save-icon"></i></button>
+                        <button class="btn-share" onclick="shareAudio()"><i class="fas fa-share-alt"></i></button>
                     </div>
                 </div>
             </div>
             
-            <!-- TABS SECTION -->
-            <div id="episodes-section" class="story-content-section" style="display: none;">
+            <div id="episodes-section" class="story-content-section" style="display: none; margin-top: 40px;">
                 <div class="container">
-                    <div class="tabs-container">
-
-                        <button class="tab-btn active" data-tab="parts" style="background: none; border: none; padding: 15px 0; color: #aaa; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; position: relative;">
-                            Parts / Episodes
-                        </button>
-                        <button class="tab-btn" data-tab="reviews" id="reviews-tab-btn" style="background: none; border: none; padding: 15px 0; color: #aaa; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; position: relative;">
-                            Reviews (0)
-                        </button>
+                    <div class="tabs-container" style="display: flex; gap: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px;">
+                        <button class="tab-btn active" data-tab="parts" style="background:none; border:none; color:#d4af37; font-weight:600; padding:10px 0; border-bottom:2px solid #d4af37; cursor:pointer;">Episodes</button>
+                        <button class="tab-btn" data-tab="reviews" id="reviews-tab-btn" style="background:none; border:none; color:#888; font-weight:600; padding:10px 0; cursor:pointer;">Reviews (0)</button>
                     </div>
 
                     <div class="tab-content" id="parts-tab">
-                        <div id="episodes-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
-                            <!-- Episodes dynamic injection -->
-                        </div>
+                        <div id="episodes-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;"></div>
                     </div>
 
                     <div class="tab-content" id="reviews-tab" style="display: none;">
-                        <div class="reviews-container" style="padding: 0; margin-top: 30px;">
-                            <!-- Review Form -->
+                        <div class="reviews-container">
                             <div class="write-review-box" id="review-form-box">
-                                <h3 class="review-title" style="font-size: 1.5rem; margin-bottom: 20px;">Rate & Review</h3>
-                                <div class="rating-input" id="star-rating-input">
+                                <h4 style="color:#fff; margin-bottom:15px;">Rate & Review</h4>
+                                <div class="rating-input" style="font-size:1.5rem; color:#444; margin-bottom:15px;">
                                     <i class="far fa-star star-input" data-val="1"></i>
                                     <i class="far fa-star star-input" data-val="2"></i>
                                     <i class="far fa-star star-input" data-val="3"></i>
                                     <i class="far fa-star star-input" data-val="4"></i>
                                     <i class="far fa-star star-input" data-val="5"></i>
                                 </div>
-                                <textarea id="review-comment" class="review-textarea" placeholder="What did you think of the story?"></textarea>
-                                <button onclick="submitReview(event)" class="btn-submit-review" style="width: 100%;">Post Review</button>
+                                <textarea id="review-comment" class="review-textarea" placeholder="Your thoughts..."></textarea>
+                                <button onclick="submitReview(event)" class="btn-submit-review">Submit Review</button>
                             </div>
-
-                            <div class="review-success-msg" id="review-success-msg">
-                                <i class="fas fa-check-circle"></i>
-                                <h4>Review Submitted!</h4>
-                                <p>Thank you for your feedback. It will be visible after approval.</p>
+                            <div class="review-success-msg" id="review-success-msg" style="display:none; text-align:center; padding:20px; color:#d4af37;">
+                                <i class="fas fa-check-circle" style="font-size:2rem;"></i><h4>Review Submitted!</h4>
                             </div>
-
-                            <!-- Reviews List -->
-                            <div id="review-list">
-                                <p id="no-reviews-msg" style="color: #666; font-style: italic;">No reviews yet. Be the first to share your experience!</p>
-                            </div>
+                            <div id="review-list" style="margin-top:20px;"></div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
     </div>
 
-    <!-- Mobile Bottom Action Bar -->
     <div class="mobile-bottom-bar">
-        <button id="mobile-action-btn" class="mobile-sticky-btn">
-            <i class="fas fa-play"></i> LISTEN NOW
-        </button>
+        <button id="mobile-action-btn" class="mobile-sticky-btn"><i class="fas fa-play"></i> LISTEN NOW</button>
     </div>
-
 
     <footer class="site-footer">
         <div class="footer-container">
@@ -208,46 +154,21 @@
                 <h3 class="footer-brand">Sabirkhan Pathan</h3>
                 <p class="footer-tagline">Weaving stories that touch your soul.</p>
                 <div class="social-icons">
-                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i
-                            class="fab fa-instagram"></i></a>
-                    <a href="https://www.facebook.com/rehan.pathan.184007" class="social-link" target="_blank"><i
-                            class="fab fa-facebook-f"></i></a>
-                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link"
-                        target="_blank"><i class="fab fa-youtube"></i></a>
-                    <a href="https://wa.me/919870063267?text=Hello" class="social-link" target="_blank"><i
-                            class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.instagram.com/sabirkhan7748/" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://youtube.com/@darknightfm?si=xf7Y8JDfSYFHe-JY" class="social-link" target="_blank"><i class="fab fa-youtube"></i></a>
                 </div>
             </div>
             <div class="footer-col links-col">
                 <h4 class="footer-heading">Quick Links</h4>
                 <ul class="footer-links">
                     <li><a href="index.html">Home</a></li>
-                    <li class="dropdown desktop-only">
-                    <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="stories.html">Reading Stories</a></li>
-                        <li><a href="gallery.html">Images & Wallpapers</a></li>
-                    </ul>
-                </li>
-                <li class="mobile-only-nav"><a href="stories.html">Stories</a></li>
-                <li class="mobile-only-nav"><a href="gallery.html">Image & Wallpaper</a></li>
-                    <li><a href="audio.html">Audio Stories</a></li>
+                    <li><a href="stories.html">Stories</a></li>
+                    <li><a href="audio.html">Audio</a></li>
                     <li><a href="books.html">Books</a></li>
-                    <li><a href="contact.html">Contact</a></li>
                 </ul>
             </div>
-            <div class="footer-col newsletter-col">
-                <h4 class="footer-heading">Stay Updated</h4>
-                <p class="newsletter-text">Subscribe to get the latest stories.</p>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="Your Email" class="newsletter-input" required>
-                    <button type="submit" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
-                </form>
-            </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p>
-        </div>
+        <div class="footer-bottom"><p>&copy; 2026 Sabirkhan Pathan. All Rights Reserved.</p></div>
     </footer>
 
     <script src="js/main.js"></script>
@@ -258,119 +179,61 @@
         let selectedRating = 0;
 
         async function initAudioPage() {
-            const titleEl = document.getElementById('audio-title');
-            if (titleEl) titleEl.textContent = "Loading Audio Details...";
-
-            if (!audioId) {
-                showNotFound("No audio ID provided in URL");
-                return;
-            }
-
+            if (!audioId) { showNotFound("No audio ID provided"); return; }
             try {
-                // Fetch with cache busting
-                const res = await fetch(`/api/audio/${audioId}?t=${Date.now()}`);
-                if (!res.ok) throw new Error('Audio not found on server');
+                const res = await fetch(`/api/audio/${audioId}`);
+                if (!res.ok) throw new Error('Audio not found');
                 currentAudio = await res.json();
-
                 renderPage(currentAudio);
                 loadReviews(currentAudio.id || currentAudio._id);
                 checkSavedStatus(currentAudio.id || currentAudio._id);
-
-            } catch (e) {
-                console.error(e);
-                showNotFound(e.message);
-            }
+            } catch (e) { console.error(e); showNotFound(e.message); }
         }
 
         function renderPage(audio) {
-            if (!audio) return;
             document.title = `${audio.title} | Qalamekahani`;
-            const titleEl = document.getElementById('audio-title');
-            if (titleEl) titleEl.textContent = audio.title;
-            const authorEl = document.getElementById('audio-author');
-            if (authorEl) authorEl.textContent = audio.author || 'Sabirkhan Pathan';
-
+            document.getElementById('audio-title').textContent = audio.title;
+            document.getElementById('audio-author').textContent = audio.author || 'Sabirkhan Pathan';
+            
             const img = document.getElementById('audio-image');
-            if (img) {
-                img.src = audio.image || 'images/audio-cover.png';
-                img.onerror = () => { img.src = 'https://placehold.co/600x400/222/FFF?text=No+Cover'; };
-            }
-
+            if (img) img.src = audio.image || 'images/audio-cover.png';
             const blurredBg = document.getElementById('story-blurred-bg');
             if (blurredBg && audio.image) blurredBg.style.backgroundImage = `url('${audio.image}')`;
 
-            const catBadge = document.getElementById('audio-cat-badge');
-            if (catBadge) catBadge.textContent = audio.category || 'Audio';
-            const metaCat = document.getElementById('meta-category');
-            if (metaCat) metaCat.textContent = audio.category || 'General';
+            document.getElementById('meta-category').textContent = audio.category || 'General';
+            document.getElementById('meta-views').textContent = audio.views || 0;
+            document.getElementById('mobile-views-count').textContent = audio.views || 0;
+            document.getElementById('audio-description').textContent = audio.description || '';
 
-            const metaViews = document.getElementById('meta-views');
-            if (metaViews) metaViews.textContent = audio.views || 0;
-            const mViews = document.getElementById('mobile-views-count');
-            if (mViews) mViews.textContent = audio.views || 0;
+            const playFn = () => { window.location.href = `listen.html?id=${audio.id || audio._id}`; };
+            document.getElementById('action-btn').onclick = playFn;
+            document.getElementById('mobile-action-btn').onclick = playFn;
 
-            const descEl = document.getElementById('audio-description');
-            if (descEl) descEl.textContent = audio.description || '';
-
-            // Handle Action Button
-            const price = parseFloat(audio.price || 0);
-            const token = localStorage.getItem('token');
-            let hasAccess = price === 0;
-
-            updateActionButton(audio, hasAccess);
-
-            // Populate Episodes
             if (audio.episodes && audio.episodes.length > 0) {
-                const epSection = document.getElementById('episodes-section');
-                const epList = document.getElementById('episodes-list');
-                if (epSection) epSection.style.display = 'block';
-                if (epList) {
-                    epList.innerHTML = audio.episodes.map((ep, idx) => `
-                        <div class="ep-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; transition: all 0.3s; cursor: pointer;" 
-                             onclick="window.location.href='listen.html?id=${audio.id || audio._id}'">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #d4af37; color: #000; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
-                                ${idx + 1}
-                            </div>
-                            <div style="flex: 1; min-width: 0;">
-                                <h4 style="color: #fff; font-size: 0.95rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ep.title}</h4>
-                                <p style="color: #888; font-size: 0.75rem;"><i class="far fa-clock"></i> ${ep.duration || '--:--'}</p>
-                            </div>
-                            <i class="fas fa-play-circle" style="color: #d4af37; font-size: 1.2rem;"></i>
+                document.getElementById('episodes-section').style.display = 'block';
+                document.getElementById('episodes-list').innerHTML = audio.episodes.map((ep, idx) => `
+                    <div class="ep-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); padding:15px; border-radius:12px; display:flex; align-items:center; gap:15px; cursor:pointer;" onclick="window.location.href='listen.html?id=${audio.id || audio._id}'">
+                        <div style="width:40px; height:40px; border-radius:50%; background:#d4af37; color:#000; display:flex; align-items:center; justify-content:center; font-weight:bold;">${idx + 1}</div>
+                        <div style="flex:1;">
+                            <h4 style="color:#fff; font-size:0.95rem;">${ep.title}</h4>
+                            <p style="color:#888; font-size:0.75rem;"><i class="far fa-clock"></i> ${ep.duration || '--:--'}</p>
                         </div>
-                    `).join('');
-                }
+                        <i class="fas fa-play-circle" style="color:#d4af37;"></i>
+                    </div>
+                `).join('');
             }
-
             initTabs();
             initStars();
         }
 
-        function updateActionButton(audio, hasAccess) {
-            const btn = document.getElementById("action-btn");
-            const mobileBtn = document.getElementById("mobile-action-btn");
-            const price = parseFloat(audio.price || 0);
-
-            const playHtml = '<i class="fas fa-play"></i> LISTEN NOW';
-            const buyHtml = `<i class="fas fa-lock"></i> UNLOCK STORY (₹${price})`;
-
-            const playFn = () => { window.location.href = `listen.html?id=${audio.id || audio._id}`; };
-            const buyFn = () => { window.location.href = `checkout.html?audioId=${audio.id || audio._id}`; };
-
-            const finalHtml = hasAccess ? playHtml : buyHtml;
-            const finalFn = hasAccess ? playFn : buyFn;
-
-            if (btn) { btn.innerHTML = finalHtml; btn.onclick = finalFn; }
-            if (mobileBtn) { mobileBtn.innerHTML = finalHtml; mobileBtn.onclick = finalFn; }
-        }
-
-        async function checkSavedStatus(audioId) {
+        async function checkSavedStatus(id) {
             const token = localStorage.getItem('token');
             if (!token) return;
             try {
                 const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
                 if (res.ok) {
                     const user = await res.json();
-                    const isSaved = user.savedAudios && user.savedAudios.some(a => String(a.id || a._id || a) === String(audioId));
+                    const isSaved = user.savedAudios && user.savedAudios.some(a => String(a.id || a._id || a) === String(id));
                     updateSaveUI(isSaved);
                 }
             } catch (e) {}
@@ -379,28 +242,18 @@
         function updateSaveUI(isSaved) {
             const icon = document.getElementById('save-icon');
             const mIcon = document.getElementById('mobile-save-icon');
-            const btn = document.getElementById('save-btn');
-            const mBtn = document.getElementById('mobile-save-btn');
             if (isSaved) {
                 if (icon) icon.className = 'fas fa-bookmark';
                 if (mIcon) mIcon.className = 'fas fa-bookmark';
-                if (btn) btn.style.color = '#d4af37';
-                if (mBtn) mBtn.style.color = '#d4af37';
             } else {
                 if (icon) icon.className = 'far fa-bookmark';
                 if (mIcon) mIcon.className = 'far fa-bookmark';
-                if (btn) btn.style.color = '#aaa';
-                if (mBtn) mBtn.style.color = '#aaa';
             }
         }
 
         async function saveAudio() {
             const token = localStorage.getItem('token');
-            if (!token) {
-                alert('Please login to save stories.');
-                window.location.href = 'login.html';
-                return;
-            }
+            if (!token) { alert('Login to save.'); return; }
             if (!currentAudio) return;
             try {
                 const res = await fetch('/api/auth/save-audio', {
@@ -410,7 +263,7 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    const isSaved = data.savedAudios && data.savedAudios.some(a => String(a.id || a._id || a) === String(currentAudio.id || currentAudio._id));
+                    const isSaved = data.savedAudios.some(a => String(a.id || a._id || a) === String(currentAudio.id || currentAudio._id));
                     updateSaveUI(isSaved);
                 }
             } catch (e) {}
@@ -419,8 +272,14 @@
         function initTabs() {
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.style.color = '#888';
+                        b.style.borderBottom = 'none';
+                    });
                     btn.classList.add('active');
+                    btn.style.color = '#d4af37';
+                    btn.style.borderBottom = '2px solid #d4af37';
                     const tab = btn.getAttribute('data-tab');
                     document.getElementById('parts-tab').style.display = tab === 'parts' ? 'block' : 'none';
                     document.getElementById('reviews-tab').style.display = tab === 'reviews' ? 'block' : 'none';
@@ -432,233 +291,72 @@
             document.querySelectorAll('.star-input').forEach(star => {
                 star.addEventListener('click', function() {
                     selectedRating = parseInt(this.getAttribute('data-val'));
-                    updateStarUI(selectedRating);
-                    const selInput = document.getElementById('selected-rating');
-                    if (selInput) selInput.value = selectedRating;
+                    document.querySelectorAll('.star-input').forEach(s => {
+                        s.className = parseInt(s.getAttribute('data-val')) <= selectedRating ? 'fas fa-star star-input' : 'far fa-star star-input';
+                        s.style.color = parseInt(s.getAttribute('data-val')) <= selectedRating ? '#d4af37' : '#444';
+                    });
                 });
             });
         }
 
-        function updateStarUI(rating) {
-            document.querySelectorAll('.star-input').forEach(s => {
-                const val = parseInt(s.getAttribute('data-val'));
-                if (val <= rating) {
-                    s.classList.add('fas'); s.classList.remove('far'); s.style.color = '#d4af37';
-                } else {
-                    s.classList.add('far'); s.classList.remove('fas'); s.style.color = '#444';
-                }
-            });
-        }
-
         async function submitReview(e) {
-            if(e) e.preventDefault();
-            if (!selectedRating) return alert('Please select a rating.');
+            e.preventDefault();
+            if (!selectedRating) return alert('Select rating.');
             const comment = document.getElementById('review-comment').value;
-            if (!comment.trim()) return alert('Please write a comment.');
-
+            if (!comment.trim()) return alert('Write review.');
+            const token = localStorage.getItem('token');
+            if (!token) return alert('Login first.');
             try {
-                const token = localStorage.getItem('token');
-                if (!token) { alert('Login first.'); window.location.href='login.html'; return; }
                 const res = await fetch('/api/reviews', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({
-                        targetType: 'audio',
-                        targetId: currentAudio.id || currentAudio._id,
-                        rating: selectedRating,
-                        comment
-                    })
+                    body: JSON.stringify({ targetType: 'audio', targetId: currentAudio.id || currentAudio._id, rating: selectedRating, comment })
                 });
                 if (res.ok) {
                     document.getElementById('review-form-box').style.display = 'none';
                     document.getElementById('review-success-msg').style.display = 'block';
                     loadReviews(currentAudio.id || currentAudio._id);
                 }
-            } catch (e) { alert('Error submitting review.'); }
+            } catch (e) {}
         }
 
-        async function loadReviews(audioId) {
+        async function loadReviews(id) {
             try {
-                const res = await fetch(`/api/reviews?targetType=audio&targetId=${audioId}&t=${Date.now()}`);
+                const res = await fetch(`/api/reviews?targetType=audio&targetId=${id}`);
                 const reviews = await res.json();
                 const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true);
-                
-                const tabBtn = document.getElementById('reviews-tab-btn');
-                if (tabBtn) tabBtn.textContent = `Reviews (${approved.length})`;
-
+                document.getElementById('reviews-tab-btn').textContent = `Reviews (${approved.length})`;
                 const list = document.getElementById('review-list');
                 if (approved.length > 0) {
-                    if (document.getElementById('no-reviews-msg')) document.getElementById('no-reviews-msg').style.display = 'none';
                     list.innerHTML = approved.map(r => `
-                        <div class="review-item">
-                            <div class="review-header">
-                                <span class="reviewer-name">${r.user_name || r.name || 'Reader'}</span>
-                                <span class="review-date">${new Date(r.created_at).toLocaleDateString()}</span>
+                        <div class="review-item" style="border-bottom:1px solid rgba(255,255,255,0.05); padding:15px 0;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                <span style="color:#fff; font-weight:600;">${r.user_name || 'Reader'}</span>
+                                <span style="color:#666; font-size:0.8rem;">${new Date(r.created_at).toLocaleDateString()}</span>
                             </div>
-                            <div class="stars" style="color:#d4af37; font-size:0.8rem; margin-bottom:5px;">${generateStarsHTML(r.rating || 5)}</div>
-                            <p class="review-text">${r.comment}</p>
+                            <div style="color:#d4af37; font-size:0.8rem; margin-bottom:5px;">${Array(5).fill(0).map((_,i) => `<i class="${i < r.rating ? 'fas' : 'far'} fa-star"></i>`).join('')}</div>
+                            <p style="color:#aaa; font-size:0.9rem;">${r.comment}</p>
                         </div>
                     `).join('');
+                } else {
+                    list.innerHTML = "<p style='color:#666; font-style:italic;'>No reviews yet.</p>";
                 }
             } catch (e) {}
         }
 
-        function generateStarsHTML(rating) {
-            let html = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= rating) html += '<i class="fas fa-star"></i>';
-                else if (i === Math.ceil(rating) && rating % 1 >= 0.5) html += '<i class="fas fa-star-half-alt"></i>';
-                else html += '<i class="far fa-star"></i>';
-            }
-            return html;
-        }
-
-                alert('This is premium content. Please unlock the series to listen to all parts.');
-                // Scroll to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        async function downloadImage(imgId) {
-            const img = document.getElementById(imgId);
-            if (!img || !img.src) return;
-            try {
-                const response = await fetch(img.src);
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `qalamverce-audio-${Date.now()}.png`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-            } catch (error) {
-                console.error('Download failed:', error);
-                window.open(img.src, '_blank');
-            }
-        }
-
-        async function shareAudio() {
-            const title = document.getElementById('audio-title').textContent;
-            const description = document.getElementById('audio-description').textContent;
-            const imageUrl = document.getElementById('audio-image').src;
-            // Use ID instead of slug for a professional, clean short link
-            const url = `${window.location.origin}/audio-detail.html?id=${window.currentAudioId}`;
-
-            window.shareContent({
-                title,
-                description,
-                url,
-                imageUrl,
-                type: 'audio'
-            });
-        }
-        // Check if saved
-        async function checkSavedStatus(canonicalId) {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-            try {
-                // Cache bust to ensure fresh data
-                const res = await fetch(`/api/auth/me?t=${Date.now()}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const user = await res.json();
-                    const isSaved = user.savedAudios && user.savedAudios.some(item => {
-                        const itemId = typeof item === 'object' ? (item.id || item._id) : item;
-                        return String(itemId) === String(canonicalId);
-                    });
-                    updateSaveBtn(isSaved);
-                }
-            } catch (e) { }
-        }
-
-        function updateSaveBtn(isSaved) {
-            const btn = document.getElementById('save-btn');
-            const mobileBtn = document.getElementById('mobile-save-btn');
-            
-            const icon = document.getElementById('save-icon');
-            const mobileIcon = document.getElementById('mobile-save-icon');
-
-            if (isSaved) {
-                if (icon) icon.className = 'fas fa-bookmark';
-                if (mobileIcon) mobileIcon.className = 'fas fa-bookmark';
-                if (btn) btn.style.color = '#d4af37';
-                if (mobileBtn) mobileBtn.style.color = '#d4af37';
-            } else {
-                if (icon) icon.className = 'far fa-bookmark';
-                if (mobileIcon) mobileIcon.className = 'far fa-bookmark';
-                if (btn) btn.style.color = '#aaa';
-                if (mobileBtn) mobileBtn.style.color = '#aaa';
-            }
-        }
-
-        async function saveAudio() {
-            const audioId = window.currentAudioId;
-            const token = localStorage.getItem('token');
-
-            if (!token) {
-                alert('Please login to save audio.');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/auth/save-audio', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ audioId })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    const isSavedNow = data.savedAudios.some(s => String(s.id || s._id || s) === String(audioId));
-                    updateSaveBtn(isSavedNow);
-                } else {
-                    alert('Failed: ' + (data.message || 'Unknown error'));
-                }
-            } catch (e) {
-                console.error(e);
-                alert('Error saving audio.');
-            }
-        }
-
-
-        async function shareAudio() {
+        function shareAudio() {
             if (!currentAudio) return;
-            const title = currentAudio.title;
             const url = `${window.location.origin}/audio-detail.html?id=${currentAudio.id || currentAudio._id}`;
-            
-            if (window.shareContent) {
-                window.shareContent({
-                    title,
-                    description: currentAudio.description || '',
-                    url,
-                    imageUrl: currentAudio.image,
-                    type: 'audio'
-                });
-            } else if (navigator.share) {
-                navigator.share({ title, url }).catch(() => {});
-            } else {
-                prompt("Copy link to share:", url);
-            }
+            if (navigator.share) navigator.share({ title: currentAudio.title, url }).catch(() => {});
+            else prompt("Copy link:", url);
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initAudioPage);
-        } else {
-            initAudioPage();
+        function showNotFound(msg) {
+            document.getElementById('story-container').innerHTML = `<div style="text-align:center; padding:100px 20px; color:#fff;"><h1>Audio Not Found</h1><p>${msg}</p><a href="audio.html" class="btn btn-primary">Back</a></div>`;
         }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAudioPage);
+        else initAudioPage();
     </script>
-
 </body>
-
 </html>
-
-
-
-

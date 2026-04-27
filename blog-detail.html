@@ -258,8 +258,9 @@
                         <i class="fas fa-eye"></i>
                         <span id="mobile-views-count">0</span>
                     </div>
-                    <button class="mobile-action-btn-hanging btn-read" onclick="openReader()" style="background: var(--gold) !important; color: #000 !important; border-radius: 20px; font-weight: 700; padding: 10px 25px !important;">
-                        <i class="fas fa-book-open" style="color: #000 !important;"></i> Read
+                    <button class="mobile-action-btn-hanging btn-fav" onclick="toggleSaveBlog(event)"
+                        id="save-btn-mobile">
+                        <i class="far fa-bookmark" id="save-icon-mobile"></i> Save
                     </button>
                     <button class="mobile-action-btn-hanging" onclick="shareBlog(event)">
                         <i class="fas fa-share-alt"></i> Share
@@ -309,15 +310,20 @@
 
                 <!-- Desktop Actions -->
                 <div class="story-actions desktop-only">
-                    <button class="btn btn-primary btn-read" onclick="openReader()"><i class="fas fa-book-open"></i> Read Full Blog</button>
-                    <button class="btn-fav" onclick="toggleSaveBlog(event)" id="save-btn"><i class="far fa-bookmark" id="save-icon"></i></button>
+                    <button class="btn btn-primary btn-read" onclick="openReader()"><i class="fas fa-book-open"></i>
+                        Read Full Blog</button>
+                    <button class="btn-fav" onclick="toggleSaveBlog(event)" id="save-btn"><i class="far fa-bookmark"
+                            id="save-icon"></i></button>
                     <button class="btn-share" onclick="shareBlog(event)"><i class="fas fa-share-alt"></i></button>
                 </div>
             </div>
         </div>
     </section>
 
-
+    <!-- MOBILE STICKY BUTTON -->
+    <div class="mobile-bottom-bar mobile-only">
+        <button class="btn mobile-sticky-btn" onclick="openReader()"><i class="fas fa-book-open"></i> Read Full Blog</button>
+    </div>
 
     <!-- REVIEWS SECTION -->
     <section class="story-content-section" style="padding-top: 20px;">

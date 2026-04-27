@@ -439,8 +439,3 @@ module.exports = {
     likeStory, saveBlog, saveAudio, saveImage, trackAudio,
     getAllUsers, getUserById, toggleBlockUser, toggleNotifications
 };
-registerUser, verifyOtp, resendOtp, loginUser, googleLogin, getMe, updateProfile,
-    forgotPassword, resetPassword, verifyResetOtp, initiateAdminLogin, verifyAdminLogin,
-    likeStory, saveBlog, saveAudio, saveImage, trackAudio,
-    getAllUsers, getUserById, toggleBlockUser, toggleNotifications
-};

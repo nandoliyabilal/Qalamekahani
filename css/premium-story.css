@@ -479,17 +479,11 @@
         filter: drop-shadow(0 0 5px var(--gold)) !important;
     }
 
-    /* Proper Hanging Line */
-    .view-cart::before {
-        content: '' !important;
-        display: block !important;
-        position: absolute !important;
-        top: -40px !important;
-        left: 50% !important;
-        width: 2px !important;
-        height: 40px !important;
-        background: linear-gradient(to bottom, transparent, var(--gold)) !important;
-        box-shadow: 0 0 10px var(--gold) !important;
+    /* Remove all hanging lines for mobile as requested */
+    .view-cart::before,
+    .hanging-views::before {
+        display: none !important;
+        content: none !important;
     }
 
     .mobile-action-btn-hanging {
@@ -623,7 +617,7 @@
         width: 100% !important;
         display: flex !important;
         justify-content: center !important;
-        margin: 40px auto 10px !important;
+        margin: 15px auto 10px !important; /* Reduced top margin */
         z-index: 100 !important;
         pointer-events: auto !important;
     }
@@ -646,6 +640,7 @@
             -webkit-text-fill-color: initial !important;
             color: #fff !important;
             line-height: 1.2;
+            text-align: left !important;
         }
 
         .story-author {
@@ -655,6 +650,7 @@
             color: var(--gold) !important;
             opacity: 0.9;
             align-self: center;
+            text-align: left !important;
         }
 
         .story-rating-row {
@@ -693,6 +689,7 @@
         .meta-item {
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             padding: 0 5px;
+            text-align: center;
         }
 
         .meta-item:last-child {
@@ -707,6 +704,12 @@
             font-size: 0.55rem !important;
             color: var(--gold) !important;
             opacity: 0.8 !important;
+            text-align: center;
+        }
+
+        .story-synopsis-container .meta-label {
+            text-align: left !important; /* Left align summary label */
+            font-size: 0.7rem !important;
         }
 
         .meta-value {
@@ -717,16 +720,18 @@
 
         .story-synopsis-container {
             grid-area: synopsis;
-            margin-top: 10px;
+            margin-top: 15px;
+            text-align: left !important; /* Left align entire container */
+            width: 100% !important;
         }
 
         .story-synopsis {
-            font-size: 0.9rem !important;
+            font-size: 1.05rem !important; /* Increased font size */
             line-height: 1.6 !important;
-            text-align: left !important;
-            color: rgba(255, 255, 255, 0.75) !important;
-            -webkit-line-clamp: 4 !important;
-            /* Slightly more lines for mobile */
+            text-align: left !important; /* Left align text */
+            color: rgba(255, 255, 255, 0.9) !important;
+            -webkit-line-clamp: 5 !important;
+            margin-top: 5px !important;
         }
 
         .desktop-only {

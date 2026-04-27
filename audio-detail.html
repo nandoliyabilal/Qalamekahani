@@ -109,15 +109,17 @@
 
                 <!-- Right: Details -->
                 <div class="story-info">
-                    <!-- Action Bar (Mobile Only) -->
-                    <div class="hanging-views mobile-only">
+                    <!-- Hanging Views Cart (Mobile Only) -->
+                    <div class="hanging-views mobile-only"
+                        style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
                         <div class="view-cart">
                             <i class="fas fa-eye"></i>
                             <span id="mobile-views-count">0</span>
                         </div>
                         <div class="mobile-action-group">
-                            <button class="mobile-action-btn-hanging btn-fav" onclick="saveAudio()" id="save-btn-mobile">
-                                <i class="far fa-heart"></i>
+                            <button class="mobile-action-btn-hanging btn-fav" onclick="saveAudio()"
+                                id="save-btn-mobile">
+                                <i class="far fa-bookmark"></i>
                             </button>
                             <button class="mobile-action-btn-hanging" onclick="shareAudio()">
                                 <i class="fas fa-share-alt"></i>
@@ -158,7 +160,7 @@
                     <div class="story-actions desktop-only">
                         <button id="action-btn" class="btn btn-primary btn-read"></button>
                         <button class="btn-fav" onclick="saveAudio()" id="save-btn"><i
-                                class="far fa-heart"></i></button>
+                                class="far fa-bookmark"></i></button>
                         <button class="btn-share" onclick="shareAudio()"><i class="fas fa-share-alt"></i></button>
                     </div>
                 </div>

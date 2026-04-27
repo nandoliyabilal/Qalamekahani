@@ -121,14 +121,16 @@
 
                 <!-- Right: Details -->
                 <div class="story-info">
-                    <!-- Action Bar (Mobile Only) -->
-                    <div class="hanging-views mobile-only">
+                    <!-- Hanging Views Cart (Mobile Only) -->
+                    <div class="hanging-views mobile-only"
+                        style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
                         <div class="view-cart">
                             <i class="fas fa-eye"></i>
                             <span id="mobile-views-count">0</span>
                         </div>
                         <div class="mobile-action-group">
-                            <button class="mobile-action-btn-hanging btn-fav" onclick="toggleLike()" id="save-btn-mobile">
+                            <button class="mobile-action-btn-hanging btn-fav" onclick="toggleLike()"
+                                id="save-btn-mobile">
                                 <i class="far fa-heart"></i>
                             </button>
                             <button class="mobile-action-btn-hanging" onclick="shareStory()">
@@ -170,6 +172,10 @@
                         </div>
                     </div>
 
+                    <div class="story-synopsis-container">
+                        <h4 class="meta-label">SUMMARY</h4>
+                        <p id="story-synopsis" class="story-synopsis"></p>
+                    </div>
 
                     <!-- Desktop Actions -->
                     <div class="story-actions desktop-only">

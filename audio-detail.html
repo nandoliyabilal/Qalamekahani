@@ -109,22 +109,6 @@
 
                 <!-- Right: Details -->
                 <div class="story-info">
-                    <!-- Hanging Views Cart (Mobile Only) -->
-                    <div class="hanging-views mobile-only">
-                        <div class="view-cart">
-                            <i class="fas fa-eye"></i>
-                            <span id="mobile-views-count">0</span>
-                        </div>
-                        <div class="mobile-action-group">
-                            <button class="mobile-action-btn-hanging btn-fav" onclick="saveAudio()" id="save-btn-mobile">
-                                <i class="far fa-heart"></i>
-                                <span id="mobile-likes-count" style="font-size: 0.8rem; margin-left: 5px;">0</span>
-                            </button>
-                            <button class="mobile-action-btn-hanging" onclick="shareAudio()">
-                                <i class="fas fa-share-alt"></i>
-                            </button>
-                        </div>
-                    </div>
 
                     <h1 id="audio-title" class="story-title">Loading...</h1>
                     <h3 class="story-author">By <span id="audio-author" class="author-name"></span></h3>
@@ -153,6 +137,23 @@
                     <div class="story-synopsis-container">
                         <h4 class="meta-label">SYNOPSIS</h4>
                         <p id="audio-description" class="story-synopsis"></p>
+                    </div>
+
+                    <!-- Hanging Views Cart (Mobile Only - Moved Below) -->
+                    <div class="hanging-views mobile-only">
+                        <div class="view-cart">
+                            <i class="fas fa-eye"></i>
+                            <span id="mobile-views-count">0</span>
+                        </div>
+                        <div class="mobile-action-group">
+                            <button class="mobile-action-btn-hanging btn-fav" onclick="saveAudio()" id="save-btn-mobile">
+                                <i class="far fa-heart"></i>
+                                <span id="mobile-likes-count">0</span>
+                            </button>
+                            <button class="mobile-action-btn-hanging" onclick="shareAudio()">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Desktop Actions -->

@@ -121,22 +121,6 @@
 
                 <!-- Right: Details -->
                 <div class="story-info">
-                    <!-- Hanging Views Cart (Mobile Only) -->
-                    <div class="hanging-views mobile-only">
-                        <div class="view-cart">
-                            <i class="fas fa-eye"></i>
-                            <span id="mobile-views-count">0</span>
-                        </div>
-                        <div class="mobile-action-group">
-                            <button class="mobile-action-btn-hanging btn-fav" onclick="toggleLike()" id="save-btn-mobile">
-                                <i class="far fa-heart"></i>
-                                <span id="mobile-likes-count" style="font-size: 0.8rem; margin-left: 5px;">0</span>
-                            </button>
-                            <button class="mobile-action-btn-hanging" onclick="shareStory()">
-                                <i class="fas fa-share-alt"></i>
-                            </button>
-                        </div>
-                    </div>
 
                     <h1 id="story-title" class="story-title">Loading...</h1>
                     <h3 class="story-author">By <span id="story-author" class="author-name"></span></h3>
@@ -148,6 +132,24 @@
                     <div class="story-synopsis-container">
                         <h4 class="meta-label">SUMMARY</h4>
                         <p id="story-synopsis" class="story-synopsis"></p>
+                    </div>
+
+                    <!-- Hanging Views Cart (Mobile Only - Moved Below) -->
+                    <div class="hanging-views mobile-only">
+                        <div class="view-cart">
+                            <i class="fas fa-eye"></i>
+                            <span id="mobile-views-count">0</span>
+                        </div>
+                        <div class="mobile-action-group">
+                            <button class="mobile-action-btn-hanging btn-fav" onclick="toggleLike()" id="save-btn-mobile">
+                                <i class="far fa-heart"></i>
+                                <span id="mobile-likes-count">0</span>
+                            </button>
+                            <button class="mobile-action-btn-hanging" onclick="shareStory()">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
                     </div>
 
                     <!-- Stats Grid -->

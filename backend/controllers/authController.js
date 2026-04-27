@@ -315,10 +315,15 @@ const toggleAction = (table, column) => asyncHandler(async (req, res) => {
 
     // Update target table counter (Increment/Decrement likes)
     if (table === 'stories' || table === 'audio_stories') {
-        const updateQuery = isLiked 
-            ? `UPDATE ${table} SET likes = likes + 1 WHERE id = ?`
-            : `UPDATE ${table} SET likes = CASE WHEN likes > 0 THEN likes - 1 ELSE 0 END WHERE id = ?`;
-        await db.execute(updateQuery, [itemId]);
+        try {
+            const updateQuery = isLiked 
+                ? `UPDATE ${table} SET likes = likes + 1 WHERE id = ?`
+                : `UPDATE ${table} SET likes = CASE WHEN likes > 0 THEN likes - 1 ELSE 0 END WHERE id = ?`;
+            await db.execute(updateQuery, [itemId]);
+        } catch (dbErr) {
+            console.error(`Counter update failed (check if 'likes' column exists in ${table}):`, dbErr.message);
+            // Non-blocking error: user's personal like list is already updated
+        }
     }
 
     res.json({ success: true, [column]: list, isLiked });

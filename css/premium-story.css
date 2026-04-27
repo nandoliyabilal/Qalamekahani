@@ -596,9 +596,9 @@
             "visual title"
             "visual author"
             "visual stars"
-            "actions actions"
+            "synopsis synopsis"
             "meta meta"
-            "synopsis synopsis";
+            "actions actions";
         grid-template-columns: 110px 1fr;
         grid-template-rows: auto auto auto auto auto auto auto;
         gap: 12px;

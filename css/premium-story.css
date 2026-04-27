@@ -639,9 +639,9 @@
 
     .story-title {
         grid-area: title;
-        font-size: 1.7rem !important; /* Increased font size */
+        font-size: 1.9rem !important; /* Increased font size for mobile */
         margin: 0 0 10px 0 !important; /* Added gap below title */
-        padding-left: 12px !important; /* Force space from image */
+        padding-left: 20px !important; /* Force more space from image */
         align-self: end !important; /* Force to bottom of its flexible row */
         background: none !important;
         -webkit-text-fill-color: initial !important;
@@ -652,9 +652,9 @@
 
     .story-author {
         grid-area: author;
-        font-size: 0.95rem !important;
+        font-size: 1.1rem !important; /* Increased font size for mobile */
         margin: 0 0 10px 0 !important; /* Added gap below author */
-        padding-left: 12px !important; /* Force space from image */
+        padding-left: 20px !important; /* Force more space from image */
         color: var(--gold) !important;
         opacity: 0.9;
         align-self: center !important; /* Center in its auto row */
@@ -664,7 +664,7 @@
     .story-rating-row {
         grid-area: stars;
         margin: 0 !important;
-        padding-left: 12px !important; /* Force space from image */
+        padding-left: 20px !important; /* Force more space from image */
         display: flex !important;
         align-items: center !important;
         gap: 10px;
@@ -737,8 +737,7 @@
     }
 
     .story-synopsis {
-        font-size: 1.05rem !important;
-        /* Increased font size */
+        font-size: 1.15rem !important; /* Increased font size for mobile */
         line-height: 1.6 !important;
         text-align: left !important;
         /* Left align text */

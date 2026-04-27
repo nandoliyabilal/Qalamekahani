@@ -7,31 +7,45 @@
     <title>Book Details | Qalamekahani</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="css/style.css?v=2.3">
     <link rel="stylesheet" href="css/premium-story.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960" crossorigin="anonymous"></script>
     <style>
-        @media (max-width: 1024px) {
-            header { display: none !important; }
-            body, html { overflow-x: hidden !important; width: 100vw; }
-            .story-hero { overflow-x: hidden !important; }
+        /* Hide main header on mobile for this page specifically */
+        @media (max-width: 960px) {
+            header.header {
+                display: none !important;
+            }
+            body {
+                padding-top: 0 !important;
+            }
+            body, html {
+                overflow-x: hidden !important;
+                width: 100vw;
+            }
+            .story-hero {
+                overflow-x: hidden !important;
+            }
         }
     </style>
 </head>
 
 <body>
+    <!-- BACKGROUND & OVERLAYS -->
+    <div class="cinematic-bg" id="cinematic-bg">
+        <div id="book-blurred-bg" style="position: absolute; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(30px) brightness(0.3); opacity: 0.6;"></div>
+        <div class="gradient-overlay"></div>
+        <div class="dust-overlay"></div>
+        <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
+    </div>
+
     <!-- Header -->
-    <header>
+    <header class="header">
         <div class="nav-container">
-            <div class="logo">Qalamekahani</div>
-            <div class="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
+            <a href="index.html" class="logo">Qalamekahani</a>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li class="dropdown desktop-only">
+                <li class="dropdown desktop-only-nav">
                     <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
                     <ul class="dropdown-menu">
                         <li><a href="stories.html">Reading Stories</a></li>
@@ -42,20 +56,15 @@
                 <li><a href="audio.html">Audio Stories</a></li>
                 <li><a href="books.html" class="active">Books</a></li>
                 <li><a href="blog.html">Blog</a></li>
-                <li class="mobile-only-nav"><a href="gallery.html">Images & Wallpapers</a></li>
                 <li><a href="about.html">About</a></li>
                 <li><a href="contact.html">Contact</a></li>
                 <span id="auth-links"></span>
             </ul>
+            <div class="hamburger">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </div>
         </div>
     </header>
-
-    <!-- BACKGROUND & OVERLAYS -->
-    <div class="cinematic-bg" id="cinematic-bg">
-        <div class="gradient-overlay"></div>
-        <div class="dust-overlay"></div>
-        <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
-    </div>
 
     <!-- HERO SECTION -->
     <section class="story-hero">
@@ -82,6 +91,9 @@
                         <i class="fas fa-eye"></i>
                         <span id="mobile-views-count">0</span>
                     </div>
+                    <button class="mobile-action-btn-hanging btn-fav" onclick="toggleSaveBook(event)" id="save-btn-mobile">
+                        <i class="far fa-heart"></i> Save
+                    </button>
                     <button class="mobile-action-btn-hanging" onclick="shareBook(event)">
                         <i class="fas fa-share-alt"></i> Share
                     </button>
@@ -101,9 +113,9 @@
 
                 <!-- Price Section -->
                 <div class="price-section" style="margin-top: 15px; margin-bottom: 15px; display: flex; align-items: baseline; gap: 15px;">
-                    <span id="current-price" style="font-size: 2rem; font-weight: 700; color: #ff3b30;"></span>
-                    <span id="original-price" style="font-size: 1.2rem; color: #a0a0a0; text-decoration: line-through;"></span>
-                    <span id="discount-badge" style="color:#2ecc71; font-size:0.9rem; font-weight:600; display:none;"></span>
+                    <span id="current-price" style="font-size: 2.2rem; font-weight: 700; color: #ff3b30;"></span>
+                    <span id="original-price" style="font-size: 1.3rem; color: #a0a0a0; text-decoration: line-through;"></span>
+                    <span id="discount-badge" style="color:#2ecc71; font-size:0.95rem; font-weight:600; display:none; background: rgba(46, 204, 113, 0.1); padding: 4px 10px; border-radius: 4px;"></span>
                 </div>
 
                 <div class="story-synopsis-container">
@@ -119,7 +131,7 @@
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">STOCK</span>
-                        <span style="color:#2ecc71;" class="meta-value"><i class="fas fa-check-circle"></i> Available</span>
+                        <span style="color:#2ecc71;" class="meta-value"><i class="fas fa-check-circle"></i> In Stock</span>
                     </div>
                     <div class="meta-item desktop-only">
                         <span class="meta-label">VIEWS</span>
@@ -129,31 +141,25 @@
 
                 <!-- Desktop Actions -->
                 <div class="story-actions desktop-only">
-                    <button class="btn btn-primary" style="background:#ff3b30; color:#fff; border:none;" onclick="startPurchase()"><i class="fas fa-bolt"></i> Buy Now</button>
+                    <button class="btn btn-primary" style="background:#ff3b30; color:#fff; border:none; padding: 14px 40px; font-weight: 600;" onclick="startPurchase()"><i class="fas fa-bolt"></i> BUY NOW</button>
+                    <button class="btn-fav" onclick="toggleSaveBook(event)" id="save-btn"><i class="far fa-heart" id="save-icon"></i></button>
                     <button class="btn-share" onclick="shareBook(event)"><i class="fas fa-share-alt"></i></button>
-                </div>
-
-                <!-- Mobile Action (Not sticky) -->
-                <div class="mobile-only" style="margin-top: 20px;">
-                    <button class="btn" style="background:#ff3b30; color:#fff; width: 100%; border-radius: 50px; padding: 14px; font-weight: 600; font-family:'Poppins', sans-serif;" onclick="startPurchase()">
-                        <i class="fas fa-bolt"></i> BUY NOW
-                    </button>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- REVIEWS SECTION -->
-    <section class="story-content-section" style="padding-top: 20px;">
+    <section class="story-content-section" style="padding-top: 40px;">
         <div class="tab-content-container">
             <div class="review-list" id="review-list">
                 
                 <!-- Review Form -->
-                <div class="review-form-container" id="review-form-box" style="background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 40px;">
-                    <h3 style="color: #d4af37; margin-bottom: 20px; font-family: 'Playfair Display', serif; text-align: center;">Leave a Review</h3>
-                    <div style="margin-bottom: 15px; text-align: center;">
-                        <label style="color: #ccc; display: block; margin-bottom: 10px;">Rating</label>
-                        <div class="stars-input rating-input" id="rating-stars" style="color: #ffd700; font-size: 1.5rem; cursor: pointer;">
+                <div class="review-form-container" id="review-form-box" style="background: #1a1a1a; padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 50px;">
+                    <h3 style="color: #d4af37; margin-bottom: 25px; font-family: 'Playfair Display', serif; text-align: center; font-size: 1.8rem;">Leave a Review</h3>
+                    <div style="margin-bottom: 20px; text-align: center;">
+                        <label style="color: #ccc; display: block; margin-bottom: 12px;">Your Rating</label>
+                        <div class="stars-input rating-input" id="rating-stars" style="color: #ffd700; font-size: 1.8rem; cursor: pointer;">
                             <i class="far fa-star star-input" data-value="1"></i>
                             <i class="far fa-star star-input" data-value="2"></i>
                             <i class="far fa-star star-input" data-value="3"></i>
@@ -161,29 +167,36 @@
                             <i class="far fa-star star-input" data-value="5"></i>
                         </div>
                     </div>
-                    <div style="margin-bottom: 20px;">
-                        <label style="color: #ccc; display: block; margin-bottom: 10px;">Review</label>
-                        <textarea id="review-text" placeholder="Share your thoughts about this book..." style="width: 100%; height: 100px; background: #000; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 8px; resize: none; font-family: 'Poppins', sans-serif;"></textarea>
+                    <div style="margin-bottom: 25px;">
+                        <label style="color: #ccc; display: block; margin-bottom: 12px;">Your Thoughts</label>
+                        <textarea id="review-text" placeholder="Share your experience with this book..." style="width: 100%; height: 120px; background: #000; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 12px; resize: none; font-family: 'Poppins', sans-serif; font-size: 1rem;"></textarea>
                     </div>
                     <div style="text-align: center;">
-                        <button onclick="submitReview()" style="background: #d4af37; color: #000; border: none; padding: 12px 35px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.3s; font-family: 'Poppins', sans-serif;">Submit Review</button>
+                        <button onclick="submitReview()" style="background: #d4af37; color: #000; border: none; padding: 14px 45px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s; font-family: 'Poppins', sans-serif; text-transform: uppercase; letter-spacing: 1px;">Submit Review</button>
                     </div>
                 </div>
 
-                <div class="review-success-msg" id="review-success-msg" style="display:none; text-align:center; background:#1a1a1a; padding:25px; border-radius:12px; margin-bottom:40px;">
-                    <i class="fas fa-check-circle" style="color:#2ecc71; font-size:2rem; margin-bottom:10px;"></i>
-                    <h4 style="color:#fff; margin-bottom:5px;">Thank you for your review!</h4>
-                    <p style="color:#aaa;">Your feedback has been submitted successfully.</p>
+                <div class="review-success-msg" id="review-success-msg" style="display:none; text-align:center; background:#1a1a1a; padding:30px; border-radius:16px; margin-bottom:50px; border: 1px solid rgba(46, 204, 113, 0.2);">
+                    <i class="fas fa-check-circle" style="color:#2ecc71; font-size:2.5rem; margin-bottom:15px;"></i>
+                    <h4 style="color:#fff; margin-bottom:10px; font-size: 1.5rem;">Thank you for your review!</h4>
+                    <p style="color:#aaa;">Your feedback has been submitted successfully and will be visible soon.</p>
                 </div>
 
-                <h2 style="color: #d4af37; font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 30px; text-align: center;">Readers Reviews</h2>
+                <h2 style="color: #d4af37; font-family: 'Playfair Display', serif; font-size: 2.2rem; margin-bottom: 40px; text-align: center;">Reader Reviews</h2>
 
                 <div id="reviews-area">
-                    <p style="color:#666; text-align: center;">Loading latest reviews...</p>
+                    <p style="color:#666; text-align: center;">Loading reviews...</p>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="mobile-bottom-bar">
+        <div class="mobile-bottom-container">
+            <button class="btn btn-primary mobile-sticky-btn" onclick="startPurchase()" style="background: #ff3b30; color: #fff; border: none;">BUY NOW</button>
+        </div>
+    </div>
 
     <!-- FOOTER -->
     <footer class="site-footer">
@@ -202,23 +215,15 @@
                 <h4 class="footer-heading">Quick Links</h4>
                 <ul class="footer-links">
                     <li><a href="index.html">Home</a></li>
-                    <li class="dropdown desktop-only">
-                        <a href="stories.html">Stories <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="stories.html">Reading Stories</a></li>
-                            <li><a href="gallery.html">Images & Wallpapers</a></li>
-                        </ul>
-                    </li>
-                    <li class="mobile-only-nav"><a href="stories.html">Stories</a></li>
-                    <li class="mobile-only-nav"><a href="gallery.html">Image & Wallpaper</a></li>
+                    <li><a href="stories.html">Stories</a></li>
                     <li><a href="about.html">About</a></li>
-                    <li><a href="books.html">Books</a></li>
+                    <li><a href="books.html" class="active">Books</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
             </div>
             <div class="footer-col newsletter-col">
                 <h4 class="footer-heading">Stay Updated</h4>
-                <p class="newsletter-text">Subscribe to get the latest blogs.</p>
+                <p class="newsletter-text">Subscribe to get the latest book releases.</p>
                 <form class="newsletter-form">
                     <input type="email" placeholder="Your Email" class="newsletter-input" required>
                     <button type="submit" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
@@ -230,7 +235,26 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // Particles Config
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": { "value": 40, "density": { "enable": true, "value_area": 800 } },
+                    "color": { "value": "#d4af37" },
+                    "shape": { "type": "circle" },
+                    "opacity": { "value": 0.3, "random": true },
+                    "size": { "value": 3, "random": true },
+                    "line_linked": { "enable": false },
+                    "move": { "enable": true, "speed": 1, "direction": "top", "random": true, "straight": false, "out_mode": "out" }
+                },
+                "interactivity": { "events": { "onhover": { "enable": false } } },
+                "retina_detect": true
+            });
+        }
+    </script>
     <script>
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
@@ -246,6 +270,7 @@
 
             try {
                 const bookRes = await fetch(`/api/books/${id}`);
+                if (!bookRes.ok) throw new Error('Book not found');
                 const book = await bookRes.json();
                 currentBook = book;
                 currentBookLink = book.buy_link || book.buyLink || "https://shopizon-eta.vercel.app/";
@@ -261,7 +286,14 @@
                 }
 
                 // Update DOM
-                document.getElementById('book-image').src = book.image;
+                const img = document.getElementById('book-image');
+                img.src = book.image || 'https://placehold.co/300x450?text=Book+Cover';
+                
+                const blurredBg = document.getElementById('book-blurred-bg');
+                if (blurredBg) {
+                    blurredBg.style.backgroundImage = `url('${book.image}')`;
+                }
+
                 document.getElementById('book-cat-badge').textContent = book.category || 'Book';
                 document.getElementById('book-title').textContent = book.title;
                 document.getElementById('book-author').textContent = book.author || 'Sabirkhan Pathan';
@@ -299,27 +331,98 @@
 
                 renderReviews(approved);
 
+                // Initial Liked Status Check
+                const userToken = localStorage.getItem('token');
+                if (userToken) checkLikedStatus(book.id);
+
             } catch (e) {
                 console.error(e);
                 document.getElementById('book-title').textContent = "Error loading book details.";
             }
         }
 
+        async function checkLikedStatus(bookId) {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch(`/api/auth/me?t=${Date.now()}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const user = await res.json();
+                    const isLiked = user.likedBooks && user.likedBooks.some(item => {
+                        const itemId = typeof item === 'object' ? (item.id || item._id) : item;
+                        return String(itemId) === String(bookId);
+                    });
+
+                    if (isLiked) {
+                        const btns = document.querySelectorAll('.btn-fav, #save-btn-mobile');
+                        btns.forEach(btn => {
+                            const icon = btn.querySelector('i');
+                            if (icon) {
+                                icon.classList.remove('far');
+                                icon.classList.add('fas');
+                                btn.style.color = '#e74c3c';
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+                }
+            } catch (e) { console.error("Like check error:", e); }
+        }
+
+        async function toggleSaveBook(e) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login to save this book.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/toggle-like', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ targetId: id, targetType: 'book' })
+                });
+
+                if (res.ok) {
+                    const btns = document.querySelectorAll('.btn-fav, #save-btn-mobile');
+                    btns.forEach(btn => {
+                        const icon = btn.querySelector('i');
+                        if (icon.classList.contains('far')) {
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                            btn.style.color = '#e74c3c';
+                        } else {
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                            btn.style.color = '';
+                        }
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
         function renderReviews(approved) {
             const rArea = document.getElementById('reviews-area');
             if (!approved || approved.length === 0) {
-                rArea.innerHTML = "<p style='color:#777; font-style:italic; text-align:center;'>No approved reviews yet. Be the first to share your thoughts!</p>";
+                rArea.innerHTML = "<p style='color:#777; font-style:italic; text-align:center;'>No reviews yet. Be the first to share your thoughts!</p>";
             } else {
                 rArea.innerHTML = approved.map(r => `
-                <div style="background:#111; padding:20px; border-radius:8px; margin-bottom:15px; border-left:3px solid #d4af37;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <span style="color:#fff; font-weight:600;">${r.user_name || r.name || 'Reader'}</span>
-                        <div style="color:#d4af37; font-size:0.9rem;">
+                <div style="background:#111; padding:25px; border-radius:12px; margin-bottom:20px; border: 1px solid rgba(255,255,255,0.03); position: relative;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items: center;">
+                        <span style="color:#d4af37; font-weight:600; font-size: 1.1rem;">${r.user_name || r.name || 'Reader'}</span>
+                        <div style="color:#d4af37; font-size:0.85rem;">
                             ${getStars(r.rating || 5)}
                         </div>
                     </div>
-                    <p style="color:#ccc; font-size:0.95rem; line-height:1.5;">${r.text || r.comment}</p>
-                    <span style="display:block; margin-top:10px; font-size:0.8rem; color:#555;">
+                    <p style="color:#ccc; font-size:0.95rem; line-height:1.6; font-style: italic;">"${r.text || r.comment}"</p>
+                    <span style="display:block; margin-top:15px; font-size:0.75rem; color:#555; text-align: right;">
                         ${new Date(r.created_at || Date.now()).toLocaleDateString()}
                     </span>
                 </div>
@@ -330,9 +433,9 @@
         function getStars(rating) {
             let s = '';
             for (let i = 1; i <= 5; i++) {
-                if (i <= rating) s += '<i class="fas fa-star"></i>';
-                else if (i === Math.ceil(rating) && !Number.isInteger(rating)) s += '<i class="fas fa-star-half-alt"></i>';
-                else s += '<i class="far fa-star"></i>';
+                if (i <= rating) s += '<i class="fas fa-star" style="color: #ffd700;"></i>';
+                else if (i === Math.ceil(rating) && !Number.isInteger(rating)) s += '<i class="fas fa-star-half-alt" style="color: #ffd700;"></i>';
+                else s += '<i class="far fa-star" style="color: #444;"></i>';
             }
             return s;
         }
@@ -346,21 +449,24 @@
         }
 
         async function shareBook(e) {
-            if(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
+            if(e) { e.preventDefault(); e.stopPropagation(); }
             const book = currentBook;
             if (!book) return;
 
             const url = `${window.location.origin}/book-detail.html?id=${book.id}`;
-            window.shareContent({
-                title: book.title,
-                description: book.description || 'Check out this book on Qalamekahani!',
-                url: url,
-                imageUrl: book.image,
-                type: 'book'
-            });
+            if (window.shareContent) {
+                window.shareContent({
+                    title: book.title,
+                    description: book.description || 'Check out this book on Qalamekahani!',
+                    url: url,
+                    imageUrl: book.image,
+                    type: 'book'
+                });
+            } else {
+                if (navigator.share) {
+                    navigator.share({ title: book.title, text: book.description, url: url });
+                } else { alert('Link copied: ' + url); }
+            }
         }
 
         // Star Rating UI Logic
@@ -382,13 +488,9 @@
             document.querySelectorAll('.star-input').forEach(s => {
                 const val = parseInt(s.getAttribute('data-value'));
                 if (val <= rating) {
-                    s.classList.remove('far');
-                    s.classList.add('fas');
-                    s.style.color = 'var(--gold)';
+                    s.classList.remove('far'); s.classList.add('fas');
                 } else {
-                    s.classList.remove('fas');
-                    s.classList.add('far');
-                    s.style.color = '#444';
+                    s.classList.remove('fas'); s.classList.add('far');
                 }
             });
         }
@@ -398,48 +500,26 @@
             const text = document.getElementById('review-text').value;
             if (!text.trim()) return alert('Please write a review text.');
 
-            const payload = {
-                targetId: id,
-                targetType: 'book',
-                rating: selectedRating,
-                comment: text
-            };
+            const payload = { targetId: id, targetType: 'book', rating: selectedRating, comment: text };
 
             try {
                 const token = localStorage.getItem('token');
-                if (!token) {
-                    alert('You must be logged in to submit a review.');
-                    window.location.href = 'login.html';
-                    return;
-                }
+                if (!token) { alert('Login required.'); return; }
 
                 const res = await fetch('/api/reviews', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(payload)
                 });
 
                 if (res.ok) {
                     document.getElementById('review-form-box').style.display = 'none';
                     document.getElementById('review-success-msg').style.display = 'block';
-                } else {
-                    const errData = await res.json();
-                    alert(`Failed to submit review: ${res.status} - ${errData.message || 'Unknown Error'}`);
                 }
-            } catch (err) {
-                console.error(err);
-                alert(`Error submitting review: ${err.message}`);
-            }
+            } catch (err) { console.error(err); }
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+        init();
     </script>
 </body>
 </html>

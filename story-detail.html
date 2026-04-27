@@ -120,23 +120,23 @@
                 </div>
 
                 <!-- Right: Details -->
-                <div class="story-info">
-                    <!-- Hanging Views Cart (Mobile Only) -->
-                    <div class="hanging-views mobile-only">
-                        <div class="mobile-action-group">
-                            <div class="view-cart">
-                                <i class="fas fa-eye"></i>
-                                <span id="mobile-views-count">0</span>
-                            </div>
-                            <button class="mobile-action-btn-hanging btn-fav" onclick="toggleLike()" id="save-btn-mobile">
-                                <i class="far fa-heart"></i> Like
-                            </button>
-                            <button class="mobile-action-btn-hanging" onclick="shareStory()">
-                                <i class="fas fa-share-alt"></i> Share
-                            </button>
+                <!-- Hanging Views Cart (Mobile Only) - Moved here for better Grid control -->
+                <div class="hanging-views mobile-only">
+                    <div class="mobile-action-group">
+                        <div class="view-cart">
+                            <i class="fas fa-eye"></i>
+                            <span id="mobile-views-count">0</span>
                         </div>
+                        <button class="mobile-action-btn-hanging btn-fav" onclick="toggleLike(event)" id="save-btn-mobile">
+                            <i class="far fa-heart"></i> Like
+                        </button>
+                        <button class="mobile-action-btn-hanging" onclick="shareStory(event)">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
                     </div>
-
+                </div>
+                
+                <div class="story-info">
                     <h1 id="story-title" class="story-title">Loading...</h1>
                     <h3 class="story-author">By <span id="story-author" class="author-name"></span></h3>
                     <div class="story-rating-row">
@@ -823,7 +823,11 @@
             }
 
             // Heart Toggle
-            async function toggleLike() {
+            async function toggleLike(e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
                 const token = localStorage.getItem('token');
                 if (!token) {
                     window.showToast('Please login to like stories.', 'error');
@@ -977,7 +981,11 @@
                 }
             }
 
-            async function shareStory() {
+            async function shareStory(e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
                 const title = document.getElementById('story-title').textContent;
                 const description = document.getElementById('story-synopsis').textContent;
                 const imageUrl = document.getElementById('story-image').src;
@@ -994,7 +1002,4 @@
             }
         </script>
     </body>
-
-</html>ody>
-
 </html>

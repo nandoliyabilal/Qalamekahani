@@ -424,19 +424,23 @@
 @media (max-width: 1024px) {
     .mobile-only {
         display: flex !important;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        margin-bottom: 25px;
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin: 10px 0 30px !important;
+        clear: both !important;
     }
 
     .hanging-views {
-        position: relative;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        margin: 40px 0 20px;
-        z-index: 10;
+        position: relative !important;
+        top: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        margin: 40px auto 10px !important;
+        z-index: 100 !important;
+        pointer-events: auto !important; /* Ensure they are clickable */
     }
 
     .mobile-action-group {
@@ -445,35 +449,37 @@
         align-items: center !important;
         justify-content: center !important;
         gap: 12px !important;
-        width: 100% !important;
+        width: auto !important;
+        pointer-events: auto !important;
     }
 
     .view-cart {
         width: auto !important;
         height: auto !important;
-        padding: 12px 18px !important;
+        padding: 10px 18px !important;
         border-radius: 12px !important;
-        background: rgba(15, 15, 15, 0.9) !important;
+        background: rgba(15, 15, 15, 0.95) !important;
         border: 1.5px solid var(--gold) !important;
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 10px !important;
+        gap: 8px !important;
         color: #fff !important;
-        font-size: 1rem !important;
+        font-size: 0.95rem !important;
         font-weight: 700 !important;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(212, 175, 55, 0.1) !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6) !important;
         position: relative !important;
+        animation: none !important; /* Disable desktop swing for mobile if needed, or keep it */
     }
 
     .view-cart i {
         color: var(--gold) !important;
-        font-size: 0.9rem !important;
-        filter: drop-shadow(0 0 5px var(--gold));
+        font-size: 1rem !important;
+        filter: drop-shadow(0 0 5px var(--gold)) !important;
     }
 
-    /* Hanging Line Effect */
+    /* Proper Hanging Line */
     .view-cart::before {
         content: '' !important;
         display: block !important;
@@ -489,9 +495,9 @@
     .mobile-action-btn-hanging {
         width: auto !important;
         height: auto !important;
-        padding: 12px 20px !important;
+        padding: 10px 20px !important;
         border-radius: 12px !important;
-        background: rgba(40, 40, 40, 0.8) !important;
+        background: rgba(35, 35, 35, 0.9) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
         color: #fff !important;
         display: flex !important;
@@ -502,6 +508,8 @@
         font-weight: 500 !important;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4) !important;
         transition: all 0.3s ease !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
     }
 
     .mobile-action-btn-hanging i {
@@ -541,64 +549,88 @@
     }
 
     /* Mobile Adjustments */
-    @media (max-width: 1024px) {
-        .mobile-bottom-bar {
-            display: block;
-            background: rgba(0, 0, 0, 0.95);
-            padding: 15px 20px 25px;
-        }
+    .mobile-bottom-bar {
+        display: block !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        padding: 15px 20px 25px;
+        z-index: 2000;
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
+    }
 
-        .mobile-story-title-mini {
-            display: none !important;
-            /* Remove story name from above button */
-        }
+    .mobile-sticky-btn {
+        width: 100%;
+        padding: 16px !important;
+        font-size: 1.1rem !important;
+        background: #d4af37 !important;
+        color: #000 !important;
+        font-weight: 700 !important;
+        border-radius: 10px !important;
+        border: none !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 0 !important;
+    }
 
-        .mobile-sticky-btn {
-            margin-top: 0 !important;
-        }
+    body {
+        padding-bottom: 90px;
+    }
 
-        body {
-            padding-bottom: 90px;
-        }
+    .story-hero {
+        padding-top: 20px !important;
+        padding-bottom: 10px !important;
+        background: radial-gradient(circle at top left, rgba(212, 175, 55, 0.05), transparent 60%) !important;
+    }
 
-        .story-hero {
-            padding-top: 20px !important;
-            padding-bottom: 10px !important;
-            background: radial-gradient(circle at top left, rgba(212, 175, 55, 0.05), transparent 60%) !important;
-        }
+    .story-hero-container {
+        padding: 15px !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        display: grid !important;
+        grid-template-areas:
+            "back back"
+            "visual title"
+            "visual author"
+            "visual stars"
+            "actions actions"
+            "meta meta"
+            "synopsis synopsis";
+        grid-template-columns: 110px 1fr;
+        grid-template-rows: auto auto auto auto auto auto auto;
+        gap: 12px;
+        animation: fadeIn 1s ease;
+    }
 
-        .story-hero-container {
-            padding: 15px !important;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            display: grid !important;
-            grid-template-areas:
-                "back back"
-                "visual title"
-                "visual author"
-                "visual stars"
-                "meta meta"
-                "synopsis synopsis";
-            grid-template-columns: 110px 1fr;
-            grid-template-rows: auto auto auto auto auto auto;
-            gap: 12px;
-            animation: fadeIn 1s ease;
-        }
+    .story-back-row {
+        grid-area: back;
+        margin-bottom: 5px;
+    }
 
-        .story-back-row {
-            grid-area: back;
-            margin-bottom: 5px;
-        }
+    .story-visual {
+        grid-area: visual;
+        max-width: 110px !important;
+    }
 
-        .story-visual {
-            grid-area: visual;
-            max-width: 110px !important;
-        }
+    .hanging-views {
+        grid-area: actions;
+        position: relative !important;
+        top: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        margin: 40px auto 10px !important;
+        z-index: 100 !important;
+        pointer-events: auto !important;
+    }
 
-        .story-info {
-            display: contents !important;
-        }
+    .story-info {
+        display: contents !important;
+    }
 
         .story-badges {
             display: none !important;

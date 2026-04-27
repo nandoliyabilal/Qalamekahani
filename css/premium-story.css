@@ -597,19 +597,20 @@
             "meta meta"
             "actions actions";
         grid-template-columns: 110px 1fr;
-        grid-template-rows: auto auto auto auto auto auto auto;
-        gap: 12px;
+        grid-template-rows: auto 1fr auto 1fr auto auto auto;
+        gap: 0 25px !important; /* Increased horizontal gap from 12px to 25px */
         animation: fadeIn 1s ease;
     }
 
     .story-back-row {
         grid-area: back;
-        margin-bottom: 5px;
+        margin-bottom: 15px !important; /* Space below back button */
     }
 
     .story-visual {
         grid-area: visual;
         max-width: 110px !important;
+        align-self: center !important; /* Center image vertically */
     }
 
     .hanging-views {

@@ -19,14 +19,12 @@
             body {
                 padding-top: 0 !important;
             }
-            body, html {
-                overflow-x: hidden !important;
-                width: 100vw;
-            }
-            .story-hero {
-                overflow-x: hidden !important;
+            .mobile-bottom-bar {
+                padding-bottom: 5px !important;
+                background: #000 !important;
             }
         }
+    </style>
     </style>
 </head>
 
@@ -135,6 +133,7 @@
                             <span id="original-price" style="font-size:0.6rem; text-decoration:line-through; opacity:0.5;"></span>
                         </div>
                     </div>
+                    <div id="book-views" style="display:none;">0</div>
                 </div>
 
                 <!-- Desktop Actions -->
@@ -309,7 +308,7 @@
                 const reviewsRes = await fetch(`/api/reviews?targetId=${id}`);
                 const reviews = await reviewsRes.json();
                 
-                const approved = reviews.filter(r => r.status === 'approved' || r.isApproved === true || r.approved === true || !r.hasOwnProperty('status'));
+                const approved = Array.isArray(reviews) ? reviews.filter(r => r.status === 'approved' || r.isApproved === true || r.approved === true || !r.hasOwnProperty('status')) : [];
                 
                 if (approved.length > 0) {
                     const totalRating = approved.reduce((sum, r) => sum + (parseInt(r.rating) || 0), 0);
@@ -320,14 +319,16 @@
                     book.reviewsCount = 0;
                 }
 
-                document.getElementById('book-reviews-count').textContent = '(' + book.reviewsCount + ' Reviews)';
-                document.getElementById('book-stars').innerHTML = getStars(book.rating || 4.5);
+                if (document.getElementById('book-reviews-count'))
+                    document.getElementById('book-reviews-count').textContent = '(' + book.reviewsCount + ' Reviews)';
+                if (document.getElementById('book-stars'))
+                    document.getElementById('book-stars').innerHTML = getStars(book.rating || 4.5);
 
                 renderReviews(approved);
 
                 // Initial Liked Status Check
                 const userToken = localStorage.getItem('token');
-                if (userToken) checkLikedStatus(book.id);
+                if (userToken) checkLikedStatus(book.id || book._id);
 
             } catch (e) {
                 console.error(e);

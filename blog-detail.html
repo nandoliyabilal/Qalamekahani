@@ -12,181 +12,8 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139320888022960"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="css/style.css?v=2.3">
+    <link rel="stylesheet" href="css/premium-story.css">
     <style>
-        /* Specific Styles for Blog Detail to match Story Detail + Reader */
-        .story-hero {
-            padding: 150px 0;
-            background: linear-gradient(to bottom, #0a0a0a, #111);
-        }
-
-        @media (max-width: 900px) {
-            .story-hero {
-                padding: 60px 0;
-            }
-
-            .story-hero-container {
-                flex-direction: column !important;
-                padding: 0 20px !important;
-                text-align: center;
-                gap: 30px !important;
-            }
-
-            .story-visual {
-                flex: none !important;
-                width: 100%;
-                max-width: 300px;
-                margin: 0 auto;
-            }
-
-            .story-info {
-                width: 100%;
-            }
-
-            .meta-grid {
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 15px;
-            }
-
-            .action-row {
-                justify-content: center;
-                flex-direction: column;
-                gap: 15px;
-                width: 100%;
-            }
-
-            .btn-read-full {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .story-title {
-                font-size: 2.2rem !important;
-                margin-top: 10px;
-            }
-
-            .reader-container {
-                padding: 60px 20px !important;
-            }
-
-            .close-reader {
-                right: 20px;
-                top: 15px;
-            }
-        }
-
-        .story-hero-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            gap: 60px;
-            padding: 0 40px;
-            align-items: center;
-        }
-
-        .story-visual {
-            flex: 0 0 320px;
-            position: relative;
-        }
-
-        .story-cover {
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-            aspect-ratio: 2/3;
-            object-fit: cover;
-        }
-
-        .story-info {
-            flex: 1;
-        }
-
-        .story-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5rem;
-            color: #fff;
-            margin-bottom: 0.5rem;
-            line-height: 1.1;
-        }
-
-        .story-author {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.1rem;
-            color: #ccc;
-            margin-bottom: 2rem;
-            font-weight: 400;
-        }
-
-        .story-author span {
-            color: #d4af37;
-        }
-
-        .meta-grid {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #333;
-            padding-bottom: 2rem;
-        }
-
-        .meta-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .meta-label {
-            font-size: 0.8rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .meta-value {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            color: #fff;
-            font-weight: 500;
-        }
-
-        .blog-excerpt {
-            font-family: 'Poppins', sans-serif;
-            color: #aaa;
-            line-height: 1.8;
-            font-size: 1rem;
-            margin-bottom: 30px;
-            display: -webkit-box;
-            line-clamp: 3;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .action-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn-read-full {
-            background: #d4af37;
-            color: #000;
-            padding: 14px 35px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1rem;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .btn-read-full:hover {
-            transform: translateY(-3px);
-            background: #fff;
-        }
-
         /* --- PDF READER OVERLAY --- */
         .reader-overlay {
             position: fixed;
@@ -386,61 +213,101 @@
         </div>
     </header>
 
-    <!-- BLOG DETAIL VIEW (Left Img, Right Details) -->
+    <!-- BACKGROUND & OVERLAYS -->
+    <div class="cinematic-bg" id="cinematic-bg">
+        <div class="gradient-overlay"></div>
+        <div class="dust-overlay"></div>
+        <div id="particles-js" style="position: absolute; width: 100%; height: 100%;"></div>
+    </div>
+
+    <!-- BLOG HERO SECTION -->
     <section class="story-hero">
         <div class="story-hero-container">
-            <!-- Left: Image -->
-            <div class="story-visual" style="position: relative;">
-                <a href="blog.html" class="img-back-btn">
-                    <i class="fas fa-arrow-left"></i> Back
-                </a>
-                <img id="blog-image" src="" alt="Blog Cover" class="story-cover"
-                    onerror="this.src='https://via.placeholder.com/400x600'">
+            <!-- Back Link -->
+            <div class="story-back-row">
+                <a href="blog.html" class="back-link"><i class="fas fa-chevron-left"></i> BACK TO BLOGS</a>
             </div>
 
-            <!-- Right: Details -->
-            <div class="story-info">
-                <h1 id="blog-title" class="story-title">Loading Blog...</h1>
-                <h3 class="story-author">Written By <span id="blog-author">Loading...</span></h3>
+            <!-- Left: Visual -->
+            <div class="story-visual">
+                <div class="story-cover-wrapper">
+                    <img id="blog-image" src="" alt="Blog Cover" class="story-cover" onerror="this.src='https://via.placeholder.com/400x600'">
+                    <div class="story-badges">
+                        <span id="blog-cat-badge" class="badge badge-cat">Blog</span>
+                    </div>
+                </div>
+            </div>
 
-                <div class="meta-grid">
+            <!-- Hanging Views Cart (Mobile Only) - Moved here for better Grid control -->
+            <div class="hanging-views mobile-only">
+                <div class="mobile-action-group">
+                    <div class="view-cart">
+                        <i class="fas fa-eye"></i>
+                        <span id="mobile-views-count">0</span>
+                    </div>
+                    <button class="mobile-action-btn-hanging btn-fav" onclick="toggleSaveBlog(event)" id="save-btn-mobile">
+                        <i class="far fa-bookmark" id="save-icon-mobile"></i> Save
+                    </button>
+                    <button class="mobile-action-btn-hanging" onclick="shareBlog(event)">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                </div>
+            </div>
+            
+            <div class="story-info">
+                <h1 id="blog-title" class="story-title">Loading...</h1>
+                <h3 class="story-author">By <span id="blog-author" class="author-name"></span></h3>
+                
+                <div class="story-rating-row">
+                    <div class="stars">
+                        <i class="fas fa-star" style="color:var(--gold)"></i>
+                        <i class="fas fa-star" style="color:var(--gold)"></i>
+                        <i class="fas fa-star" style="color:var(--gold)"></i>
+                        <i class="fas fa-star" style="color:var(--gold)"></i>
+                        <i class="fas fa-star-half-alt" style="color:var(--gold)"></i>
+                    </div>
+                    <span class="rating-text">Top Rated</span>
+                </div>
+
+                <div class="story-synopsis-container">
+                    <h4 class="meta-label">SUMMARY</h4>
+                    <p id="blog-excerpt" class="story-synopsis"></p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="story-meta-grid">
                     <div class="meta-item">
-                        <span class="meta-label">Category</span>
+                        <span class="meta-label">CATEGORY</span>
                         <span id="blog-category" class="meta-value">-</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Published</span>
+                        <span class="meta-label">PUBLISHED</span>
                         <span id="blog-date" class="meta-value">-</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Read Time</span>
+                        <span class="meta-label">READ TIME</span>
                         <span id="blog-time" class="meta-value">-</span>
                     </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Views</span>
+                    <div class="meta-item desktop-only">
+                        <span class="meta-label">VIEWS</span>
                         <span id="blog-views" class="meta-value">0</span>
                     </div>
                 </div>
 
-                <div class="blog-excerpt" id="blog-excerpt"></div>
-
-                <div class="action-row">
-                    <button class="btn-read-full" onclick="openReader()">
-                        <i class="fas fa-book-reader"></i> Read Full Blog
-                    </button>
-                    <!-- Save Button -->
-                    <button id="save-btn" class="btn-read-full" style="background:#222; color:#fff;"
-                        onclick="toggleSaveBlog()">
-                        <i id="save-icon" class="far fa-bookmark"></i>
-                    </button>
-                    <!-- Share Button -->
-                    <button class="btn-read-full" style="background:#222; color:#fff;" onclick="shareBlog()">
-                        <i class="fas fa-share-alt"></i>
-                    </button>
+                <!-- Desktop Actions -->
+                <div class="story-actions desktop-only">
+                    <button class="btn btn-primary btn-read" onclick="openReader()"><i class="fas fa-book-open"></i> Read Full Blog</button>
+                    <button class="btn-fav" onclick="toggleSaveBlog(event)" id="save-btn"><i class="far fa-bookmark" id="save-icon"></i></button>
+                    <button class="btn-share" onclick="shareBlog(event)"><i class="fas fa-share-alt"></i></button>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- MOBILE STICKY BUTTON -->
+    <div class="mobile-bottom-bar mobile-only">
+        <button class="btn mobile-sticky-btn" onclick="openReader()"><i class="fas fa-book-open"></i> Read Full Blog</button>
+    </div>
 
     <!-- REVIEWS SECTION -->
     <section class="reviews-section" style="background:#0a0a0a; padding:60px 0; border-top:1px solid #222;">
@@ -585,18 +452,22 @@
         }
 
         function updateSaveIcon(isSaved) {
-            const icon = document.getElementById('save-icon');
-            const btn = document.getElementById('save-btn');
-            if (isSaved) {
-                icon.className = 'fas fa-bookmark';
-                btn.style.color = '#d4af37';
-            } else {
-                icon.className = 'far fa-bookmark';
-                btn.style.color = '#fff';
-            }
+            const icons = [document.getElementById('save-icon'), document.getElementById('save-icon-mobile')];
+            const btns = [document.getElementById('save-btn'), document.getElementById('save-btn-mobile')];
+            
+            icons.forEach(icon => {
+                if(icon) icon.className = isSaved ? 'fas fa-bookmark' : 'far fa-bookmark';
+            });
+            btns.forEach(btn => {
+                if(btn) btn.style.color = isSaved ? '#d4af37' : '#fff';
+            });
         }
 
-        async function toggleSaveBlog() {
+        async function toggleSaveBlog(e) {
+            if(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             const token = localStorage.getItem('token');
             if (!token) {
                 alert('Please login to save blogs.');
@@ -649,6 +520,8 @@
                 document.getElementById('blog-image').src = post.image;
             }
             document.getElementById('blog-views').textContent = post.views || 0;
+            const mobileViews = document.getElementById('mobile-views-count');
+            if(mobileViews) mobileViews.textContent = post.views || 0;
 
             // Excerpt
             let excerpt = post.excerpt;
@@ -710,7 +583,11 @@
             document.body.style.overflow = '';
         }
 
-        async function shareBlog() {
+        async function shareBlog(e) {
+            if(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             if (!currentPost) return;
 
             const title = document.getElementById('blog-title').textContent;

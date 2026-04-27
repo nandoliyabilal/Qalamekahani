@@ -310,14 +310,18 @@
                     <button class="btn-fav" onclick="toggleSaveBlog(event)" id="save-btn"><i class="far fa-bookmark" id="save-icon"></i></button>
                     <button class="btn-share" onclick="shareBlog(event)"><i class="fas fa-share-alt"></i></button>
                 </div>
+
+                <!-- Mobile Action (Not sticky) -->
+                <div class="mobile-only" style="margin-top: 20px;">
+                    <button class="btn" style="background:#d4af37; color:#000; width: 100%; border-radius: 50px; padding: 14px; font-weight: 600; font-family:'Poppins', sans-serif;" onclick="openReader()">
+                        <i class="fas fa-book-open"></i> Read Full Blog
+                    </button>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- MOBILE STICKY BUTTON -->
-    <div class="mobile-bottom-bar mobile-only">
-        <button class="btn mobile-sticky-btn" onclick="openReader()"><i class="fas fa-book-open"></i> Read Full Blog</button>
-    </div>
+
 
     <!-- REVIEWS SECTION -->
     <section class="story-content-section" style="padding-top: 20px;">
@@ -733,21 +737,4 @@
         init();
     </script>
 </body>
-
 </html>
-
-
-
-
-}
-}
-
-if (document.readyState === 'loading') {
-document.addEventListener('DOMContentLoaded', initBlogPage);
-} else {
-initBlogPage();
-}
-</script>
-
-
-</body>

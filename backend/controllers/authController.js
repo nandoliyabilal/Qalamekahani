@@ -307,8 +307,9 @@ const toggleAction = (table, column) => asyncHandler(async (req, res) => {
         list.push(strId);
     }
 
+    const camelColumn = column.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
     await db.execute(`UPDATE users SET ${column} = ? WHERE id = ?`, [JSON.stringify(list), req.user.id]);
-    res.json({ success: true, [column]: list });
+    res.json({ success: true, [camelColumn]: list });
 });
 
 const likeStory = toggleAction('stories', 'liked_stories');

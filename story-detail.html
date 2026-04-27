@@ -121,6 +121,21 @@
 
                 <!-- Right: Details -->
                 <div class="story-info">
+                    <!-- Action Bar (Mobile Only) -->
+                    <div class="hanging-views mobile-only">
+                        <div class="view-cart">
+                            <i class="fas fa-eye"></i>
+                            <span id="mobile-views-count">0</span>
+                        </div>
+                        <div class="mobile-action-group">
+                            <button class="mobile-action-btn-hanging btn-fav" onclick="toggleLike()" id="save-btn-mobile">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button class="mobile-action-btn-hanging" onclick="shareStory()">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
 
                     <h1 id="story-title" class="story-title">Loading...</h1>
                     <h3 class="story-author">By <span id="story-author" class="author-name"></span></h3>
@@ -133,6 +148,8 @@
                         <h4 class="meta-label">SUMMARY</h4>
                         <p id="story-synopsis" class="story-synopsis"></p>
                     </div>
+
+                    <!-- Stats Grid -->
 
                     <div class="story-meta-grid">
                         <div class="meta-item">
@@ -149,31 +166,24 @@
                         </div>
                         <div class="meta-item">
                             <span class="meta-label">VIEWS</span>
-                            <div class="views-badge">
-                                <i class="fas fa-eye"></i>
-                                <span id="meta-views">0</span>
-                            </div>
+                            <span id="meta-views" class="meta-value">0</span>
                         </div>
                     </div>
 
+
                     <!-- Desktop Actions -->
-                    <!-- Action Group -->
-                    <div class="story-actions">
-                        <button class="btn btn-read" onclick="openReaderMode()">
-                            <i class="fas fa-book-open"></i> READ NOW
-                        </button>
+                    <div class="story-actions desktop-only">
+                        <button class="btn btn-primary btn-read" onclick="openReaderMode()"><i
+                                class="fas fa-book-open"></i> Read Full Story</button>
 
-                        <button class="btn-fav" onclick="toggleLike()" id="save-btn-main">
-                            <i class="far fa-heart"></i>
-                        </button>
-                        
-                        <button class="btn-share" onclick="shareStory()">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
-
-                        <a id="youtube-btn" href="#" target="_blank" class="btn-share" style="display:none; color:#FF0000;">
-                            <i class="fab fa-youtube"></i>
+                        <a id="youtube-btn" href="#" target="_blank" class="btn btn-youtube"
+                            style="display:none; background-color: #FF0000; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 500; align-items: center; gap: 8px;">
+                            <i class="fab fa-youtube"></i> YouTube
                         </a>
+
+                        <button class="btn-fav" onclick="toggleLike()"><i class="far fa-heart"
+                                id="like-icon"></i></button>
+                        <button class="btn-share" onclick="shareStory()"><i class="fas fa-share-alt"></i></button>
                     </div>
                 </div>
             </div>
@@ -241,13 +251,12 @@
         </section>
         </div>
 
-        <!-- Mobile Bottom Action Bar (Sticky) -->
+        <!-- Mobile Bottom Action Bar -->
         <div class="mobile-bottom-bar">
             <div class="mobile-bottom-container">
-                <button class="btn btn-primary mobile-sticky-btn" id="mobile-sticky-read-btn" onclick="openReaderMode()">READ NOW</button>
+                <button class="btn btn-primary mobile-sticky-btn" onclick="openReaderMode()">Read Now</button>
             </div>
         </div>
-
 
         <!-- Footer Section -->
 
@@ -589,26 +598,20 @@
                             priceDisplay = `₹${discountedPrice} <span style="text-decoration: line-through; color: #888; font-size: 0.8em; margin-left: 5px;">₹${price}</span>`;
                         }
 
-                        const btnHtml = `<i class="fas fa-lock"></i> Unlock Story (${priceDisplay})`;
-                        const btnOnClick = () => {
+                        readBtn.innerHTML = `<i class="fas fa-lock"></i> Unlock Story (${priceDisplay})`;
+                        readBtn.classList.remove('btn-primary');
+                        readBtn.style.background = '#d4af37'; // Gold
+                        readBtn.style.color = '#000';
+                        readBtn.onclick = () => {
                             const token = localStorage.getItem('token');
                             if (!token) {
                                 alert('Please login to purchase this story.');
                                 window.location.href = `login.html?redirect=story-detail.html?id=${storyId}`;
                                 return;
                             }
+                            // Redirect to checkout
                             window.location.href = `checkout.html?storyId=${storyId}`;
                         };
-
-                        readBtn.innerHTML = btnHtml;
-                        readBtn.onclick = btnOnClick;
-
-                        // Also update mobile sticky btn
-                        const stickyBtn = document.getElementById('mobile-sticky-read-btn');
-                        if (stickyBtn) {
-                            stickyBtn.innerHTML = btnHtml;
-                            stickyBtn.onclick = btnOnClick;
-                        }
                     }
 
                     // Global reference 
@@ -646,14 +649,15 @@
                         });
 
                         if (isLiked) {
-                            const btn = document.querySelector('.story-actions .btn-fav');
-                            if (btn) {
+                            const btns = [document.querySelector('.story-actions .btn-fav'), document.getElementById('save-btn-mobile')];
+                            btns.forEach(btn => {
+                                if (!btn) return;
                                 const icon = btn.querySelector('i');
                                 icon.classList.remove('far');
                                 icon.classList.add('fas');
                                 btn.style.color = '#e74c3c';
                                 btn.classList.add('active');
-                            }
+                            });
                         }
                     }
                 } catch (e) {

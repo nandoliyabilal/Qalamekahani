@@ -109,6 +109,21 @@
 
                 <!-- Right: Details -->
                 <div class="story-info">
+                    <!-- Action Bar (Mobile Only) -->
+                    <div class="hanging-views mobile-only">
+                        <div class="view-cart">
+                            <i class="fas fa-eye"></i>
+                            <span id="mobile-views-count">0</span>
+                        </div>
+                        <div class="mobile-action-group">
+                            <button class="mobile-action-btn-hanging btn-fav" onclick="saveAudio()" id="save-btn-mobile">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button class="mobile-action-btn-hanging" onclick="shareAudio()">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
 
                     <h1 id="audio-title" class="story-title">Loading...</h1>
                     <h3 class="story-author">By <span id="audio-author" class="author-name"></span></h3>
@@ -118,6 +133,7 @@
                         <span id="audio-rating-text" class="rating-text"></span>
                     </div>
 
+                    <!-- Stats Grid -->
                     <div class="story-meta-grid">
                         <div class="meta-item">
                             <span class="meta-label">CATEGORY</span>
@@ -128,11 +144,8 @@
                             <span id="meta-duration" class="meta-value"></span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">HITS / VIEWS</span>
-                            <div class="views-badge">
-                                <i class="fas fa-eye"></i>
-                                <span id="meta-views">0</span>
-                            </div>
+                            <span class="meta-label">HITS</span>
+                            <span id="meta-views" class="meta-value">0</span>
                         </div>
                     </div>
 
@@ -142,17 +155,11 @@
                     </div>
 
                     <!-- Desktop Actions -->
-                    <!-- Action Group -->
-                    <div class="story-actions">
-                        <button id="action-btn" class="btn btn-read"></button>
-                        
-                        <button class="btn-fav" onclick="saveAudio()" id="save-btn-main">
-                            <i class="far fa-heart"></i>
-                        </button>
-                        
-                        <button class="btn-share" onclick="shareAudio()">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
+                    <div class="story-actions desktop-only">
+                        <button id="action-btn" class="btn btn-primary btn-read"></button>
+                        <button class="btn-fav" onclick="saveAudio()" id="save-btn"><i
+                                class="far fa-heart"></i></button>
+                        <button class="btn-share" onclick="shareAudio()"><i class="fas fa-share-alt"></i></button>
                     </div>
                 </div>
             </div>
@@ -212,10 +219,10 @@
         </section>
     </div>
 
-    <!-- Mobile Bottom Action Bar (Sticky) -->
+    <!-- Mobile Bottom Action Bar -->
     <div class="mobile-bottom-bar">
         <div class="mobile-bottom-container">
-            <button class="btn btn-primary mobile-sticky-btn" id="mobile-sticky-listen-btn">LISTEN NOW</button>
+            <button class="btn btn-primary mobile-sticky-btn" id="mobile-action-btn">Listen Now</button>
         </div>
     </div>
 
@@ -642,38 +649,36 @@
                     if (!b) return;
                     b.innerHTML = html;
                     b.onclick = onClick;
-            const discounted = Math.floor(price - (price * discount / 100));
-            const priceDisplay = `₹${discount > 0 ? discounted : price}`;
+                    Object.assign(b.style, styles);
+                });
+            };
 
-            const btnHtml = hasAccess ? '<i class="fas fa-play"></i> Start Listening' : `<i class="fas fa-lock"></i> Unlock Audio (${priceDisplay})`;
-            const btnOnClick = () => {
-                if (hasAccess) {
-                    const firstEp = audio.episodes && audio.episodes[0];
-                    if (firstEp) {
-                        window.location.href = `listen.html?id=${canonicalId}&ep=0`;
-                    } else {
-                        alert('No episodes available yet.');
-                    }
-                } else {
-                    const token = localStorage.getItem('token');
+            if (hasAccess && !buyLink) {
+                updateBoth('<i class="fas fa-play"></i> Listen Now', () => {
+                    window.location.href = `listen.html?id=${canonicalId}`;
+                });
+            } else if (buyLink) {
+                updateBoth('<i class="fas fa-shopping-cart"></i> Buy Now', () => {
+                    window.open(buyLink, '_blank');
+                }, { background: '#d4af37', color: '#000' });
+            } else {
+                let displayPrice = `₹${price}`;
+                if (discount > 0) {
+                    const discounted = Math.floor(price - (price * discount / 100));
+                    displayPrice = `₹${discounted}`;
+                }
+
+                updateBoth(`<i class="fas fa-lock"></i> Unlock Audio (${displayPrice})`, () => {
                     if (!token) {
                         alert('Please login to purchase.');
                         window.location.href = `login.html?redirect=audio-detail.html?id=${canonicalId}`;
                         return;
                     }
                     window.location.href = `checkout.html?audioId=${canonicalId}`;
-                }
-            };
-
-            const mainBtn = document.getElementById('action-btn');
-            mainBtn.innerHTML = btnHtml;
-            mainBtn.onclick = btnOnClick;
-
-            const stickyBtn = document.getElementById('mobile-sticky-listen-btn');
-            if (stickyBtn) {
-                stickyBtn.innerHTML = btnHtml;
-                stickyBtn.onclick = btnOnClick;
+                }, { background: '#d4af37', color: '#000' });
             }
+
+            // Removed scroll sticky logic - now handled by CSS media query
         }
 
         function handleEpisodeClick(canonicalId, hasAccess) {
@@ -742,18 +747,18 @@
         }
 
         function updateSaveBtn(isSaved) {
-            const btn = document.getElementById('save-btn-main');
-            if (!btn) return;
-            const icon = btn.querySelector('i');
-            if (isSaved) {
-                if (icon) icon.className = 'fas fa-heart';
-                btn.style.color = '#e74c3c';
-                btn.classList.add('active');
-            } else {
-                if (icon) icon.className = 'far fa-heart';
-                btn.style.color = '';
-                btn.classList.remove('active');
-            }
+            const btns = [document.getElementById('save-btn'), document.getElementById('save-btn-mobile')];
+            btns.forEach(btn => {
+                if (!btn) return;
+                const icon = btn.querySelector('i');
+                if (isSaved) {
+                    icon.className = 'fas fa-bookmark';
+                    btn.style.color = '#d4af37';
+                } else {
+                    icon.className = 'far fa-bookmark';
+                    btn.style.color = '#fff';
+                }
+            });
         }
 
         async function saveAudio() {

@@ -449,25 +449,31 @@
     }
 
     .view-cart {
-        background: rgba(20, 20, 20, 0.9);
-        border: 1px solid var(--gold);
-        padding: 8px 15px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: var(--gold);
-        font-size: 0.9rem;
-        font-weight: 700;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-        animation: iconPulse 3s ease-in-out infinite;
+        width: 50px !important;
+        height: 50px !important;
+        border-radius: 50% !important;
+        background: rgba(20, 20, 20, 0.9) !important;
+        border: 1px solid var(--gold) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        color: var(--gold) !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5) !important;
+        animation: iconPulse 3s ease-in-out infinite !important;
     }
 
     .mobile-action-group {
         display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
         justify-content: center !important;
         gap: 20px !important;
         margin-top: 5px !important;
+        width: 100% !important;
     }
 
     .mobile-action-btn-hanging {

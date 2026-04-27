@@ -111,13 +111,12 @@
                 <div class="story-info">
                     <!-- Hanging Views Cart (Mobile Only) -->
                     <div class="hanging-views mobile-only">
-                        <div class="view-cart">
-                            <i class="fas fa-eye"></i>
-                            <span id="mobile-views-count">0</span>
-                        </div>
                         <div class="mobile-action-group">
-                            <button class="mobile-action-btn-hanging btn-fav" onclick="saveAudio()"
-                                id="save-btn-mobile">
+                            <div class="view-cart">
+                                <i class="fas fa-eye"></i>
+                                <span id="mobile-views-count">0</span>
+                            </div>
+                            <button class="mobile-action-btn-hanging btn-fav" onclick="saveAudio()" id="save-btn-mobile">
                                 <i class="far fa-bookmark"></i>
                             </button>
                             <button class="mobile-action-btn-hanging" onclick="shareAudio()">
@@ -748,16 +747,18 @@
         }
 
         function updateSaveBtn(isSaved) {
-            const btns = [document.getElementById('save-btn'), document.getElementById('save-btn-mobile')];
+            const btns = document.querySelectorAll('.btn-fav');
             btns.forEach(btn => {
                 if (!btn) return;
                 const icon = btn.querySelector('i');
                 if (isSaved) {
                     icon.className = 'fas fa-bookmark';
                     btn.style.color = '#d4af37';
+                    btn.classList.add('active');
                 } else {
                     icon.className = 'far fa-bookmark';
                     btn.style.color = '#fff';
+                    btn.classList.remove('active');
                 }
             });
         }

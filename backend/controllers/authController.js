@@ -301,14 +301,27 @@ const toggleAction = (table, column) => asyncHandler(async (req, res) => {
     } catch(e) { list = []; }
 
     const strId = String(itemId);
+    let isLiked = false;
     if (list.includes(strId)) {
         list = list.filter(id => id !== strId);
+        isLiked = false;
     } else {
         list.push(strId);
+        isLiked = true;
     }
 
+    // Update user's list
     await db.execute(`UPDATE users SET ${column} = ? WHERE id = ?`, [JSON.stringify(list), req.user.id]);
-    res.json({ success: true, [column]: list });
+
+    // Update target table counter (Increment/Decrement likes)
+    if (table === 'stories' || table === 'audio_stories') {
+        const updateQuery = isLiked 
+            ? `UPDATE ${table} SET likes = likes + 1 WHERE id = ?`
+            : `UPDATE ${table} SET likes = CASE WHEN likes > 0 THEN likes - 1 ELSE 0 END WHERE id = ?`;
+        await db.execute(updateQuery, [itemId]);
+    }
+
+    res.json({ success: true, [column]: list, isLiked });
 });
 
 const likeStory = toggleAction('stories', 'liked_stories');

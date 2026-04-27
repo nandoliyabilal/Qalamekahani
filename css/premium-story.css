@@ -330,26 +330,17 @@
     transform: translateX(8px);
 }
 
-/* Hanging Views Cart Animation */
-@keyframes swing {
-    0% {
-        transform: rotate(5deg);
-    }
-
-    100% {
-        transform: rotate(-5deg);
-    }
-}
-
+/* Premium Hanging Actions Layout */
 .hanging-views {
     position: absolute;
-    top: -60px;
+    top: -80px;
     right: 30px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 10;
-    pointer-events: none;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 15px !important;
+    z-index: 100;
+    pointer-events: auto !important;
 }
 
 .hanging-views::before {
@@ -358,55 +349,59 @@
     height: 40px;
     background: linear-gradient(to bottom, transparent, var(--gold));
     box-shadow: 0 0 10px var(--gold);
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
-.view-cart {
+.view-cart, .mobile-action-btn-hanging {
     background: rgba(20, 20, 20, 0.9);
     border: 1px solid var(--gold);
     padding: 8px 15px;
-    border-radius: 8px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     gap: 8px;
     color: var(--gold);
     font-size: 0.9rem;
     font-weight: 700;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(212, 175, 55, 0.2);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     transform-origin: top center;
-    animation: swing 2s ease-in-out infinite alternate;
-}
-
-.view-cart i {
-    font-size: 0.8rem;
-    filter: drop-shadow(0 0 5px var(--gold));
-}
-
-/* Mobile Action Group (Hanging) */
-.mobile-action-group {
-    display: flex;
-    gap: 12px;
-    margin-top: 10px;
+    animation: premiumSwing 3s ease-in-out infinite alternate;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
 .mobile-action-btn-hanging {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: rgba(20, 20, 20, 0.8);
-    border: 1px solid var(--gold);
-    color: var(--gold);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-    transition: 0.3s;
+    width: auto !important;
+    height: auto !important;
+    padding: 8px 12px !important;
+}
+
+.view-cart i, .mobile-action-btn-hanging i {
+    font-size: 0.9rem;
+    filter: drop-shadow(0 0 5px var(--gold));
 }
 
 .mobile-action-btn-hanging.active {
     background: var(--gold);
     color: #000;
 }
+
+.mobile-action-btn-hanging.active i {
+    color: #e74c3c; /* Red heart when active */
+    filter: none;
+}
+
+@keyframes premiumSwing {
+    0% { transform: rotate(3deg); }
+    100% { transform: rotate(-3deg); }
+}
+
+/* Stagger animations for better effect */
+.hanging-views > div:nth-child(2) { animation-delay: 0.2s; }
+.hanging-views > div:nth-child(3) { animation-delay: 0.4s; }
 
 .mobile-only {
     display: none;
@@ -419,17 +414,18 @@
     }
 
     .hanging-views {
-        position: relative;
-        top: 0;
-        right: 0;
-        margin: -10px auto 20px;
-        width: 100%;
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: flex-start;
-        gap: 15px !important;
+        position: relative !important;
+        top: 0 !important;
+        right: 0 !important;
+        margin: 20px auto !important;
+        width: 100% !important;
+        justify-content: center !important;
         transform: scale(1.1);
+        animation: none !important; /* Static container on mobile for stability */
+    }
+
+    .hanging-views > div, .hanging-views > button {
+        animation: premiumSwing 3s ease-in-out infinite alternate !important;
     }
 
     .hanging-views::before {
@@ -447,26 +443,27 @@
         gap: 10px;
     }
 
-    /* Mobile Bottom Bar - Strictly Hidden on Desktop */
-    .mobile-bottom-bar {
-        display: none !important;
-    }
+/* Mobile Bottom Bar - Strictly Hidden on Desktop */
+.mobile-bottom-bar {
+    display: none !important;
+}
 
-    @media (max-width: 768px) {
-        .mobile-bottom-bar {
-            display: block !important;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 10px 15px 25px;
-            z-index: 2000;
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.8);
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-        }
+@media (max-width: 768px) {
+    .mobile-bottom-bar {
+        display: block !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(10, 10, 10, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 10px 15px 25px;
+        z-index: 2000;
+        box-shadow: 0 -5px 25px rgba(0,0,0,0.8);
+        border-top: 1px solid rgba(212, 175, 55, 0.2);
+    }
+}
 
         .mobile-sticky-btn {
             width: 100%;

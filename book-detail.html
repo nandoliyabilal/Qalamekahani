@@ -111,12 +111,7 @@
                     <span class="rating-text" id="book-reviews-count">(0 Reviews)</span>
                 </div>
 
-                <!-- Price Section (Box Style) -->
-                <div class="price-section" style="margin: 20px 0; background: rgba(255, 255, 255, 0.03); padding: 15px 25px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); display: inline-flex; align-items: baseline; gap: 15px;">
-                    <span id="current-price" style="font-size: 2rem; font-weight: 700; color: #ff3b30;"></span>
-                    <span id="original-price" style="font-size: 1.2rem; color: #a0a0a0; text-decoration: line-through;"></span>
-                    <span id="discount-badge" style="color:#2ecc71; font-size:0.85rem; font-weight:600; display:none; background: rgba(46, 204, 113, 0.1); padding: 3px 8px; border-radius: 4px;"></span>
-                </div>
+
 
                 <div class="story-synopsis-container">
                     <h4 class="meta-label">SUMMARY</h4>
@@ -133,15 +128,18 @@
                         <span class="meta-label">STOCK</span>
                         <span style="color:#2ecc71;" class="meta-value"><i class="fas fa-check-circle"></i> In Stock</span>
                     </div>
-                    <div class="meta-item desktop-only">
-                        <span class="meta-label">VIEWS</span>
-                        <span id="book-views" class="meta-value">0</span>
+                    <div class="meta-item">
+                        <span class="meta-label">PRICE</span>
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <span id="current-price" style="color:#ff3b30; font-weight:700;">-</span>
+                            <span id="original-price" style="font-size:0.6rem; text-decoration:line-through; opacity:0.5;"></span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Desktop Actions -->
                 <div class="story-actions desktop-only">
-                    <button class="btn btn-primary" style="background:#ff3b30; color:#fff; border:none; padding: 14px 40px; font-weight: 600;" onclick="startPurchase()"><i class="fas fa-bolt"></i> BUY NOW</button>
+                    <button class="btn btn-primary" onclick="startPurchase()"><i class="fas fa-bolt"></i> BUY NOW</button>
                     <button class="btn-fav" onclick="toggleSaveBook(event)" id="save-btn"><i class="far fa-heart" id="save-icon"></i></button>
                     <button class="btn-share" onclick="shareBook(event)"><i class="fas fa-share-alt"></i></button>
                 </div>
@@ -194,7 +192,7 @@
     <!-- Mobile Bottom Action Bar -->
     <div class="mobile-bottom-bar">
         <div class="mobile-bottom-container">
-            <button class="btn btn-primary mobile-sticky-btn" onclick="startPurchase()" style="background: #ff3b30; color: #fff; border: none;">BUY NOW</button>
+            <button class="btn btn-primary mobile-sticky-btn" onclick="startPurchase()">BUY NOW</button>
         </div>
     </div>
 
@@ -305,10 +303,6 @@
                 
                 if(price > discounted) {
                     document.getElementById('original-price').textContent = '₹' + price;
-                }
-                if(percent > 0) {
-                    document.getElementById('discount-badge').style.display = 'inline-block';
-                    document.getElementById('discount-badge').textContent = percent + '% OFF';
                 }
 
                 // Reviews logic

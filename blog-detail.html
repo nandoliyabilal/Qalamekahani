@@ -14,6 +14,16 @@
     <link rel="stylesheet" href="css/style.css?v=2.3">
     <link rel="stylesheet" href="css/premium-story.css">
     <style>
+        @media (max-width: 1024px) {
+            header {
+                display: none !important;
+            }
+            body, html {
+                overflow-x: hidden !important;
+                width: 100vw;
+            }
+        }
+        
         /* --- PDF READER OVERLAY --- */
         .reader-overlay {
             position: fixed;
@@ -598,8 +608,8 @@
             const title = document.getElementById('blog-title').textContent;
             const description = document.getElementById('blog-excerpt').textContent;
             const imageUrl = document.getElementById('blog-image').src;
-            // Use ID instead of slug for a professional, clean short link
-            const url = `${window.location.origin}/blog-detail.html?id=${currentPost.id}`;
+            // Use slug for routing to prevent 'Blog Not Found' error
+            const url = `${window.location.origin}/blog-detail.html?slug=${currentPost.slug}`;
 
             window.shareContent({
                 title,

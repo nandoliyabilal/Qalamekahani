@@ -584,10 +584,12 @@
     }
 
     .story-hero-container {
-        padding: 15px !important;
+        padding: 15px 15px 15px 5px !important; /* Reduced left padding to shift image and summary left */
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
+        box-sizing: border-box !important; /* Fix horizontal scrollbar */
+        overflow-x: hidden !important; /* Extra safeguard against horizontal scroll */
         display: grid !important;
         grid-template-areas:
             "back back"
@@ -719,7 +721,8 @@
     .story-synopsis-container .meta-label {
         text-align: left !important;
         /* Left align summary label */
-        font-size: 0.7rem !important;
+        font-size: 0.95rem !important; /* Increased summary title size */
+        margin-left: 10px !important; /* Slight indent to align nicely */
     }
 
     .meta-value {
@@ -734,6 +737,7 @@
         text-align: left !important;
         /* Left align entire container */
         width: 100% !important;
+        padding-left: 5px !important; /* Keep summary text aligned with label */
     }
 
     .story-synopsis {

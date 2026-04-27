@@ -298,35 +298,17 @@ const toggleAction = (table, column) => asyncHandler(async (req, res) => {
     let list = [];
     try {
         list = typeof users[0][column] === 'string' ? JSON.parse(users[0][column]) : (users[0][column] || []);
-    } catch(e) { list = []; }
+    } catch (e) { list = []; }
 
     const strId = String(itemId);
-    let isLiked = false;
     if (list.includes(strId)) {
         list = list.filter(id => id !== strId);
-        isLiked = false;
     } else {
         list.push(strId);
-        isLiked = true;
     }
 
-    // Update user's list
     await db.execute(`UPDATE users SET ${column} = ? WHERE id = ?`, [JSON.stringify(list), req.user.id]);
-
-    // Update target table counter (Increment/Decrement likes)
-    if (table === 'stories' || table === 'audio_stories') {
-        try {
-            const updateQuery = isLiked 
-                ? `UPDATE ${table} SET likes = likes + 1 WHERE id = ?`
-                : `UPDATE ${table} SET likes = CASE WHEN likes > 0 THEN likes - 1 ELSE 0 END WHERE id = ?`;
-            await db.execute(updateQuery, [itemId]);
-        } catch (dbErr) {
-            console.error(`Counter update failed (check if 'likes' column exists in ${table}):`, dbErr.message);
-            // Non-blocking error: user's personal like list is already updated
-        }
-    }
-
-    res.json({ success: true, [column]: list, isLiked });
+    res.json({ success: true, [column]: list });
 });
 
 const likeStory = toggleAction('stories', 'liked_stories');
@@ -339,7 +321,7 @@ const trackAudio = asyncHandler(async (req, res) => {
     let list = [];
     try {
         list = typeof users[0].listened_audios === 'string' ? JSON.parse(users[0].listened_audios) : (users[0].listened_audios || []);
-    } catch(e) { list = []; }
+    } catch (e) { list = []; }
     if (!list.includes(String(audioId))) {
         list.push(String(audioId));
         await db.execute('UPDATE users SET listened_audios = ? WHERE id = ?', [JSON.stringify(list), req.user.id]);
@@ -401,13 +383,13 @@ const initiateAdminLogin = asyncHandler(async (req, res) => {
         const otpExpire = new Date(Date.now() + 10 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
 
         await db.execute('UPDATE users SET otp = ?, otp_expire = ? WHERE id = ?', [otp, otpExpire, user.id]);
-        
+
         try {
             await sendEmail({ email: user.email, subject: 'Admin Login OTP', message: otp, type: 'otp' });
         } catch (e) {
             console.error('Admin OTP failed but continuing for debug');
         }
-        
+
         res.json({ success: true, message: 'OTP sent to admin email' });
     } else {
         res.status(401);
@@ -453,6 +435,11 @@ const verifyResetOtp = asyncHandler(async (req, res) => {
 
 module.exports = {
     registerUser, verifyOtp, resendOtp, loginUser, googleLogin, getMe, updateProfile,
+    forgotPassword, resetPassword, verifyResetOtp, initiateAdminLogin, verifyAdminLogin,
+    likeStory, saveBlog, saveAudio, saveImage, trackAudio,
+    getAllUsers, getUserById, toggleBlockUser, toggleNotifications
+};
+registerUser, verifyOtp, resendOtp, loginUser, googleLogin, getMe, updateProfile,
     forgotPassword, resetPassword, verifyResetOtp, initiateAdminLogin, verifyAdminLogin,
     likeStory, saveBlog, saveAudio, saveImage, trackAudio,
     getAllUsers, getUserById, toggleBlockUser, toggleNotifications

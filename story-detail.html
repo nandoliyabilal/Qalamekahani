@@ -121,6 +121,23 @@
 
                 <!-- Right: Details -->
                 <div class="story-info">
+                    <!-- Hanging Views Cart (Mobile Only) -->
+                    <div class="hanging-views mobile-only"
+                        style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                        <div class="view-cart">
+                            <i class="fas fa-eye"></i>
+                            <span id="mobile-views-count">0</span>
+                        </div>
+                        <div class="mobile-action-group">
+                            <button class="mobile-action-btn-hanging btn-fav" onclick="toggleLike()"
+                                id="save-btn-mobile">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button class="mobile-action-btn-hanging" onclick="shareStory()">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
 
                     <h1 id="story-title" class="story-title">Loading...</h1>
                     <h3 class="story-author">By <span id="story-author" class="author-name"></span></h3>
@@ -132,24 +149,6 @@
                     <div class="story-synopsis-container">
                         <h4 class="meta-label">SUMMARY</h4>
                         <p id="story-synopsis" class="story-synopsis"></p>
-                    </div>
-
-                    <!-- Hanging Views Cart (Mobile Only - Moved Below) -->
-                    <div class="hanging-views mobile-only">
-                        <div class="view-cart">
-                            <i class="fas fa-eye"></i>
-                            <span id="mobile-views-count">0</span>
-                        </div>
-                        <div class="mobile-action-group">
-                            <button class="mobile-action-btn-hanging btn-fav" onclick="toggleLike()" id="save-btn-mobile">
-                                <i class="far fa-heart"></i>
-                                <span id="mobile-likes-count">0</span>
-                            </button>
-                            <button class="mobile-action-btn-hanging" onclick="shareStory()">
-                                <i class="fas fa-share-alt"></i>
-                            </button>
-                        </div>
-                    </div>
                     </div>
 
                     <!-- Stats Grid -->
@@ -423,9 +422,6 @@
                     if (document.getElementById('mobile-views-count')) {
                         document.getElementById('mobile-views-count').textContent = story.views || 0;
                     }
-                    if (document.getElementById('mobile-likes-count')) {
-                        document.getElementById('mobile-likes-count').textContent = story.likes || 0;
-                    }
 
 
                     // Load Chapter Stats (Views)
@@ -663,10 +659,8 @@
                             btns.forEach(btn => {
                                 if (!btn) return;
                                 const icon = btn.querySelector('i');
-                                if (icon) {
-                                    icon.classList.remove('far');
-                                    icon.classList.add('fas');
-                                }
+                                icon.classList.remove('far');
+                                icon.classList.add('fas');
                                 btn.style.color = '#e74c3c';
                                 btn.classList.add('active');
                             });
@@ -840,7 +834,23 @@
                     return;
                 }
 
-                const storyId = window.currentStoryUUID;
+                const btn = document.querySelector('.btn-fav');
+                const icon = btn.querySelector('i');
+                const isLiking = icon.classList.contains('far'); // currently empty, so we are liking
+
+                // Optimistic UI Update
+                if (isLiking) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    btn.style.color = '#e74c3c';
+                    btn.classList.add('active');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    btn.style.color = '';
+                    btn.classList.remove('active');
+                }
+
                 try {
                     const res = await fetch('/api/auth/like-story', {
                         method: 'POST',
@@ -848,42 +858,24 @@
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
-                        body: JSON.stringify({ storyId })
+                        body: JSON.stringify({ storyId: window.currentStoryUUID })
                     });
 
-                    const data = await res.json();
-                    if (data.success) {
-                        const isLikedNow = data.likedStories.some(s => String(s) === String(storyId));
-                        
-                        // Update UI Icons
-                        const btns = [document.querySelector('.story-actions .btn-fav'), document.getElementById('save-btn-mobile')];
-                        btns.forEach(btn => {
-                            if (!btn) return;
-                            const icon = btn.querySelector('i');
-                            if (isLikedNow) {
-                                if (icon) {
-                                    icon.className = 'fas fa-heart';
-                                }
-                                btn.style.color = '#e74c3c';
-                                btn.classList.add('active');
-                            } else {
-                                if (icon) {
-                                    icon.className = 'far fa-heart';
-                                }
-                                btn.style.color = '';
-                                btn.classList.remove('active');
-                            }
-                        });
-
-                        // Update Counts
-                        const likesCountSpan = document.getElementById('mobile-likes-count');
-                        if (likesCountSpan) {
-                            let current = parseInt(likesCountSpan.textContent) || 0;
-                            likesCountSpan.textContent = isLikedNow ? current + 1 : (current > 0 ? current - 1 : 0);
-                        }
+                    if (!res.ok) throw new Error('Failed to like story');
+                } catch (err) {
+                    console.error(err);
+                    // Revert UI on failure
+                    if (isLiking) {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        btn.style.color = '';
+                        btn.classList.remove('active');
+                    } else {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        btn.style.color = '#e74c3c';
+                        btn.classList.add('active');
                     }
-                } catch (e) {
-                    console.error(e);
                 }
             }
             // Review Form Logic
@@ -995,5 +987,7 @@
             }
         </script>
     </body>
+
+</html>ody>
 
 </html>

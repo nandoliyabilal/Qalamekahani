@@ -109,6 +109,23 @@
 
                 <!-- Right: Details -->
                 <div class="story-info">
+                    <!-- Hanging Views Cart (Mobile Only) -->
+                    <div class="hanging-views mobile-only"
+                        style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                        <div class="view-cart">
+                            <i class="fas fa-eye"></i>
+                            <span id="mobile-views-count">0</span>
+                        </div>
+                        <div class="mobile-action-group">
+                            <button class="mobile-action-btn-hanging btn-fav" onclick="saveAudio()"
+                                id="save-btn-mobile">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                            <button class="mobile-action-btn-hanging" onclick="shareAudio()">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
 
                     <h1 id="audio-title" class="story-title">Loading...</h1>
                     <h3 class="story-author">By <span id="audio-author" class="author-name"></span></h3>
@@ -139,28 +156,11 @@
                         <p id="audio-description" class="story-synopsis"></p>
                     </div>
 
-                    <!-- Hanging Views Cart (Mobile Only - Moved Below) -->
-                    <div class="hanging-views mobile-only">
-                        <div class="view-cart">
-                            <i class="fas fa-eye"></i>
-                            <span id="mobile-views-count">0</span>
-                        </div>
-                        <div class="mobile-action-group">
-                            <button class="mobile-action-btn-hanging btn-fav" onclick="saveAudio()" id="save-btn-mobile">
-                                <i class="far fa-heart"></i>
-                                <span id="mobile-likes-count">0</span>
-                            </button>
-                            <button class="mobile-action-btn-hanging" onclick="shareAudio()">
-                                <i class="fas fa-share-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-
                     <!-- Desktop Actions -->
                     <div class="story-actions desktop-only">
                         <button id="action-btn" class="btn btn-primary btn-read"></button>
                         <button class="btn-fav" onclick="saveAudio()" id="save-btn"><i
-                                class="far fa-heart"></i></button>
+                                class="far fa-bookmark"></i></button>
                         <button class="btn-share" onclick="shareAudio()"><i class="fas fa-share-alt"></i></button>
                     </div>
                 </div>
@@ -383,9 +383,6 @@
 
                 if (document.getElementById('mobile-views-count')) {
                     document.getElementById('mobile-views-count').textContent = audio.views || 0;
-                }
-                if (document.getElementById('mobile-likes-count')) {
-                    document.getElementById('mobile-likes-count').textContent = audio.likes || 0;
                 }
 
                 if (document.getElementById('mobile-mini-title')) {
@@ -757,11 +754,11 @@
                 if (!btn) return;
                 const icon = btn.querySelector('i');
                 if (isSaved) {
-                    if (icon) icon.className = 'fas fa-heart';
-                    btn.style.color = '#e74c3c';
+                    icon.className = 'fas fa-bookmark';
+                    btn.style.color = '#d4af37';
                 } else {
-                    if (icon) icon.className = 'far fa-heart';
-                    btn.style.color = '';
+                    icon.className = 'far fa-bookmark';
+                    btn.style.color = '#fff';
                 }
             });
         }
@@ -771,7 +768,7 @@
             const token = localStorage.getItem('token');
 
             if (!token) {
-                alert('Please login to like audio stories.');
+                alert('Please login to save audio.');
                 return;
             }
 
@@ -787,15 +784,8 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    const isLikedNow = data.savedAudios.some(s => String(s) === String(audioId));
-                    updateSaveBtn(isLikedNow);
-                    
-                    // Update Counts
-                    const likesCountSpan = document.getElementById('mobile-likes-count');
-                    if (likesCountSpan) {
-                        let current = parseInt(likesCountSpan.textContent) || 0;
-                        likesCountSpan.textContent = isLikedNow ? current + 1 : (current > 0 ? current - 1 : 0);
-                    }
+                    const isSaved = data.savedAudios.some(s => String(s) === String(audioId));
+                    updateSaveBtn(isSaved);
                 }
             } catch (e) {
                 console.error(e);
@@ -803,5 +793,7 @@
         }
     </script>
 </body>
+
+</html>
 
 </html>

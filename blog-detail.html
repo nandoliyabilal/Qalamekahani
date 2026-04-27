@@ -310,32 +310,36 @@
     </div>
 
     <!-- REVIEWS SECTION -->
-    <section class="reviews-section" style="background:#0a0a0a; padding:60px 0; border-top:1px solid #222;">
-        <div class="story-hero-container" style="display:block;">
-            <h3 style="color:#d4af37; font-family:'Playfair Display'; font-size:2rem; margin-bottom:30px;">Readers
-                Reviews</h3>
-
-            <!-- Review Form -->
-            <div class="review-form" style="background:#111; padding:30px; border-radius:12px; margin-bottom:40px;">
-                <h4 style="color:#fff; margin-bottom:15px;">Leave a Review</h4>
-                <div class="stars-input" id="rating-stars"
-                    style="color:#444; font-size:1.5rem; margin-bottom:15px; cursor:pointer;">
-                    <i class="far fa-star" data-val="1"></i>
-                    <i class="far fa-star" data-val="2"></i>
-                    <i class="far fa-star" data-val="3"></i>
-                    <i class="far fa-star" data-val="4"></i>
-                    <i class="far fa-star" data-val="5"></i>
+    <section class="story-content-section" style="padding-top: 20px;">
+        <div class="tab-content-container">
+            <h2 style="color: #d4af37; font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 30px; text-align: center;">Readers Reviews</h2>
+            
+            <div class="review-list" id="review-list">
+                <div id="reviews-list">
+                    <p style="color:#666; text-align: center;">Loading latest reviews...</p>
                 </div>
-                <textarea id="review-text" placeholder="Share your thoughts about this blog..."
-                    style="width:100%; height:100px; background:#000; border:1px solid #333; color:#fff; padding:15px; border-radius:8px; margin-bottom:15px; resize:none; font-family:'Poppins';"></textarea>
-                <button onclick="submitReview()"
-                    style="background:#d4af37; color:#000; border:none; padding:10px 30px; border-radius:30px; font-weight:600; cursor:pointer;">Submit
-                    Review</button>
-            </div>
 
-            <!-- Reviews List -->
-            <div id="reviews-list">
-                <p style="color:#666;">Loading latest reviews...</p>
+                <!-- Review Form -->
+                <div class="review-form-container" style="margin-top: 40px; background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                    <h3 style="color: #d4af37; margin-bottom: 20px; font-family: 'Playfair Display', serif; text-align: center;">Leave a Review</h3>
+                    <div style="margin-bottom: 15px; text-align: center;">
+                        <label style="color: #ccc; display: block; margin-bottom: 10px;">Rating</label>
+                        <div class="stars-input" id="rating-stars" style="color: #ffd700; font-size: 1.5rem; cursor: pointer;">
+                            <i class="far fa-star" data-val="1"></i>
+                            <i class="far fa-star" data-val="2"></i>
+                            <i class="far fa-star" data-val="3"></i>
+                            <i class="far fa-star" data-val="4"></i>
+                            <i class="far fa-star" data-val="5"></i>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #ccc; display: block; margin-bottom: 10px;">Review</label>
+                        <textarea id="review-text" placeholder="Share your thoughts about this blog..." style="width: 100%; height: 100px; background: #000; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 8px; resize: none; font-family: 'Poppins', sans-serif;"></textarea>
+                    </div>
+                    <div style="text-align: center;">
+                        <button onclick="submitReview()" style="background: #d4af37; color: #000; border: none; padding: 12px 35px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.3s; font-family: 'Poppins', sans-serif;">Submit Review</button>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

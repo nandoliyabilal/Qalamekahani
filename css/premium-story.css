@@ -198,6 +198,7 @@
 
 .story-title {
     font-size: 3rem !important;
+    margin-top: 20px !important; /* Push title down slightly */
     margin-bottom: 5px !important;
     letter-spacing: -1px;
     background: linear-gradient(to bottom, #fff 60%, #888);
@@ -640,6 +641,7 @@
         grid-area: title;
         font-size: 1.7rem !important; /* Increased font size */
         margin: 0 0 10px 0 !important; /* Added gap below title */
+        padding-left: 12px !important; /* Force space from image */
         align-self: end !important; /* Force to bottom of its flexible row */
         background: none !important;
         -webkit-text-fill-color: initial !important;
@@ -652,6 +654,7 @@
         grid-area: author;
         font-size: 0.95rem !important;
         margin: 0 0 10px 0 !important; /* Added gap below author */
+        padding-left: 12px !important; /* Force space from image */
         color: var(--gold) !important;
         opacity: 0.9;
         align-self: center !important; /* Center in its auto row */
@@ -661,6 +664,7 @@
     .story-rating-row {
         grid-area: stars;
         margin: 0 !important;
+        padding-left: 12px !important; /* Force space from image */
         display: flex !important;
         align-items: center !important;
         gap: 10px;

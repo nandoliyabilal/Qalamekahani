@@ -593,20 +593,20 @@
             "synopsis synopsis"
             "meta meta"
             "actions actions";
-        grid-template-columns: 110px 1fr;
+        grid-template-columns: 115px 1fr; /* Slightly wider image column */
         grid-template-rows: auto auto auto auto auto auto auto;
-        gap: 12px;
+        gap: 10px 20px; /* 10px vertical gap, 20px horizontal gap */
         animation: fadeIn 1s ease;
     }
 
     .story-back-row {
         grid-area: back;
-        margin-bottom: 5px;
+        margin-bottom: 15px !important; /* More space below back button */
     }
 
     .story-visual {
         grid-area: visual;
-        max-width: 110px !important;
+        max-width: 115px !important;
     }
 
     .hanging-views {
@@ -633,23 +633,23 @@
 
         .story-title {
             grid-area: title;
-            font-size: 1.6rem !important;
-            margin: 0 !important;
-            align-self: end;
+            font-size: 1.5rem !important; /* Slightly smaller for better fit */
+            margin: 5px 0 8px 0 !important; /* Added margins */
+            align-self: center !important; /* Center vertically in its cell */
             background: none !important;
             -webkit-text-fill-color: initial !important;
             color: #fff !important;
-            line-height: 1.2;
+            line-height: 1.3;
             text-align: left !important;
         }
 
         .story-author {
             grid-area: author;
             font-size: 0.95rem !important;
-            margin: 0 !important;
+            margin: 0 0 8px 0 !important;
             color: var(--gold) !important;
             opacity: 0.9;
-            align-self: center;
+            align-self: start !important;
             text-align: left !important;
         }
 
@@ -659,7 +659,7 @@
             display: flex !important;
             align-items: center !important;
             gap: 10px;
-            align-self: start;
+            align-self: start !important;
         }
 
         .stars {

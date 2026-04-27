@@ -528,7 +528,7 @@
                     // In `saveBlog` controller, `user.savedBlogs` is array of ObjectIds (strings) because it's not populated there.
                     // So we check simply if ID is included.
 
-                    const isSaved = data.savedBlogs.includes(currentPost.id);
+                    const isSaved = data.savedBlogs.includes(String(currentPost.id));
                     updateSaveIcon(isSaved);
 
                     // Show toast

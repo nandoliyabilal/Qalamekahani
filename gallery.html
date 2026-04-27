@@ -556,7 +556,7 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    const isSaved = data.savedImages.includes(currentImage.id);
+                    const isSaved = data.savedImages.includes(String(currentImage.id));
                     const btn = document.getElementById('lb-save-btn');
                     
                     if (isSaved) {

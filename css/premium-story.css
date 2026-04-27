@@ -597,20 +597,19 @@
             "meta meta"
             "actions actions";
         grid-template-columns: 110px 1fr;
-        grid-template-rows: auto 1fr auto 1fr auto auto auto;
-        gap: 0 15px; /* Handle vertical spacing via margins */
+        grid-template-rows: auto auto auto auto auto auto auto;
+        gap: 12px;
         animation: fadeIn 1s ease;
     }
 
     .story-back-row {
         grid-area: back;
-        margin-bottom: 15px !important;
+        margin-bottom: 5px;
     }
 
     .story-visual {
         grid-area: visual;
         max-width: 110px !important;
-        align-self: center !important;
     }
 
     .hanging-views {
@@ -622,6 +621,7 @@
         display: flex !important;
         justify-content: center !important;
         margin: 15px auto 10px !important;
+        /* Reduced top margin */
         z-index: 100 !important;
         pointer-events: auto !important;
     }
@@ -637,9 +637,9 @@
 
     .story-title {
         grid-area: title;
-        font-size: 1.5rem !important;
-        margin: 0 0 5px 0 !important;
-        align-self: end !important;
+        font-size: 1.7rem !important; /* Increased font size */
+        margin: 0 0 10px 0 !important; /* Added gap below title */
+        align-self: end !important; /* Force to bottom of its flexible row */
         background: none !important;
         -webkit-text-fill-color: initial !important;
         color: #fff !important;
@@ -650,10 +650,10 @@
     .story-author {
         grid-area: author;
         font-size: 0.95rem !important;
-        margin: 0 0 5px 0 !important;
+        margin: 0 0 10px 0 !important; /* Added gap below author */
         color: var(--gold) !important;
         opacity: 0.9;
-        align-self: center !important;
+        align-self: center !important; /* Center in its auto row */
         text-align: left !important;
     }
 
@@ -663,7 +663,7 @@
         display: flex !important;
         align-items: center !important;
         gap: 10px;
-        align-self: start !important;
+        align-self: start !important; /* Push to top of its flexible row */
     }
 
     .stars {
